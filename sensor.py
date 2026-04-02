@@ -97,11 +97,7 @@ class HubEnergieSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
         if not data:
             return None
         value = data.get(key)
-        if value is None or not isinstance(value, (int, float)):
-            return None
-        if isinstance(value, float) and math.isnan(value):
-            return None
-        return float(value)
+        return _safe_float(value)
 
     def _get_nested_value(self, section_key: str, key: str) -> float | None:
         data = self._data()
@@ -110,12 +106,7 @@ class HubEnergieSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
         section = data.get(section_key)
         if not isinstance(section, dict):
             return None
-        value = section.get(key)
-        if value is None or not isinstance(value, (int, float)):
-            return None
-        if isinstance(value, float) and math.isnan(value):
-            return None
-        return float(value)
+        return _safe_float(section.get(key))
 
     def _get_section(self, key: str) -> dict[str, Any] | None:
         data = self._data()
@@ -128,7 +119,7 @@ class HubEnergieSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
 def _safe_float(value: Any) -> float | None:
     if value is None or not isinstance(value, (int, float)):
         return None
-    if isinstance(value, float) and math.isnan(value):
+    if not math.isfinite(float(value)):
         return None
     return float(value)
 
@@ -1174,11 +1165,7 @@ class HubEnergieDiagInfoSensor(CoordinatorEntity[HubEnergieCoordinator], SensorE
             return None
         value = data.get(self._key)
         if self._key == "reinjection_confidence":
-            if value is None or not isinstance(value, (int, float)):
-                return None
-            if isinstance(value, float) and math.isnan(value):
-                return None
-            return float(value)
+            return _safe_float(value)
         return str(value) if value is not None else None
 
     @property
@@ -1420,12 +1407,7 @@ class HubEnergieBatterySensor(HubEnergieSensor):
         snap = self._find_battery_snapshot()
         if snap is None:
             return None
-        val = snap.get(self._snapshot_key)
-        if val is None or not isinstance(val, (int, float)):
-            return None
-        if isinstance(val, float) and math.isnan(val):
-            return None
-        return float(val)
+        return _safe_float(snap.get(self._snapshot_key))
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
