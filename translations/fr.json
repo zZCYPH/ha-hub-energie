@@ -1,0 +1,394 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Hub Énergie – Configuration",
+        "description": "Configurez votre intégration de suivi d'énergie.",
+        "data": {
+          "supplier": "Fournisseur d'énergie",
+          "supplier_custom_name": "Nom du fournisseur",
+          "phase_type": "Type de phase"
+        },
+        "data_description": {
+          "supplier": "Sélectionnez votre fournisseur. Choisissez 'Autre' pour les fournisseurs non-EDF.",
+          "phase_type": "Installation monophasée ou triphasée."
+        }
+      },
+      "tariff_mode": {
+        "title": "Mode de récupération tarifaire",
+        "description": "Choisissez comment les tarifs doivent être configurés.",
+        "data": {
+          "tariff_mode": "Mode tarifaire"
+        },
+        "data_description": {
+          "tariff_mode": "Auto : récupération depuis l'API du fournisseur. Manuel : saisie manuelle."
+        }
+      },
+      "tariff_mode_manual_only": {
+        "title": "Configuration tarifaire",
+        "description": "La récupération automatique des tarifs n'est pas encore disponible pour ce fournisseur. Les tarifs doivent être saisis manuellement. Si la récupération automatique devient disponible, une migration sera proposée sans affecter l'historique.",
+        "data": {
+          "tariff_mode": "Mode tarifaire"
+        }
+      },
+      "contract": {
+        "title": "Détails du contrat",
+        "data": {
+          "contract_power": "Puissance souscrite (kVA)",
+          "contract_name": "Nom du contrat (optionnel)"
+        }
+      },
+      "edf_offer": {
+        "title": "Sélection de l'offre EDF",
+        "data": {
+          "tariff_offer": "Type d'offre"
+        }
+      },
+      "edf_tempo": {
+        "title": "Source du signal Tempo",
+        "description": "RTE est la source la plus fiable mais nécessite des identifiants. API Couleur Tempo fonctionne sans identifiants et est plus simple à configurer.",
+        "data": {
+          "tempo_mode": "Source du signal",
+          "rte_client_id": "Client ID API RTE",
+          "rte_client_secret": "Client secret API RTE",
+          "current_slot_sensor": "Capteur de créneau externe"
+        }
+      },
+      "edf_tempo_rte": {
+        "title": "Identifiants RTE",
+        "description": "Saisissez vos identifiants API RTE pour récupérer le calendrier Tempo depuis la source officielle.",
+        "data": {
+          "rte_client_id": "Client ID API RTE",
+          "rte_client_secret": "Client secret API RTE"
+        }
+      },
+      "manual_pricing": {
+        "title": "Structure tarifaire",
+        "data": {
+          "pricing_structure": "Type de tarification",
+          "price_basis": "Les prix sont",
+          "currency": "Devise"
+        }
+      },
+      "manual_flat": {
+        "title": "Tarif fixe",
+        "data": {
+          "energy_price": "Prix de l'énergie (par kWh)",
+          "subscription_price": "Abonnement mensuel"
+        }
+      },
+      "manual_tou": {
+        "title": "Tarif heures pleines/creuses",
+        "description": "Définissez les périodes et leurs prix.",
+        "data": {
+          "tou_periods": "Périodes HP/HC (JSON)"
+        }
+      },
+      "manual_schedule": {
+        "title": "Planning avancé",
+        "description": "Définissez des créneaux horaires détaillés avec prix, types de jours et saisons optionnelles.",
+        "data": {
+          "schedule_slots": "Créneaux horaires (JSON)"
+        }
+      },
+      "grid": {
+        "title": "Capteurs réseau électrique",
+        "description": "Configurez vos capteurs de mesure du réseau.",
+        "data": {
+          "grid_import_energy": "Énergie importée (kWh)",
+          "grid_export_energy": "Énergie exportée (kWh, optionnel)",
+          "grid_power_sensor": "Puissance réseau (W, optionnel)",
+          "grid_power_sign_mode": "Convention de signe puissance réseau",
+          "load_power_sensor": "Puissance consommation maison (W, optionnel)"
+        },
+        "data_description": {
+          "grid_import_energy": "Compteur d'énergie total croissant pour l'import réseau.",
+          "grid_export_energy": "Compteur d'énergie total croissant pour l'export réseau.",
+          "grid_power_sensor": "Puissance instantanée du réseau pour l'affichage temps réel.",
+          "grid_power_sign_mode": "L'export est-il négatif ou positif sur ce capteur ?"
+        }
+      },
+      "grid_phases": {
+        "title": "Capteurs réseau triphasé",
+        "description": "Fournissez un capteur total unique ou un capteur par phase.",
+        "data": {
+          "grid_import_energy_phases": "Capteurs énergie importée (par phase)",
+          "grid_export_energy_phases": "Capteurs énergie exportée (par phase)"
+        }
+      },
+      "solar": {
+        "title": "Configuration solaire",
+        "data": {
+          "has_solar": "Avez-vous des panneaux solaires ?",
+          "solar_energy": "Production d'énergie solaire (kWh)",
+          "solar_power_sensor": "Puissance solaire (W, optionnel)",
+          "solar_resale_contract": "Contrat de revente solaire ?",
+          "solar_export_tariff": "Tarif de revente (par kWh)"
+        },
+        "data_description": {
+          "solar_energy": "Compteur d'énergie total croissant pour la production solaire.",
+          "solar_power_sensor": "Améliore l'affichage temps réel et les diagnostics.",
+          "solar_export_tariff": "Prix de revente par kWh de l'énergie solaire exportée."
+        }
+      },
+      "solar_config": {
+        "title": "Configuration solaire",
+        "description": "Sélectionnez les capteurs de production solaire. Optionnel : revente et estimation.",
+        "data": {
+          "solar_energy": "Production d'énergie solaire (kWh)",
+          "solar_power_sensor": "Puissance solaire (W, optionnel)",
+          "solar_resale_contract": "Contrat de revente solaire ?",
+          "solar_export_tariff": "Tarif de revente (par kWh)",
+          "solar_estimation_enabled": "Activer l'estimation de production ?"
+        },
+        "data_description": {
+          "solar_energy": "Compteur d'énergie total croissant pour la production solaire.",
+          "solar_power_sensor": "Améliore l'affichage temps réel et les diagnostics.",
+          "solar_resale_contract": "Activez si vous avez un contrat qui rémunère l'énergie solaire exportée.",
+          "solar_export_tariff": "Prix de revente par kWh de l'énergie solaire exportée.",
+          "solar_estimation_enabled": "Ajoute un modèle d'estimation en complément des mesures réelles."
+        }
+      },
+      "solar_estimation": {
+        "title": "Estimation de production solaire",
+        "data": {
+          "solar_estimation_enabled": "Activer l'estimation de production ?",
+          "solar_lat": "Latitude",
+          "solar_lon": "Longitude",
+          "solar_peak_power": "Puissance crête (kWc)",
+          "solar_orientation": "Orientation des panneaux",
+          "solar_tilt": "Angle d'inclinaison (°)",
+          "solar_tilt_mode": "Mode d'inclinaison",
+          "solar_shading": "Niveau d'ombrage",
+          "solar_performance": "Performance du système"
+        }
+      },
+      "battery": {
+        "title": "Systèmes de batterie",
+        "data": {
+          "has_batteries": "Avez-vous des systèmes de batterie ?"
+        }
+      },
+      "battery_add": {
+        "title": "Ajouter un système de batterie",
+        "description": "Configurez un système batterie/onduleur. Seuls les capteurs d'énergie charge et décharge sont requis.",
+        "data": {
+          "batt_name": "Nom de la batterie",
+          "batt_energy_in": "Capteur énergie de charge (kWh, total croissant)",
+          "batt_energy_out": "Capteur énergie de décharge (kWh, total croissant)",
+          "batt_power_in": "Capteur puissance en charge (W, optionnel)",
+          "batt_power_out": "Capteur puissance en décharge (W, optionnel)",
+          "batt_power_net": "Capteur puissance nette (W, optionnel, signé)",
+          "batt_soc": "État de charge (%, optionnel)",
+          "batt_advanced": "Afficher les champs avancés batterie"
+        },
+        "data_description": {
+          "batt_power_in": "Puissance instantanée qui entre dans la batterie (ce n'est pas une valeur max).",
+          "batt_power_out": "Puissance instantanée qui sort de la batterie (ce n'est pas une valeur max).",
+          "batt_power_net": "À utiliser si vous avez un seul capteur signé au lieu de deux capteurs séparés. Si vous renseignez charge + décharge, vous pouvez laisser ce champ vide.",
+          "batt_power_net_sign": "Nécessaire uniquement si vous utilisez un capteur de puissance nette.",
+          "batt_soc": "Capteur % optionnel (0–100). Utilisé pour la barre SOC et l'estimation.",
+          "batt_advanced": "Débloque la capacité nominale (kWh), les limites de charge/décharge (W) et le SOC min/max. Utile pour l'énergie stockée et l'estimation du temps jusqu'à charge/décharge complète."
+        }
+      },
+      "battery_advanced": {
+        "title": "Paramètres avancés batterie",
+        "description": "Pour chaque réglage, les deux lignes portent le même titre : d'abord un capteur (ou helper), puis une saisie manuelle. Ne remplissez qu'une des deux (pas les deux).",
+        "data": {
+          "batt_capacity_kwh_entity": "Capacité nominale — capteur ou helper",
+          "batt_capacity_kwh": "Capacité nominale — saisie manuelle",
+          "batt_max_charge_w_entity": "Puissance max. de charge — capteur ou helper",
+          "batt_max_charge_w": "Puissance max. de charge — saisie manuelle",
+          "batt_max_discharge_w_entity": "Puissance max. de décharge — capteur ou helper",
+          "batt_max_discharge_w": "Puissance max. de décharge — saisie manuelle",
+          "batt_soc_min_entity": "SOC minimum — capteur ou helper",
+          "batt_soc_min": "SOC minimum — saisie manuelle",
+          "batt_soc_max_entity": "SOC maximum — capteur ou helper",
+          "batt_soc_max": "SOC maximum — saisie manuelle"
+        },
+        "data_description": {
+          "batt_capacity_kwh_entity": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Nombre en kWh (ex. capteur, input_number). Utile si la valeur est exposée par une entité.",
+          "batt_capacity_kwh": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Saisie directe ou via l'entité ci-dessus — une seule des deux.",
+          "batt_max_charge_w_entity": "Limite technique en W lue depuis une entité.",
+          "batt_max_charge_w": "Limite technique en W (pas la puissance instantanée mesurée).",
+          "batt_max_discharge_w_entity": "Limite technique en W lue depuis une entité.",
+          "batt_max_discharge_w": "Limite technique en W (pas la puissance instantanée mesurée).",
+          "batt_soc_min_entity": "Pourcentage 0–100 depuis une entité.",
+          "batt_soc_min": "Réserve basse si la batterie ne descend jamais à 0 %.",
+          "batt_soc_max_entity": "Pourcentage 0–100 depuis une entité.",
+          "batt_soc_max": "Réserve haute si la batterie ne charge jamais à 100 %."
+        }
+      },
+      "battery_more": {
+        "title": "Autres batteries ?",
+        "description": "Vous pouvez ajouter d'autres systèmes ou continuer.",
+        "data": {
+          "add_another": "Ajouter un autre système de batterie ?"
+        }
+      },
+      "reinjection": {
+        "title": "Réglages avancés de réinjection",
+        "data": {
+          "reinjection_export_ignore_below_w": "Ignorer export en dessous de (W)",
+          "reinjection_batt_charge_significant_w": "Charge batterie significative au-dessus de (W)",
+          "reinjection_short_export_max_s": "Durée max latence switch (s)",
+          "reinjection_short_export_max_w": "Puissance max latence switch (W)",
+          "reinjection_min_solar_for_classify_w": "Solaire min pour classification (W)",
+          "reinjection_export_min_abs_w": "Export min pour classification (W)",
+          "reinjection_export_vs_solar_fraction": "Seuil ratio export/solaire",
+          "reinjection_batt_full_min_soc_frac": "Seuil SOC batterie pleine (0-1)"
+        }
+      }
+    },
+    "error": {
+      "invalid_entity": "Entité invalide ou indisponible.",
+      "invalid_energy_entity": "L'entité doit être un compteur d'énergie total croissant.",
+      "invalid_power_entity": "L'entité doit être un capteur de puissance (W).",
+      "invalid_soc_entity": "Valeur SOC invalide : utilisez un pourcentage 0–100 % (sensor, input_number ou number).",
+      "rte_auth_failed": "Authentification RTE échouée. Vérifiez les identifiants.",
+      "tariff_fetch_failed": "Échec de la récupération des tarifs depuis l'API.",
+      "invalid_json": "Format JSON invalide.",
+      "schedule_gap": "Le planning ne couvre pas entièrement 00:00-24:00.",
+      "no_energy_sensor": "Au moins un capteur d'énergie réseau est requis."
+    },
+    "abort": {
+      "already_configured": "Cette intégration est déjà configurée."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Hub Énergie – Options",
+        "description": "Modifiez votre configuration de suivi d'énergie.",
+        "menu_options": {
+          "offer": "Offre & tarifs",
+          "grid": "Capteurs réseau",
+          "solar": "Configuration solaire",
+          "battery": "Systèmes de batterie",
+          "tariff_refresh": "Tarifs EDF : actualiser via l'API",
+          "tempo": "Tempo : source (API vs RTE)"
+        }
+      },
+      "tempo": {
+        "title": "Source du signal Tempo",
+        "description": "Choisissez entre RTE (officiel) et API Couleur Tempo.",
+        "data": {
+          "tempo_mode": "Source du signal"
+        }
+      },
+      "tempo_rte": {
+        "title": "Identifiants RTE",
+        "description": "Saisissez vos identifiants API RTE. Laissez le secret vide pour conserver l'existant.",
+        "data": {
+          "rte_client_id": "Client ID API RTE",
+          "rte_client_secret": "Client secret API RTE"
+        }
+      },
+      "offer": {
+        "title": "Offre et fournisseur",
+        "description": "Fournisseur, puissance souscrite et libellé de contrat optionnel.",
+        "data": {
+          "supplier": "Fournisseur d'énergie",
+          "supplier_custom_name": "Nom du fournisseur",
+          "contract_power": "Puissance souscrite (kVA)",
+          "contract_name": "Nom du contrat (optionnel)"
+        },
+        "data_description": {
+          "supplier": "EDF ou autre fournisseur.",
+          "contract_power": "Votre puissance (par ex. 6, 9, 12 avec EDF).",
+          "contract_name": "Libellé libre pour retrouver ce réglage (optionnel)."
+        }
+      },
+      "grid": {
+        "title": "Capteurs réseau",
+        "description": "Énergie import/export et capteurs de puissance optionnels.",
+        "data": {
+          "grid_import_energy": "Énergie importée réseau (kWh)",
+          "grid_export_energy": "Énergie exportée réseau (kWh, optionnel)",
+          "grid_power_sign_mode": "Convention de signe puissance réseau",
+          "grid_power_sensor": "Puissance réseau (W, optionnel)",
+          "load_power_sensor": "Puissance maison (W, optionnel)"
+        },
+        "data_description": {
+          "grid_import_energy": "Compteur d'énergie total croissant pour l'import.",
+          "grid_export_energy": "Compteur d'export (si compteur séparé).",
+          "grid_power_sensor": "Puissance instantanée pour l'affichage temps réel.",
+          "grid_power_sign_mode": "L'export est-il négatif ou positif sur ce capteur ?",
+          "load_power_sensor": "Consommation maison optionnelle pour le diagnostic."
+        }
+      },
+      "solar": {
+        "title": "Configuration solaire",
+        "description": "Capteurs de production et tarif de rachat optionnel.",
+        "data": {
+          "has_solar": "Avez-vous des panneaux solaires ?",
+          "solar_energy": "Énergie produite solaire (kWh)",
+          "solar_power_sensor": "Puissance solaire (W, optionnel)",
+          "solar_resale_contract": "Contrat de rachat de l'injection ?",
+          "solar_export_tariff": "Tarif de rachat (par kWh)",
+          "solar_estimation_enabled": "Activer l'estimation de production ?"
+        },
+        "data_description": {
+          "has_solar": "Désactiver retire le solaire du bilan énergétique.",
+          "solar_energy": "Compteur total croissant de production.",
+          "solar_power_sensor": "Améliore l'affichage temps réel et le diagnostic.",
+          "solar_resale_contract": "À activer si vous êtes payé sur l'injection.",
+          "solar_export_tariff": "Prix de rachat par kWh injecté.",
+          "solar_estimation_enabled": "Si activé, des paramètres PV seront demandés."
+        }
+      },
+      "solar_estimation": {
+        "title": "Estimation de production solaire",
+        "description": "Paramètres du système PV pour le modèle d'estimation.",
+        "data": {
+          "solar_lat": "Latitude",
+          "solar_lon": "Longitude",
+          "solar_peak_power": "Puissance crête (kWc)",
+          "solar_orientation": "Orientation des panneaux",
+          "solar_tilt": "Angle d'inclinaison (°)",
+          "solar_tilt_mode": "Mode d'inclinaison",
+          "solar_shading": "Niveau d'ombrage",
+          "solar_performance": "Performance du système"
+        }
+      },
+      "battery": {
+        "title": "Systèmes de batterie",
+        "description": "{battery_count} système(s) configuré(s). Utilisez la commande Configurer sur la fiche de l'intégration pour ajouter ou modifier le détail des batteries.",
+        "data": {
+          "has_batteries": "Avez-vous des batteries ?"
+        },
+        "data_description": {
+          "has_batteries": "Désactiver masque les entités batteries jusqu'au prochain réactivation."
+        }
+      },
+      "battery_pick": {
+        "title": "Systèmes de batterie",
+        "description": "Modifier une batterie existante ou en ajouter une nouvelle.",
+        "data": {
+          "battery_index": "Batterie à modifier",
+          "add_new": "Ajouter une nouvelle batterie à la place ?"
+        }
+      },
+      "tariff_refresh": {
+        "title": "Actualiser les tarifs EDF",
+        "description": "Récupérer les tarifs publics (data.gouv) pour l'offre et le kVA choisis.",
+        "data": {
+          "tariff_offer": "Type d'offre",
+          "contract_power": "Puissance souscrite (kVA)"
+        },
+        "data_description": {
+          "tariff_offer": "Base, HPHC ou Tempo — doit correspondre à votre contrat.",
+          "contract_power": "Doit correspondre à votre abonnement pour des prix corrects."
+        }
+      }
+    },
+    "abort": {
+      "options_updated": "Options enregistrées.",
+      "tariffs_fetched": "Tarifs mis à jour depuis les données fournisseur.",
+      "not_edf_supplier": "Cette action n'est disponible que pour EDF."
+    },
+    "error": {
+      "tariff_fetch_failed": "Échec de la récupération des tarifs. Vérifiez l'offre, le kVA et le réseau."
+    }
+  }
+}

@@ -1,0 +1,394 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Hub Énergie – Setup",
+        "description": "Configure your energy monitoring integration.",
+        "data": {
+          "supplier": "Energy supplier",
+          "supplier_custom_name": "Supplier name",
+          "phase_type": "Phase type"
+        },
+        "data_description": {
+          "supplier": "Select your energy supplier. Choose 'Other' for non-EDF providers.",
+          "phase_type": "Single-phase (mono) or three-phase (tri) installation."
+        }
+      },
+      "tariff_mode": {
+        "title": "Tariff retrieval mode",
+        "description": "Choose how tariffs should be configured.",
+        "data": {
+          "tariff_mode": "Tariff mode"
+        },
+        "data_description": {
+          "tariff_mode": "Auto: fetch tariffs from provider API. Manual: enter rates yourself."
+        }
+      },
+      "tariff_mode_manual_only": {
+        "title": "Tariff configuration",
+        "description": "Automatic tariff retrieval is not yet available for this supplier. Rates must be entered manually. If auto-retrieval becomes available later, a migration path will be provided without affecting historical data.",
+        "data": {
+          "tariff_mode": "Tariff mode"
+        }
+      },
+      "contract": {
+        "title": "Contract details",
+        "data": {
+          "contract_power": "Contract power (kVA)",
+          "contract_name": "Contract name (optional)"
+        }
+      },
+      "edf_offer": {
+        "title": "EDF offer selection",
+        "data": {
+          "tariff_offer": "Offer type"
+        }
+      },
+      "edf_tempo": {
+        "title": "Tempo signal source",
+        "description": "RTE is the most reliable source but requires credentials. API Couleur Tempo works without credentials and is easier to set up.",
+        "data": {
+          "tempo_mode": "Signal source",
+          "rte_client_id": "RTE API client ID",
+          "rte_client_secret": "RTE API client secret",
+          "current_slot_sensor": "External slot sensor"
+        }
+      },
+      "edf_tempo_rte": {
+        "title": "RTE credentials",
+        "description": "Enter your RTE API credentials to fetch the Tempo calendar from the official source.",
+        "data": {
+          "rte_client_id": "RTE API client ID",
+          "rte_client_secret": "RTE API client secret"
+        }
+      },
+      "manual_pricing": {
+        "title": "Pricing structure",
+        "data": {
+          "pricing_structure": "Pricing type",
+          "price_basis": "Prices are",
+          "currency": "Currency"
+        }
+      },
+      "manual_flat": {
+        "title": "Flat tariff",
+        "data": {
+          "energy_price": "Energy price (per kWh)",
+          "subscription_price": "Monthly subscription"
+        }
+      },
+      "manual_tou": {
+        "title": "Time-of-use tariff",
+        "description": "Define peak/off-peak periods and their prices.",
+        "data": {
+          "tou_periods": "Time-of-use periods (JSON)"
+        }
+      },
+      "manual_schedule": {
+        "title": "Advanced schedule",
+        "description": "Define detailed time slots with prices, day types, and optional seasons.",
+        "data": {
+          "schedule_slots": "Schedule slots (JSON)"
+        }
+      },
+      "grid": {
+        "title": "Grid energy sensors",
+        "description": "Configure your grid energy measurement sensors.",
+        "data": {
+          "grid_import_energy": "Grid import energy (kWh)",
+          "grid_export_energy": "Grid export energy (kWh, optional)",
+          "grid_power_sensor": "Grid power (W, optional)",
+          "grid_power_sign_mode": "Grid power sign convention",
+          "load_power_sensor": "House load power (W, optional)"
+        },
+        "data_description": {
+          "grid_import_energy": "Total increasing energy counter for grid import.",
+          "grid_export_energy": "Total increasing energy counter for grid export (if separate from import).",
+          "grid_power_sensor": "Instantaneous grid power for real-time display.",
+          "grid_power_sign_mode": "Convention: is export negative or positive on this sensor?"
+        }
+      },
+      "grid_phases": {
+        "title": "Three-phase grid sensors",
+        "description": "Provide either a single total sensor or one sensor per phase.",
+        "data": {
+          "grid_import_energy_phases": "Import energy sensors (per-phase, JSON list)",
+          "grid_export_energy_phases": "Export energy sensors (per-phase, JSON list)"
+        }
+      },
+      "solar": {
+        "title": "Solar configuration",
+        "data": {
+          "has_solar": "Do you have solar panels?",
+          "solar_energy": "Solar energy production (kWh)",
+          "solar_power_sensor": "Solar power (W, optional)",
+          "solar_resale_contract": "Solar export re-sale contract?",
+          "solar_export_tariff": "Export tariff (per kWh)"
+        },
+        "data_description": {
+          "solar_energy": "Total increasing energy counter for solar production.",
+          "solar_power_sensor": "Improves real-time power display and power-balance diagnostics.",
+          "solar_export_tariff": "Re-sale price per kWh for exported solar energy."
+        }
+      },
+      "solar_config": {
+        "title": "Solar configuration",
+        "description": "Select the solar production sensors. Optional: resale and estimation.",
+        "data": {
+          "solar_energy": "Solar energy production (kWh)",
+          "solar_power_sensor": "Solar power (W, optional)",
+          "solar_resale_contract": "Solar export re-sale contract?",
+          "solar_export_tariff": "Export tariff (per kWh)",
+          "solar_estimation_enabled": "Enable production estimation?"
+        },
+        "data_description": {
+          "solar_energy": "Total increasing energy counter for solar production.",
+          "solar_power_sensor": "Improves real-time power display and power-balance diagnostics.",
+          "solar_resale_contract": "Enable if you have a contract that pays you for exported solar energy.",
+          "solar_export_tariff": "Re-sale price per kWh for exported solar energy.",
+          "solar_estimation_enabled": "Adds an estimation model to complement real solar measurements."
+        }
+      },
+      "solar_estimation": {
+        "title": "Solar production estimation",
+        "data": {
+          "solar_estimation_enabled": "Enable production estimation?",
+          "solar_lat": "Latitude",
+          "solar_lon": "Longitude",
+          "solar_peak_power": "Peak power (kWc)",
+          "solar_orientation": "Panel orientation",
+          "solar_tilt": "Tilt angle (°)",
+          "solar_tilt_mode": "Tilt mode",
+          "solar_shading": "Shading level",
+          "solar_performance": "System performance"
+        }
+      },
+      "battery": {
+        "title": "Battery systems",
+        "data": {
+          "has_batteries": "Do you have battery systems?"
+        }
+      },
+      "battery_add": {
+        "title": "Add battery system",
+        "description": "Configure a battery/inverter system. Only charge and discharge energy sensors are required.",
+        "data": {
+          "batt_name": "Battery name",
+          "batt_energy_in": "Charge energy (kWh, total increasing)",
+          "batt_energy_out": "Discharge energy (kWh, total increasing)",
+          "batt_power_in": "Charging power sensor (W, optional)",
+          "batt_power_out": "Discharging power sensor (W, optional)",
+          "batt_power_net": "Net power sensor (W, optional, signed)",
+          "batt_soc": "State of charge (%, optional)",
+          "batt_advanced": "Show advanced battery fields"
+        },
+        "data_description": {
+          "batt_power_in": "Instantaneous power currently going into the battery (not a max value).",
+          "batt_power_out": "Instantaneous power currently drawn from the battery (not a max value).",
+          "batt_power_net": "Use this if you have a single signed sensor instead of separate charge/discharge. If you set charge + discharge sensors, you can leave this empty.",
+          "batt_power_net_sign": "Only needed if you use a net power sensor.",
+          "batt_soc": "Optional percentage sensor (0–100). Used for the SOC bar and ETA.",
+          "batt_advanced": "Unlocks nominal capacity (kWh), charge/discharge limits (W), and SOC min/max. Improves stored energy and time-to-full/empty estimates."
+        }
+      },
+      "battery_advanced": {
+        "title": "Battery advanced settings",
+        "description": "For each setting, two rows share the same title: first a sensor/helper, then a manual value. Only fill one of the two rows (not both).",
+        "data": {
+          "batt_capacity_kwh_entity": "Nominal capacity — sensor or helper",
+          "batt_capacity_kwh": "Nominal capacity — manual entry",
+          "batt_max_charge_w_entity": "Max charge power — sensor or helper",
+          "batt_max_charge_w": "Max charge power — manual entry",
+          "batt_max_discharge_w_entity": "Max discharge power — sensor or helper",
+          "batt_max_discharge_w": "Max discharge power — manual entry",
+          "batt_soc_min_entity": "SOC minimum — sensor or helper",
+          "batt_soc_min": "SOC minimum — manual entry",
+          "batt_soc_max_entity": "SOC maximum — sensor or helper",
+          "batt_soc_max": "SOC maximum — manual entry"
+        },
+        "data_description": {
+          "batt_capacity_kwh_entity": "Nominal capacity at 100% SOC (max storable energy, kWh). Numeric value in kWh (e.g. sensor, input_number). Use when the value comes from an entity.",
+          "batt_capacity_kwh": "Nominal capacity at 100% SOC (max storable energy, kWh). Enter here or use the entity above — only one of the two.",
+          "batt_max_charge_w_entity": "Technical limit in W read from an entity.",
+          "batt_max_charge_w": "Technical limit in W (not your instantaneous measured power).",
+          "batt_max_discharge_w_entity": "Technical limit in W read from an entity.",
+          "batt_max_discharge_w": "Technical limit in W (not your instantaneous measured power).",
+          "batt_soc_min_entity": "Percent 0–100 from an entity.",
+          "batt_soc_min": "Use if the battery never reaches 0%.",
+          "batt_soc_max_entity": "Percent 0–100 from an entity.",
+          "batt_soc_max": "Use if the battery never reaches 100%."
+        }
+      },
+      "battery_more": {
+        "title": "More batteries?",
+        "description": "You can add more battery systems or continue.",
+        "data": {
+          "add_another": "Add another battery system?"
+        }
+      },
+      "reinjection": {
+        "title": "Advanced reinjection tuning",
+        "data": {
+          "reinjection_export_ignore_below_w": "Ignore export below (W)",
+          "reinjection_batt_charge_significant_w": "Battery charge significant above (W)",
+          "reinjection_short_export_max_s": "Switch latency max duration (s)",
+          "reinjection_short_export_max_w": "Switch latency max power (W)",
+          "reinjection_min_solar_for_classify_w": "Min solar for classification (W)",
+          "reinjection_export_min_abs_w": "Min export for classification (W)",
+          "reinjection_export_vs_solar_fraction": "Export/solar ratio threshold",
+          "reinjection_batt_full_min_soc_frac": "Battery full SOC threshold (0-1)"
+        }
+      }
+    },
+    "error": {
+      "invalid_entity": "Invalid or unavailable entity.",
+      "invalid_energy_entity": "Entity must be a total_increasing energy sensor.",
+      "invalid_power_entity": "Entity must be a power sensor (W).",
+      "invalid_soc_entity": "Invalid SOC value: use 0–100% (sensor, input_number, or number entity).",
+      "rte_auth_failed": "RTE authentication failed. Check credentials.",
+      "tariff_fetch_failed": "Failed to fetch tariffs from provider API.",
+      "invalid_json": "Invalid JSON format.",
+      "schedule_gap": "Schedule does not cover 00:00-24:00 completely.",
+      "no_energy_sensor": "At least one grid energy sensor is required."
+    },
+    "abort": {
+      "already_configured": "This integration is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Hub Énergie – Options",
+        "description": "Modify your energy monitoring configuration.",
+        "menu_options": {
+          "offer": "Offer & tariffs",
+          "grid": "Grid sensors",
+          "solar": "Solar configuration",
+          "battery": "Battery systems",
+          "tariff_refresh": "EDF tariffs: refresh from API",
+          "tempo": "Tempo source (API vs RTE)"
+        }
+      },
+      "tempo": {
+        "title": "Tempo signal source",
+        "description": "Choose between RTE (official) and API Couleur Tempo.",
+        "data": {
+          "tempo_mode": "Signal source"
+        }
+      },
+      "tempo_rte": {
+        "title": "RTE credentials",
+        "description": "Enter your RTE API credentials. Leave secret empty to keep the existing one.",
+        "data": {
+          "rte_client_id": "RTE API client ID",
+          "rte_client_secret": "RTE API client secret"
+        }
+      },
+      "offer": {
+        "title": "Offer & supplier",
+        "description": "Supplier, subscribed power, and optional contract label.",
+        "data": {
+          "supplier": "Energy supplier",
+          "supplier_custom_name": "Supplier name",
+          "contract_power": "Subscribed power (kVA)",
+          "contract_name": "Contract name (optional)"
+        },
+        "data_description": {
+          "supplier": "EDF or another supplier.",
+          "contract_power": "Your subscription tier (e.g. 6, 9, 12 kVA for EDF).",
+          "contract_name": "Free text to recognize this setup (optional)."
+        }
+      },
+      "grid": {
+        "title": "Grid sensors",
+        "description": "Grid import/export energy and optional power entities.",
+        "data": {
+          "grid_import_energy": "Grid import energy (kWh)",
+          "grid_export_energy": "Grid export energy (kWh, optional)",
+          "grid_power_sign_mode": "Grid power sign convention",
+          "grid_power_sensor": "Grid power (W, optional)",
+          "load_power_sensor": "House load power (W, optional)"
+        },
+        "data_description": {
+          "grid_import_energy": "Total increasing energy counter for grid import.",
+          "grid_export_energy": "Total increasing energy counter for grid export (if separate).",
+          "grid_power_sensor": "Instantaneous grid power for real-time display.",
+          "grid_power_sign_mode": "Convention: is export negative or positive on this sensor?",
+          "load_power_sensor": "Optional house consumption for load-side diagnostics."
+        }
+      },
+      "solar": {
+        "title": "Solar configuration",
+        "description": "Solar production sensors and optional resale tariff.",
+        "data": {
+          "has_solar": "Do you have solar panels?",
+          "solar_energy": "Solar energy production (kWh)",
+          "solar_power_sensor": "Solar power (W, optional)",
+          "solar_resale_contract": "Solar export re-sale contract?",
+          "solar_export_tariff": "Export tariff (per kWh)",
+          "solar_estimation_enabled": "Enable production estimation?"
+        },
+        "data_description": {
+          "has_solar": "Disable to remove solar from energy accounting.",
+          "solar_energy": "Total increasing energy counter for solar production.",
+          "solar_power_sensor": "Improves real-time power display and diagnostics.",
+          "solar_resale_contract": "Enable if you are paid for exported energy.",
+          "solar_export_tariff": "Re-sale price per kWh for exported solar energy.",
+          "solar_estimation_enabled": "If enabled, you will be asked for PV system parameters."
+        }
+      },
+      "solar_estimation": {
+        "title": "Solar production estimation",
+        "description": "PV system parameters for the estimation model.",
+        "data": {
+          "solar_lat": "Latitude",
+          "solar_lon": "Longitude",
+          "solar_peak_power": "Peak power (kWc)",
+          "solar_orientation": "Panel orientation",
+          "solar_tilt": "Tilt angle (°)",
+          "solar_tilt_mode": "Tilt mode",
+          "solar_shading": "Shading level",
+          "solar_performance": "System performance"
+        }
+      },
+      "battery": {
+        "title": "Battery systems",
+        "description": "{battery_count} system(s) configured. Use Configure on the integration entry to add or edit battery details.",
+        "data": {
+          "has_batteries": "Do you have battery systems?"
+        },
+        "data_description": {
+          "has_batteries": "Turn off to hide battery entities until you enable again."
+        }
+      },
+      "battery_pick": {
+        "title": "Battery systems",
+        "description": "Edit an existing battery system or add a new one.",
+        "data": {
+          "battery_index": "Battery to edit",
+          "add_new": "Add a new battery system instead?"
+        }
+      },
+      "tariff_refresh": {
+        "title": "Refresh EDF tariffs",
+        "description": "Fetch current rates from the public EDF data (data.gouv) for the selected offer and kVA.",
+        "data": {
+          "tariff_offer": "Offer type",
+          "contract_power": "Subscribed power (kVA)"
+        },
+        "data_description": {
+          "tariff_offer": "Base, HPHC, or Tempo — must match your contract.",
+          "contract_power": "Must match your subscription for correct prices."
+        }
+      }
+    },
+    "abort": {
+      "options_updated": "Options saved.",
+      "tariffs_fetched": "Tariffs updated from provider data.",
+      "not_edf_supplier": "This action is only available for EDF."
+    },
+    "error": {
+      "tariff_fetch_failed": "Failed to fetch tariffs. Check offer, kVA, and network."
+    }
+  }
+}

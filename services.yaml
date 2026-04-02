@@ -1,0 +1,7 @@
+refresh:
+  name: Refresh Hub Énergie
+  description: Force a refresh of all Hub Énergie coordinators.
+
+refresh_tariffs:
+  name: Refresh tariffs
+  description: Force a tariff fetch (auto-mode only) and update stored options.
