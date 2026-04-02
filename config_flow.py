@@ -237,11 +237,24 @@ async def _async_validate_step(
     draft: dict[str, Any],
     user_input: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, str]]:
-    patch, errors = HubEnergieConfigValidator.validate_step(scope, draft, user_input)
+    merged = {**draft, **user_input}
+    patch, errors = HubEnergieConfigValidator.validate_step(scope, merged, user_input)
+    _LOGGER.debug("Step %s patch=%s errors=%s", scope, _redact_user_input(patch), errors)
     if errors:
         return patch, errors
     entity_errors = await validate_entities(hass, patch)
     errors.update(entity_errors)
+    return patch, errors
+
+
+def _validate_step(
+    scope: str,
+    draft: dict[str, Any],
+    user_input: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, str]]:
+    merged = {**draft, **user_input}
+    patch, errors = HubEnergieConfigValidator.validate_step(scope, merged, user_input)
+    _LOGGER.debug("Step %s patch=%s errors=%s", scope, _redact_user_input(patch), errors)
     return patch, errors
 
 
@@ -460,7 +473,7 @@ class _BatteryWizardMixin(_StepLoggingMixin):
         errors: dict[str, str] = {}
         battery = dict(self._current_battery)
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("battery_advanced", battery, user_input)
+            patch, errors = _validate_step("battery_advanced", battery, user_input)
             if not errors:
                 _apply_patch(battery, patch)
                 self._current_battery = battery
@@ -535,7 +548,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("supplier_custom", self._data, user_input)
+            patch, errors = _validate_step("supplier_custom", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 return await self.async_step_tariff_mode_manual_only()
@@ -552,7 +565,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("tariff_mode", self._data, user_input)
+            patch, errors = _validate_step("tariff_mode", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 return await self.async_step_contract()
@@ -577,7 +590,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("contract", self._data, user_input)
+            patch, errors = _validate_step("contract", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_TARIFF_MODE) == TARIFF_MODE_AUTO:
@@ -597,7 +610,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("edf_offer", self._data, user_input)
+            patch, errors = _validate_step("edf_offer", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_TARIFF_OFFER) == TARIFF_OFFER_TEMPO:
@@ -616,7 +629,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("tempo_mode", self._data, user_input)
+            patch, errors = _validate_step("tempo_mode", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_TEMPO_MODE) == TEMPO_MODE_RTE:
@@ -635,7 +648,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("rte_credentials", self._data, user_input)
+            patch, errors = _validate_step("rte_credentials", self._data, user_input)
             if not errors:
                 client_id = patch.get(CONF_RTE_CLIENT_ID, self._data.get(CONF_RTE_CLIENT_ID))
                 client_secret = patch.get(CONF_RTE_CLIENT_SECRET, self._data.get(CONF_RTE_CLIENT_SECRET))
@@ -681,7 +694,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("manual_pricing", self._data, user_input)
+            patch, errors = _validate_step("manual_pricing", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 structure = self._data.get(CONF_PRICING_STRUCTURE)
@@ -707,7 +720,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("manual_flat", self._data, user_input)
+            patch, errors = _validate_step("manual_flat", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 return await self.async_step_grid()
@@ -732,7 +745,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("manual_tou", self._data, user_input)
+            patch, errors = _validate_step("manual_tou", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 return await self.async_step_grid()
@@ -755,7 +768,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("manual_schedule", self._data, user_input)
+            patch, errors = _validate_step("manual_schedule", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 return await self.async_step_grid()
@@ -802,7 +815,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("solar_toggle", self._data, user_input)
+            patch, errors = _validate_step("solar_toggle", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_HAS_SOLAR):
@@ -832,7 +845,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("solar_estimation", self._data, user_input)
+            patch, errors = _validate_step("solar_estimation", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 return await self.async_step_battery()
@@ -847,7 +860,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("battery_toggle", self._data, user_input)
+            patch, errors = _validate_step("battery_toggle", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_HAS_BATTERIES):
@@ -863,6 +876,26 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
         )
 
     async def _create_entry(self) -> ConfigFlowResult:
+        errors = HubEnergieConfigValidator.validate_full(self._data)
+        if errors:
+            step_id = "battery_more" if self._data.get(CONF_HAS_BATTERIES) else "battery"
+            return self.async_show_form(
+                step_id=step_id,
+                data_schema=vol.Schema({vol.Required("add_another", default=False): BooleanSelector()})
+                if step_id == "battery_more"
+                else vol.Schema(
+                    {
+                        vol.Required(
+                            CONF_HAS_BATTERIES,
+                            default=bool(self._data.get(CONF_HAS_BATTERIES, False)),
+                        ): BooleanSelector()
+                    }
+                ),
+                errors=errors,
+                description_placeholders={"battery_count": str(len(self._batteries))}
+                if step_id == "battery_more"
+                else None,
+            )
         await self.async_set_unique_id(f"{self._data.get(CONF_SUPPLIER, 'unknown')}_{self._data.get(CONF_GRID_IMPORT_ENERGY, 'unknown')}")
         self._abort_if_unique_id_configured()
         supplier_label = self._data.get(CONF_SUPPLIER_CUSTOM_NAME) or str(self._data.get(CONF_SUPPLIER, "")).upper()
@@ -902,6 +935,7 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
         new_data = _patched_copy(base_data or dict(self.config_entry.data), data_patch or {})
         new_options = _patched_copy(dict(self.config_entry.options), options_patch or {})
         errors = HubEnergieConfigValidator.validate_full(new_data)
+        _LOGGER.debug("Persist candidate data=%s errors=%s", _redact_user_input(new_data), errors)
         if errors:
             raise ValueError(errors)
         if options_patch is None:
@@ -925,7 +959,7 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
         data = dict(self.config_entry.data)
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("offer_options", data, user_input)
+            patch, errors = _validate_step("offer_options", data, user_input)
             if not errors:
                 try:
                     return await self._persist(data_patch=patch)
@@ -995,7 +1029,7 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
             return self.async_abort(reason="no_solar_configured")
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("solar_estimation", data, user_input)
+            patch, errors = _validate_step("solar_estimation", data, user_input)
             if not errors:
                 try:
                     return await self._persist(data_patch=patch, base_data=data)
@@ -1014,7 +1048,7 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
         batteries = data.get(CONF_BATTERY_SYSTEMS, []) if isinstance(data.get(CONF_BATTERY_SYSTEMS), list) else []
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("battery_toggle", data, user_input)
+            patch, errors = _validate_step("battery_toggle", data, user_input)
             if not errors:
                 if not bool(patch.get(CONF_HAS_BATTERIES, False)):
                     return await self._persist(data_patch=patch)
@@ -1081,7 +1115,7 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
             return self.async_abort(reason="not_tempo_offer")
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("tempo_mode", data, user_input)
+            patch, errors = _validate_step("tempo_mode", data, user_input)
             if not errors:
                 updated = _patched_copy(data, patch)
                 self._updated = updated
@@ -1103,7 +1137,7 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
         data = self._updated or dict(self.config_entry.data)
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("rte_credentials", data, user_input)
+            patch, errors = _validate_step("rte_credentials", data, user_input)
             if not errors:
                 merged = _patched_copy(data, patch)
                 auth_error = await _async_test_rte_credentials(
@@ -1139,7 +1173,7 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
             return self.async_abort(reason="not_edf_supplier")
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = HubEnergieConfigValidator.validate_step("tariff_refresh", data, user_input)
+            patch, errors = _validate_step("tariff_refresh", data, user_input)
             if not errors:
                 merged = _patched_copy(data, patch)
                 tariffs, error = await _async_fetch_edf_tariffs(

@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from typing import Any, Final, Mapping
 
-from .config_models import ValidationScope
+from .config_models import HubEnergieConfigPartial, ValidationScope
 from .const import (
     BATT_SIGN_POSITIVE_CHARGE,
     BATT_SIGN_POSITIVE_DISCHARGE,
@@ -113,6 +114,8 @@ ERR_BATTERY_ADV_SOC_MIN_NOT_BOTH: Final = "battery_adv_soc_min_not_both"
 ERR_BATTERY_ADV_SOC_MAX_NOT_BOTH: Final = "battery_adv_soc_max_not_both"
 ERR_NO_ENERGY_SENSOR: Final = "no_energy_sensor"
 
+_LOGGER = logging.getLogger(__name__)
+
 _ENTITY_ID_RE: Final = re.compile(r"^[a-z0-9_]+\.[a-z0-9_]+$")
 _TIME_RE: Final = re.compile(r"^(?:[01]\d|2[0-3]):[0-5]\d$")
 
@@ -175,6 +178,13 @@ def _merged(
     draft: Mapping[str, Any], user_input: Mapping[str, Any]
 ) -> dict[str, Any]:
     return {**dict(draft), **dict(user_input)}
+
+
+def _redact_mapping(values: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        str(key): ("***" if any(token in str(key).lower() for token in ("secret", "password", "token")) else value)
+        for key, value in values.items()
+    }
 
 
 def _clean_text(value: Any) -> str:
@@ -363,8 +373,8 @@ def _validate_schedule_items(
 
 def _validate_battery_advanced(
     user_input: Mapping[str, Any],
-) -> tuple[dict[str, Any], dict[str, str]]:
-    patch: dict[str, Any] = {}
+) -> tuple[HubEnergieConfigPartial, dict[str, str]]:
+    patch: HubEnergieConfigPartial = {}
     errors: dict[str, str] = {}
     for value_key, entity_key, minimum, maximum, error_code in _BATTERY_ADVANCED_RULES:
         if user_input.get(value_key) not in (None, "") and _clean_optional_text(
@@ -403,8 +413,8 @@ def _validate_battery_advanced(
 
 def _validate_solar_fields(
     merged: Mapping[str, Any], user_input: Mapping[str, Any]
-) -> tuple[dict[str, Any], dict[str, str]]:
-    patch: dict[str, Any] = {}
+) -> tuple[HubEnergieConfigPartial, dict[str, str]]:
+    patch: HubEnergieConfigPartial = {}
     errors: dict[str, str] = {}
     patch[CONF_SOLAR_ENERGY] = _optional_entity_id(
         user_input.get(CONF_SOLAR_ENERGY),
@@ -456,10 +466,28 @@ class HubEnergieConfigValidator:
         scope: ValidationScope,
         draft: Mapping[str, Any],
         user_input: Mapping[str, Any],
-    ) -> tuple[dict[str, Any], dict[str, str]]:
+    ) -> tuple[HubEnergieConfigPartial, dict[str, str]]:
+        """Validate one step and return a normalized patch plus UI errors."""
+        patch, errors = HubEnergieConfigValidator._validate_step_impl(
+            scope, draft, user_input
+        )
+        _LOGGER.debug(
+            "Validation step %s patch=%s errors=%s",
+            scope,
+            _redact_mapping(patch),
+            errors,
+        )
+        return patch, errors
+
+    @staticmethod
+    def _validate_step_impl(
+        scope: ValidationScope,
+        draft: Mapping[str, Any],
+        user_input: Mapping[str, Any],
+    ) -> tuple[HubEnergieConfigPartial, dict[str, str]]:
         """Validate one step and return a normalized patch plus UI errors."""
         merged = _merged(draft, user_input)
-        patch: dict[str, Any] = {}
+        patch: HubEnergieConfigPartial = {}
         errors: dict[str, str] = {}
 
         if scope == "user":
@@ -895,6 +923,15 @@ class HubEnergieConfigValidator:
         """Validate a full data snapshot for broad feature consistency."""
         errors: dict[str, str] = {}
 
+        for field in (
+            CONF_SUPPLIER,
+            CONF_PHASE_TYPE,
+            CONF_TARIFF_MODE,
+            CONF_CONTRACT_POWER,
+        ):
+            if not _clean_optional_text(data.get(field)):
+                errors[field] = ERR_REQUIRED
+
         if not _clean_optional_text(data.get(CONF_GRID_IMPORT_ENERGY)):
             errors[CONF_GRID_IMPORT_ENERGY] = ERR_NO_ENERGY_SENSOR
 
@@ -943,9 +980,31 @@ class HubEnergieConfigValidator:
                         ):
                             errors[f"{CONF_BATTERY_SYSTEMS}_{index}_{value_key}"] = error_code
 
+        if data.get(CONF_TARIFF_MODE) == TARIFF_MODE_AUTO:
+            if not _clean_optional_text(data.get(CONF_TARIFF_OFFER)):
+                errors[CONF_TARIFF_OFFER] = ERR_REQUIRED
+            if (
+                data.get(CONF_TARIFF_OFFER) == TARIFF_OFFER_OPTIONS[0]
+                and data.get(CONF_TEMPO_MODE) == TEMPO_MODE_RTE
+            ):
+                if not _clean_optional_text(data.get(CONF_RTE_CLIENT_ID)):
+                    errors[CONF_RTE_CLIENT_ID] = ERR_REQUIRED
+                if not _clean_optional_text(data.get(CONF_RTE_CLIENT_SECRET)):
+                    errors[CONF_RTE_CLIENT_SECRET] = ERR_REQUIRED
+
+        if data.get(CONF_TARIFF_MODE) == TARIFF_MODE_MANUAL:
+            for field in (CONF_PRICING_STRUCTURE, CONF_PRICE_BASIS, CONF_CURRENCY):
+                if not _clean_optional_text(data.get(field)):
+                    errors[field] = ERR_REQUIRED
+
         mode = _clean_optional_text(data.get(CONF_TARIFF_MODE))
         if mode is not None and mode not in {TARIFF_MODE_AUTO, TARIFF_MODE_MANUAL}:
             errors[CONF_TARIFF_MODE] = ERR_INVALID_OPTION
+        if data.get(CONF_PRICING_STRUCTURE) == PRICING_FLAT and data.get(CONF_ENERGY_PRICE) in (
+            None,
+            "",
+        ):
+            errors[CONF_ENERGY_PRICE] = ERR_REQUIRED
         if data.get(CONF_PRICING_STRUCTURE) == PRICING_TIME_OF_USE and not isinstance(
             data.get(CONF_TOU_PERIODS), list
         ):
@@ -954,4 +1013,9 @@ class HubEnergieConfigValidator:
             data.get(CONF_SCHEDULE_SLOTS), list
         ):
             errors[CONF_SCHEDULE_SLOTS] = ERR_REQUIRED
+        _LOGGER.debug(
+            "Validation full errors=%s data=%s",
+            errors,
+            _redact_mapping(data),
+        )
         return errors

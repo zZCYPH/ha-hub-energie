@@ -36,36 +36,30 @@ ERR_INVALID_POWER_ENTITY: Final = "invalid_power_entity"
 ERR_INVALID_SOC_ENTITY: Final = "invalid_soc_entity"
 ERR_INVALID_PRICE: Final = "invalid_price"
 
-_ENERGY_FIELDS: Final[set[str]] = {
-    CONF_GRID_IMPORT_ENERGY,
-    CONF_GRID_EXPORT_ENERGY,
-    CONF_SOLAR_ENERGY,
-    CONF_BATT_ENERGY_IN,
-    CONF_BATT_ENERGY_OUT,
-}
-_POWER_FIELDS: Final[set[str]] = {
-    CONF_GRID_POWER_SENSOR,
-    CONF_LOAD_POWER_SENSOR,
-    CONF_SOLAR_POWER_SENSOR,
-    CONF_BATT_POWER_IN,
-    CONF_BATT_POWER_OUT,
-    CONF_BATT_POWER_NET,
-}
-_SOC_FIELDS: Final[set[str]] = {
-    CONF_BATT_SOC,
-    CONF_BATT_SOC_MIN_ENTITY,
-    CONF_BATT_SOC_MAX_ENTITY,
-}
-_NUMERIC_FIELDS: Final[set[str]] = {
-    CONF_BATT_CAPACITY_KWH_ENTITY,
-    CONF_BATT_MAX_CHARGE_W_ENTITY,
-    CONF_BATT_MAX_DISCHARGE_W_ENTITY,
-}
 _PHASE_FIELDS: Final[set[str]] = {
     CONF_GRID_IMPORT_ENERGY_PHASES,
     CONF_GRID_EXPORT_ENERGY_PHASES,
     CONF_GRID_POWER_PHASES,
 }
+ENTITY_FIELDS: Final[tuple[tuple[str, str], ...]] = (
+    (CONF_GRID_IMPORT_ENERGY, "energy"),
+    (CONF_GRID_EXPORT_ENERGY, "energy"),
+    (CONF_SOLAR_ENERGY, "energy"),
+    (CONF_BATT_ENERGY_IN, "energy"),
+    (CONF_BATT_ENERGY_OUT, "energy"),
+    (CONF_GRID_POWER_SENSOR, "power"),
+    (CONF_LOAD_POWER_SENSOR, "power"),
+    (CONF_SOLAR_POWER_SENSOR, "power"),
+    (CONF_BATT_POWER_IN, "power"),
+    (CONF_BATT_POWER_OUT, "power"),
+    (CONF_BATT_POWER_NET, "power"),
+    (CONF_BATT_SOC, "soc"),
+    (CONF_BATT_SOC_MIN_ENTITY, "soc"),
+    (CONF_BATT_SOC_MAX_ENTITY, "soc"),
+    (CONF_BATT_CAPACITY_KWH_ENTITY, "numeric"),
+    (CONF_BATT_MAX_CHARGE_W_ENTITY, "numeric"),
+    (CONF_BATT_MAX_DISCHARGE_W_ENTITY, "numeric"),
+)
 
 
 def _state(hass: HomeAssistant, entity_id: str) -> Any:
@@ -149,22 +143,23 @@ async def validate_entities(
     """Validate entity existence and runtime characteristics for a patch."""
     errors: dict[str, str] = {}
 
-    for field, value in patch.items():
+    for field, kind in ENTITY_FIELDS:
+        value = patch.get(field)
         if value in (None, ""):
             continue
-        if field in _ENERGY_FIELDS and isinstance(value, str):
+        if kind == "energy" and isinstance(value, str):
             error = _check_energy_entity(hass, value)
             if error is not None:
                 errors[field] = error
-        elif field in _POWER_FIELDS and isinstance(value, str):
+        elif kind == "power" and isinstance(value, str):
             error = _check_power_entity(hass, value)
             if error is not None:
                 errors[field] = error
-        elif field in _SOC_FIELDS and isinstance(value, str):
+        elif kind == "soc" and isinstance(value, str):
             error = _check_soc_entity(hass, value)
             if error is not None:
                 errors[field] = error
-        elif field in _NUMERIC_FIELDS and isinstance(value, str):
+        elif kind == "numeric" and isinstance(value, str):
             error = _check_numeric_entity(hass, value)
             if error is not None:
                 errors[field] = error
