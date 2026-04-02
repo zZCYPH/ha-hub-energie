@@ -300,9 +300,17 @@ USER_AGENT: Final = "homeassistant-hub_energie/1.0"
 API_COULEUR_TEMPO_BASE_URL: Final = "https://www.api-couleur-tempo.fr"
 
 # ---------------------------------------------------------------------------
+# Energy rounding / delta policy (shared across integration)
+# ---------------------------------------------------------------------------
+ENERGY_ROUND_DECIMALS: Final = 6
+NEGATIVE_DELTA_NOISE_KWH: Final = 0.01
+MAX_DELTA_KWH_DEFAULT: Final = 200.0
+
+# ---------------------------------------------------------------------------
 # Energy sources (accumulator keys)
 # ---------------------------------------------------------------------------
 SOURCE_GRID: Final = "grid"
+SOURCE_GRID_EXPORT: Final = "grid_export"
 SOURCE_SOLAR: Final = "solar"
 SOURCE_BATT_DISCHARGE: Final = "batt_discharge"
 SOURCE_BATT_CHARGE: Final = "batt_charge"

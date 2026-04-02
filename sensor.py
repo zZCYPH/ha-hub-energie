@@ -940,7 +940,7 @@ class HubEnergieRteDataSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEn
         }
         if c.tempo_mode == TEMPO_MODE_SENSOR:
             attrs["current_slot_entity_id"] = c.entry.data.get(CONF_CURRENT_SLOT_SENSOR)
-        raw_api = getattr(c, "_api_stats_raw", None)
+        raw_api = c._edf.api_stats_raw
         if isinstance(raw_api, dict):
             attrs["api_stats_raw"] = raw_api
         return attrs
@@ -1063,7 +1063,7 @@ class HubEnergieHealthSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnt
         data = self.coordinator.data
         c = self.coordinator
         if c.is_edf and c.tariff_offer == TARIFF_OFFER_TEMPO:
-            if c.tempo_mode == TEMPO_MODE_RTE and not c._calendar_rows:  # noqa: SLF001
+            if c.tempo_mode == TEMPO_MODE_RTE and not c._edf.calendar_rows:  # noqa: SLF001
                 return "warning"
         if data and not data.get("current_slot"):
             return "warning"

@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import copy
 from dataclasses import dataclass, field
-from datetime import datetime
 from typing import Any, Callable, Mapping
 
 from ..diagnostics.reinjection_state import ReinjectionState
 from ..energy.accumulator import DeltaApplyResult, compute_delta_decision
+from ..energy.delta_policy import DeltaPolicy
 
 __all__ = ("DeltaApplyResult", "RuntimeState")
 
@@ -176,8 +176,7 @@ class RuntimeState:
         entity_id: str,
         normalized_new: float,
         normalize_kwh: Callable[[float], float],
-        max_delta_kwh_for_source: Callable[[str], float],
-        is_plausible_reset: Callable[[str, float, float], bool],
+        delta_policy: DeltaPolicy,
     ) -> DeltaApplyResult:
         result, patch = compute_delta_decision(
             source_entity_by_source=self.source_entity_by_source,
@@ -188,8 +187,8 @@ class RuntimeState:
             entity_id=entity_id,
             normalized_new=normalized_new,
             normalize_kwh=normalize_kwh,
-            max_delta_kwh_for_source=max_delta_kwh_for_source,
-            is_plausible_reset=is_plausible_reset,
+            max_delta_kwh_for_source=delta_policy.max_delta_kwh,
+            is_plausible_reset=delta_policy.is_plausible_reset,
         )
         self.source_entity_by_source[patch.source_key] = patch.entity_id
         if patch.update_last_raw:
