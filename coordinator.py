@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import copy
 import logging
 import math
 import re
@@ -66,7 +65,6 @@ from .const import (
     CONF_CURRENT_SLOT_SENSOR,
     CONF_GRID_EXPORT_ENERGY,
     CONF_GRID_IMPORT_ENERGY,
-    CONF_GRID_POWER_PHASES,
     CONF_GRID_POWER_SENSOR,
     CONF_GRID_POWER_SIGN_MODE,
     CONF_HAS_BATTERIES,
@@ -153,7 +151,9 @@ from .energy.energy_aggregation import EnergyAggregation
 from .energy.origin import OriginAndUsage
 from .energy.origin import compute_origin_and_usage as compute_origin_and_usage_domain
 from .diagnostics.reinjection_state import ReinjectionState
-from .persistence_manager import PersistenceManager
+from .ha.reader import HAReader
+from .runtime.persistence import PersistenceManager
+from .runtime.state import RuntimeState
 from .power.power_flow import PowerFlowModel
 from .power.power_flow import compute_power_flow as compute_power_flow_domain
 from .power.reinjection import ReinjectionThresholds
@@ -166,7 +166,6 @@ from .snapshot.pipeline import SnapshotPipeline
 from .snapshot.pipeline import SnapshotPipelineDeps
 from .snapshot.pipeline import SnapshotPipelineInputs
 from .solar.solar_estimation import compute_solar_estimation
-from .runtime_state import RuntimeState
 from .scheduler import Scheduler
 from .storage.store_manager import StoreManager
 from .tariff_manager import TariffResolver
@@ -329,6 +328,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             slots=SLOTS,
             decimals=ENERGY_ROUND_DECIMALS,
         )
+        self._reader = HAReader(hass, entry, normalize_kwh=_norm_kwh)
 
         self._calendar_rows: list[Any] = []
         self._calendar_fetched_at: datetime | None = None
@@ -363,7 +363,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             store_model_version=STORE_MODEL_VERSION,
             source_map=self.source_map,
             expected_source_keys=self._expected_source_keys,
-            read_energy_kwh=self._read_energy_kwh,
+            read_energy_kwh=self._reader.read_energy_kwh,
             normalize_kwh=_norm_kwh,
             safe_float=_safe_float,
             statistic_id=_statistic_id,
@@ -412,8 +412,12 @@ class HubEnergieCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     is_hc_slot=_is_hc_slot,
                 ),
                 battery_power_split_available=self._battery_power_split_available,
-                get_batt_charge_power_split_day=lambda day: self._batt_charge_power_split_kwh.get(day, {}),
-                get_batt_charge_power_split_slot_day=lambda day: self._batt_charge_power_split_slot_kwh.get(day, {}),
+                get_batt_charge_power_split_day=lambda day: self._runtime_state.batt_charge_power_split_kwh.get(
+                    day, {}
+                ),
+                get_batt_charge_power_split_slot_day=lambda day: self._runtime_state.batt_charge_power_split_slot_kwh.get(
+                    day, {}
+                ),
                 usage_batt_charge_by_slot_from_heuristic=self._usage_batt_charge_by_slot_from_heuristic,
                 compute_tempo_snapshot=self._compute_tempo_snapshot,
                 compute_battery_metrics=self._compute_battery_metrics,
@@ -425,118 +429,6 @@ class HubEnergieCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 build_snapshot=build_snapshot_domain,
             ),
         )
-
-    @property
-    def _accum(self) -> dict[str, dict[str, dict[str, float]]]:
-        return self._runtime_state.accum
-
-    @_accum.setter
-    def _accum(self, value: dict[str, dict[str, dict[str, float]]]) -> None:
-        self._runtime_state.accum = value
-
-    @property
-    def _last_raw(self) -> dict[str, float]:
-        return self._runtime_state.last_raw
-
-    @_last_raw.setter
-    def _last_raw(self, value: dict[str, float]) -> None:
-        self._runtime_state.last_raw = value
-
-    @property
-    def _totals_kwh_by_source(self) -> dict[str, float]:
-        return self._runtime_state.totals_kwh_by_source
-
-    @_totals_kwh_by_source.setter
-    def _totals_kwh_by_source(self, value: dict[str, float]) -> None:
-        self._runtime_state.totals_kwh_by_source = value
-
-    @property
-    def _written_stats_days(self) -> set[str]:
-        return self._runtime_state.written_stats_days
-
-    @_written_stats_days.setter
-    def _written_stats_days(self, value: set[str]) -> None:
-        self._runtime_state.written_stats_days = value
-
-    @property
-    def _source_entity_by_source(self) -> dict[str, str]:
-        return self._runtime_state.source_entity_by_source
-
-    @_source_entity_by_source.setter
-    def _source_entity_by_source(self, value: dict[str, str]) -> None:
-        self._runtime_state.source_entity_by_source = value
-
-    @property
-    def _batt_charge_power_split_kwh(self) -> dict[str, dict[str, float]]:
-        return self._runtime_state.batt_charge_power_split_kwh
-
-    @_batt_charge_power_split_kwh.setter
-    def _batt_charge_power_split_kwh(self, value: dict[str, dict[str, float]]) -> None:
-        self._runtime_state.batt_charge_power_split_kwh = value
-
-    @property
-    def _batt_charge_power_split_slot_kwh(self) -> dict[str, dict[str, dict[str, float]]]:
-        return self._runtime_state.batt_charge_power_split_slot_kwh
-
-    @_batt_charge_power_split_slot_kwh.setter
-    def _batt_charge_power_split_slot_kwh(self, value: dict[str, dict[str, dict[str, float]]]) -> None:
-        self._runtime_state.batt_charge_power_split_slot_kwh = value
-
-    @property
-    def _diag_export_kwh(self) -> dict[str, dict[str, float]]:
-        return self._reinjection_state.diag_export_kwh
-
-    @_diag_export_kwh.setter
-    def _diag_export_kwh(self, value: dict[str, dict[str, float]]) -> None:
-        self._reinjection_state.diag_export_kwh = value
-
-    @property
-    def _diag_export_slot_kwh(self) -> dict[str, dict[str, dict[str, float]]]:
-        return self._reinjection_state.diag_export_slot_kwh
-
-    @_diag_export_slot_kwh.setter
-    def _diag_export_slot_kwh(self, value: dict[str, dict[str, dict[str, float]]]) -> None:
-        self._reinjection_state.diag_export_slot_kwh = value
-
-    @property
-    def _diag_last_ts(self) -> datetime | None:
-        return self._reinjection_state.last_ts
-
-    @_diag_last_ts.setter
-    def _diag_last_ts(self, value: datetime | None) -> None:
-        self._reinjection_state.last_ts = value
-
-    @property
-    def _diag_last_cause(self) -> str:
-        return self._reinjection_state.last_cause
-
-    @_diag_last_cause.setter
-    def _diag_last_cause(self, value: str) -> None:
-        self._reinjection_state.last_cause = value
-
-    @property
-    def _diag_last_slot(self) -> str | None:
-        return self._reinjection_state.last_slot
-
-    @_diag_last_slot.setter
-    def _diag_last_slot(self, value: str | None) -> None:
-        self._reinjection_state.last_slot = value
-
-    @property
-    def _diag_export_active_since(self) -> datetime | None:
-        return self._reinjection_state.export_active_since
-
-    @_diag_export_active_since.setter
-    def _diag_export_active_since(self, value: datetime | None) -> None:
-        self._reinjection_state.export_active_since = value
-
-    @property
-    def _diag_dirty(self) -> bool:
-        return self._reinjection_state.dirty
-
-    @_diag_dirty.setter
-    def _diag_dirty(self, value: bool) -> None:
-        self._reinjection_state.dirty = value
 
     # ── Properties ────────────────────────────────────────────────────────
 
@@ -666,68 +558,19 @@ class HubEnergieCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     # ── Entity reading helpers ────────────────────────────────────────────
 
     def _read_power_w(self, entity_id: str | None) -> float | None:
-        if not entity_id:
-            return None
-        st = self.hass.states.get(entity_id)
-        if st is None or st.state in ("unknown", "unavailable", ""):
-            return None
-        try:
-            value = float(st.state)
-        except (TypeError, ValueError):
-            return None
-        uom = str(st.attributes.get("unit_of_measurement", "W")).lower()
-        if uom in ("kw", "kilowatt", "kilowatts"):
-            return value * 1000.0
-        return value
+        return self._reader.read_power_w(entity_id)
 
     def _read_energy_kwh(self, entity_id: str | None) -> float | None:
-        if not entity_id:
-            return None
-        st = self.hass.states.get(entity_id)
-        if st is None or st.state in ("unknown", "unavailable", ""):
-            return None
-        try:
-            value = float(st.state)
-        except (TypeError, ValueError):
-            return None
-        uom = str(st.attributes.get("unit_of_measurement", "kWh")).lower()
-        if uom in ("wh", "watt_hour", "watt_hours"):
-            return value / 1000.0
-        return value
+        return self._reader.read_energy_kwh(entity_id)
 
     def _read_soc_percent(self, entity_id: str | None) -> float | None:
-        """Read SOC as 0–100 percent."""
-        if not entity_id:
-            return None
-        st = self.hass.states.get(entity_id)
-        if st is None or st.state in ("unknown", "unavailable", ""):
-            return None
-        try:
-            v = float(st.state)
-        except (TypeError, ValueError):
-            return None
-        uom = str(st.attributes.get("unit_of_measurement", "")).lower().strip()
-        if uom == "%" or 0.0 <= v <= 100.0:
-            return max(0.0, min(100.0, v))
-        if 0.0 < v <= 1.0:
-            return v * 100.0
-        return max(0.0, min(100.0, v))
+        return self._reader.read_soc_percent(entity_id)
 
     def _read_soc_normalized(self, entity_id: str) -> float | None:
-        pct = self._read_soc_percent(entity_id)
-        return pct / 100.0 if pct is not None else None
+        return self._reader.read_soc_normalized(entity_id)
 
     def _read_number(self, entity_id: str | None) -> float | None:
-        """Read a generic numeric state."""
-        if not entity_id:
-            return None
-        st = self.hass.states.get(entity_id)
-        if st is None or st.state in ("unknown", "unavailable", ""):
-            return None
-        try:
-            return float(st.state)
-        except (TypeError, ValueError):
-            return None
+        return self._reader.read_number(entity_id)
 
     def _resolve_batt_param(
         self,
@@ -740,8 +583,8 @@ class HubEnergieCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         ent = batt.get(entity_key)
         if isinstance(ent, str) and ent:
             if kind == "soc":
-                return self._read_soc_percent(ent)
-            return self._read_number(ent)
+                return self._reader.read_soc_percent(ent)
+            return self._reader.read_number(ent)
         raw = batt.get(value_key)
         if raw is None:
             return None
@@ -751,20 +594,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             return None
 
     def _read_grid_power_total_w(self) -> float | None:
-        """Grid power, aggregating phase sensors if configured."""
-        phases = self.entry.data.get(CONF_GRID_POWER_PHASES, [])
-        if isinstance(phases, list) and phases:
-            total = 0.0
-            any_valid = False
-            for phase in phases:
-                if isinstance(phase, dict):
-                    val = self._read_power_w(phase.get("entity_id"))
-                    if val is not None:
-                        total += val
-                        any_valid = True
-            if any_valid:
-                return total
-        return self._read_power_w(self.power_source_map().get("grid_power"))
+        return self._reader.read_grid_power_total_w()
 
     # ── SOC helpers (aggregate for reinjection) ───────────────────────────
 
@@ -1046,15 +876,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     # ── Delta application / accumulation ──────────────────────────────────
 
     def _state_to_kwh(self, state: State) -> float | None:
-        try:
-            raw = float(state.state)
-        except (TypeError, ValueError):
-            return None
-        uom = str(state.attributes.get("unit_of_measurement") or "kWh").lower()
-        value = raw / 1000.0 if uom in ("wh", "watt_hour", "watt_hours") else raw
-        if not math.isfinite(value) or value < 0:
-            return None
-        return _norm_kwh(value)
+        return self._reader.state_to_kwh(state)
 
     async def _async_apply_delta(self, entity_id: str, source_key: str, new_val: float) -> None:
         now_paris = _paris_now()
@@ -1109,13 +931,6 @@ class HubEnergieCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         await self._async_notify_all()
 
     # ── Persistence ───────────────────────────────────────────────────────
-
-    def _store_payload(self) -> dict[str, Any]:
-        # Deprecated helper; kept for compatibility.
-        return self._runtime_state.export_store_payload(store_manager=self._store_manager)
-
-    def _capture_store_snapshot_locked(self) -> dict[str, Any]:
-        return copy.deepcopy(self._store_payload())
 
     def _schedule_store_save_locked(self) -> None:
         self._persistence.schedule_save_locked()
