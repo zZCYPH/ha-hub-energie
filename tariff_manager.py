@@ -34,6 +34,7 @@ from .const import (
     PRICING_FLAT,
     PRICING_SCHEDULE,
     PRICING_TIME_OF_USE,
+    SLOT_UNKNOWN,
     SLOTS,
     SUPPLIER_EDF,
     TARIFF_MODE_AUTO,
@@ -96,6 +97,8 @@ class TariffResolver:
 
     def rate_for_slot(self, slot: str) -> float:
         """Return €/kWh for a Tempo/HPHC/Base slot key (e.g. 'bleu_hc')."""
+        if slot == SLOT_UNKNOWN:
+            return 0.0
         if self.is_edf_auto:
             return self._edf_auto_rate(slot)
         if self._supplier == SUPPLIER_EDF:
@@ -199,7 +202,7 @@ class TariffResolver:
 
     def all_slot_rates(self) -> dict[str, float]:
         """Return rate for every EDF slot (for snapshot attributes)."""
-        return {s: self.rate_for_slot(s) for s in SLOTS}
+        return {s: self.rate_for_slot(s) for s in (*SLOTS, SLOT_UNKNOWN)}
 
 
 def _parse_time(s: str) -> time:

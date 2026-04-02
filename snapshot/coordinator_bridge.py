@@ -52,7 +52,7 @@ from ..const import (
     REINJECTION_MIN_SOLAR_FOR_CLASSIFY_W,
     REINJECTION_SHORT_EXPORT_MAX_S,
     REINJECTION_SHORT_EXPORT_MAX_W,
-    SLOTS,
+    ATTRIBUTION_SLOTS,
     SOLAR_TILT_AUTO,
     SOURCE_GRID,
     SOURCE_SOLAR,
@@ -110,7 +110,7 @@ def _is_hp_slot(slot: str) -> bool:
 
 
 def _empty_slots() -> dict[str, float]:
-    return {s: 0.0 for s in SLOTS}
+    return {s: 0.0 for s in ATTRIBUTION_SLOTS}
 
 
 def _resolve_batt_param(
@@ -136,7 +136,7 @@ def _resolve_batt_param(
 
 
 def _slot_vals(_co: HubEnergieCoordinator, day_acc: Mapping[str, Any], src: str) -> dict[str, float]:
-    return slot_values_domain(dict(day_acc), src, SLOTS)
+    return slot_values_domain(dict(day_acc), src, ATTRIBUTION_SLOTS)
 
 
 def _aggregate_battery_slot_vals(co: HubEnergieCoordinator, day_acc: Mapping[str, Any]) -> tuple[dict[str, float], dict[str, float]]:
@@ -146,7 +146,7 @@ def _aggregate_battery_slot_vals(co: HubEnergieCoordinator, day_acc: Mapping[str
         bid = batt.get("id", "")
         bc_b = _slot_vals(co, day_acc, f"batt_charge:{bid}")
         bd_b = _slot_vals(co, day_acc, f"batt_discharge:{bid}")
-        for s in SLOTS:
+        for s in ATTRIBUTION_SLOTS:
             bc[s] += bc_b[s]
             bd[s] += bd_b[s]
     return bc, bd
@@ -161,7 +161,7 @@ def _compute_energy_aggregation(co: HubEnergieCoordinator, day_acc: Mapping[str,
         solar=solar,
         battery_charge=batt_charge,
         battery_discharge=batt_discharge,
-        slots=SLOTS,
+        slots=ATTRIBUTION_SLOTS,
     )
 
 
@@ -173,13 +173,13 @@ def _compute_costs(
     return compute_costs_domain(
         grid_by_slot=dict(grid),
         rates_by_slot=dict(rates),
-        slots=SLOTS,
+        slots=ATTRIBUTION_SLOTS,
         abonnement_eur=abo_day,
     )
 
 
 def _compute_origin_and_usage(energy: EnergyAggregation) -> OriginAndUsage:
-    return compute_origin_and_usage_domain(energy, SLOTS)
+    return compute_origin_and_usage_domain(energy, ATTRIBUTION_SLOTS)
 
 
 def _compute_power_flow_model(
@@ -272,7 +272,7 @@ def _update_reinjection_diagnostics(
         rates=dict(rates),
         flow=flow,
         cause=cause,
-        slots=SLOTS,
+        slots=ATTRIBUTION_SLOTS,
         diag_causes=_DIAG_CAUSES,
         current_slot=co._edf.current_slot,
         last_ts=co._reinjection_state.last_ts,
@@ -312,7 +312,7 @@ def _usage_batt_charge_by_slot_from_heuristic(
 ) -> tuple[dict[str, float], dict[str, float]]:
     return usage_batt_charge_by_slot_from_heuristic_domain(
         batt_charge_by_slot=bc,
-        slots=SLOTS,
+        slots=ATTRIBUTION_SLOTS,
         is_hc_slot=_is_hc_slot,
         is_hp_slot=_is_hp_slot,
     )
@@ -438,7 +438,7 @@ def build_pipeline_deps(co: HubEnergieCoordinator) -> SnapshotPipelineDeps:
             battery_charge_by_slot=battery_charge_by_slot,
             battery_discharge_by_slot=battery_discharge_by_slot,
             rates_by_slot=rates_by_slot,
-            slots=SLOTS,
+            slots=ATTRIBUTION_SLOTS,
             is_hc_slot=_is_hc_slot,
         ),
         battery_power_split_available=lambda: _battery_power_split_available(co),

@@ -17,6 +17,16 @@ Fork of `edf_energy_tariffs` with a cleaner architecture, generic supplier suppo
 - **Diagnostics**: reinjection classification, export attribution, health monitoring
 - **Lovelace card**: forked card with battery SOC bar, ETA to full/empty, refactored to LitElement
 
+## Data sources (SSOT)
+
+Understanding what is authoritative avoids misconfiguring the Energy Dashboard or scraping the wrong attributes:
+
+1. **Physical meters (external SSOT)** — The energy entities you select in the integration (`grid_import_energy`, `solar_energy`, export, per-battery in/out). Their recorder history is the ground truth for **total** kWh from hardware or upstream integrations.
+2. **Internal accounting** — The coordinator accumulates **positive deltas** from those entities into `totals_kwh_by_source` and per-day `slot_day_kwh` (including a dedicated `unknown` bucket when the tariff slot cannot be resolved without dropping energy). The integration’s **`total_increasing` SSOT sensors** reflect this internal sum, not a live re-read of the meter state each update.
+3. **Long-term per-slot kWh (daily)** — After each Paris day, the integration writes **external statistics** (`hub_energie:slot_<source>_<slot>_kwh`) via the recorder. Use these (or the physical meters) for historical analytics—not raw `cost_detail` attribute history, which is sampled and mixed with UI/diagnostic fields.
+
+Optional observability on the **health** and **`cost_detail`** sensors includes `data_quality`, `delta_telemetry`, and `delta_discards` (per-source last applied delta, gap, drift vs meter, attribution method).
+
 ## Installation
 
 Copy the `hub_energie` folder to your Home Assistant `custom_components/` directory:

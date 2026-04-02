@@ -6,6 +6,7 @@ import copy
 from dataclasses import dataclass, field
 from typing import Any, Callable, Mapping
 
+from ..const import SLOTS
 from ..diagnostics.reinjection_state import ReinjectionState
 from ..energy.accumulator import DeltaApplyResult, compute_delta_decision
 from ..energy.delta_policy import DeltaPolicy
@@ -28,6 +29,9 @@ class RuntimeState:
     batt_charge_power_split_slot_kwh: dict[str, dict[str, dict[str, float]]] = field(
         default_factory=dict
     )
+    last_stable_attribution_slot: str | None = None
+    delta_telemetry: dict[str, dict[str, Any]] = field(default_factory=dict)
+    delta_discards: dict[str, int] = field(default_factory=dict)
 
     def _empty_slots(self) -> dict[str, float]:
         return {slot: 0.0 for slot in self.slots}
@@ -40,7 +44,35 @@ class RuntimeState:
         self.source_entity_by_source = {}
         self.batt_charge_power_split_kwh = {}
         self.batt_charge_power_split_slot_kwh = {}
+        self.last_stable_attribution_slot = None
+        self.delta_telemetry = {}
+        self.delta_discards = {}
         self.reinjection_state.hydrate(diag_export_kwh={}, diag_export_slot_kwh={})
+
+    def note_delta_discard(self, kind: str) -> None:
+        self.delta_discards[kind] = int(self.delta_discards.get(kind, 0)) + 1
+
+    def record_applied_delta_telemetry(
+        self,
+        source_key: str,
+        *,
+        applied_at_iso: str,
+        delta_kwh: float,
+        slot: str,
+        method: str,
+        gap_seconds: float | None,
+        drift_kwh: float | None,
+    ) -> None:
+        self.delta_telemetry[source_key] = {
+            "last_applied_at": applied_at_iso,
+            "last_delta_kwh": delta_kwh,
+            "last_slot": slot,
+            "last_method": method,
+            "last_gap_seconds": gap_seconds,
+            "drift_kwh": drift_kwh,
+        }
+        if slot in SLOTS:
+            self.last_stable_attribution_slot = slot
 
     def source_total(self, prefix_or_key: str, *, normalize_kwh: Callable[[float], float]) -> float:
         if prefix_or_key.endswith(":"):
@@ -121,6 +153,10 @@ class RuntimeState:
             diag_export_kwh=dict(payload.get("diag_export_kwh", {})),
             diag_export_slot_kwh=dict(payload.get("diag_export_slot_kwh", {})),
         )
+        raw_stable = payload.get("last_stable_attribution_slot")
+        self.last_stable_attribution_slot = (
+            str(raw_stable) if isinstance(raw_stable, str) and raw_stable in SLOTS else None
+        )
 
     def export_store_payload(self, *, store_manager: Any) -> dict[str, Any]:
         diag_payload = self.reinjection_state.snapshot()
@@ -134,6 +170,7 @@ class RuntimeState:
             diag_export_slot_kwh=diag_payload["diag_export_slot_kwh"],
             batt_charge_power_split_kwh=self.batt_charge_power_split_kwh,
             batt_charge_power_split_slot_kwh=self.batt_charge_power_split_slot_kwh,
+            last_stable_attribution_slot=self.last_stable_attribution_slot,
         )
 
     def snapshot_data(self, day: str) -> Mapping[str, Any]:

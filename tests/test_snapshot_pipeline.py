@@ -36,8 +36,9 @@ flow_module = importlib.import_module("hub_energie.power.power_flow")
 tempo_module = importlib.import_module("hub_energie.tempo.tempo_logic")
 builder_module = importlib.import_module("hub_energie.snapshot.snapshot_builder")
 pipeline_module = importlib.import_module("hub_energie.snapshot.pipeline")
+const_module = importlib.import_module("hub_energie.const")
 
-SLOTS = ("bleu_hc", "bleu_hp", "blanc_hc", "blanc_hp", "rouge_hc", "rouge_hp")
+SLOTS = const_module.ATTRIBUTION_SLOTS
 
 
 def test_pipeline_builds_snapshot_and_warns_flow_mismatch() -> None:

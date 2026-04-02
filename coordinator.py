@@ -10,6 +10,7 @@ from typing import Any, TypedDict, cast
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.util import dt as dt_util
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import (
@@ -116,7 +117,11 @@ from .const import (
     DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH,
     DATA_USAGE_SOLAR_DIRECT,
     DATA_BATT_CHARGE_METER_KWH,
+    ATTRIBUTION_SLOTS,
     DATA_CONTRACT_POWER,
+    DATA_DATA_QUALITY,
+    DATA_DELTA_DISCARDS,
+    DATA_DELTA_TELEMETRY,
     DATA_OFFER,
     DIAG_CAUSE_BATTERY_FULL_OR_ABSENT,
     DIAG_CAUSE_SOLAR_SURPLUS,
@@ -125,7 +130,7 @@ from .const import (
     DOMAIN,
     ENERGY_ROUND_DECIMALS,
     GRID_POWER_SIGN_EXPORT_NEGATIVE,
-    SLOTS,
+    SLOT_UNKNOWN,
     SOURCE_GRID,
     SOURCE_GRID_EXPORT,
     SOURCE_SOLAR,
@@ -150,7 +155,7 @@ from .snapshot.pipeline import SnapshotPipeline
 from .storage.statistics import statistic_id as statistic_id_for_domain
 from .storage.store_manager import StoreManager
 from .tariff import EdfRuntimeFields, refresh_tariffs, update_edf_state
-from .tariff.slot_resolver import resolve_slot
+from .tariff.slot_attribution import resolve_attribution_slot
 from .tariff_manager import TariffResolver
 from .time.paris_time import ParisTime
 from .utils.energy import normalize_kwh
@@ -283,6 +288,9 @@ class EnergyData(TypedDict, total=False):
     solar_to_battery_power_w: float
     grid_to_battery_power_w: float
     solar_export_power_w: float
+    data_quality: str
+    delta_telemetry: dict[str, dict[str, Any]]
+    delta_discards: dict[str, int]
 
 
 class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
@@ -296,7 +304,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         self._state_lock = asyncio.Lock()
         self._store_manager = StoreManager(
             model_version=STORE_MODEL_VERSION,
-            slots=SLOTS,
+            slots=ATTRIBUTION_SLOTS,
             decimals=ENERGY_ROUND_DECIMALS,
         )
         self._reader = HAReader(hass, entry, normalize_kwh=normalize_kwh)
@@ -306,12 +314,12 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         self._last_flow_warn_ts: datetime | None = None
 
         self._reinjection_state = ReinjectionState(
-            slots=SLOTS,
+            slots=ATTRIBUTION_SLOTS,
             diag_causes=_DIAG_CAUSES,
             default_cause=DIAG_CAUSE_UNATTRIBUTED,
         )
         self._runtime_state = RuntimeState(
-            slots=SLOTS,
+            slots=ATTRIBUTION_SLOTS,
             reinjection_state=self._reinjection_state,
         )
         self._delta_policy = DeltaPolicy()
@@ -320,7 +328,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             hass=self.hass,
             entry=self.entry,
             domain=DOMAIN,
-            slots=SLOTS,
+            slots=ATTRIBUTION_SLOTS,
             state_lock=self._state_lock,
             runtime_state=self._runtime_state,
             store_manager=self._store_manager,
@@ -334,7 +342,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             safe_float=safe_float,
             statistic_id=lambda sk, sl: statistic_id_for_domain(DOMAIN, sk, sl),
         )
-        self._snapshot_pipeline = SnapshotPipeline(SLOTS, build_pipeline_deps(self))
+        self._snapshot_pipeline = SnapshotPipeline(ATTRIBUTION_SLOTS, build_pipeline_deps(self))
 
         self._tariff: TariffResolver | None = None
         self._scheduler = Scheduler(
@@ -586,7 +594,15 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             self._energy_attrib_date = day
             await self.async_request_refresh()
 
-        slot = resolve_slot(
+        prev_tel = self._runtime_state.delta_telemetry.get(source_key, {})
+        prev_iso = prev_tel.get("last_applied_at") if isinstance(prev_tel, dict) else None
+        gap_seconds: float | None = None
+        if isinstance(prev_iso, str):
+            prev_dt = dt_util.parse_datetime(prev_iso)
+            if prev_dt is not None:
+                gap_seconds = (dt_util.utcnow() - prev_dt).total_seconds()
+
+        attribution = resolve_attribution_slot(
             now_paris=now_paris,
             is_edf=self.is_edf,
             tariff_offer=self.tariff_offer,
@@ -594,22 +610,32 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             edf_fields=self._edf,
             hass=self.hass,
             entry=self.entry,
+            last_stable_slot=self._runtime_state.last_stable_attribution_slot,
         )
-        if slot is None:
+        if attribution.slot == SLOT_UNKNOWN:
             await self.async_request_refresh()
-            slot = resolve_slot(
-                now_paris=now_paris,
+            attribution = resolve_attribution_slot(
+                now_paris=_paris_now(),
                 is_edf=self.is_edf,
                 tariff_offer=self.tariff_offer,
                 tempo_mode=self.tempo_mode,
                 edf_fields=self._edf,
                 hass=self.hass,
                 entry=self.entry,
+                last_stable_slot=self._runtime_state.last_stable_attribution_slot,
             )
-        if slot is None or slot not in SLOTS:
-            return
 
+        slot = attribution.slot
+        method = attribution.method
         self._edf.current_slot = slot
+
+        if method != "direct":
+            _LOGGER.info(
+                "Energy delta attribution source=%s slot=%s method=%s",
+                source_key,
+                slot,
+                method,
+            )
 
         normalized_new = normalize_kwh(new_val)
         async with self._state_lock:
@@ -623,6 +649,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
                 delta_policy=self._delta_policy,
             )
             if result.outcome == "discarded_negative":
+                self._runtime_state.note_delta_discard("discarded_negative")
                 _LOGGER.warning(
                     "Discarded negative delta for %s: old=%.6f new=%.6f",
                     source_key,
@@ -630,10 +657,30 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
                     result.new_raw or 0.0,
                 )
             elif result.outcome == "discarded_unrealistic":
+                self._runtime_state.note_delta_discard("discarded_unrealistic")
                 _LOGGER.warning(
                     "Discarded unrealistic delta for %s: delta=%.6f",
                     source_key,
                     result.delta_kwh,
+                )
+            elif result.outcome == "applied":
+                meter_kwh = self._reader.read_energy_kwh(entity_id)
+                internal = self._runtime_state.source_total(
+                    source_key, normalize_kwh=normalize_kwh,
+                )
+                drift_kwh = (
+                    round(internal - meter_kwh, 6)
+                    if meter_kwh is not None and math.isfinite(internal)
+                    else None
+                )
+                self._runtime_state.record_applied_delta_telemetry(
+                    source_key,
+                    applied_at_iso=dt_util.utcnow().isoformat(),
+                    delta_kwh=result.delta_kwh,
+                    slot=slot,
+                    method=method,
+                    gap_seconds=gap_seconds,
+                    drift_kwh=drift_kwh,
                 )
             if result.should_save:
                 self._schedule_store_save_locked()
@@ -703,6 +750,28 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         self.async_update_listeners()
         return snapshot
 
+    def _compute_data_quality(self) -> str:
+        """Coarse signal for UI / support (gap, fallbacks, unknown bucket)."""
+        day = ParisTime.today()
+        day_acc = self._runtime_state.snapshot_data(day)
+        grid = day_acc.get(SOURCE_GRID, {})
+        unk = (
+            float(grid.get(SLOT_UNKNOWN, 0.0))
+            if isinstance(grid, dict)
+            else 0.0
+        )
+        for tel in self._runtime_state.delta_telemetry.values():
+            if not isinstance(tel, dict):
+                continue
+            if tel.get("last_method") not in (None, "direct"):
+                return "degraded"
+            gs = tel.get("last_gap_seconds")
+            if gs is not None and float(gs) > 7200:
+                return "degraded"
+        if unk > 0.01:
+            return "degraded"
+        return "good"
+
     def _build_snapshot(self) -> EnergyData:
         inputs = build_snapshot_inputs(self)
         result = self._snapshot_pipeline.run(inputs)
@@ -725,7 +794,14 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
                 result.snapshot["export_power_w"],
                 result.snapshot["debug_flow_gap_w"],
             )
-        return cast(EnergyData, result.snapshot)
+        snap = dict(result.snapshot)
+        snap[DATA_DATA_QUALITY] = self._compute_data_quality()
+        snap[DATA_DELTA_TELEMETRY] = {
+            k: dict(v) if isinstance(v, dict) else v
+            for k, v in self._runtime_state.delta_telemetry.items()
+        }
+        snap[DATA_DELTA_DISCARDS] = dict(self._runtime_state.delta_discards)
+        return cast(EnergyData, snap)
 
     async def async_manual_tariff_refresh(self) -> bool:
         return await self._async_refresh_tariffs(update_entry=True)

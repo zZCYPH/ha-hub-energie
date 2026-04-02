@@ -5,4 +5,5 @@ export const SLOTS = Object.freeze([
   { id: "blanc_hp", label: "Blanc HP", color: "#b0bec5" },
   { id: "rouge_hc", label: "Rouge HC", color: "#e53935" },
   { id: "rouge_hp", label: "Rouge HP", color: "#e53935" },
+  { id: "unknown", label: "Indéterminé", color: "#78909c" },
 ]);

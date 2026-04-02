@@ -90,6 +90,7 @@ def build_store_payload(
     diag_export_slot_kwh: dict[str, Any],
     batt_charge_power_split_kwh: dict[str, Any],
     batt_charge_power_split_slot_kwh: dict[str, Any],
+    last_stable_attribution_slot: str | None,
     decimals: int,
 ) -> dict[str, Any]:
     return {
@@ -118,6 +119,7 @@ def build_store_payload(
         "diag_export_slot_kwh": diag_export_slot_kwh,
         "batt_charge_power_split_kwh": batt_charge_power_split_kwh,
         "batt_charge_power_split_slot_kwh": batt_charge_power_split_slot_kwh,
+        "last_stable_attribution_slot": last_stable_attribution_slot,
     }
 
 
@@ -148,6 +150,7 @@ class StoreManager:
         diag_export_slot_kwh: dict[str, Any],
         batt_charge_power_split_kwh: dict[str, Any],
         batt_charge_power_split_slot_kwh: dict[str, Any],
+        last_stable_attribution_slot: str | None,
     ) -> dict[str, Any]:
         return build_store_payload(
             model_version=self.model_version,
@@ -160,5 +163,6 @@ class StoreManager:
             diag_export_slot_kwh=diag_export_slot_kwh,
             batt_charge_power_split_kwh=batt_charge_power_split_kwh,
             batt_charge_power_split_slot_kwh=batt_charge_power_split_slot_kwh,
+            last_stable_attribution_slot=last_stable_attribution_slot,
             decimals=self.decimals,
         )

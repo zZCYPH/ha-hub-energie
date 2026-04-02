@@ -125,11 +125,16 @@ from .const import (
     DATA_USAGE_SOLAR_BATT_CHARGE,
     DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH,
     DATA_USAGE_SOLAR_DIRECT,
+    ATTRIBUTION_SLOTS,
+    DATA_DATA_QUALITY,
+    DATA_DELTA_DISCARDS,
+    DATA_DELTA_TELEMETRY,
     DOMAIN,
     LOGIC_VERSION,
     OPT_TARIFF_FETCHED_AT,
     REINJECTION_OPTION_KEYS,
     SLOTS,
+    SLOT_UNKNOWN,
     SOURCE_BATT_CHARGE,
     SOURCE_BATT_DISCHARGE,
     SOURCE_GRID,
@@ -282,6 +287,8 @@ def _device_diagnostics(coordinator: HubEnergieCoordinator) -> DeviceInfo:
 
 def _slot_label_fr(slot: str) -> str:
     """Compact French label for a tariff slot (Tempo / HPHC)."""
+    if slot == SLOT_UNKNOWN:
+        return "Indéterminé"
     parts = slot.split("_", 1)
     if len(parts) != 2:
         return slot.replace("_", " ").title()
@@ -964,7 +971,7 @@ class HubEnergieCostDetailSensor(HubEnergieSensor):
             if battery_soc_max is not None:
                 attrs["battery_soc_max_percent"] = battery_soc_max
         if isinstance(cbs, dict):
-            for slot in SLOTS:
+            for slot in ATTRIBUTION_SLOTS:
                 slot_cost = _safe_float(cbs.get(slot))
                 if slot_cost is not None:
                     attrs[f"{slot}_eur"] = round(slot_cost, 3)
@@ -1176,6 +1183,8 @@ class HubEnergieHealthSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnt
     def native_value(self) -> str:
         data = self.coordinator.data
         c = self.coordinator
+        if data and data.get(DATA_DATA_QUALITY) == "degraded":
+            return "warning"
         if c.is_edf and c.tariff_offer == TARIFF_OFFER_TEMPO:
             if c.tempo_mode == TEMPO_MODE_RTE and not c._edf.calendar_rows:  # noqa: SLF001
                 return "warning"
@@ -1190,6 +1199,9 @@ class HubEnergieHealthSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnt
             "paris_day": data.get(DATA_DAY),
             DATA_CURRENT_SLOT: data.get(DATA_CURRENT_SLOT),
             DATA_LOGIC_VERSION: data.get(DATA_LOGIC_VERSION, LOGIC_VERSION),
+            DATA_DATA_QUALITY: data.get(DATA_DATA_QUALITY),
+            DATA_DELTA_DISCARDS: data.get(DATA_DELTA_DISCARDS, {}),
+            DATA_DELTA_TELEMETRY: data.get(DATA_DELTA_TELEMETRY, {}),
         }
 
 

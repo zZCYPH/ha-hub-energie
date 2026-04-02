@@ -632,7 +632,8 @@ const Qt = Object.freeze({
   { id: "blanc_hc", label: "Blanc HC", color: "#b0bec5" },
   { id: "blanc_hp", label: "Blanc HP", color: "#b0bec5" },
   { id: "rouge_hc", label: "Rouge HC", color: "#e53935" },
-  { id: "rouge_hp", label: "Rouge HP", color: "#e53935" }
+  { id: "rouge_hp", label: "Rouge HP", color: "#e53935" },
+  { id: "unknown", label: "Indéterminé", color: "#78909c" }
 ]), wt = "Europe/Paris";
 function he(o = /* @__PURE__ */ new Date()) {
   return new Intl.DateTimeFormat("en-CA", {

@@ -244,6 +244,20 @@ SLOTS: Final[tuple[str, ...]] = (
     "rouge_hc", "rouge_hp",
 )
 
+# Attribution bucket when no tariff slot can be resolved (energy still accumulated).
+SLOT_UNKNOWN: Final = "unknown"
+ATTRIBUTION_SLOTS: Final[tuple[str, ...]] = (*SLOTS, SLOT_UNKNOWN)
+
+# How the slot used for a delta was chosen (observability / data_quality).
+SLOT_RESOLUTION_DIRECT: Final = "direct"
+SLOT_RESOLUTION_FALLBACK_LAST_KNOWN: Final = "fallback_last_known"
+SLOT_RESOLUTION_FALLBACK_SCHEDULE: Final = "fallback_schedule"
+SLOT_RESOLUTION_UNKNOWN: Final = "unknown"
+
+DATA_DATA_QUALITY: Final = "data_quality"
+DATA_DELTA_TELEMETRY: Final = "delta_telemetry"
+DATA_DELTA_DISCARDS: Final = "delta_discards"
+
 OPT_BLEU_HC: Final = "bleu_hc"
 OPT_BLEU_HP: Final = "bleu_hp"
 OPT_BLANC_HC: Final = "blanc_hc"
