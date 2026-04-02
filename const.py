@@ -410,6 +410,12 @@ DATA_BATTERY_AVAILABLE_ENERGY_KWH: Final = "available_energy_kwh"
 DATA_BATTERY_EFFICIENCY: Final = "efficiency"
 
 # ---------------------------------------------------------------------------
+# Per-slot snapshot maps (exposed on cost_detail for frontend consumption)
+# ---------------------------------------------------------------------------
+DATA_GRID_BY_SLOT_KWH: Final = "grid_by_slot_kwh"
+DATA_MAISON_BY_SLOT_KWH: Final = "maison_by_slot_kwh"
+
+# ---------------------------------------------------------------------------
 # Reinjection diagnostics
 # ---------------------------------------------------------------------------
 DIAG_CAUSE_SOLAR_SURPLUS: Final = "solar_surplus"

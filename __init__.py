@@ -36,18 +36,15 @@ async def _async_register_card_route(hass: HomeAssistant) -> None:
     """Register /{domain} static route once; refresh extra Lovelace JS when dist/manifest changes."""
     integration_dir = Path(__file__).parent
     frontend_dir = integration_dir / "frontend"
-    card_file = frontend_dir / "hub-energie-card.js"
     dist_file = frontend_dir / "dist" / "hub-energie-card.js"
 
     if not hass.data.get(_FRONTEND_STATIC_KEY):
-        if not card_file.is_file():
-            _LOGGER.warning("hub-energie-card.js missing under frontend/")
-            return
         if not dist_file.is_file():
             _LOGGER.warning(
                 "dist/hub-energie-card.js missing under frontend/. "
                 "Run the Vite build before using the card."
             )
+            return
         frontend_resolved = str(frontend_dir.resolve())
         registered = False
 

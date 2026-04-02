@@ -26,10 +26,13 @@ import {
 import {
   battChargeSlotRowsFromAttrs,
   COST_AGG_ATTRS,
+  COST_AGG_DICT_ATTRS,
   dayColorClass,
   dayColorLabel,
+  isCardReady,
   makeEntityMap,
   offerLabel,
+  readSlotValue,
   slotLabel,
   slotMapFingerprint,
 } from "./utils/energy-utils.js";
@@ -58,6 +61,7 @@ async function fetchHistoryStates(hass, startIso, endIso, entityIds, costEntityI
   // not the max. Some sensors can briefly spike then be corrected/reset.
   const entityDayLast = new Map(); // id -> day -> {ts, v}
   const costAttrDayLast = new Map(); // attr -> day -> {ts, v}
+  const costDictAttrDayLast = new Map(); // attr -> day -> {ts, dict}
   const latestById = new Map();
   const idSet = new Set(entityIds);
 
@@ -87,6 +91,14 @@ async function fetchHistoryStates(hass, startIso, endIso, entityIds, costEntityI
           const prev = byDay.get(day);
           if (!prev || ts >= prev.ts) byDay.set(day, { ts, v });
         }
+        for (const k of COST_AGG_DICT_ATTRS) {
+          const dict = s.attributes?.[k];
+          if (!dict || typeof dict !== "object") continue;
+          if (!costDictAttrDayLast.has(k)) costDictAttrDayLast.set(k, new Map());
+          const byDay = costDictAttrDayLast.get(k);
+          const prev = byDay.get(day);
+          if (!prev || ts >= prev.ts) byDay.set(day, { ts, dict });
+        }
       }
 
       const prev = latestById.get(id);
@@ -95,12 +107,27 @@ async function fetchHistoryStates(hass, startIso, endIso, entityIds, costEntityI
   }
 
   const sumDayLast = (m) => [...(m?.values() ?? [])].reduce((a, rec) => a + (rec?.v ?? 0), 0);
+
+  const sumDictDayLast = (m) => {
+    if (!m) return {};
+    const merged = {};
+    for (const rec of m.values()) {
+      if (!rec?.dict || typeof rec.dict !== "object") continue;
+      for (const [k, raw] of Object.entries(rec.dict)) {
+        const v = typeof raw === "number" ? raw : parseFloat(raw);
+        if (Number.isFinite(v)) merged[k] = (merged[k] ?? 0) + v;
+      }
+    }
+    return merged;
+  };
+
   const out = {};
   for (const id of idSet) {
     const latest = latestById.get(id)?.state;
     const attrs = { ...(latest?.attributes ?? {}) };
     if (id === costEntityId) {
       for (const k of COST_AGG_ATTRS) attrs[k] = sumDayLast(costAttrDayLast.get(k));
+      for (const k of COST_AGG_DICT_ATTRS) attrs[k] = sumDictDayLast(costDictAttrDayLast.get(k));
     }
     out[id] = {
       entity_id: id,
@@ -681,7 +708,6 @@ class HubEnergieCard extends LitElement {
     const E = this._map();
     const ids = [
       E.cost,
-      ...SLOTS.flatMap((s) => [E.grid(s.id), E.maison(s.id), E.battCharge(s.id)]),
       E.ecoSolar,
       E.ecoBatt,
       E.originGrid,
@@ -708,6 +734,8 @@ class HubEnergieCard extends LitElement {
       costAttrs.export_power_w ?? "",
       costAttrs.battery_soc_percent ?? "",
       costAttrs.battery_capacity_kwh ?? "",
+      slotMapFingerprint(costAttrs.grid_by_slot_kwh),
+      slotMapFingerprint(costAttrs.maison_by_slot_kwh),
       slotMapFingerprint(costAttrs.usage_grid_batt_charge_by_slot_kwh),
       slotMapFingerprint(costAttrs.usage_solar_batt_charge_by_slot_kwh),
       states[E.cost]?.last_updated ?? "",
@@ -743,16 +771,19 @@ class HubEnergieCard extends LitElement {
       oppOtherEur: readAttrNum(st, E.cost, "export_opportunity_cost_unattributed_eur"),
     };
 
+    const gridBySlotKwh = costAttrs.grid_by_slot_kwh;
+    const maisonBySlotKwh = costAttrs.maison_by_slot_kwh;
+
     const grid = SLOTS.map((s) => ({
       ...s,
       label: slotLabel(s.id, offer),
-      v: readNum(st, E.grid(s.id)),
+      v: readSlotValue(gridBySlotKwh, s.id),
       isHc: s.id.endsWith("_hc"),
     }));
     const maison = SLOTS.map((s) => ({
       ...s,
       label: slotLabel(s.id, offer),
-      v: readNum(st, E.maison(s.id)),
+      v: readSlotValue(maisonBySlotKwh, s.id),
       isHc: s.id.endsWith("_hc"),
     }));
 
@@ -761,7 +792,7 @@ class HubEnergieCard extends LitElement {
       ...s,
       label: slotLabel(s.id, offer),
       v: readAttrNum(st, E.cost, `${s.id}_eur`),
-      tooltip: `${readNum(st, E.grid(s.id)).toFixed(3)} kWh`,
+      tooltip: `${readSlotValue(gridBySlotKwh, s.id).toFixed(3)} kWh`,
       isHc: s.id.endsWith("_hc"),
     }));
     const abo = readAttrNum(st, E.cost, "abonnement_eur");
@@ -832,7 +863,6 @@ class HubEnergieCard extends LitElement {
     const E = this._map();
     const r = this._getRange();
     const ids = [
-      ...SLOTS.flatMap((s) => [E.grid(s.id), E.maison(s.id), E.battCharge(s.id)]),
       E.cost,
       E.ecoSolar,
       E.ecoBatt,
@@ -1122,6 +1152,21 @@ class HubEnergieCard extends LitElement {
 
     const locale = String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? "en-GB" : "fr-FR";
     const isToday = this._isLiveMode();
+    const E = this._map();
+
+    if (isToday && !isCardReady(this.hass?.states, E.cost)) {
+      return html`
+        <ha-card>
+          <div class="header"><h2>Hub Énergie</h2></div>
+          <div class="alert">
+            Capteur <code>${E.cost}</code> introuvable.<br />
+            Ajoutez dans la carte : <code>cost_entity: sensor.hub_energie_cost_detail</code><br />
+            (Outils de développement → États, cherchez « hub energie cost detail »).
+          </div>
+        </ha-card>
+      `;
+    }
+
     const r = this._getRange();
     const {
       grid,
@@ -1132,6 +1177,7 @@ class HubEnergieCard extends LitElement {
       ecoSolar,
       ecoBatt,
       og,
+      os,
       usage,
       costEntityOk,
       offer,
@@ -1144,7 +1190,6 @@ class HubEnergieCard extends LitElement {
       gridBattBySlot,
       solarBattBySlot,
     } = this._extract();
-    const E = this._map();
 
     const totalGrid = grid.reduce((a, s) => a + s.v, 0);
     const totalMaison = maison.reduce((a, s) => a + s.v, 0);
@@ -1335,16 +1380,6 @@ class HubEnergieCard extends LitElement {
           </div>
         </div>
 
-        ${isToday && !costEntityOk && this.hass?.states
-          ? html`
-              <div class="alert">
-                Capteur <code>${E.cost}</code> introuvable.<br />
-                Ajoutez dans la carte : <code>cost_entity: sensor.hub_energie_cost_detail</code><br />
-                (Outils de développement → États, cherchez « hub energie cost detail »).
-              </div>
-            `
-          : nothing}
-
         ${this._histLoading ? html`<div class="loader">${i18n.loading}</div>` : nothing}
 
         <div class="meta-tempo-wrap">
@@ -1503,7 +1538,7 @@ class HubEnergieCard extends LitElement {
                     <div>
                       <b>Origine</b>
                       Réseau : ${og.toFixed(3)} kWh<br />
-                      Solaire : ${readNum(this._states(), this._map().originSolar).toFixed(3)} kWh
+                      Solaire : ${os.toFixed(3)} kWh
                     </div>
                     <div>
                       <b>Économies</b>
@@ -1557,7 +1592,7 @@ class HubEnergieCard extends LitElement {
 }
 
 /** Bump when deploying so DevTools shows whether this bundle loaded. */
-const HUB_ENERGIE_CARD_VERSION = "2026.04.01-1";
+const HUB_ENERGIE_CARD_VERSION = "2026.04.02-1";
 console.log("[hub-energie-card]", HUB_ENERGIE_CARD_VERSION);
 
 if (!customElements.get("hub-energie-card")) {

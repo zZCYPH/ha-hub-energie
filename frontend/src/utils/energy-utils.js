@@ -1,5 +1,6 @@
 import { SLOTS } from "../constants/slots.js";
 
+/** Numeric cost_detail attributes aggregated (summed) across history days. */
 export const COST_AGG_ATTRS = Object.freeze([
   ...SLOTS.map((s) => `${s.id}_eur`),
   "abonnement_eur",
@@ -14,12 +15,19 @@ export const COST_AGG_ATTRS = Object.freeze([
   "export_opportunity_cost_unattributed_eur",
 ]);
 
+/** Dict-valued cost_detail attributes aggregated per-key across history days. */
+export const COST_AGG_DICT_ATTRS = Object.freeze([
+  "grid_by_slot_kwh",
+  "maison_by_slot_kwh",
+]);
+
+/**
+ * Legacy prefix-based entity map. Kept for backward compatibility in history
+ * fetching where explicit entity IDs are required by the HA history API.
+ */
 export function makeEntityMap(prefix) {
   const p = prefix;
   return {
-    grid: (id) => `${p}grid_${id}_kwh`,
-    battCharge: (id) => `${p}batt_charge_${id}_kwh`,
-    maison: (id) => `${p}maison_${id}_kwh`,
     cost: `${p}cost_detail`,
     ecoSolar: `${p}savings_solar_eur`,
     ecoBatt: `${p}savings_battery_eur`,
@@ -31,6 +39,21 @@ export function makeEntityMap(prefix) {
     usageSolarBatt: `${p}usage_solar_batt_charge_kwh`,
     usageBattHome: `${p}usage_batt_home_kwh`,
   };
+}
+
+// ── Data access helpers ──────────────────────────────────────────────────
+
+/** Read a numeric value from a per-slot dict attribute, defaulting to 0. */
+export function readSlotValue(slotMap, slotId) {
+  if (!slotMap || typeof slotMap !== "object") return 0;
+  const raw = slotMap[slotId];
+  const v = typeof raw === "number" ? raw : parseFloat(raw);
+  return Number.isFinite(v) ? v : 0;
+}
+
+/** True when the cost_detail entity exists in the given states bag. */
+export function isCardReady(states, costEntityId) {
+  return !!states?.[costEntityId];
 }
 
 export function offerLabel(offer) {

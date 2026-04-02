@@ -82,6 +82,7 @@ from .const import (
     DATA_EXPORT_OPPORTUNITY_COST_UNATTRIBUTED_EUR,
     DATA_EXPORT_POWER_W,
     DATA_EXPORT_UNATTRIBUTED_KWH,
+    DATA_GRID_BY_SLOT_KWH,
     DATA_GRID_IMPORT_POWER_W,
     DATA_GRID_POWER_SIGNED_W,
     DATA_GRID_TO_BATTERY_POWER_W,
@@ -90,6 +91,7 @@ from .const import (
     DATA_LOAD_POWER_INFERRED,
     DATA_LOAD_POWER_W,
     DATA_LOGIC_VERSION,
+    DATA_MAISON_BY_SLOT_KWH,
     DATA_OFFER,
     DATA_ORIGIN_GRID,
     DATA_ORIGIN_GRID_ATTRS,
@@ -924,6 +926,20 @@ class HubEnergieCostDetailSensor(HubEnergieSensor):
             DATA_SOLAR_ESTIMATE_DAILY_KWH: data.get(DATA_SOLAR_ESTIMATE_DAILY_KWH),
             DATA_SOLAR_EXPORT_REVENUE_EUR: data.get(DATA_SOLAR_EXPORT_REVENUE_EUR),
         }
+        grid_map = data.get("grid")
+        if isinstance(grid_map, dict):
+            attrs[DATA_GRID_BY_SLOT_KWH] = {
+                k: round(float(v), 5)
+                for k, v in grid_map.items()
+                if isinstance(v, (int, float)) and math.isfinite(v)
+            }
+        maison_map = data.get("maison")
+        if isinstance(maison_map, dict):
+            attrs[DATA_MAISON_BY_SLOT_KWH] = {
+                k: round(float(v), 5)
+                for k, v in maison_map.items()
+                if isinstance(v, (int, float)) and math.isfinite(v)
+            }
         tempo_days = data.get(DATA_TEMPO_DAYS)
         if isinstance(tempo_days, dict):
             attrs[DATA_TEMPO_DAYS] = tempo_days
