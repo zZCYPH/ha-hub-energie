@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import math
 from datetime import datetime
-from typing import Any, cast
+from typing import Any, TypedDict, cast
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -34,6 +35,89 @@ from .const import (
     CONF_TEMPO_MODE,
     DEFAULT_TARIFF_AUTO_REFRESH,
     DEFAULT_TARIFF_REFRESH_HOURS,
+    DATA_BATT_CHARGE_POWER_W,
+    DATA_BATT_DISCHARGE_POWER_W,
+    DATA_BATTERY_CARD,
+    DATA_BATTERY_SOC,
+    DATA_BATTERY_STORED_ENERGY_KWH,
+    DATA_BATTERY_AVAILABLE_ENERGY_KWH,
+    DATA_BATTERY_CHARGE_KWH,
+    DATA_BATTERY_DISCHARGE_KWH,
+    DATA_BATTERY_EFFICIENCY,
+    DATA_BATTERY_POWER_NET,
+    DATA_BATTERY_TOTAL_CHARGE_KWH,
+    DATA_BATTERY_TOTAL_DISCHARGE_KWH,
+    DATA_BATTERY_TOTAL_NET_POWER_W,
+    DATA_COST_BY_SLOT,
+    DATA_COST_TOTAL,
+    DATA_CURRENT_SLOT,
+    DATA_DAY,
+    DATA_ECO_BATT,
+    DATA_ECO_SOLAR,
+    DATA_ENERGY_BATT_CHARGE_TODAY_KWH,
+    DATA_ENERGY_BATT_CHARGE_TOTAL_KWH,
+    DATA_ENERGY_BATT_DISCHARGE_TODAY_KWH,
+    DATA_ENERGY_BATT_DISCHARGE_TOTAL_KWH,
+    DATA_ENERGY_EXPORT_TODAY_KWH,
+    DATA_ENERGY_EXPORT_TOTAL_KWH,
+    DATA_ENERGY_GRID_TODAY_KWH,
+    DATA_ENERGY_GRID_TOTAL_KWH,
+    DATA_ENERGY_HOME_TODAY_KWH,
+    DATA_ENERGY_SOLAR_TODAY_KWH,
+    DATA_ENERGY_SOLAR_TOTAL_KWH,
+    DATA_EXPORT_OPPORTUNITY_COST_BATTERY_FULL_OR_ABSENT_EUR,
+    DATA_EXPORT_OPPORTUNITY_COST_SOLAR_SURPLUS_EUR,
+    DATA_EXPORT_OPPORTUNITY_COST_SWITCH_LATENCY_EUR,
+    DATA_EXPORT_OPPORTUNITY_COST_TOTAL_EUR,
+    DATA_EXPORT_OPPORTUNITY_COST_UNATTRIBUTED_EUR,
+    DATA_EXPORT_DUE_TO_BATTERY_FULL_OR_ABSENT_KWH,
+    DATA_EXPORT_DUE_TO_SOLAR_SURPLUS_KWH,
+    DATA_EXPORT_DUE_TO_SWITCH_LATENCY_KWH,
+    DATA_EXPORT_POWER_W,
+    DATA_EXPORT_UNATTRIBUTED_KWH,
+    DATA_GRID_IMPORT_POWER_W,
+    DATA_GRID_POWER_SIGNED_W,
+    DATA_GRID_TO_BATTERY_POWER_W,
+    DATA_GRID_TO_HOME_POWER_W,
+    DATA_HOME_POWER_W,
+    DATA_LOAD_POWER_INFERRED,
+    DATA_LOAD_POWER_W,
+    DATA_LOGIC_VERSION,
+    DATA_ORIGIN_GRID,
+    DATA_ORIGIN_GRID_ATTRS,
+    DATA_ORIGIN_SOLAR,
+    DATA_ORIGIN_SOLAR_ATTRS,
+    DATA_PRICING_STRUCTURE,
+    DATA_REINJECTION_CAUSE,
+    DATA_REINJECTION_CONFIDENCE,
+    DATA_RTE_CALENDAR_FETCHED_AT,
+    DATA_SOLAR_ESTIMATE_DAILY_KWH,
+    DATA_SOLAR_ESTIMATE_POWER_W,
+    DATA_SOLAR_ESTIMATE_YEARLY_KWH,
+    DATA_SOLAR_EXPORT_POWER_W,
+    DATA_SOLAR_EXPORT_REVENUE_EUR,
+    DATA_SOLAR_POWER_W,
+    DATA_SOLAR_PRODUCTION_POWER_W,
+    DATA_SOLAR_TO_BATTERY_POWER_W,
+    DATA_SOLAR_TO_HOME_POWER_W,
+    DATA_SUPPLIER,
+    DATA_TARIFF_FETCHED_AT,
+    DATA_TEMPO_DAYS,
+    DATA_TEMPO_NEXT_COLOUR_CHANGE_AT,
+    DATA_TEMPO_NEXT_HC_START_AT,
+    DATA_TODAY_COLOR,
+    DATA_TOMORROW_COLOR,
+    DATA_USAGE_BATT_CHARGE_METHOD,
+    DATA_USAGE_BATT_HOME,
+    DATA_USAGE_GRID_BATT_CHARGE,
+    DATA_USAGE_GRID_BATT_CHARGE_BY_SLOT_KWH,
+    DATA_USAGE_GRID_DIRECT,
+    DATA_USAGE_SOLAR_BATT_CHARGE,
+    DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH,
+    DATA_USAGE_SOLAR_DIRECT,
+    DATA_BATT_CHARGE_METER_KWH,
+    DATA_CONTRACT_POWER,
+    DATA_OFFER,
     DIAG_CAUSE_BATTERY_FULL_OR_ABSENT,
     DIAG_CAUSE_SOLAR_SURPLUS,
     DIAG_CAUSE_SWITCH_LATENCY,
@@ -98,13 +182,117 @@ def _paris_yesterday() -> str:
     return ParisTime.yesterday()
 
 
-class HubEnergieCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+class BatteryCardData(TypedDict, total=False):
+    capacity_kwh: float
+    stored_kwh: float
+    available_kwh: float
+    soc_percent: float
+    soc_min_percent: float
+    soc_max_percent: float
+
+
+class BatterySnapshotData(TypedDict, total=False):
+    id: str
+    charge_kwh: float
+    discharge_kwh: float
+    power_net: float
+    soc: float
+    stored_energy_kwh: float
+    available_energy_kwh: float
+    efficiency: float
+
+
+class EnergyData(TypedDict, total=False):
+    day: str
+    logic_version: str
+    current_slot: str
+    today_color: str
+    tomorrow_color: str
+    tempo_days: dict[str, dict[str, int]]
+    tempo_next_colour_change_at: str
+    tempo_next_hc_start_at: str
+    rte_calendar_fetched_at: str
+    cost_total: float
+    cost_by_slot: dict[str, float]
+    abonnement_eur: float
+    offer: str
+    supplier: str
+    contract_power: str
+    tariff_fetched_at: str
+    pricing_structure: str
+    reinjection_cause: str
+    reinjection_confidence: float
+    export_power_w: float
+    grid_power_signed_w: float
+    solar_power_w: float
+    solar_estimate_power_w: float
+    batt_discharge_power_w: float
+    batt_charge_power_w: float
+    load_power_w: float
+    load_power_inferred: bool
+    export_due_to_solar_surplus_kwh: float
+    export_due_to_battery_full_or_absent_kwh: float
+    export_due_to_switch_latency_kwh: float
+    export_unattributed_kwh: float
+    export_opportunity_cost_total_eur: float
+    export_opportunity_cost_solar_surplus_eur: float
+    export_opportunity_cost_battery_full_or_absent_eur: float
+    export_opportunity_cost_switch_latency_eur: float
+    export_opportunity_cost_unattributed_eur: float
+    usage_grid_direct: float
+    usage_grid_batt_charge: float
+    usage_solar_direct: float
+    usage_solar_batt_charge: float
+    usage_batt_home: float
+    usage_batt_charge_method: str
+    batt_charge_meter_kwh: float
+    usage_grid_batt_charge_by_slot_kwh: dict[str, float]
+    usage_solar_batt_charge_by_slot_kwh: dict[str, float]
+    origin_grid: float
+    origin_solar: float
+    origin_grid_attrs: dict[str, float]
+    origin_solar_attrs: dict[str, float]
+    eco_solar: float
+    eco_batt: float
+    battery_card: BatteryCardData
+    battery_total_charge_kwh: float
+    battery_total_discharge_kwh: float
+    battery_total_net_power_w: float
+    battery_systems: list[BatterySnapshotData]
+    solar_estimate_daily_kwh: float
+    solar_estimate_yearly_kwh: float
+    solar_export_revenue_eur: float
+    energy_grid_total_kwh: float
+    energy_solar_total_kwh: float
+    energy_export_total_kwh: float
+    energy_batt_charge_total_kwh: float
+    energy_batt_discharge_total_kwh: float
+    energy_home_today_kwh: float
+    energy_grid_today_kwh: float
+    energy_solar_today_kwh: float
+    energy_export_today_kwh: float
+    energy_batt_charge_today_kwh: float
+    energy_batt_discharge_today_kwh: float
+    home_power_w: float
+    grid_import_power_w: float
+    solar_production_power_w: float
+    battery_discharge_power_w: float
+    solar_to_home_power_w: float
+    battery_to_home_power_w: float
+    grid_to_home_power_w: float
+    solar_to_battery_power_w: float
+    grid_to_battery_power_w: float
+    solar_export_power_w: float
+
+
+class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
     """Central state coordinator for Hub Énergie."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=None)
         self.entry = entry
         self.config_entry = entry
+        self.data: EnergyData = {}
         self._state_lock = asyncio.Lock()
         self._store_manager = StoreManager(
             model_version=STORE_MODEL_VERSION,
@@ -310,6 +498,81 @@ class HubEnergieCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         st = self.hass.states.get(eid) if eid else None
         self._edf.current_slot = parse_slot_from_sensor_state(st.state if st else None)
 
+    def snapshot_data(self) -> EnergyData | None:
+        """Return the latest typed snapshot payload when available."""
+        return self.data if self.data else None
+
+    def get_value(self, key: str) -> Any | None:
+        """Return a raw snapshot value safely."""
+        data = self.snapshot_data()
+        if not data:
+            return None
+        return data.get(key)
+
+    def get_numeric_value(self, key: str) -> float | None:
+        """Return a finite numeric snapshot value."""
+        value = self.get_value(key)
+        if value is None or not isinstance(value, (int, float)):
+            return None
+        numeric = float(value)
+        return numeric if math.isfinite(numeric) else None
+
+    def get_mapping_value(self, key: str) -> dict[str, Any] | None:
+        """Return a snapshot mapping safely."""
+        value = self.get_value(key)
+        return value if isinstance(value, dict) else None
+
+    def get_nested_numeric_value(self, section_key: str, key: str) -> float | None:
+        """Return a finite numeric value inside a snapshot mapping."""
+        section = self.get_mapping_value(section_key)
+        if not section:
+            return None
+        value = section.get(key)
+        if value is None or not isinstance(value, (int, float)):
+            return None
+        numeric = float(value)
+        return numeric if math.isfinite(numeric) else None
+
+    def get_grid_power_signed_w(self) -> float | None:
+        """Return signed grid power in watts."""
+        return self.get_numeric_value(DATA_GRID_POWER_SIGNED_W)
+
+    def get_solar_power_w(self) -> float | None:
+        """Return measured solar power in watts."""
+        return self.get_numeric_value(DATA_SOLAR_POWER_W)
+
+    def get_load_power_w(self) -> float | None:
+        """Return measured or inferred load power in watts."""
+        return self.get_numeric_value(DATA_LOAD_POWER_W)
+
+    def get_cost_total(self) -> float | None:
+        """Return today's total cost in EUR."""
+        return self.get_numeric_value(DATA_COST_TOTAL)
+
+    def get_current_slot(self) -> str | None:
+        """Return the current tariff slot."""
+        value = self.get_value(DATA_CURRENT_SLOT)
+        return str(value) if value is not None else None
+
+    def get_today_color(self) -> str | None:
+        """Return today's Tempo color."""
+        value = self.get_value(DATA_TODAY_COLOR)
+        return str(value) if value is not None else None
+
+    def get_tomorrow_color(self) -> str | None:
+        """Return tomorrow's Tempo color."""
+        value = self.get_value(DATA_TOMORROW_COLOR)
+        return str(value) if value is not None else None
+
+    def get_tempo_days(self) -> dict[str, Any] | None:
+        """Return Tempo day counters mapping."""
+        return self.get_mapping_value(DATA_TEMPO_DAYS)
+
+    def get_battery_systems_data(self) -> list[BatterySnapshotData]:
+        """Return per-battery snapshot rows."""
+        value = self.get_value(CONF_BATTERY_SYSTEMS)
+        return value if isinstance(value, list) else []
+
     async def _async_apply_delta(self, entity_id: str, source_key: str, new_val: float) -> None:
         now_paris = _paris_now()
         day = _paris_today_iso()
@@ -410,7 +673,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self._schedule_store_save_locked()
         self.async_update_listeners()
 
-    async def _async_update_data(self) -> dict[str, Any]:
+    async def _async_update_data(self) -> EnergyData:
         now_paris = _paris_now()
         self._tariff = self._build_tariff_resolver()
 
@@ -440,7 +703,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.async_update_listeners()
         return snapshot
 
-    def _build_snapshot(self) -> dict[str, Any]:
+    def _build_snapshot(self) -> EnergyData:
         inputs = build_snapshot_inputs(self)
         result = self._snapshot_pipeline.run(inputs)
 
@@ -462,7 +725,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 result.snapshot["export_power_w"],
                 result.snapshot["debug_flow_gap_w"],
             )
-        return result.snapshot
+        return cast(EnergyData, result.snapshot)
 
     async def async_manual_tariff_refresh(self) -> bool:
         return await self._async_refresh_tariffs(update_entry=True)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 import math
-from typing import Any, TypedDict
+from typing import Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -39,6 +39,90 @@ from .const import (
     CONF_SUPPLIER,
     CONF_TARIFF_OFFER,
     CONF_TEMPO_MODE,
+    DATA_ABONNEMENT_EUR,
+    DATA_BATT_CHARGE_METER_KWH,
+    DATA_BATT_CHARGE_POWER_W,
+    DATA_BATTERY_AVAILABLE_ENERGY_KWH,
+    DATA_BATTERY_CARD,
+    DATA_BATTERY_CHARGE_KWH,
+    DATA_BATTERY_DISCHARGE_KWH,
+    DATA_BATTERY_DISCHARGE_POWER_W,
+    DATA_BATTERY_EFFICIENCY,
+    DATA_BATTERY_POWER_NET,
+    DATA_BATTERY_SOC,
+    DATA_BATTERY_STORED_ENERGY_KWH,
+    DATA_BATTERY_TO_HOME_POWER_W,
+    DATA_BATTERY_TOTAL_CHARGE_KWH,
+    DATA_BATTERY_TOTAL_DISCHARGE_KWH,
+    DATA_BATTERY_TOTAL_NET_POWER_W,
+    DATA_COST_BY_SLOT,
+    DATA_COST_TOTAL,
+    DATA_CURRENT_SLOT,
+    DATA_DAY,
+    DATA_ECO_BATT,
+    DATA_ECO_SOLAR,
+    DATA_ENERGY_BATT_CHARGE_TODAY_KWH,
+    DATA_ENERGY_BATT_CHARGE_TOTAL_KWH,
+    DATA_ENERGY_BATT_DISCHARGE_TODAY_KWH,
+    DATA_ENERGY_BATT_DISCHARGE_TOTAL_KWH,
+    DATA_ENERGY_EXPORT_TODAY_KWH,
+    DATA_ENERGY_EXPORT_TOTAL_KWH,
+    DATA_ENERGY_GRID_TODAY_KWH,
+    DATA_ENERGY_GRID_TOTAL_KWH,
+    DATA_ENERGY_HOME_TODAY_KWH,
+    DATA_ENERGY_SOLAR_TODAY_KWH,
+    DATA_ENERGY_SOLAR_TOTAL_KWH,
+    DATA_EXPORT_DUE_TO_BATTERY_FULL_OR_ABSENT_KWH,
+    DATA_EXPORT_DUE_TO_SOLAR_SURPLUS_KWH,
+    DATA_EXPORT_DUE_TO_SWITCH_LATENCY_KWH,
+    DATA_EXPORT_OPPORTUNITY_COST_BATTERY_FULL_OR_ABSENT_EUR,
+    DATA_EXPORT_OPPORTUNITY_COST_SOLAR_SURPLUS_EUR,
+    DATA_EXPORT_OPPORTUNITY_COST_SWITCH_LATENCY_EUR,
+    DATA_EXPORT_OPPORTUNITY_COST_TOTAL_EUR,
+    DATA_EXPORT_OPPORTUNITY_COST_UNATTRIBUTED_EUR,
+    DATA_EXPORT_POWER_W,
+    DATA_EXPORT_UNATTRIBUTED_KWH,
+    DATA_GRID_IMPORT_POWER_W,
+    DATA_GRID_POWER_SIGNED_W,
+    DATA_GRID_TO_BATTERY_POWER_W,
+    DATA_GRID_TO_HOME_POWER_W,
+    DATA_HOME_POWER_W,
+    DATA_LOAD_POWER_INFERRED,
+    DATA_LOAD_POWER_W,
+    DATA_LOGIC_VERSION,
+    DATA_OFFER,
+    DATA_ORIGIN_GRID,
+    DATA_ORIGIN_GRID_ATTRS,
+    DATA_ORIGIN_SOLAR,
+    DATA_ORIGIN_SOLAR_ATTRS,
+    DATA_PRICING_STRUCTURE,
+    DATA_REINJECTION_CAUSE,
+    DATA_REINJECTION_CONFIDENCE,
+    DATA_RTE_CALENDAR_FETCHED_AT,
+    DATA_SOLAR_ESTIMATE_DAILY_KWH,
+    DATA_SOLAR_ESTIMATE_POWER_W,
+    DATA_SOLAR_ESTIMATE_YEARLY_KWH,
+    DATA_SOLAR_EXPORT_POWER_W,
+    DATA_SOLAR_EXPORT_REVENUE_EUR,
+    DATA_SOLAR_POWER_W,
+    DATA_SOLAR_PRODUCTION_POWER_W,
+    DATA_SOLAR_TO_BATTERY_POWER_W,
+    DATA_SOLAR_TO_HOME_POWER_W,
+    DATA_SUPPLIER,
+    DATA_TARIFF_FETCHED_AT,
+    DATA_TEMPO_DAYS,
+    DATA_TEMPO_NEXT_COLOUR_CHANGE_AT,
+    DATA_TEMPO_NEXT_HC_START_AT,
+    DATA_TODAY_COLOR,
+    DATA_TOMORROW_COLOR,
+    DATA_USAGE_BATT_CHARGE_METHOD,
+    DATA_USAGE_BATT_HOME,
+    DATA_USAGE_GRID_BATT_CHARGE,
+    DATA_USAGE_GRID_BATT_CHARGE_BY_SLOT_KWH,
+    DATA_USAGE_GRID_DIRECT,
+    DATA_USAGE_SOLAR_BATT_CHARGE,
+    DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH,
+    DATA_USAGE_SOLAR_DIRECT,
     DOMAIN,
     LOGIC_VERSION,
     OPT_TARIFF_FETCHED_AT,
@@ -57,30 +141,9 @@ from .const import (
     TEMPO_MODE_SENSOR,
     TEMPO_SEASON_DAY_QUOTAS,
 )
-from .coordinator import HubEnergieCoordinator
+from .coordinator import EnergyData, HubEnergieCoordinator
 
 _MANUFACTURER = "Hub Énergie"
-
-
-class EnergyData(TypedDict, total=False):
-    """Lightweight partial typing for coordinator snapshot data."""
-
-    grid_power_signed_w: float
-    solar_power_w: float
-    load_power_w: float
-    cost_total: float
-    eco_solar: float
-    eco_batt: float
-    export_power_w: float
-    battery_total_charge_kwh: float
-    battery_total_discharge_kwh: float
-    battery_total_net_power_w: float
-    solar_export_revenue_eur: float
-    solar_estimate_power_w: float
-    solar_estimate_daily_kwh: float
-    solar_estimate_yearly_kwh: float
-    maison: dict[str, float]
-    battery_systems: list[dict[str, Any]]
 
 
 class HubEnergieSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
@@ -89,31 +152,16 @@ class HubEnergieSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
     _attr_should_poll = False
 
     def _data(self) -> EnergyData | None:
-        data = self.coordinator.data
-        return data if isinstance(data, dict) and data else None
+        return self.coordinator.snapshot_data()
 
     def _get_value(self, key: str) -> float | None:
-        data = self._data()
-        if not data:
-            return None
-        value = data.get(key)
-        return _safe_float(value)
+        return self.coordinator.get_numeric_value(key)
 
     def _get_nested_value(self, section_key: str, key: str) -> float | None:
-        data = self._data()
-        if not data:
-            return None
-        section = data.get(section_key)
-        if not isinstance(section, dict):
-            return None
-        return _safe_float(section.get(key))
+        return self.coordinator.get_nested_numeric_value(section_key, key)
 
     def _get_section(self, key: str) -> dict[str, Any] | None:
-        data = self._data()
-        if not data:
-            return None
-        section = data.get(key)
-        return section if isinstance(section, dict) else None
+        return self.coordinator.get_mapping_value(key)
 
 
 def _safe_float(value: Any) -> float | None:
@@ -371,45 +419,45 @@ def _config_overview_attributes(entry: ConfigEntry) -> dict[str, Any]:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 _SSOT_TOTAL_CONFIG: dict[str, dict[str, str]] = {
-    "grid": {"snapshot_key": "energy_grid_total_kwh", "name": "Énergie réseau (total)"},
-    "solar": {"snapshot_key": "energy_solar_total_kwh", "name": "Énergie solaire (total)"},
-    "export": {"snapshot_key": "energy_export_total_kwh", "name": "Énergie export (total)"},
+    "grid": {"snapshot_key": DATA_ENERGY_GRID_TOTAL_KWH, "name": "Énergie réseau (total)"},
+    "solar": {"snapshot_key": DATA_ENERGY_SOLAR_TOTAL_KWH, "name": "Énergie solaire (total)"},
+    "export": {"snapshot_key": DATA_ENERGY_EXPORT_TOTAL_KWH, "name": "Énergie export (total)"},
     "battery_charge": {
-        "snapshot_key": "energy_batt_charge_total_kwh",
+        "snapshot_key": DATA_ENERGY_BATT_CHARGE_TOTAL_KWH,
         "name": "Énergie charge batterie (total)",
     },
     "battery_discharge": {
-        "snapshot_key": "energy_batt_discharge_total_kwh",
+        "snapshot_key": DATA_ENERGY_BATT_DISCHARGE_TOTAL_KWH,
         "name": "Énergie décharge batterie (total)",
     },
 }
 
 _TODAY_ENERGY_CONFIG: dict[str, dict[str, str]] = {
-    "home": {"snapshot_key": "energy_home_today_kwh", "name": "Énergie maison (aujourd'hui)"},
-    "grid": {"snapshot_key": "energy_grid_today_kwh", "name": "Énergie réseau (aujourd'hui)"},
-    "solar": {"snapshot_key": "energy_solar_today_kwh", "name": "Énergie solaire (aujourd'hui)"},
-    "export": {"snapshot_key": "energy_export_today_kwh", "name": "Énergie export (aujourd'hui)"},
+    "home": {"snapshot_key": DATA_ENERGY_HOME_TODAY_KWH, "name": "Énergie maison (aujourd'hui)"},
+    "grid": {"snapshot_key": DATA_ENERGY_GRID_TODAY_KWH, "name": "Énergie réseau (aujourd'hui)"},
+    "solar": {"snapshot_key": DATA_ENERGY_SOLAR_TODAY_KWH, "name": "Énergie solaire (aujourd'hui)"},
+    "export": {"snapshot_key": DATA_ENERGY_EXPORT_TODAY_KWH, "name": "Énergie export (aujourd'hui)"},
     "battery_charge": {
-        "snapshot_key": "energy_batt_charge_today_kwh",
+        "snapshot_key": DATA_ENERGY_BATT_CHARGE_TODAY_KWH,
         "name": "Énergie charge batterie (aujourd'hui)",
     },
     "battery_discharge": {
-        "snapshot_key": "energy_batt_discharge_today_kwh",
+        "snapshot_key": DATA_ENERGY_BATT_DISCHARGE_TODAY_KWH,
         "name": "Énergie décharge batterie (aujourd'hui)",
     },
 }
 
 _FLOW_POWER_CONFIG: dict[str, dict[str, str]] = {
-    "home": {"snapshot_key": "home_power_w", "name": "Puissance maison"},
-    "grid_import": {"snapshot_key": "grid_import_power_w", "name": "Puissance import réseau"},
-    "solar_production": {"snapshot_key": "solar_production_power_w", "name": "Puissance production solaire"},
-    "battery_discharge": {"snapshot_key": "battery_discharge_power_w", "name": "Puissance décharge batterie"},
-    "solar_to_home": {"snapshot_key": "solar_to_home_power_w", "name": "Puissance solaire vers maison"},
-    "battery_to_home": {"snapshot_key": "battery_to_home_power_w", "name": "Puissance batterie vers maison"},
-    "grid_to_home": {"snapshot_key": "grid_to_home_power_w", "name": "Puissance réseau vers maison"},
-    "solar_to_battery": {"snapshot_key": "solar_to_battery_power_w", "name": "Puissance solaire vers batterie"},
-    "grid_to_battery": {"snapshot_key": "grid_to_battery_power_w", "name": "Puissance réseau vers batterie"},
-    "solar_export": {"snapshot_key": "solar_export_power_w", "name": "Puissance export solaire"},
+    "home": {"snapshot_key": DATA_HOME_POWER_W, "name": "Puissance maison"},
+    "grid_import": {"snapshot_key": DATA_GRID_IMPORT_POWER_W, "name": "Puissance import réseau"},
+    "solar_production": {"snapshot_key": DATA_SOLAR_PRODUCTION_POWER_W, "name": "Puissance production solaire"},
+    "battery_discharge": {"snapshot_key": DATA_BATTERY_DISCHARGE_POWER_W, "name": "Puissance décharge batterie"},
+    "solar_to_home": {"snapshot_key": DATA_SOLAR_TO_HOME_POWER_W, "name": "Puissance solaire vers maison"},
+    "battery_to_home": {"snapshot_key": DATA_BATTERY_TO_HOME_POWER_W, "name": "Puissance batterie vers maison"},
+    "grid_to_home": {"snapshot_key": DATA_GRID_TO_HOME_POWER_W, "name": "Puissance réseau vers maison"},
+    "solar_to_battery": {"snapshot_key": DATA_SOLAR_TO_BATTERY_POWER_W, "name": "Puissance solaire vers batterie"},
+    "grid_to_battery": {"snapshot_key": DATA_GRID_TO_BATTERY_POWER_W, "name": "Puissance réseau vers batterie"},
+    "solar_export": {"snapshot_key": DATA_SOLAR_EXPORT_POWER_W, "name": "Puissance export solaire"},
 }
 
 
@@ -680,7 +728,7 @@ class HubEnergieSlotSensor(HubEnergieSensor):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         data = self.coordinator.data or {}
-        return {"logic_version": data.get("logic_version", LOGIC_VERSION)}
+        return {DATA_LOGIC_VERSION: data.get(DATA_LOGIC_VERSION, LOGIC_VERSION)}
 
 
 class HubEnergieMaisonSensor(HubEnergieSensor):
@@ -714,11 +762,11 @@ class HubEnergieMaisonSensor(HubEnergieSensor):
 
 
 _USAGE_KEYS = {
-    "grid_direct": "usage_grid_direct",
-    "grid_batt_charge": "usage_grid_batt_charge",
-    "solar_direct": "usage_solar_direct",
-    "solar_batt_charge": "usage_solar_batt_charge",
-    "batt_home": "usage_batt_home",
+    "grid_direct": DATA_USAGE_GRID_DIRECT,
+    "grid_batt_charge": DATA_USAGE_GRID_BATT_CHARGE,
+    "solar_direct": DATA_USAGE_SOLAR_DIRECT,
+    "solar_batt_charge": DATA_USAGE_SOLAR_BATT_CHARGE,
+    "batt_home": DATA_USAGE_BATT_HOME,
 }
 
 
@@ -753,17 +801,17 @@ class HubEnergieUsageSensor(HubEnergieSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         data = self.coordinator.data or {}
         attrs: dict[str, Any] = {
-            "logic_version": data.get("logic_version", LOGIC_VERSION),
+            DATA_LOGIC_VERSION: data.get(DATA_LOGIC_VERSION, LOGIC_VERSION),
         }
-        if self._key in ("usage_grid_batt_charge", "usage_solar_batt_charge"):
-            attrs["batt_charge_method"] = data.get("usage_batt_charge_method")
-            attrs["batt_charge_meter_kwh"] = data.get("batt_charge_meter_kwh")
-            if self._key == "usage_grid_batt_charge":
-                gslot = data.get("usage_grid_batt_charge_by_slot_kwh")
+        if self._key in (DATA_USAGE_GRID_BATT_CHARGE, DATA_USAGE_SOLAR_BATT_CHARGE):
+            attrs[DATA_USAGE_BATT_CHARGE_METHOD] = data.get(DATA_USAGE_BATT_CHARGE_METHOD)
+            attrs[DATA_BATT_CHARGE_METER_KWH] = data.get(DATA_BATT_CHARGE_METER_KWH)
+            if self._key == DATA_USAGE_GRID_BATT_CHARGE:
+                gslot = data.get(DATA_USAGE_GRID_BATT_CHARGE_BY_SLOT_KWH)
                 if isinstance(gslot, dict):
                     attrs["by_slot_kwh"] = gslot
             else:
-                sslot = data.get("usage_solar_batt_charge_by_slot_kwh")
+                sslot = data.get(DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH)
                 if isinstance(sslot, dict):
                     attrs["by_slot_kwh"] = sslot
         return attrs
@@ -792,16 +840,16 @@ class HubEnergieOriginSensor(HubEnergieSensor):
 
     @property
     def native_value(self) -> float | None:
-        return self._get_value(f"origin_{self._kind}")
+        return self._get_value(DATA_ORIGIN_GRID if self._kind == "grid" else DATA_ORIGIN_SOLAR)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         data = self.coordinator.data or {}
-        sub = data.get(f"origin_{self._kind}_attrs", {})
+        sub = data.get(DATA_ORIGIN_GRID_ATTRS if self._kind == "grid" else DATA_ORIGIN_SOLAR_ATTRS, {})
         return {
             ATTR_DIRECT_MAISON: sub.get(ATTR_DIRECT_MAISON, 0.0),
             ATTR_VIA_BATTERIE: sub.get(ATTR_VIA_BATTERIE, 0.0),
-            "logic_version": data.get("logic_version", LOGIC_VERSION),
+            DATA_LOGIC_VERSION: data.get(DATA_LOGIC_VERSION, LOGIC_VERSION),
         }
 
 
@@ -821,65 +869,65 @@ class HubEnergieCostDetailSensor(HubEnergieSensor):
 
     @property
     def native_value(self) -> float | None:
-        return self._get_value("cost_total")
+        return self.coordinator.get_cost_total()
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         data = self.coordinator.data or {}
-        cbs = data.get("cost_by_slot")
+        cbs = data.get(DATA_COST_BY_SLOT)
         attrs: dict[str, Any] = {
-            "logic_version": data.get("logic_version", LOGIC_VERSION),
-            "abonnement_eur": data.get("abonnement_eur", 0.0),
-            "offer": data.get("offer"),
-            "contract_power": data.get("contract_power"),
-            "tariff_fetched_at": data.get("tariff_fetched_at"),
-            "current_slot": data.get("current_slot"),
-            "today_color": data.get("today_color"),
-            "tomorrow_color": data.get("tomorrow_color"),
-            "supplier": data.get("supplier"),
-            "pricing_structure": data.get("pricing_structure"),
-            "reinjection_cause": data.get("reinjection_cause"),
-            "reinjection_confidence": data.get("reinjection_confidence"),
-            "export_power_w": data.get("export_power_w"),
-            "grid_power_signed_w": data.get("grid_power_signed_w"),
-            "solar_power_w": data.get("solar_power_w"),
-            "solar_estimate_power_w": data.get("solar_estimate_power_w"),
-            "batt_discharge_power_w": data.get("batt_discharge_power_w"),
-            "batt_charge_power_w": data.get("batt_charge_power_w"),
-            "load_power_w": data.get("load_power_w"),
-            "load_power_inferred": data.get("load_power_inferred"),
-            "export_due_to_solar_surplus_kwh": data.get("export_due_to_solar_surplus_kwh", 0.0),
-            "export_due_to_battery_full_or_absent_kwh": data.get("export_due_to_battery_full_or_absent_kwh", 0.0),
-            "export_due_to_switch_latency_kwh": data.get("export_due_to_switch_latency_kwh", 0.0),
-            "export_unattributed_kwh": data.get("export_unattributed_kwh", 0.0),
-            "export_opportunity_cost_total_eur": data.get("export_opportunity_cost_total_eur", 0.0),
-            "export_opportunity_cost_solar_surplus_eur": data.get(
-                "export_opportunity_cost_solar_surplus_eur", 0.0,
+            DATA_LOGIC_VERSION: data.get(DATA_LOGIC_VERSION, LOGIC_VERSION),
+            DATA_ABONNEMENT_EUR: data.get(DATA_ABONNEMENT_EUR, 0.0),
+            DATA_OFFER: data.get(DATA_OFFER),
+            DATA_CONTRACT_POWER: data.get(DATA_CONTRACT_POWER),
+            DATA_TARIFF_FETCHED_AT: data.get(DATA_TARIFF_FETCHED_AT),
+            DATA_CURRENT_SLOT: data.get(DATA_CURRENT_SLOT),
+            DATA_TODAY_COLOR: data.get(DATA_TODAY_COLOR),
+            DATA_TOMORROW_COLOR: data.get(DATA_TOMORROW_COLOR),
+            DATA_SUPPLIER: data.get(DATA_SUPPLIER),
+            DATA_PRICING_STRUCTURE: data.get(DATA_PRICING_STRUCTURE),
+            DATA_REINJECTION_CAUSE: data.get(DATA_REINJECTION_CAUSE),
+            DATA_REINJECTION_CONFIDENCE: data.get(DATA_REINJECTION_CONFIDENCE),
+            DATA_EXPORT_POWER_W: data.get(DATA_EXPORT_POWER_W),
+            DATA_GRID_POWER_SIGNED_W: data.get(DATA_GRID_POWER_SIGNED_W),
+            DATA_SOLAR_POWER_W: data.get(DATA_SOLAR_POWER_W),
+            DATA_SOLAR_ESTIMATE_POWER_W: data.get(DATA_SOLAR_ESTIMATE_POWER_W),
+            DATA_BATT_DISCHARGE_POWER_W: data.get(DATA_BATT_DISCHARGE_POWER_W),
+            DATA_BATT_CHARGE_POWER_W: data.get(DATA_BATT_CHARGE_POWER_W),
+            DATA_LOAD_POWER_W: data.get(DATA_LOAD_POWER_W),
+            DATA_LOAD_POWER_INFERRED: data.get(DATA_LOAD_POWER_INFERRED),
+            DATA_EXPORT_DUE_TO_SOLAR_SURPLUS_KWH: data.get(DATA_EXPORT_DUE_TO_SOLAR_SURPLUS_KWH, 0.0),
+            DATA_EXPORT_DUE_TO_BATTERY_FULL_OR_ABSENT_KWH: data.get(DATA_EXPORT_DUE_TO_BATTERY_FULL_OR_ABSENT_KWH, 0.0),
+            DATA_EXPORT_DUE_TO_SWITCH_LATENCY_KWH: data.get(DATA_EXPORT_DUE_TO_SWITCH_LATENCY_KWH, 0.0),
+            DATA_EXPORT_UNATTRIBUTED_KWH: data.get(DATA_EXPORT_UNATTRIBUTED_KWH, 0.0),
+            DATA_EXPORT_OPPORTUNITY_COST_TOTAL_EUR: data.get(DATA_EXPORT_OPPORTUNITY_COST_TOTAL_EUR, 0.0),
+            DATA_EXPORT_OPPORTUNITY_COST_SOLAR_SURPLUS_EUR: data.get(
+                DATA_EXPORT_OPPORTUNITY_COST_SOLAR_SURPLUS_EUR, 0.0,
             ),
-            "export_opportunity_cost_battery_full_or_absent_eur": data.get(
-                "export_opportunity_cost_battery_full_or_absent_eur", 0.0,
+            DATA_EXPORT_OPPORTUNITY_COST_BATTERY_FULL_OR_ABSENT_EUR: data.get(
+                DATA_EXPORT_OPPORTUNITY_COST_BATTERY_FULL_OR_ABSENT_EUR, 0.0,
             ),
-            "export_opportunity_cost_switch_latency_eur": data.get(
-                "export_opportunity_cost_switch_latency_eur", 0.0,
+            DATA_EXPORT_OPPORTUNITY_COST_SWITCH_LATENCY_EUR: data.get(
+                DATA_EXPORT_OPPORTUNITY_COST_SWITCH_LATENCY_EUR, 0.0,
             ),
-            "export_opportunity_cost_unattributed_eur": data.get(
-                "export_opportunity_cost_unattributed_eur", 0.0,
+            DATA_EXPORT_OPPORTUNITY_COST_UNATTRIBUTED_EUR: data.get(
+                DATA_EXPORT_OPPORTUNITY_COST_UNATTRIBUTED_EUR, 0.0,
             ),
-            "usage_batt_charge_method": data.get("usage_batt_charge_method"),
-            "batt_charge_meter_kwh": data.get("batt_charge_meter_kwh"),
-            "usage_grid_batt_charge_by_slot_kwh": data.get("usage_grid_batt_charge_by_slot_kwh", {}),
-            "usage_solar_batt_charge_by_slot_kwh": data.get("usage_solar_batt_charge_by_slot_kwh", {}),
-            "eco_solar": data.get("eco_solar", 0.0),
-            "eco_batt": data.get("eco_batt", 0.0),
-            "battery_total_charge_kwh": data.get("battery_total_charge_kwh"),
-            "battery_total_discharge_kwh": data.get("battery_total_discharge_kwh"),
-            "solar_estimate_daily_kwh": data.get("solar_estimate_daily_kwh"),
-            "solar_export_revenue_eur": data.get("solar_export_revenue_eur"),
+            DATA_USAGE_BATT_CHARGE_METHOD: data.get(DATA_USAGE_BATT_CHARGE_METHOD),
+            DATA_BATT_CHARGE_METER_KWH: data.get(DATA_BATT_CHARGE_METER_KWH),
+            DATA_USAGE_GRID_BATT_CHARGE_BY_SLOT_KWH: data.get(DATA_USAGE_GRID_BATT_CHARGE_BY_SLOT_KWH, {}),
+            DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH: data.get(DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH, {}),
+            DATA_ECO_SOLAR: data.get(DATA_ECO_SOLAR, 0.0),
+            DATA_ECO_BATT: data.get(DATA_ECO_BATT, 0.0),
+            DATA_BATTERY_TOTAL_CHARGE_KWH: data.get(DATA_BATTERY_TOTAL_CHARGE_KWH),
+            DATA_BATTERY_TOTAL_DISCHARGE_KWH: data.get(DATA_BATTERY_TOTAL_DISCHARGE_KWH),
+            DATA_SOLAR_ESTIMATE_DAILY_KWH: data.get(DATA_SOLAR_ESTIMATE_DAILY_KWH),
+            DATA_SOLAR_EXPORT_REVENUE_EUR: data.get(DATA_SOLAR_EXPORT_REVENUE_EUR),
         }
-        tempo_days = data.get("tempo_days")
+        tempo_days = data.get(DATA_TEMPO_DAYS)
         if isinstance(tempo_days, dict):
-            attrs["tempo_days"] = tempo_days
-        bcard = data.get("battery_card")
+            attrs[DATA_TEMPO_DAYS] = tempo_days
+        bcard = data.get(DATA_BATTERY_CARD)
         if isinstance(bcard, dict):
             battery_capacity = _safe_float(bcard.get("capacity_kwh"))
             if battery_capacity is not None:
@@ -930,8 +978,8 @@ class HubEnergieSavingsSensor(HubEnergieSensor):
     @property
     def native_value(self) -> float | None:
         if self._kind == "solar":
-            return self._get_value("eco_solar")
-        return self._get_value("eco_batt")
+            return self._get_value(DATA_ECO_SOLAR)
+        return self._get_value(DATA_ECO_BATT)
 
 
 class HubEnergieInfoSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
@@ -959,10 +1007,13 @@ class HubEnergieInfoSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntit
 
     @property
     def native_value(self) -> str | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        value = data.get(self._info)
+        if self._info == "current_slot":
+            return self.coordinator.get_current_slot()
+        if self._info == "today_color":
+            return self.coordinator.get_today_color()
+        if self._info == "tomorrow_color":
+            return self.coordinator.get_tomorrow_color()
+        value = self.coordinator.get_value(self._info)
         return str(value) if value is not None else None
 
 
@@ -989,7 +1040,7 @@ class HubEnergieRteDataSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEn
         data = c.data or {}
         attrs: dict[str, Any] = {
             "tempo_mode": c.tempo_mode,
-            "rte_calendar_fetched_at": data.get("rte_calendar_fetched_at"),
+            DATA_RTE_CALENDAR_FETCHED_AT: data.get(DATA_RTE_CALENDAR_FETCHED_AT),
             "tempo_days_quotas_note": (
                 "Jours **strictement avant** aujourd'hui → « elapsed »; jour courant dans « remaining » "
                 "(modes RTE calendrier / API). Voir les capteurs quota bleu · blanc · rouge."
@@ -1027,10 +1078,7 @@ class HubEnergieQuotaDaySensor(CoordinatorEntity[HubEnergieCoordinator], SensorE
 
     @property
     def native_value(self) -> int | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        td = data.get("tempo_days")
+        td = self.coordinator.get_tempo_days()
         if not isinstance(td, dict):
             return None
         block = td.get(self._color_key)
@@ -1041,7 +1089,7 @@ class HubEnergieQuotaDaySensor(CoordinatorEntity[HubEnergieCoordinator], SensorE
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         data = self.coordinator.data or {}
-        td = data.get("tempo_days")
+        td = data.get(DATA_TEMPO_DAYS)
         quota = TEMPO_SEASON_DAY_QUOTAS.get(self._color_key, 0)
         out: dict[str, Any] = {"quota_saison": quota}
         if isinstance(td, dict):
@@ -1067,10 +1115,7 @@ class HubEnergieNextColourChangeSensor(CoordinatorEntity[HubEnergieCoordinator],
 
     @property
     def native_value(self) -> datetime | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        raw = data.get("tempo_next_colour_change_at")
+        raw = self.coordinator.get_value(DATA_TEMPO_NEXT_COLOUR_CHANGE_AT)
         if not raw:
             return None
         return dt_util.parse_datetime(str(raw))
@@ -1092,10 +1137,7 @@ class HubEnergieNextHcStartSensor(CoordinatorEntity[HubEnergieCoordinator], Sens
 
     @property
     def native_value(self) -> datetime | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        raw = data.get("tempo_next_hc_start_at")
+        raw = self.coordinator.get_value(DATA_TEMPO_NEXT_HC_START_AT)
         if not raw:
             return None
         return dt_util.parse_datetime(str(raw))
@@ -1121,7 +1163,7 @@ class HubEnergieHealthSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnt
         if c.is_edf and c.tariff_offer == TARIFF_OFFER_TEMPO:
             if c.tempo_mode == TEMPO_MODE_RTE and not c._edf.calendar_rows:  # noqa: SLF001
                 return "warning"
-        if data and not data.get("current_slot"):
+        if data and not c.get_current_slot():
             return "warning"
         return "ok"
 
@@ -1129,9 +1171,9 @@ class HubEnergieHealthSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnt
     def extra_state_attributes(self) -> dict[str, Any]:
         data = self.coordinator.data or {}
         return {
-            "paris_day": data.get("day"),
-            "current_slot": data.get("current_slot"),
-            "logic_version": data.get("logic_version", LOGIC_VERSION),
+            "paris_day": data.get(DATA_DAY),
+            DATA_CURRENT_SLOT: data.get(DATA_CURRENT_SLOT),
+            DATA_LOGIC_VERSION: data.get(DATA_LOGIC_VERSION, LOGIC_VERSION),
         }
 
 
@@ -1172,13 +1214,13 @@ class HubEnergieDiagInfoSensor(CoordinatorEntity[HubEnergieCoordinator], SensorE
     def extra_state_attributes(self) -> dict[str, Any]:
         data = self.coordinator.data or {}
         return {
-            "grid_power_signed_w": data.get("grid_power_signed_w"),
-            "solar_power_w": data.get("solar_power_w"),
-            "batt_discharge_power_w": data.get("batt_discharge_power_w"),
-            "batt_charge_power_w": data.get("batt_charge_power_w"),
-            "load_power_w": data.get("load_power_w"),
-            "load_power_inferred": data.get("load_power_inferred"),
-            "logic_version": data.get("logic_version", LOGIC_VERSION),
+            DATA_GRID_POWER_SIGNED_W: data.get(DATA_GRID_POWER_SIGNED_W),
+            DATA_SOLAR_POWER_W: data.get(DATA_SOLAR_POWER_W),
+            DATA_BATT_DISCHARGE_POWER_W: data.get(DATA_BATT_DISCHARGE_POWER_W),
+            DATA_BATT_CHARGE_POWER_W: data.get(DATA_BATT_CHARGE_POWER_W),
+            DATA_LOAD_POWER_W: data.get(DATA_LOAD_POWER_W),
+            DATA_LOAD_POWER_INFERRED: data.get(DATA_LOAD_POWER_INFERRED),
+            DATA_LOGIC_VERSION: data.get(DATA_LOGIC_VERSION, LOGIC_VERSION),
         }
 
 
@@ -1320,42 +1362,42 @@ _BATTERY_METRIC_CONFIG: dict[str, dict[str, Any]] = {
         "device_class": SensorDeviceClass.ENERGY,
         "unit": UnitOfEnergy.KILO_WATT_HOUR,
         "state_class": SensorStateClass.TOTAL,
-        "snapshot_key": "charge_kwh",
+        "snapshot_key": DATA_BATTERY_CHARGE_KWH,
         "icon": "mdi:battery-charging",
     },
     "discharge_energy": {
         "device_class": SensorDeviceClass.ENERGY,
         "unit": UnitOfEnergy.KILO_WATT_HOUR,
         "state_class": SensorStateClass.TOTAL,
-        "snapshot_key": "discharge_kwh",
+        "snapshot_key": DATA_BATTERY_DISCHARGE_KWH,
         "icon": "mdi:battery-arrow-down",
     },
     "power_net": {
         "device_class": SensorDeviceClass.POWER,
         "unit": UnitOfPower.WATT,
         "state_class": SensorStateClass.MEASUREMENT,
-        "snapshot_key": "power_net",
+        "snapshot_key": DATA_BATTERY_POWER_NET,
         "icon": "mdi:flash",
     },
     "soc": {
         "device_class": SensorDeviceClass.BATTERY,
         "unit": "%",
         "state_class": SensorStateClass.MEASUREMENT,
-        "snapshot_key": "soc",
+        "snapshot_key": DATA_BATTERY_SOC,
         "icon": "mdi:battery",
     },
     "stored_energy": {
         "device_class": SensorDeviceClass.ENERGY_STORAGE,
         "unit": UnitOfEnergy.KILO_WATT_HOUR,
         "state_class": SensorStateClass.MEASUREMENT,
-        "snapshot_key": "stored_energy_kwh",
+        "snapshot_key": DATA_BATTERY_STORED_ENERGY_KWH,
         "icon": "mdi:battery-heart-variant",
     },
     "available_energy": {
         "device_class": SensorDeviceClass.ENERGY_STORAGE,
         "unit": UnitOfEnergy.KILO_WATT_HOUR,
         "state_class": SensorStateClass.MEASUREMENT,
-        "snapshot_key": "available_energy_kwh",
+        "snapshot_key": DATA_BATTERY_AVAILABLE_ENERGY_KWH,
         "icon": "mdi:battery-check",
     },
 }
@@ -1391,13 +1433,7 @@ class HubEnergieBatterySensor(HubEnergieSensor):
         self._attr_device_info = _device_battery(coordinator, batt_id, batt_name)
 
     def _find_battery_snapshot(self) -> dict[str, Any] | None:
-        data = self._data()
-        if not data:
-            return None
-        battery_systems = data.get("battery_systems")
-        if not isinstance(battery_systems, list):
-            return None
-        for batt in battery_systems:
+        for batt in self.coordinator.get_battery_systems_data():
             if batt.get("id") == self._batt_id:
                 return batt
         return None
@@ -1415,9 +1451,9 @@ class HubEnergieBatterySensor(HubEnergieSensor):
         if snap is None:
             return {}
         attrs: dict[str, Any] = {"battery_id": self._batt_id}
-        eff = snap.get("efficiency")
+        eff = snap.get(DATA_BATTERY_EFFICIENCY)
         if eff is not None:
-            attrs["efficiency"] = eff
+            attrs[DATA_BATTERY_EFFICIENCY] = eff
         return attrs
 
 
@@ -1430,21 +1466,21 @@ _BATTERY_SUMMARY_CONFIG: dict[str, dict[str, Any]] = {
         "device_class": SensorDeviceClass.ENERGY,
         "unit": UnitOfEnergy.KILO_WATT_HOUR,
         "state_class": SensorStateClass.TOTAL,
-        "snapshot_key": "battery_total_charge_kwh",
+        "snapshot_key": DATA_BATTERY_TOTAL_CHARGE_KWH,
         "icon": "mdi:battery-charging",
     },
     "total_discharge_energy": {
         "device_class": SensorDeviceClass.ENERGY,
         "unit": UnitOfEnergy.KILO_WATT_HOUR,
         "state_class": SensorStateClass.TOTAL,
-        "snapshot_key": "battery_total_discharge_kwh",
+        "snapshot_key": DATA_BATTERY_TOTAL_DISCHARGE_KWH,
         "icon": "mdi:battery-arrow-down",
     },
     "total_net_power": {
         "device_class": SensorDeviceClass.POWER,
         "unit": UnitOfPower.WATT,
         "state_class": SensorStateClass.MEASUREMENT,
-        "snapshot_key": "battery_total_net_power_w",
+        "snapshot_key": DATA_BATTERY_TOTAL_NET_POWER_W,
         "icon": "mdi:flash",
     },
 }
@@ -1481,8 +1517,7 @@ class HubEnergieBatterySummarySensor(HubEnergieSensor):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        data = self.coordinator.data or {}
-        count = len(data.get("battery_systems", []))
+        count = len(self.coordinator.get_battery_systems_data())
         return {"battery_count": count}
 
 
@@ -1495,21 +1530,21 @@ _SOLAR_ESTIMATE_CONFIG: dict[str, dict[str, Any]] = {
         "device_class": SensorDeviceClass.POWER,
         "unit": UnitOfPower.WATT,
         "state_class": SensorStateClass.MEASUREMENT,
-        "snapshot_key": "solar_estimate_power_w",
+        "snapshot_key": DATA_SOLAR_ESTIMATE_POWER_W,
         "icon": "mdi:solar-power",
     },
     "daily_energy_estimate": {
         "device_class": SensorDeviceClass.ENERGY,
         "unit": UnitOfEnergy.KILO_WATT_HOUR,
         "state_class": SensorStateClass.TOTAL,
-        "snapshot_key": "solar_estimate_daily_kwh",
+        "snapshot_key": DATA_SOLAR_ESTIMATE_DAILY_KWH,
         "icon": "mdi:solar-power-variant",
     },
     "yearly_energy_estimate": {
         "device_class": SensorDeviceClass.ENERGY,
         "unit": UnitOfEnergy.KILO_WATT_HOUR,
         "state_class": SensorStateClass.TOTAL,
-        "snapshot_key": "solar_estimate_yearly_kwh",
+        "snapshot_key": DATA_SOLAR_ESTIMATE_YEARLY_KWH,
         "icon": "mdi:solar-power-variant-outline",
     },
 }
@@ -1567,4 +1602,4 @@ class HubEnergieSolarRevenueSensor(HubEnergieSensor):
 
     @property
     def native_value(self) -> float | None:
-        return self._get_value("solar_export_revenue_eur")
+        return self._get_value(DATA_SOLAR_EXPORT_REVENUE_EUR)
