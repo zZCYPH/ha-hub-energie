@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+import math
+from typing import Any, TypedDict
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -59,6 +60,86 @@ from .const import (
 from .coordinator import HubEnergieCoordinator
 
 _MANUFACTURER = "Hub Énergie"
+
+
+class EnergyData(TypedDict, total=False):
+    """Lightweight partial typing for coordinator snapshot data."""
+
+    grid_power_signed_w: float
+    solar_power_w: float
+    load_power_w: float
+    cost_total: float
+    eco_solar: float
+    eco_batt: float
+    export_power_w: float
+    battery_total_charge_kwh: float
+    battery_total_discharge_kwh: float
+    battery_total_net_power_w: float
+    solar_export_revenue_eur: float
+    solar_estimate_power_w: float
+    solar_estimate_daily_kwh: float
+    solar_estimate_yearly_kwh: float
+    maison: dict[str, float]
+    battery_systems: list[dict[str, Any]]
+
+
+class HubEnergieSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+    """Common safe access helpers for Hub Energie sensors."""
+
+    _attr_should_poll = False
+
+    def _data(self) -> EnergyData | None:
+        data = self.coordinator.data
+        return data if isinstance(data, dict) and data else None
+
+    def _get_value(self, key: str) -> float | None:
+        data = self._data()
+        if not data:
+            return None
+        value = data.get(key)
+        if value is None or not isinstance(value, (int, float)):
+            return None
+        if isinstance(value, float) and math.isnan(value):
+            return None
+        return float(value)
+
+    def _get_nested_value(self, section_key: str, key: str) -> float | None:
+        data = self._data()
+        if not data:
+            return None
+        section = data.get(section_key)
+        if not isinstance(section, dict):
+            return None
+        value = section.get(key)
+        if value is None or not isinstance(value, (int, float)):
+            return None
+        if isinstance(value, float) and math.isnan(value):
+            return None
+        return float(value)
+
+    def _get_section(self, key: str) -> dict[str, Any] | None:
+        data = self._data()
+        if not data:
+            return None
+        section = data.get(key)
+        return section if isinstance(section, dict) else None
+
+
+def _safe_float(value: Any) -> float | None:
+    if value is None or not isinstance(value, (int, float)):
+        return None
+    if isinstance(value, float) and math.isnan(value):
+        return None
+    return float(value)
+
+
+def _safe_int(value: Any) -> int | None:
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -341,7 +422,7 @@ _FLOW_POWER_CONFIG: dict[str, dict[str, str]] = {
 }
 
 
-class HubEnergieSsotTotalSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergieSsotTotalSensor(HubEnergieSensor):
     """Integration-owned SSOT total_increasing sensor."""
 
     _attr_has_entity_name = True
@@ -368,13 +449,10 @@ class HubEnergieSsotTotalSensor(CoordinatorEntity[HubEnergieCoordinator], Sensor
 
     @property
     def native_value(self) -> float | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        return float(data.get(self._snapshot_key, 0.0))
+        return self._get_value(self._snapshot_key)
 
 
-class HubEnergieTodayEnergySensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergieTodayEnergySensor(HubEnergieSensor):
     """Convenience today kWh sensor (derived, non-SSOT)."""
 
     _attr_has_entity_name = True
@@ -401,13 +479,10 @@ class HubEnergieTodayEnergySensor(CoordinatorEntity[HubEnergieCoordinator], Sens
 
     @property
     def native_value(self) -> float | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        return float(data.get(self._snapshot_key, 0.0))
+        return self._get_value(self._snapshot_key)
 
 
-class HubEnergiePowerFlowSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergiePowerFlowSensor(HubEnergieSensor):
     """Derived real-time power/flow sensor (measurement, non-SSOT)."""
 
     _attr_has_entity_name = True
@@ -434,13 +509,7 @@ class HubEnergiePowerFlowSensor(CoordinatorEntity[HubEnergieCoordinator], Sensor
 
     @property
     def native_value(self) -> float | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        value = data.get(self._snapshot_key)
-        if value is None:
-            return None
-        return float(value)
+        return self._get_value(self._snapshot_key)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -584,7 +653,7 @@ async def async_setup_entry(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class HubEnergieSlotSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergieSlotSensor(HubEnergieSensor):
     """Per-slot kWh for one source (grid / solar / batt_discharge / batt_charge)."""
 
     _attr_has_entity_name = True
@@ -614,13 +683,8 @@ class HubEnergieSlotSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntit
 
     @property
     def native_value(self) -> float | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        section = data.get(self._source, {})
-        if isinstance(section, dict):
-            return round(float(section.get(self._slot, 0.0)), 3)
-        return 0.0
+        value = self._get_nested_value(self._source, self._slot)
+        return round(value, 3) if value is not None else None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -628,7 +692,7 @@ class HubEnergieSlotSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntit
         return {"logic_version": data.get("logic_version", LOGIC_VERSION)}
 
 
-class HubEnergieMaisonSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergieMaisonSensor(HubEnergieSensor):
     """House consumption per slot (grid + solar + battery discharge)."""
 
     _attr_has_entity_name = True
@@ -654,10 +718,8 @@ class HubEnergieMaisonSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnt
 
     @property
     def native_value(self) -> float | None:
-        data = self.coordinator.data
-        if not data or "maison" not in data:
-            return None
-        return round(float(data["maison"].get(self._slot, 0.0)), 3)
+        value = self._get_nested_value("maison", self._slot)
+        return round(value, 3) if value is not None else None
 
 
 _USAGE_KEYS = {
@@ -669,7 +731,7 @@ _USAGE_KEYS = {
 }
 
 
-class HubEnergieUsageSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergieUsageSensor(HubEnergieSensor):
     """One usage flow (kWh)."""
 
     _attr_has_entity_name = True
@@ -694,10 +756,7 @@ class HubEnergieUsageSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnti
 
     @property
     def native_value(self) -> float | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        return float(data.get(self._key, 0.0))
+        return self._get_value(self._key)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -719,7 +778,7 @@ class HubEnergieUsageSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnti
         return attrs
 
 
-class HubEnergieOriginSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergieOriginSensor(HubEnergieSensor):
     """Origin grid or solar (kWh) with sub-attrs."""
 
     _attr_has_entity_name = True
@@ -742,10 +801,7 @@ class HubEnergieOriginSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnt
 
     @property
     def native_value(self) -> float | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        return float(data.get(f"origin_{self._kind}", 0.0))
+        return self._get_value(f"origin_{self._kind}")
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -758,7 +814,7 @@ class HubEnergieOriginSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnt
         }
 
 
-class HubEnergieCostDetailSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergieCostDetailSensor(HubEnergieSensor):
     """Daily cost with per-slot attributes — the main sensor the card reads."""
 
     _attr_has_entity_name = True
@@ -774,15 +830,12 @@ class HubEnergieCostDetailSensor(CoordinatorEntity[HubEnergieCoordinator], Senso
 
     @property
     def native_value(self) -> float | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        return float(data.get("cost_total", 0.0))
+        return self._get_value("cost_total")
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         data = self.coordinator.data or {}
-        cbs = data.get("cost_by_slot", {})
+        cbs = data.get("cost_by_slot")
         attrs: dict[str, Any] = {
             "logic_version": data.get("logic_version", LOGIC_VERSION),
             "abonnement_eur": data.get("abonnement_eur", 0.0),
@@ -836,19 +889,34 @@ class HubEnergieCostDetailSensor(CoordinatorEntity[HubEnergieCoordinator], Senso
         if isinstance(tempo_days, dict):
             attrs["tempo_days"] = tempo_days
         bcard = data.get("battery_card")
-        if isinstance(bcard, dict) and bcard.get("capacity_kwh"):
-            attrs["battery_capacity_kwh"] = bcard["capacity_kwh"]
-            attrs["battery_stored_kwh"] = bcard.get("stored_kwh")
-            attrs["battery_available_kwh"] = bcard.get("available_kwh")
-            attrs["battery_soc_percent"] = bcard["soc_percent"]
-            attrs["battery_soc_min_percent"] = bcard["soc_min_percent"]
-            attrs["battery_soc_max_percent"] = bcard["soc_max_percent"]
-        for slot in SLOTS:
-            attrs[f"{slot}_eur"] = round(float(cbs.get(slot, 0.0)), 3)
+        if isinstance(bcard, dict):
+            battery_capacity = _safe_float(bcard.get("capacity_kwh"))
+            if battery_capacity is not None:
+                attrs["battery_capacity_kwh"] = battery_capacity
+            battery_stored = _safe_float(bcard.get("stored_kwh"))
+            if battery_stored is not None:
+                attrs["battery_stored_kwh"] = battery_stored
+            battery_available = _safe_float(bcard.get("available_kwh"))
+            if battery_available is not None:
+                attrs["battery_available_kwh"] = battery_available
+            battery_soc = _safe_float(bcard.get("soc_percent"))
+            if battery_soc is not None:
+                attrs["battery_soc_percent"] = battery_soc
+            battery_soc_min = _safe_float(bcard.get("soc_min_percent"))
+            if battery_soc_min is not None:
+                attrs["battery_soc_min_percent"] = battery_soc_min
+            battery_soc_max = _safe_float(bcard.get("soc_max_percent"))
+            if battery_soc_max is not None:
+                attrs["battery_soc_max_percent"] = battery_soc_max
+        if isinstance(cbs, dict):
+            for slot in SLOTS:
+                slot_cost = _safe_float(cbs.get(slot))
+                if slot_cost is not None:
+                    attrs[f"{slot}_eur"] = round(slot_cost, 3)
         return attrs
 
 
-class HubEnergieSavingsSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergieSavingsSensor(HubEnergieSensor):
     """Daily savings in € (solar or battery)."""
 
     _attr_has_entity_name = True
@@ -870,12 +938,9 @@ class HubEnergieSavingsSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEn
 
     @property
     def native_value(self) -> float | None:
-        data = self.coordinator.data
-        if not data:
-            return None
         if self._kind == "solar":
-            return float(data.get("eco_solar", 0.0))
-        return float(data.get("eco_batt", 0.0))
+            return self._get_value("eco_solar")
+        return self._get_value("eco_batt")
 
 
 class HubEnergieInfoSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
@@ -906,7 +971,8 @@ class HubEnergieInfoSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntit
         data = self.coordinator.data
         if not data:
             return None
-        return str(data.get(self._info) or "unknown")
+        value = data.get(self._info)
+        return str(value) if value is not None else None
 
 
 class HubEnergieRteDataSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
@@ -979,8 +1045,7 @@ class HubEnergieQuotaDaySensor(CoordinatorEntity[HubEnergieCoordinator], SensorE
         block = td.get(self._color_key)
         if not isinstance(block, dict):
             return None
-        rem = block.get("remaining")
-        return int(rem) if rem is not None else None
+        return _safe_int(block.get("remaining"))
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -1109,7 +1174,11 @@ class HubEnergieDiagInfoSensor(CoordinatorEntity[HubEnergieCoordinator], SensorE
             return None
         value = data.get(self._key)
         if self._key == "reinjection_confidence":
-            return float(value or 0.0)
+            if value is None or not isinstance(value, (int, float)):
+                return None
+            if isinstance(value, float) and math.isnan(value):
+                return None
+            return float(value)
         return str(value) if value is not None else None
 
     @property
@@ -1126,11 +1195,12 @@ class HubEnergieDiagInfoSensor(CoordinatorEntity[HubEnergieCoordinator], SensorE
         }
 
 
-class HubEnergieDiagPowerSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergieDiagPowerSensor(HubEnergieSensor):
     """Diagnostic power sensor in W."""
 
     _attr_has_entity_name = True
-    _attr_native_unit_of_measurement = "W"
+    _attr_device_class = SensorDeviceClass.POWER
+    _attr_native_unit_of_measurement = UnitOfPower.WATT
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_should_poll = False
     _attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -1151,13 +1221,10 @@ class HubEnergieDiagPowerSensor(CoordinatorEntity[HubEnergieCoordinator], Sensor
 
     @property
     def native_value(self) -> float | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        return float(data.get(self._key, 0.0))
+        return self._get_value(self._key)
 
 
-class HubEnergieDiagEnergySensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergieDiagEnergySensor(HubEnergieSensor):
     """Diagnostic daily kWh buckets."""
 
     _attr_has_entity_name = True
@@ -1183,13 +1250,10 @@ class HubEnergieDiagEnergySensor(CoordinatorEntity[HubEnergieCoordinator], Senso
 
     @property
     def native_value(self) -> float | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        return float(data.get(self._key, 0.0))
+        return self._get_value(self._key)
 
 
-class HubEnergieDiagCostSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergieDiagCostSensor(HubEnergieSensor):
     """Diagnostic opportunity cost (€) sensors."""
 
     _attr_has_entity_name = True
@@ -1214,10 +1278,7 @@ class HubEnergieDiagCostSensor(CoordinatorEntity[HubEnergieCoordinator], SensorE
 
     @property
     def native_value(self) -> float | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        return float(data.get(self._key, 0.0))
+        return self._get_value(self._key)
 
 
 class HubEnergieConfigOverviewSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
@@ -1313,7 +1374,7 @@ _BATTERY_METRIC_CONFIG: dict[str, dict[str, Any]] = {
 }
 
 
-class HubEnergieBatterySensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergieBatterySensor(HubEnergieSensor):
     """Per-battery metric sensor."""
 
     _attr_has_entity_name = True
@@ -1343,10 +1404,13 @@ class HubEnergieBatterySensor(CoordinatorEntity[HubEnergieCoordinator], SensorEn
         self._attr_device_info = _device_battery(coordinator, batt_id, batt_name)
 
     def _find_battery_snapshot(self) -> dict[str, Any] | None:
-        data = self.coordinator.data
+        data = self._data()
         if not data:
             return None
-        for batt in data.get("battery_systems", []):
+        battery_systems = data.get("battery_systems")
+        if not isinstance(battery_systems, list):
+            return None
+        for batt in battery_systems:
             if batt.get("id") == self._batt_id:
                 return batt
         return None
@@ -1357,7 +1421,9 @@ class HubEnergieBatterySensor(CoordinatorEntity[HubEnergieCoordinator], SensorEn
         if snap is None:
             return None
         val = snap.get(self._snapshot_key)
-        if val is None:
+        if val is None or not isinstance(val, (int, float)):
+            return None
+        if isinstance(val, float) and math.isnan(val):
             return None
         return float(val)
 
@@ -1402,7 +1468,7 @@ _BATTERY_SUMMARY_CONFIG: dict[str, dict[str, Any]] = {
 }
 
 
-class HubEnergieBatterySummarySensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergieBatterySummarySensor(HubEnergieSensor):
     """Aggregated battery metric across all battery systems."""
 
     _attr_has_entity_name = True
@@ -1429,13 +1495,7 @@ class HubEnergieBatterySummarySensor(CoordinatorEntity[HubEnergieCoordinator], S
 
     @property
     def native_value(self) -> float | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        val = data.get(self._snapshot_key)
-        if val is None:
-            return None
-        return float(val)
+        return self._get_value(self._snapshot_key)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -1473,7 +1533,7 @@ _SOLAR_ESTIMATE_CONFIG: dict[str, dict[str, Any]] = {
 }
 
 
-class HubEnergieSolarEstimateSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergieSolarEstimateSensor(HubEnergieSensor):
     """Clear-sky solar PV estimation sensor."""
 
     _attr_has_entity_name = True
@@ -1500,13 +1560,7 @@ class HubEnergieSolarEstimateSensor(CoordinatorEntity[HubEnergieCoordinator], Se
 
     @property
     def native_value(self) -> float | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        val = data.get(self._snapshot_key)
-        if val is None:
-            return None
-        return float(val)
+        return self._get_value(self._snapshot_key)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1514,7 +1568,7 @@ class HubEnergieSolarEstimateSensor(CoordinatorEntity[HubEnergieCoordinator], Se
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class HubEnergieSolarRevenueSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
+class HubEnergieSolarRevenueSensor(HubEnergieSensor):
     """Solar export revenue (€) when a resale contract is configured."""
 
     _attr_has_entity_name = True
@@ -1531,10 +1585,4 @@ class HubEnergieSolarRevenueSensor(CoordinatorEntity[HubEnergieCoordinator], Sen
 
     @property
     def native_value(self) -> float | None:
-        data = self.coordinator.data
-        if not data:
-            return None
-        val = data.get("solar_export_revenue_eur")
-        if val is None:
-            return None
-        return float(val)
+        return self._get_value("solar_export_revenue_eur")
