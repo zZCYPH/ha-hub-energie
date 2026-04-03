@@ -32,6 +32,7 @@ class RuntimeState:
     last_stable_attribution_slot: str | None = None
     delta_telemetry: dict[str, dict[str, Any]] = field(default_factory=dict)
     delta_discards: dict[str, int] = field(default_factory=dict)
+    last_delta_rejection_by_source: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     def _empty_slots(self) -> dict[str, float]:
         return {slot: 0.0 for slot in self.slots}
@@ -47,10 +48,31 @@ class RuntimeState:
         self.last_stable_attribution_slot = None
         self.delta_telemetry = {}
         self.delta_discards = {}
+        self.last_delta_rejection_by_source = {}
         self.reinjection_state.hydrate(diag_export_kwh={}, diag_export_slot_kwh={})
 
     def note_delta_discard(self, kind: str) -> None:
         self.delta_discards[kind] = int(self.delta_discards.get(kind, 0)) + 1
+
+    def record_last_delta_rejection(
+        self,
+        source_key: str,
+        *,
+        reason: str,
+        at_iso: str,
+        delta_kwh: float | None = None,
+        last_raw: float | None = None,
+        new_raw: float | None = None,
+    ) -> None:
+        """Last non-applied delta outcome per source (debug; not persisted across restart)."""
+        payload: dict[str, Any] = {"reason": reason, "at": at_iso}
+        if delta_kwh is not None:
+            payload["delta_kwh"] = delta_kwh
+        if last_raw is not None:
+            payload["last_raw"] = last_raw
+        if new_raw is not None:
+            payload["new_raw"] = new_raw
+        self.last_delta_rejection_by_source[str(source_key)] = payload
 
     def record_applied_delta_telemetry(
         self,

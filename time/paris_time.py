@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 from homeassistant.util import dt as dt_util
@@ -10,6 +10,7 @@ from homeassistant.util import dt as dt_util
 from ..const import FR_TZ
 
 PARIS_TZ = ZoneInfo(FR_TZ)
+UTC = timezone.utc
 
 
 class ParisTime:
@@ -33,4 +34,5 @@ class ParisTime:
 
     @staticmethod
     def day_start_utc(iso_day: str) -> datetime:
-        return datetime.strptime(iso_day, "%Y-%m-%d").replace(tzinfo=PARIS_TZ).astimezone(dt_util.UTC)
+        """UTC instant of 00:00 Europe/Paris for ``iso_day`` (`YYYY-MM-DD`)."""
+        return datetime.strptime(iso_day, "%Y-%m-%d").replace(tzinfo=PARIS_TZ).astimezone(UTC)

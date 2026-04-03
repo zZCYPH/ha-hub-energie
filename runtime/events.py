@@ -1,4 +1,13 @@
-"""Home Assistant state_changed listener factory (delegates to coordinator)."""
+"""Home Assistant state_changed listener factory (delegates to coordinator).
+
+Energy meter entities:
+- ``unknown`` / ``unavailable`` / empty state: no delta is applied (avoids bogus
+  consumption while a device is offline).
+- When the entity returns to a numeric value, the next change is processed with
+  the usual delta rules (negative deltas discarded unless a plausible meter reset).
+
+Power/auxiliary entities: trigger a lightweight snapshot refresh only.
+"""
 
 from __future__ import annotations
 

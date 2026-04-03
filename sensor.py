@@ -12,7 +12,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfEnergy, UnitOfPower
+from homeassistant.const import CURRENCY_EURO, UnitOfEnergy, UnitOfPower, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo, EntityCategory
@@ -128,7 +128,10 @@ from .const import (
     ATTRIBUTION_SLOTS,
     DATA_DATA_QUALITY,
     DATA_DELTA_DISCARDS,
+    DATA_DELTA_LAST_REJECTION,
     DATA_DELTA_TELEMETRY,
+    DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY,
+    DATA_SECONDS_SINCE_LAST_APPLIED_DELTA,
     DOMAIN,
     LOGIC_VERSION,
     OPT_TARIFF_FETCHED_AT,
@@ -149,6 +152,7 @@ from .const import (
     TEMPO_SEASON_DAY_QUOTAS,
 )
 from .coordinator import EnergyData, HubEnergieCoordinator
+from .time.paris_time import ParisTime
 
 _MANUFACTURER = "Hub Énergie"
 
@@ -369,7 +373,10 @@ def _visible_slots_for_offer(entry: ConfigEntry) -> set[str]:
     supplier = entry.data.get(CONF_SUPPLIER, SUPPLIER_EDF)
     if supplier != SUPPLIER_EDF:
         return {"bleu_hc", "bleu_hp"}
-    offer = entry.data.get(CONF_TARIFF_OFFER, TARIFF_OFFER_TEMPO)
+    offer = entry.options.get(
+        CONF_TARIFF_OFFER,
+        entry.data.get(CONF_TARIFF_OFFER, TARIFF_OFFER_TEMPO),
+    )
     if offer == TARIFF_OFFER_BASE:
         return {"bleu_hp"}
     if offer == TARIFF_OFFER_HPHC:
@@ -574,7 +581,11 @@ async def async_setup_entry(
     entities: list[SensorEntity] = []
 
     is_edf = entry.data.get(CONF_SUPPLIER, SUPPLIER_EDF) == SUPPLIER_EDF
-    is_tempo = is_edf and entry.data.get(CONF_TARIFF_OFFER, TARIFF_OFFER_TEMPO) == TARIFF_OFFER_TEMPO
+    offer_eff = entry.options.get(
+        CONF_TARIFF_OFFER,
+        entry.data.get(CONF_TARIFF_OFFER, TARIFF_OFFER_TEMPO),
+    )
+    is_tempo = is_edf and offer_eff == TARIFF_OFFER_TEMPO
     has_solar = bool(entry.data.get(CONF_HAS_SOLAR))
     has_batteries = bool(entry.data.get(CONF_HAS_BATTERIES))
     battery_systems: list[dict[str, Any]] = entry.data.get(CONF_BATTERY_SYSTEMS, [])
@@ -620,6 +631,47 @@ async def async_setup_entry(
         ]
     )
 
+    # ── Per-slot kWh + maison (Paris day, optional LTS via last_reset) ─
+    visible_slots = _visible_slots_for_offer(entry)
+    slots_for_entities = sorted(
+        visible_slots | {SLOT_UNKNOWN},
+        key=lambda s: (1 if s == SLOT_UNKNOWN else 0, s),
+    )
+    for slot in slots_for_entities:
+        slot_enabled_default = slot in visible_slots and slot != SLOT_UNKNOWN
+        entities.append(
+            HubEnergieSlotSensor(
+                coordinator, entry, SOURCE_GRID, slot,
+                enabled_default=slot_enabled_default,
+            )
+        )
+        if has_solar:
+            entities.append(
+                HubEnergieSlotSensor(
+                    coordinator, entry, SOURCE_SOLAR, slot,
+                    enabled_default=slot_enabled_default,
+                )
+            )
+        if has_batteries:
+            entities.extend(
+                (
+                    HubEnergieSlotSensor(
+                        coordinator, entry, SOURCE_BATT_DISCHARGE, slot,
+                        enabled_default=slot_enabled_default,
+                    ),
+                    HubEnergieSlotSensor(
+                        coordinator, entry, SOURCE_BATT_CHARGE, slot,
+                        enabled_default=slot_enabled_default,
+                    ),
+                )
+            )
+        entities.append(
+            HubEnergieMaisonSensor(
+                coordinator, entry, slot,
+                enabled_default=slot_enabled_default,
+            )
+        )
+
     # ── Tempo-specific (EDF only) ──────────────────────────────────────
     if is_tempo:
         entities.append(HubEnergieRteDataSensor(coordinator, entry))
@@ -660,6 +712,8 @@ async def async_setup_entry(
         HubEnergieDiagCostSensor(coordinator, entry, "export_opportunity_cost_switch_latency_eur"),
         HubEnergieDiagCostSensor(coordinator, entry, "export_opportunity_cost_unattributed_eur"),
         HubEnergieHealthSensor(coordinator, entry),
+        HubEnergieDiagUnknownBucketSensor(coordinator, entry),
+        HubEnergieDiagStalenessSensor(coordinator, entry),
         HubEnergieConfigOverviewSensor(coordinator, entry),
     ])
 
@@ -735,6 +789,18 @@ class HubEnergieSlotSensor(HubEnergieSensor):
         return round(value, 3) if value is not None else None
 
     @property
+    def last_reset(self) -> datetime | None:
+        """Midnight (Europe/Paris) for the snapshot day — daily slot totals reset there."""
+        data = self.coordinator.data or {}
+        day = data.get(DATA_DAY)
+        if not day or not isinstance(day, str):
+            return None
+        try:
+            return ParisTime.day_start_utc(day)
+        except ValueError:
+            return None
+
+    @property
     def extra_state_attributes(self) -> dict[str, Any]:
         data = self.coordinator.data or {}
         return {DATA_LOGIC_VERSION: data.get(DATA_LOGIC_VERSION, LOGIC_VERSION)}
@@ -768,6 +834,17 @@ class HubEnergieMaisonSensor(HubEnergieSensor):
     def native_value(self) -> float | None:
         value = self._get_nested_value("maison", self._slot)
         return round(value, 3) if value is not None else None
+
+    @property
+    def last_reset(self) -> datetime | None:
+        data = self.coordinator.data or {}
+        day = data.get(DATA_DAY)
+        if not day or not isinstance(day, str):
+            return None
+        try:
+            return ParisTime.day_start_utc(day)
+        except ValueError:
+            return None
 
 
 _USAGE_KEYS = {
@@ -866,7 +943,8 @@ class HubEnergieCostDetailSensor(HubEnergieSensor):
     """Daily cost with per-slot attributes — the main sensor the card reads."""
 
     _attr_has_entity_name = True
-    _attr_native_unit_of_measurement = "€"
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = CURRENCY_EURO
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_should_poll = False
 
@@ -982,7 +1060,8 @@ class HubEnergieSavingsSensor(HubEnergieSensor):
     """Daily savings in € (solar or battery)."""
 
     _attr_has_entity_name = True
-    _attr_native_unit_of_measurement = "€"
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = CURRENCY_EURO
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_should_poll = False
 
@@ -1027,6 +1106,9 @@ class HubEnergieInfoSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntit
             info, info.replace("_", " ").title(),
         )
         self._attr_device_info = _device_energy_balance(coordinator)
+        if info in ("today_color", "tomorrow_color"):
+            self._attr_entity_category = EntityCategory.DIAGNOSTIC
+            self._attr_device_info = _device_diagnostics(coordinator)
 
     @property
     def native_value(self) -> str | None:
@@ -1046,12 +1128,13 @@ class HubEnergieRteDataSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEn
     _attr_has_entity_name = True
     _attr_should_poll = False
     _attr_icon = "mdi:counter"
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_tempo_rte_data"
         self._attr_name = "Source Tempo"
-        self._attr_device_info = _device_energy_balance(coordinator)
+        self._attr_device_info = _device_diagnostics(coordinator)
 
     @property
     def native_value(self) -> str | None:
@@ -1097,7 +1180,7 @@ class HubEnergieQuotaDaySensor(CoordinatorEntity[HubEnergieCoordinator], SensorE
         self._attr_unique_id = f"{entry.unique_id}_tempo_quota_{color_key}"
         adj = _TEMPO_QUOTA_DAY_LABEL.get(color_key, color_key)
         self._attr_name = f"Jours {adj} restants"
-        self._attr_device_info = _device_energy_balance(coordinator)
+        self._attr_device_info = _device_diagnostics(coordinator)
 
     @property
     def native_value(self) -> int | None:
@@ -1129,12 +1212,13 @@ class HubEnergieNextColourChangeSensor(CoordinatorEntity[HubEnergieCoordinator],
     _attr_should_poll = False
     _attr_icon = "mdi:clock-end"
     _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_tempo_next_colour_change"
         self._attr_name = "Prochain changement de couleur"
-        self._attr_device_info = _device_energy_balance(coordinator)
+        self._attr_device_info = _device_diagnostics(coordinator)
 
     @property
     def native_value(self) -> datetime | None:
@@ -1147,16 +1231,17 @@ class HubEnergieNextColourChangeSensor(CoordinatorEntity[HubEnergieCoordinator],
 class HubEnergieNextHcStartSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
     """Début de la prochaine plage heures creuses (22:00 Europe/Paris)."""
 
-    _attr_has_entity_name = False
+    _attr_has_entity_name = True
     _attr_should_poll = False
     _attr_icon = "mdi:weather-night"
     _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_tempo_next_hc_start"
-        self._attr_name = "hub énergie tempo next hc start"
-        self._attr_device_info = _device_energy_balance(coordinator)
+        self._attr_name = "Prochain début heures creuses"
+        self._attr_device_info = _device_diagnostics(coordinator)
 
     @property
     def native_value(self) -> datetime | None:
@@ -1202,7 +1287,54 @@ class HubEnergieHealthSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnt
             DATA_DATA_QUALITY: data.get(DATA_DATA_QUALITY),
             DATA_DELTA_DISCARDS: data.get(DATA_DELTA_DISCARDS, {}),
             DATA_DELTA_TELEMETRY: data.get(DATA_DELTA_TELEMETRY, {}),
+            DATA_DELTA_LAST_REJECTION: data.get(DATA_DELTA_LAST_REJECTION, {}),
+            DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY: data.get(DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY),
+            DATA_SECONDS_SINCE_LAST_APPLIED_DELTA: data.get(DATA_SECONDS_SINCE_LAST_APPLIED_DELTA),
         }
+
+
+class HubEnergieDiagUnknownBucketSensor(HubEnergieSensor):
+    """Grid energy accumulated in the indeterminate (`unknown`) tariff bucket today."""
+
+    _attr_has_entity_name = True
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_should_poll = False
+    _attr_icon = "mdi:help-circle-outline"
+
+    def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{entry.unique_id}_grid_unknown_bucket_today"
+        self._attr_name = "Réseau — créneau indéterminé (jour en cours)"
+        self._attr_device_info = _device_diagnostics(coordinator)
+
+    @property
+    def native_value(self) -> float | None:
+        return self._get_value(DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY)
+
+
+class HubEnergieDiagStalenessSensor(HubEnergieSensor):
+    """Seconds since the last successfully applied meter delta (any configured source)."""
+
+    _attr_has_entity_name = True
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_native_unit_of_measurement = UnitOfTime.SECONDS
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_should_poll = False
+    _attr_icon = "mdi:timer-sand"
+
+    def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{entry.unique_id}_seconds_since_last_applied_delta"
+        self._attr_name = "Délai depuis dernière mise à jour compteur"
+        self._attr_device_info = _device_diagnostics(coordinator)
+
+    @property
+    def native_value(self) -> float | None:
+        return self._get_value(DATA_SECONDS_SINCE_LAST_APPLIED_DELTA)
 
 
 class HubEnergieDiagInfoSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
@@ -1314,7 +1446,8 @@ class HubEnergieDiagCostSensor(HubEnergieSensor):
     """Diagnostic opportunity cost (€) sensors."""
 
     _attr_has_entity_name = True
-    _attr_native_unit_of_measurement = "€"
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = CURRENCY_EURO
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_should_poll = False
     _attr_entity_category = EntityCategory.DIAGNOSTIC
@@ -1617,7 +1750,8 @@ class HubEnergieSolarRevenueSensor(HubEnergieSensor):
     """Solar export revenue (€) when a resale contract is configured."""
 
     _attr_has_entity_name = True
-    _attr_native_unit_of_measurement = "€"
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = CURRENCY_EURO
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_should_poll = False
     _attr_icon = "mdi:cash-plus"

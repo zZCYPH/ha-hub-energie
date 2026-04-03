@@ -102,6 +102,16 @@ Modules must avoid silent failure and prefer explicit degradation.
 
 - Slot attribution is strictly monotonic within a day
 
+## Module boundaries (simplicity)
+
+For v0.2 the following separation is **intentionally kept**:
+
+- **`snapshot/coordinator_bridge.py`** — Coordinates wiring from `HubEnergieCoordinator` to the pure `SnapshotPipeline` (reader, options, EDF fields). Merging this into `coordinator.py` would create a very large, hard-to-test module; the bridge is mostly one-off callables and stays the single “HA → pipeline adapter”.
+- **`snapshot/pipeline.py` + `snapshot/snapshot_builder.py`** — Orchestration vs pure dict assembly; splitting avoids mixing ordering constraints with formatting.
+- **`runtime/state.py` vs `runtime/persistence.py`** — Mutable accumulators vs Store/recorder I/O and debounced saves.
+
+Modules that only made sense when duplicated have already been removed elsewhere; do not add new layers without a clear testability or I/O boundary.
+
 ## Testing Strategy
 
 - Unit test each domain module in isolation.

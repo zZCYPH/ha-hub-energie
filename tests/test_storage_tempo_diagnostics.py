@@ -76,6 +76,7 @@ def test_store_manager_validate_and_build_payload() -> None:
         diag_export_slot_kwh={},
         batt_charge_power_split_kwh={},
         batt_charge_power_split_slot_kwh={},
+        last_stable_attribution_slot=None,
     )
     assert built["totals_kwh_by_source"]["grid"] == pytest.approx(10.123)
     assert built["slot_day_kwh"]["2026-04-02"]["grid"]["bleu_hp"] == pytest.approx(1.235)

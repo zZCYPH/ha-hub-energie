@@ -121,7 +121,10 @@ from .const import (
     DATA_CONTRACT_POWER,
     DATA_DATA_QUALITY,
     DATA_DELTA_DISCARDS,
+    DATA_DELTA_LAST_REJECTION,
     DATA_DELTA_TELEMETRY,
+    DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY,
+    DATA_SECONDS_SINCE_LAST_APPLIED_DELTA,
     DATA_OFFER,
     DIAG_CAUSE_BATTERY_FULL_OR_ABSENT,
     DIAG_CAUSE_SOLAR_SURPLUS,
@@ -142,6 +145,7 @@ from .const import (
     OPT_TARIFF_REFRESH_HOURS,
 )
 from .diagnostics.reinjection_state import ReinjectionState
+from .energy.delta_observability import seconds_since_last_applied_delta
 from .energy.delta_policy import DeltaPolicy
 from .ha.reader import HAReader
 from .runtime.events import create_state_changed_handler
@@ -291,6 +295,9 @@ class EnergyData(TypedDict, total=False):
     data_quality: str
     delta_telemetry: dict[str, dict[str, Any]]
     delta_discards: dict[str, int]
+    delta_last_rejection: dict[str, dict[str, Any]]
+    grid_unknown_bucket_kwh_today: float
+    seconds_since_last_applied_delta: float | None
 
 
 class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
@@ -650,6 +657,14 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             )
             if result.outcome == "discarded_negative":
                 self._runtime_state.note_delta_discard("discarded_negative")
+                self._runtime_state.record_last_delta_rejection(
+                    source_key,
+                    reason="discarded_negative",
+                    at_iso=dt_util.utcnow().isoformat(),
+                    delta_kwh=result.delta_kwh,
+                    last_raw=result.last_raw,
+                    new_raw=result.new_raw,
+                )
                 _LOGGER.warning(
                     "Discarded negative delta for %s: old=%.6f new=%.6f",
                     source_key,
@@ -658,6 +673,14 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
                 )
             elif result.outcome == "discarded_unrealistic":
                 self._runtime_state.note_delta_discard("discarded_unrealistic")
+                self._runtime_state.record_last_delta_rejection(
+                    source_key,
+                    reason="discarded_unrealistic",
+                    at_iso=dt_util.utcnow().isoformat(),
+                    delta_kwh=result.delta_kwh,
+                    last_raw=result.last_raw,
+                    new_raw=result.new_raw,
+                )
                 _LOGGER.warning(
                     "Discarded unrealistic delta for %s: delta=%.6f",
                     source_key,
@@ -801,6 +824,21 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             for k, v in self._runtime_state.delta_telemetry.items()
         }
         snap[DATA_DELTA_DISCARDS] = dict(self._runtime_state.delta_discards)
+        snap[DATA_DELTA_LAST_REJECTION] = dict(
+            self._runtime_state.last_delta_rejection_by_source,
+        )
+        day_today = ParisTime.today()
+        grid_day = self._runtime_state.snapshot_data(day_today).get(SOURCE_GRID, {})
+        unk_today = (
+            float(grid_day.get(SLOT_UNKNOWN, 0.0))
+            if isinstance(grid_day, dict)
+            else 0.0
+        )
+        snap[DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY] = unk_today
+        snap[DATA_SECONDS_SINCE_LAST_APPLIED_DELTA] = seconds_since_last_applied_delta(
+            self._runtime_state.delta_telemetry,
+            now_utc=dt_util.utcnow(),
+        )
         return cast(EnergyData, snap)
 
     async def async_manual_tariff_refresh(self) -> bool:

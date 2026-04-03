@@ -1,0 +1,117 @@
+"""Runtime invariants: multi-day accumulation, unrealistic deltas, Paris day_start."""
+
+from __future__ import annotations
+
+import importlib
+import sys
+import types
+from pathlib import Path
+
+import pytest
+
+HUB_DIR = Path(__file__).resolve().parents[1]
+
+
+def _ensure_pkg(name: str, path: Path) -> None:
+    if name in sys.modules:
+        return
+    pkg = types.ModuleType(name)
+    pkg.__path__ = [str(path)]  # type: ignore[attr-defined]
+    sys.modules[name] = pkg
+
+
+_ensure_pkg("hub_energie", HUB_DIR)
+_ensure_pkg("hub_energie.diagnostics", HUB_DIR / "diagnostics")
+_ensure_pkg("hub_energie.runtime", HUB_DIR / "runtime")
+_ensure_pkg("hub_energie.energy", HUB_DIR / "energy")
+
+runtime_state_module = importlib.import_module("hub_energie.runtime.state")
+delta_policy_module = importlib.import_module("hub_energie.energy.delta_policy")
+diag_state_module = importlib.import_module("hub_energie.diagnostics.reinjection_state")
+
+SLOTS_FULL = (
+    "bleu_hc",
+    "bleu_hp",
+    "blanc_hc",
+    "blanc_hp",
+    "rouge_hc",
+    "rouge_hp",
+    "unknown",
+)
+CAUSES = ("solar_surplus", "battery_full_or_absent", "switch_latency", "unattributed")
+
+
+def _norm(v: float) -> float:
+    return round(float(v), 6)
+
+
+def test_apply_delta_new_day_does_not_merge_into_previous_day() -> None:
+    """Paris day change: energy goes to the new day's bucket; totals stay global."""
+    diag = diag_state_module.ReinjectionState(
+        slots=SLOTS_FULL,
+        diag_causes=CAUSES,
+        default_cause="unattributed",
+    )
+    state = runtime_state_module.RuntimeState(slots=SLOTS_FULL, reinjection_state=diag)
+    policy = delta_policy_module.DeltaPolicy()
+
+    state.apply_delta(
+        day="2026-01-01",
+        slot="bleu_hp",
+        source_key="grid",
+        entity_id="sensor.grid",
+        normalized_new=10.0,
+        normalize_kwh=_norm,
+        delta_policy=policy,
+    )
+    state.apply_delta(
+        day="2026-01-01",
+        slot="bleu_hp",
+        source_key="grid",
+        entity_id="sensor.grid",
+        normalized_new=12.0,
+        normalize_kwh=_norm,
+        delta_policy=policy,
+    )
+    state.apply_delta(
+        day="2026-01-02",
+        slot="bleu_hp",
+        source_key="grid",
+        entity_id="sensor.grid",
+        normalized_new=13.0,
+        normalize_kwh=_norm,
+        delta_policy=policy,
+    )
+    assert state.accum["2026-01-01"]["grid"]["bleu_hp"] == _norm(2.0)
+    assert state.accum["2026-01-02"]["grid"]["bleu_hp"] == _norm(1.0)
+    assert state.totals_kwh_by_source["grid"] == _norm(3.0)
+
+
+def test_unrealistic_delta_does_not_update_last_raw() -> None:
+    diag = diag_state_module.ReinjectionState(
+        slots=SLOTS_FULL,
+        diag_causes=CAUSES,
+        default_cause="unattributed",
+    )
+    state = runtime_state_module.RuntimeState(slots=SLOTS_FULL, reinjection_state=diag)
+    policy = delta_policy_module.DeltaPolicy()
+    state.apply_delta(
+        day="2026-06-01",
+        slot="bleu_hp",
+        source_key="grid",
+        entity_id="sensor.grid",
+        normalized_new=5.0,
+        normalize_kwh=_norm,
+        delta_policy=policy,
+    )
+    state.apply_delta(
+        day="2026-06-01",
+        slot="bleu_hp",
+        source_key="grid",
+        entity_id="sensor.grid",
+        normalized_new=5000.0,
+        normalize_kwh=_norm,
+        delta_policy=policy,
+    )
+    assert state.last_raw["grid"] == _norm(5.0)
+    assert state.totals_kwh_by_source.get("grid", 0.0) == _norm(0.0)

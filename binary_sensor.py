@@ -20,6 +20,7 @@ from .const import (
     CONF_HAS_SOLAR,
     CONF_SOLAR_ESTIMATION_ENABLED,
     CONF_SUPPLIER,
+    CONF_TARIFF_OFFER,
     DOMAIN,
     SUPPLIER_EDF,
     TARIFF_OFFER_TEMPO,
@@ -37,10 +38,11 @@ async def async_setup_entry(
 
     entities.append(HubEnergieConnectivitySensor(coordinator, entry))
 
-    is_edf_tempo = (
-        entry.data.get(CONF_SUPPLIER) == SUPPLIER_EDF
-        and entry.data.get("tariff_offer") == TARIFF_OFFER_TEMPO
+    offer_eff = entry.options.get(
+        CONF_TARIFF_OFFER,
+        entry.data.get(CONF_TARIFF_OFFER, TARIFF_OFFER_TEMPO),
     )
+    is_edf_tempo = entry.data.get(CONF_SUPPLIER) == SUPPLIER_EDF and offer_eff == TARIFF_OFFER_TEMPO
     if is_edf_tempo:
         entities.append(HubEnergieOffPeakSensor(coordinator, entry))
 
@@ -140,7 +142,7 @@ class HubEnergieOffPeakSensor(
 ):
     """True during Tempo off-peak (HC) window. EDF Tempo only."""
 
-    _attr_has_entity_name = False
+    _attr_has_entity_name = True
     _attr_should_poll = False
 
     def __init__(
@@ -148,7 +150,7 @@ class HubEnergieOffPeakSensor(
     ) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_off_peak"
-        self._attr_name = "hub énergie off peak"
+        self._attr_name = "Heures creuses Tempo"
         self._attr_device_info = _device_energy_balance(coordinator)
 
     @property
@@ -165,7 +167,7 @@ class HubEnergieSolarProducingSensor(
     """True when solar power > 0."""
 
     _attr_has_entity_name = True
-    _attr_device_class = BinarySensorDeviceClass.POWER
+    _attr_icon = "mdi:solar-power"
     _attr_should_poll = False
 
     def __init__(

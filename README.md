@@ -4,6 +4,28 @@ A Home Assistant custom integration for energy monitoring, cost tracking, and di
 
 Fork of `edf_energy_tariffs` with a cleaner architecture, generic supplier support, multi-battery systems, solar PV estimation, and three-phase grid support.
 
+**Home Assistant:** 2024.6.0 or newer (see `manifest.json`). **HACS:** optional `hacs.json` is provided for custom repository installs.
+
+## Supported scope (v0.2.x)
+
+**Intended to be stable**
+
+- Config flow: supplier (EDF vs custom), tariff model (flat / HP–HC / multi-slot / EDF Tempo with RTE, API, or sensor), grid and optional solar/battery entity wiring.
+- Positive energy deltas from `total_increasing` meter entities → internal slot-day accounting (Paris day) and integration-owned SSOT total sensors.
+- Daily cost estimate (€) from configured rates + subscription split; per-slot breakdown in attributes.
+- EDF Tempo helpers (when applicable): colours, quotas, next change timestamps.
+- Diagnostics: export / réinjection split, data quality, delta telemetry, unknown bucket and staleness sensors.
+- Optional clear-sky PV estimation and solar resale revenue line (when configured).
+- Lovelace card served from `/hub_energie/` after build.
+
+**Experimental / best-effort**
+
+- Power-flow–based battery charge origin split when sensors are partial or noisy.
+- Solar production estimation (model-based, not a physical meter).
+- Opportunity-cost diagnostics for exported kWh.
+
+The README **features** section below is descriptive, not a warranty: behaviour depends on your hardware and entity choice (especially for the Energy panel).
+
 ## Features
 
 - **Generic supplier support**: EDF (with auto-tariff fetch) and manual configuration for any other provider
@@ -12,7 +34,7 @@ Fork of `edf_energy_tariffs` with a cleaner architecture, generic supplier suppo
 - **Multi-battery systems**: 0..N independent battery/inverter monitoring with aggregation
 - **Solar PV estimation**: optional clear-sky production estimator with multi-array support and aging model
 - **Solar resale tracking**: export revenue computation when a re-sale contract is configured
-- **Energy balance**: per-slot kWh tracking, usage flow attribution, origin breakdown
+- **Energy balance**: per-slot kWh tracking, usage flow attribution, origin breakdown (optional **per-slot sensors** for grid / solar / batteries / maison — `unknown` bucket disabled by default)
 - **Cost analysis**: daily cost computation, subscription proration, savings calculation
 - **Diagnostics**: reinjection classification, export attribution, health monitoring
 - **Lovelace card**: forked card with battery SOC bar, ETA to full/empty, refactored to LitElement
@@ -29,33 +51,26 @@ Optional observability on the **health** and **`cost_detail`** sensors includes 
 
 ## Installation
 
-Copy the `hub_energie` folder to your Home Assistant `custom_components/` directory:
+This repository **is** the contents of the `hub_energie` integration package. You must install it **exactly** under:
 
-```
-custom_components/
-  hub_energie/
-    __init__.py
-    config_flow.py
-    const.py
-    coordinator.py
-    sensor.py
-    binary_sensor.py
-    solar_model.py
-    tariff_manager.py
-    manifest.json
-    services.yaml
-    strings.json
-    translations/
-      en.json
-      fr.json
-    providers/
-      __init__.py
-      edf.py
-    frontend/
-      hub-energie-card.js
-```
+`<config directory>/custom_components/hub_energie/`
 
-Restart Home Assistant, then add the integration via **Settings → Devices & Services → Add Integration → Hub Énergie**.
+So that Home Assistant loads `custom_components/hub_energie/manifest.json` (not a nested copy such as `custom_components/hub_energie/hub_energie/`).
+
+**Ways to install**
+
+1. **Clone** this repo **into** `custom_components/hub_energie` (git clone URL `custom_components/hub_energie`), **or**
+2. **Copy** the full tree from the repo root into `custom_components/hub_energie`, preserving all subfolders (`battery/`, `energy/`, `frontend/`, `runtime/`, `snapshot/`, `translations/`, etc.).
+
+Do **not** cherry-pick only a few files: the integration is a single Python package split across many modules.
+
+After copying or cloning:
+
+1. If you use the Lovelace card, build the frontend bundle once: in `custom_components/hub_energie/frontend/` run `npm ci` (or `npm install`) then `npm run build`.
+2. **Restart Home Assistant** (full restart, not only “Reload YAML”).
+3. Add the integration: **Settings → Devices & services → Add integration → Hub Énergie**.
+
+**Version:** see `manifest.json` (`version` field). Release **v0.2.0** is tagged in Git for reproducible installs.
 
 ## Lovelace Card
 
