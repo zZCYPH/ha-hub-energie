@@ -75,6 +75,17 @@ def validate_store_payload(
             datetime.strptime(day, "%Y-%m-%d")
         except ValueError:
             return False
+
+    lts = payload.get("lts_cumulative_kwh_by_statistic_id")
+    if lts is not None:
+        if not isinstance(lts, dict):
+            return False
+        for lts_key, lts_val in lts.items():
+            if not isinstance(lts_key, str):
+                return False
+            lts_f = safe_float(lts_val)
+            if lts_f is None or lts_f < 0:
+                return False
     return True
 
 
@@ -91,6 +102,7 @@ def build_store_payload(
     batt_charge_power_split_kwh: dict[str, Any],
     batt_charge_power_split_slot_kwh: dict[str, Any],
     last_stable_attribution_slot: str | None,
+    lts_cumulative_kwh_by_statistic_id: dict[str, float],
     decimals: int,
 ) -> dict[str, Any]:
     return {
@@ -120,6 +132,10 @@ def build_store_payload(
         "batt_charge_power_split_kwh": batt_charge_power_split_kwh,
         "batt_charge_power_split_slot_kwh": batt_charge_power_split_slot_kwh,
         "last_stable_attribution_slot": last_stable_attribution_slot,
+        "lts_cumulative_kwh_by_statistic_id": {
+            k: normalize_kwh(float(v), decimals)
+            for k, v in lts_cumulative_kwh_by_statistic_id.items()
+        },
     }
 
 
@@ -151,6 +167,7 @@ class StoreManager:
         batt_charge_power_split_kwh: dict[str, Any],
         batt_charge_power_split_slot_kwh: dict[str, Any],
         last_stable_attribution_slot: str | None,
+        lts_cumulative_kwh_by_statistic_id: dict[str, float],
     ) -> dict[str, Any]:
         return build_store_payload(
             model_version=self.model_version,
@@ -164,5 +181,6 @@ class StoreManager:
             batt_charge_power_split_kwh=batt_charge_power_split_kwh,
             batt_charge_power_split_slot_kwh=batt_charge_power_split_slot_kwh,
             last_stable_attribution_slot=last_stable_attribution_slot,
+            lts_cumulative_kwh_by_statistic_id=lts_cumulative_kwh_by_statistic_id,
             decimals=self.decimals,
         )

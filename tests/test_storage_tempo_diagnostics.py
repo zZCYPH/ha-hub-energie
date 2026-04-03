@@ -66,6 +66,12 @@ def test_store_manager_validate_and_build_payload() -> None:
     }
     assert not manager.validate_payload(invalid_slot)
 
+    invalid_lts = {
+        **valid,
+        "lts_cumulative_kwh_by_statistic_id": {"hub_energie:slot_x": -0.5},
+    }
+    assert not manager.validate_payload(invalid_lts)
+
     built = manager.build_payload(
         totals_kwh_by_source={"grid": 10.12349},
         slot_day_kwh={"2026-04-02": {"grid": {"bleu_hp": 1.23456}}},
@@ -77,10 +83,14 @@ def test_store_manager_validate_and_build_payload() -> None:
         batt_charge_power_split_kwh={},
         batt_charge_power_split_slot_kwh={},
         last_stable_attribution_slot=None,
+        lts_cumulative_kwh_by_statistic_id={"hub_energie:slot_grid_bleu_hp_kwh": 3.5},
     )
     assert built["totals_kwh_by_source"]["grid"] == pytest.approx(10.123)
     assert built["slot_day_kwh"]["2026-04-02"]["grid"]["bleu_hp"] == pytest.approx(1.235)
     assert built["last_raw_by_source"]["grid"] == pytest.approx(100.556)
+    assert built["lts_cumulative_kwh_by_statistic_id"]["hub_energie:slot_grid_bleu_hp_kwh"] == pytest.approx(
+        3.5
+    )
 
 
 def test_tempo_day_counters_excludes_current_day_from_elapsed() -> None:

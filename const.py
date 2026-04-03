@@ -321,6 +321,8 @@ API_COULEUR_TEMPO_BASE_URL: Final = "https://www.api-couleur-tempo.fr"
 # ---------------------------------------------------------------------------
 ENERGY_ROUND_DECIMALS: Final = 6
 NEGATIVE_DELTA_NOISE_KWH: Final = 0.01
+# Negative deltas with magnitude below this rebaseline last_raw without counting energy (meter jitter).
+NEGATIVE_DELTA_REBASE_BAND_KWH: Final = 0.1
 MAX_DELTA_KWH_DEFAULT: Final = 200.0
 
 # ---------------------------------------------------------------------------

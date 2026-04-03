@@ -5,6 +5,7 @@ from __future__ import annotations
 from ..const import (
     MAX_DELTA_KWH_DEFAULT,
     NEGATIVE_DELTA_NOISE_KWH,
+    NEGATIVE_DELTA_REBASE_BAND_KWH,
     SOURCE_GRID,
     SOURCE_GRID_EXPORT,
     SOURCE_SOLAR,
@@ -15,6 +16,10 @@ __all__ = ("DeltaPolicy",)
 
 class DeltaPolicy:
     """Caps and reset heuristics for energy counter deltas."""
+
+    def small_negative_rebase_band_kwh(self) -> float:
+        """Max |negative delta| treated as noise: rebase last_raw, do not accumulate."""
+        return float(NEGATIVE_DELTA_REBASE_BAND_KWH)
 
     def max_delta_kwh(self, source_key: str) -> float:
         if source_key.startswith("batt_"):

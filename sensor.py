@@ -1271,7 +1271,7 @@ class HubEnergieHealthSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnt
         if data and data.get(DATA_DATA_QUALITY) == "degraded":
             return "warning"
         if c.is_edf and c.tariff_offer == TARIFF_OFFER_TEMPO:
-            if c.tempo_mode == TEMPO_MODE_RTE and not c._edf.calendar_rows:  # noqa: SLF001
+            if c.tempo_mode == TEMPO_MODE_RTE and not c.tempo_rte_calendar_ready:
                 return "warning"
         if data and not c.get_current_slot():
             return "warning"

@@ -63,7 +63,8 @@ def test_compute_delta_decision_applied_twice_is_idempotent_on_second_zero_delta
     assert p2.add_to_accum is None
 
 
-def test_compute_delta_decision_unrealistic_no_last_raw_update() -> None:
+def test_compute_delta_decision_unrealistic_rebases_last_raw() -> None:
+    """Spurious one-shot spike: discard energy but follow the meter to avoid deadlock."""
     r, patch = acc_module.compute_delta_decision(
         source_entity_by_source={"grid": "sensor.g"},
         last_raw_by_source={"grid": 5.0},
@@ -77,5 +78,29 @@ def test_compute_delta_decision_unrealistic_no_last_raw_update() -> None:
         is_plausible_reset=lambda *_: False,
     )
     assert r.outcome == "discarded_unrealistic"
-    assert r.should_save is False
-    assert patch.update_last_raw is False
+    assert r.should_save is True
+    assert patch.update_last_raw is True
+    assert patch.last_raw_value == _norm(500.0)
+    assert r.last_raw == 5.0
+    assert r.new_raw == _norm(500.0)
+
+
+def test_compute_delta_decision_small_negative_rebases_without_accum() -> None:
+    r, patch = acc_module.compute_delta_decision(
+        source_entity_by_source={"grid": "sensor.g"},
+        last_raw_by_source={"grid": 10.0},
+        day="2026-01-01",
+        slot="bleu_hp",
+        source_key="grid",
+        entity_id="sensor.g",
+        normalized_new=_norm(9.95),
+        normalize_kwh=_norm,
+        max_delta_kwh_for_source=lambda _s: 200.0,
+        is_plausible_reset=lambda *_: False,
+        small_negative_rebase_max_kwh=0.1,
+    )
+    assert r.outcome == "rebased_noise"
+    assert r.should_save is True
+    assert patch.update_last_raw is True
+    assert patch.last_raw_value == _norm(9.95)
+    assert patch.add_to_accum is None

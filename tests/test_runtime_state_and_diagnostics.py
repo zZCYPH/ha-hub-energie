@@ -129,5 +129,6 @@ def test_runtime_state_export_store_payload_top_level_keys_stable() -> None:
         "batt_charge_power_split_kwh",
         "batt_charge_power_split_slot_kwh",
         "last_stable_attribution_slot",
+        "lts_cumulative_kwh_by_statistic_id",
     }
     assert set(payload.keys()) == expected

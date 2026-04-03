@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, Mapping
 
+from ..const import NEGATIVE_DELTA_REBASE_BAND_KWH
+
 __all__ = ("DeltaApplyResult", "DeltaStatePatch", "compute_delta_decision")
 
 
@@ -42,6 +44,7 @@ def compute_delta_decision(
     normalize_kwh: Callable[[float], float],
     max_delta_kwh_for_source: Callable[[str], float],
     is_plausible_reset: Callable[[str, float, float], bool],
+    small_negative_rebase_max_kwh: float = NEGATIVE_DELTA_REBASE_BAND_KWH,
 ) -> tuple[DeltaApplyResult, DeltaStatePatch]:
     """Return the observable outcome plus the exact patch RuntimeState should apply."""
     previous_entity = source_entity_by_source.get(source_key)
@@ -89,6 +92,24 @@ def compute_delta_decision(
                     add_to_accum=None,
                 ),
             )
+        band = float(small_negative_rebase_max_kwh)
+        if band > 0.0 and (-delta_kwh) <= band:
+            return (
+                DeltaApplyResult(
+                    outcome="rebased_noise",
+                    should_save=True,
+                    delta_kwh=delta_kwh,
+                    last_raw=last,
+                    new_raw=normalized_new,
+                ),
+                DeltaStatePatch(
+                    source_key=source_key,
+                    entity_id=entity_id,
+                    update_last_raw=True,
+                    last_raw_value=normalized_new,
+                    add_to_accum=None,
+                ),
+            )
         return (
             DeltaApplyResult(
                 outcome="discarded_negative",
@@ -122,13 +143,15 @@ def compute_delta_decision(
         return (
             DeltaApplyResult(
                 outcome="discarded_unrealistic",
-                should_save=False,
+                should_save=True,
                 delta_kwh=delta_kwh,
+                last_raw=last,
+                new_raw=normalized_new,
             ),
             DeltaStatePatch(
                 source_key=source_key,
                 entity_id=entity_id,
-                update_last_raw=False,
+                update_last_raw=True,
                 last_raw_value=normalized_new,
                 add_to_accum=None,
             ),

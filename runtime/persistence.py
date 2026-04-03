@@ -8,6 +8,7 @@ from collections.abc import Callable, Mapping
 from datetime import datetime, timedelta
 from typing import Any
 
+from homeassistant.components.sensor import SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
 from homeassistant.helpers.event import async_call_later
@@ -19,6 +20,64 @@ from ..time.paris_time import PARIS_TZ, ParisTime
 from .state import RuntimeState
 
 __all__ = ("PersistenceManager",)
+
+
+def _stat_rows_to_dailies_and_lts_floor(
+    rows: list[Any],
+    *,
+    today_iso: str,
+    safe_float: Callable[[Any], float | None],
+    norm_kwh: Callable[[float], float],
+) -> tuple[list[tuple[str, float]], float]:
+    """Split recorder rows into per-day kWh for internal rebuild and LTS cumulative floor.
+
+    Monotonic ``sum`` series → treat as cumulative (delta between rows). Non-monotonic
+    → legacy daily values written as ``sum`` (before v0.2.1).
+    """
+    parsed: list[tuple[datetime, float]] = []
+    for row in rows:
+        start_dt = row.get("start") if isinstance(row, Mapping) else getattr(row, "start", None)
+        sum_val = row.get("sum") if isinstance(row, Mapping) else getattr(row, "sum", None)
+        if not isinstance(start_dt, datetime):
+            continue
+        s = safe_float(sum_val)
+        if s is None:
+            continue
+        parsed.append((start_dt, s))
+
+    parsed.sort(key=lambda t: t[0])
+    done = [
+        (dt, s)
+        for dt, s in parsed
+        if dt.astimezone(PARIS_TZ).date().isoformat() < today_iso
+    ]
+    if not done:
+        return [], 0.0
+
+    sums = [p[1] for p in done]
+    monotonic = len(sums) < 2 or all(
+        sums[i] >= sums[i - 1] - 1e-9 for i in range(1, len(sums))
+    )
+
+    out: list[tuple[str, float]] = []
+    if not monotonic:
+        last_cum = 0.0
+        for dt, s in done:
+            day_iso = dt.astimezone(PARIS_TZ).date().isoformat()
+            daily = norm_kwh(max(0.0, s))
+            if daily > 0:
+                out.append((day_iso, daily))
+                last_cum = norm_kwh(last_cum + daily)
+        return out, last_cum
+
+    prev = 0.0
+    for dt, s in done:
+        day_iso = dt.astimezone(PARIS_TZ).date().isoformat()
+        daily = norm_kwh(max(0.0, s - prev))
+        if daily > 0:
+            out.append((day_iso, daily))
+        prev = s
+    return out, norm_kwh(sums[-1])
 
 
 class PersistenceManager:
@@ -108,6 +167,7 @@ class PersistenceManager:
             if raw_value is not None and raw_value >= 0:
                 last_raw_by_source[source_key] = self._norm_kwh(raw_value)
 
+        stable = raw.get("last_stable_attribution_slot")
         return {
             "model_version": self._store_model_version,
             "totals_kwh_by_source": totals,
@@ -119,6 +179,10 @@ class PersistenceManager:
             "diag_export_slot_kwh": raw.get("diag_export_slot_kwh", {}),
             "batt_charge_power_split_kwh": raw.get("batt_charge_power_split_kwh", {}),
             "batt_charge_power_split_slot_kwh": raw.get("batt_charge_power_split_slot_kwh", {}),
+            "last_stable_attribution_slot": stable
+            if isinstance(stable, str)
+            else None,
+            "lts_cumulative_kwh_by_statistic_id": {},
         }
 
     async def load(self) -> bool:
@@ -249,25 +313,23 @@ class PersistenceManager:
             for slot in self._slots:
                 sid = self._statistic_id(source_key, slot)
                 rows = stats.get(sid, [])
-                for row in rows:
-                    start_dt = row.get("start") if isinstance(row, Mapping) else getattr(row, "start", None)
-                    sum_val = row.get("sum") if isinstance(row, Mapping) else getattr(row, "sum", None)
-                    if not isinstance(start_dt, datetime):
-                        continue
-                    value = self._safe_float(sum_val)
-                    if value is None or value <= 0:
-                        continue
-                    day_iso = start_dt.astimezone(PARIS_TZ).date().isoformat()
-                    if day_iso >= today:
-                        continue
+                dailies, lts_floor = _stat_rows_to_dailies_and_lts_floor(
+                    rows,
+                    today_iso=today,
+                    safe_float=self._safe_float,
+                    norm_kwh=self._norm_kwh,
+                )
+                for day_iso, daily in dailies:
                     self._runtime_state.add_rebuilt_value(
                         day=day_iso,
                         source_key=source_key,
                         slot=slot,
-                        value=value,
+                        value=daily,
                         normalize_kwh=self._norm_kwh,
                     )
                     self._runtime_state.mark_written_day(day_iso)
+                if lts_floor > 0:
+                    self._runtime_state.lts_cumulative_kwh_by_statistic_id[sid] = lts_floor
 
     async def write_statistics(self, iso_day: str) -> None:
         async with self._state_lock:
@@ -277,6 +339,8 @@ class PersistenceManager:
             if not day_acc:
                 self._logger.debug("Skipping recorder write for %s: missing slot_day_kwh entry", iso_day)
                 return
+            lts_snapshot = dict(self._runtime_state.lts_cumulative_kwh_by_statistic_id)
+
         from homeassistant.components.recorder.statistics import async_add_external_statistics
 
         expected_sources = self._expected_source_keys()
@@ -289,10 +353,13 @@ class PersistenceManager:
 
         start_utc = ParisTime.day_start_utc(iso_day)
         all_ok = True
+        lts_updates: dict[str, float] = dict(lts_snapshot)
         for source, slot_data in day_acc.items():
             for slot in self._slots:
-                value = self._norm_kwh(float(slot_data.get(slot, 0.0)))
+                daily = self._norm_kwh(float(slot_data.get(slot, 0.0)))
                 statistic_id = self._statistic_id(source, slot)
+                prev_cum = lts_updates.get(statistic_id, 0.0)
+                cum = self._norm_kwh(prev_cum + daily)
                 metadata = {
                     "has_mean": False,
                     "has_sum": True,
@@ -300,13 +367,15 @@ class PersistenceManager:
                     "source": self._domain,
                     "statistic_id": statistic_id,
                     "unit_of_measurement": "kWh",
+                    "state_class": SensorStateClass.TOTAL_INCREASING,
                 }
                 try:
                     async_add_external_statistics(
                         self._hass,
                         metadata,
-                        [{"start": start_utc, "sum": value}],
+                        [{"start": start_utc, "sum": cum}],
                     )
+                    lts_updates[statistic_id] = cum
                 except Exception as err:  # noqa: BLE001
                     all_ok = False
                     self._logger.warning(
@@ -317,5 +386,6 @@ class PersistenceManager:
                     )
         if all_ok:
             async with self._state_lock:
+                self._runtime_state.lts_cumulative_kwh_by_statistic_id = lts_updates
                 self._runtime_state.mark_written_day(iso_day)
                 self.schedule_save_locked()

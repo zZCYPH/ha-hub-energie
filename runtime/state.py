@@ -33,6 +33,7 @@ class RuntimeState:
     delta_telemetry: dict[str, dict[str, Any]] = field(default_factory=dict)
     delta_discards: dict[str, int] = field(default_factory=dict)
     last_delta_rejection_by_source: dict[str, dict[str, Any]] = field(default_factory=dict)
+    lts_cumulative_kwh_by_statistic_id: dict[str, float] = field(default_factory=dict)
 
     def _empty_slots(self) -> dict[str, float]:
         return {slot: 0.0 for slot in self.slots}
@@ -49,6 +50,7 @@ class RuntimeState:
         self.delta_telemetry = {}
         self.delta_discards = {}
         self.last_delta_rejection_by_source = {}
+        self.lts_cumulative_kwh_by_statistic_id = {}
         self.reinjection_state.hydrate(diag_export_kwh={}, diag_export_slot_kwh={})
 
     def note_delta_discard(self, kind: str) -> None:
@@ -179,6 +181,15 @@ class RuntimeState:
         self.last_stable_attribution_slot = (
             str(raw_stable) if isinstance(raw_stable, str) and raw_stable in SLOTS else None
         )
+        raw_lts = payload.get("lts_cumulative_kwh_by_statistic_id")
+        if isinstance(raw_lts, dict):
+            lts: dict[str, float] = {}
+            for str_key, raw_val in raw_lts.items():
+                val = safe_float(raw_val)
+                if val is None or val < 0:
+                    continue
+                lts[str(str_key)] = normalize_kwh(val)
+            self.lts_cumulative_kwh_by_statistic_id = lts
 
     def export_store_payload(self, *, store_manager: Any) -> dict[str, Any]:
         diag_payload = self.reinjection_state.snapshot()
@@ -193,6 +204,7 @@ class RuntimeState:
             batt_charge_power_split_kwh=self.batt_charge_power_split_kwh,
             batt_charge_power_split_slot_kwh=self.batt_charge_power_split_slot_kwh,
             last_stable_attribution_slot=self.last_stable_attribution_slot,
+            lts_cumulative_kwh_by_statistic_id=self.lts_cumulative_kwh_by_statistic_id,
         )
 
     def snapshot_data(self, day: str) -> Mapping[str, Any]:
@@ -248,6 +260,7 @@ class RuntimeState:
             normalize_kwh=normalize_kwh,
             max_delta_kwh_for_source=delta_policy.max_delta_kwh,
             is_plausible_reset=delta_policy.is_plausible_reset,
+            small_negative_rebase_max_kwh=delta_policy.small_negative_rebase_band_kwh(),
         )
         self.source_entity_by_source[patch.source_key] = patch.entity_id
         if patch.update_last_raw:

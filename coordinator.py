@@ -140,6 +140,7 @@ from .const import (
     SUPPLIER_EDF,
     TARIFF_OFFER_TEMPO,
     TEMPO_MODE_API,
+    TEMPO_MODE_RTE,
     TEMPO_MODE_SENSOR,
     OPT_TARIFF_AUTO_REFRESH,
     OPT_TARIFF_REFRESH_HOURS,
@@ -384,6 +385,15 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
     @property
     def tempo_mode(self) -> str:
         return cast(str, self.entry.data.get(CONF_TEMPO_MODE, TEMPO_MODE_SENSOR))
+
+    @property
+    def tempo_rte_calendar_ready(self) -> bool:
+        """True when RTE calendar rows exist if Tempo + RTE mode requires them."""
+        if not self.is_edf or self.tariff_offer != TARIFF_OFFER_TEMPO:
+            return True
+        if self.tempo_mode != TEMPO_MODE_RTE:
+            return True
+        return bool(self._edf.calendar_rows)
 
     @property
     def phase_type(self) -> str:

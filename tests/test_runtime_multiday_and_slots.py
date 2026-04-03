@@ -87,7 +87,7 @@ def test_apply_delta_new_day_does_not_merge_into_previous_day() -> None:
     assert state.totals_kwh_by_source["grid"] == _norm(3.0)
 
 
-def test_unrealistic_delta_does_not_update_last_raw() -> None:
+def test_unrealistic_delta_rebases_last_raw_without_counting_energy() -> None:
     diag = diag_state_module.ReinjectionState(
         slots=SLOTS_FULL,
         diag_causes=CAUSES,
@@ -113,5 +113,5 @@ def test_unrealistic_delta_does_not_update_last_raw() -> None:
         normalize_kwh=_norm,
         delta_policy=policy,
     )
-    assert state.last_raw["grid"] == _norm(5.0)
+    assert state.last_raw["grid"] == _norm(5000.0)
     assert state.totals_kwh_by_source.get("grid", 0.0) == _norm(0.0)
