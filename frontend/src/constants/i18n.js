@@ -9,6 +9,7 @@ export const I18N = Object.freeze({
     details: "Détails",
     hide: "Masquer",
     loading: "Chargement de l'historique…",
+    waitingHassBootstrap: "Connexion à Home Assistant et chargement des entités…",
     offer: "Offre",
     today: "Aujourd'hui",
     tomorrow: "Demain",
@@ -59,6 +60,19 @@ export const I18N = Object.freeze({
     loadConsumed: "consommés",
     powerHistoryTitle: "Historique puissance",
     powerHistoryLastHours: "Dernières {hours} heures",
+    powerHistoryFullDay: "Journée du {date} (0h–24h)",
+    powerHistoryWindow: "Durée",
+    powerHistoryStacked:
+      "courbes W : charge maison (dérivée intégration ou capteur optionnel), solaire, décharge/charge batt., réseau (signé) · stats + live",
+    powerHistoryStackedStats:
+      "courbes W : charge maison, solaire, décharge/charge batt., réseau (signé) · statistiques",
+    powerGraphTooltipTime: "Heure",
+    powerGraphTooltipSolar: "Solaire",
+    powerGraphTooltipGrid: "Réseau",
+    powerHistoryNoSensors:
+      "Aucun capteur de puissance configuré (ou intégration pas à jour). Vérifiez la config Hub Énergie.",
+    powerHistoryNoStatistics:
+      "Pas de statistiques enregistreur pour ces capteurs (state_class requis). Ou délai trop court après ajout.",
     battFullIn: "Plein dans :",
     battEmptyIn: "Vide dans :",
     battSocTitle: "Batterie",
@@ -73,6 +87,7 @@ export const I18N = Object.freeze({
     details: "Details",
     hide: "Hide",
     loading: "Loading history…",
+    waitingHassBootstrap: "Connecting to Home Assistant and loading entity states…",
     offer: "Offer",
     today: "Today",
     tomorrow: "Tomorrow",
@@ -122,6 +137,19 @@ export const I18N = Object.freeze({
     loadConsumed: "consumed",
     powerHistoryTitle: "Power history",
     powerHistoryLastHours: "Last {hours} hours",
+    powerHistoryFullDay: "Day {date} (midnight–midnight)",
+    powerHistoryWindow: "Window",
+    powerHistoryStacked:
+      "W lines: house load (integration derived or optional sensor), solar, batt. discharge/charge, grid (signed) · stats + live",
+    powerHistoryStackedStats:
+      "W lines: house load, solar, batt. discharge/charge, grid (signed) · statistics only",
+    powerGraphTooltipTime: "Time",
+    powerGraphTooltipSolar: "Solar",
+    powerGraphTooltipGrid: "Grid",
+    powerHistoryNoSensors:
+      "No power sensors configured (or integration not updated). Check Hub Énergie config.",
+    powerHistoryNoStatistics:
+      "No recorder statistics for these sensors (needs state_class). Or not enough history yet.",
     battFullIn: "Full in:",
     battEmptyIn: "Empty in:",
     battSocTitle: "Battery",

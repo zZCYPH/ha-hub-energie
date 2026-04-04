@@ -22,8 +22,10 @@ from .const import (
     CONF_SUPPLIER,
     CONF_TARIFF_OFFER,
     DOMAIN,
+    INTEGRATION_TITLE,
     SUPPLIER_EDF,
     TARIFF_OFFER_TEMPO,
+    scoped_device_name,
 )
 from .coordinator import HubEnergieCoordinator
 
@@ -77,8 +79,8 @@ def _device_energy_balance(coordinator: HubEnergieCoordinator) -> DeviceInfo:
     return DeviceInfo(
         entry_type=DeviceEntryType.SERVICE,
         identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_energy_balance")},
-        name="Bilan énergétique",
-        manufacturer="Hub Énergie",
+        name=scoped_device_name("Bilan énergétique"),
+        manufacturer=INTEGRATION_TITLE,
         model="Energy flows (kWh)",
     )
 
@@ -97,8 +99,8 @@ def _device_solar_config(coordinator: HubEnergieCoordinator) -> DeviceInfo:
     return DeviceInfo(
         entry_type=DeviceEntryType.SERVICE,
         identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_solar_config")},
-        name="Solaire",
-        manufacturer="Hub Énergie",
+        name=scoped_device_name("Solaire"),
+        manufacturer=INTEGRATION_TITLE,
         model="Solar configuration",
     )
 
@@ -106,10 +108,10 @@ def _device_solar_config(coordinator: HubEnergieCoordinator) -> DeviceInfo:
 def _battery_device_display_name(batt_id: str, batt_name: str) -> str:
     label = (batt_name or "").strip()
     if label:
-        return label
+        return scoped_device_name(label)
     if batt_id:
-        return str(batt_id)
-    return "Batterie"
+        return scoped_device_name(str(batt_id))
+    return scoped_device_name("Batterie")
 
 
 def _device_battery(
@@ -119,7 +121,7 @@ def _device_battery(
         entry_type=DeviceEntryType.SERVICE,
         identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_battery_{batt_id}")},
         name=_battery_device_display_name(batt_id, batt_name),
-        manufacturer="Hub Énergie",
+        manufacturer=INTEGRATION_TITLE,
         model="Battery system",
     )
 

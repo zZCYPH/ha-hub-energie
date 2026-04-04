@@ -32,7 +32,7 @@ def _stat_rows_to_dailies_and_lts_floor(
     """Split recorder rows into per-day kWh for internal rebuild and LTS cumulative floor.
 
     Monotonic ``sum`` series → treat as cumulative (delta between rows). Non-monotonic
-    → legacy daily values written as ``sum`` (before v0.2.1).
+    → legacy daily values written as ``sum`` (before v0.2.2).
     """
     parsed: list[tuple[datetime, float]] = []
     for row in rows:

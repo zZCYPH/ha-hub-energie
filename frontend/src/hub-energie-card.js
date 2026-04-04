@@ -1,9 +1,9 @@
-import { LitElement, css, html, nothing } from "lit";
+import { LitElement, css, html, nothing, svg } from "lit";
 import { I18N } from "./constants/i18n.js";
 import {
   COLOR_BATTERY,
-  COLOR_GRID_SOURCE,
   COLOR_GRID_TO_BATT,
+  COLOR_GRID_SOURCE,
   COLOR_SOLAR,
   COLOR_SUBSCRIPTION,
 } from "./constants/colors.js";
@@ -18,6 +18,7 @@ import {
 } from "./utils/date-utils.js";
 import {
   fmtEnergy,
+  fmtPowerCompact,
   makeSectionEnergyFormatter,
   readAttrNum,
   readAttrOptionalFloat,
@@ -36,11 +37,32 @@ import {
   slotLabel,
   slotMapFingerprint,
 } from "./utils/energy-utils.js";
+import {
+  collectPowerGraphStatisticIds,
+  fetchStatisticsDuringPeriod,
+  mergePowerStatisticsToChartPoints,
+  mergeStatsPointsWithLiveTail,
+  readLivePowerGraphComponents,
+  yExtentFromPowerChartPoints,
+} from "./utils/power-graph-history.js";
 
 import "./components/hub-energy-strip.js";
 import "./components/hub-power-now.js";
 import "./components/hub-battery-bar.js";
 import "./components/hub-insight-bar.js";
+
+/** Rolling window presets for live-day power graph (hours). */
+const POWER_GRAPH_ROLLING_HOURS = [24, 12, 6, 3, 1];
+
+function snapPowerGraphRollingHours(raw) {
+  if (!Number.isFinite(raw)) return 24;
+  const n = Math.trunc(raw);
+  if (POWER_GRAPH_ROLLING_HOURS.includes(n)) return n;
+  return POWER_GRAPH_ROLLING_HOURS.reduce(
+    (best, h) => (Math.abs(h - n) < Math.abs(best - n) ? h : best),
+    24,
+  );
+}
 
 async function fetchHistoryStates(hass, startIso, endIso, entityIds, costEntityId) {
   const startIsoN = /^\d{4}-\d{2}-\d{2}$/.test(String(startIso)) ? String(startIso) : todayParisISO();
@@ -153,6 +175,8 @@ class HubEnergieCard extends LitElement {
       _powerGraphLoading: { state: true },
       _powerGraphErr: { state: true },
       _powerGraphSeries: { state: true },
+      _powerGraphHoverIdx: { state: true },
+      _powerGraphRollingHours: { state: true },
     };
   }
 
@@ -564,7 +588,20 @@ class HubEnergieCard extends LitElement {
       .power-graph-meta {
         font-size: 0.72rem;
         color: var(--secondary-text-color);
-        white-space: nowrap;
+        white-space: normal;
+        text-align: right;
+        max-width: min(100%, 26rem);
+        line-height: 1.35;
+      }
+      .power-graph-window-btns {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px;
+        margin: 6px 0 0;
+      }
+      .power-graph-window-btns .range-label {
+        margin-right: 2px;
       }
       .power-graph-legend {
         display: flex;
@@ -587,11 +624,104 @@ class HubEnergieCard extends LitElement {
         display: inline-block;
         box-shadow: 0 0 0 1px color-mix(in srgb, var(--divider-color) 55%, transparent) inset;
       }
+      .power-graph-swatch-line {
+        width: 14px;
+        height: 0;
+        border-radius: 0;
+        border-bottom: 3px solid var(--swatch-line, currentColor);
+        background: transparent;
+        box-shadow: none;
+      }
+      .power-graph-chart-wrap {
+        display: flex;
+        align-items: stretch;
+        gap: 6px;
+        margin-top: 2px;
+      }
+      .power-yaxis {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        flex: 0 0 auto;
+        width: 2.75rem;
+        min-height: 120px;
+        padding: 0 2px 0 0;
+        box-sizing: border-box;
+        text-align: right;
+        font-size: 0.68rem;
+        line-height: 1.1;
+        font-variant-numeric: tabular-nums;
+        color: color-mix(in srgb, var(--primary-text-color) 38%, var(--secondary-text-color) 62%);
+      }
+      .power-graph-svg-wrap {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+      }
+      .power-graph-svg-wrap > svg {
+        touch-action: none;
+        display: block;
+      }
+      .power-graph-tooltip {
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: var(--power-tooltip-x, 50%);
+        transform: translateX(-50%);
+        z-index: 3;
+        pointer-events: none;
+        min-width: 10.5rem;
+        max-width: 16rem;
+        padding: 9px 11px;
+        border-radius: 10px;
+        font-size: 0.72rem;
+        line-height: 1.5;
+        color: var(--primary-text-color);
+        background: color-mix(in srgb, var(--card-background-color, var(--ha-card-background)) 94%, transparent);
+        border: 1px solid color-mix(in srgb, var(--divider-color) 60%, transparent);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+      .power-graph-tooltip::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -6px;
+        border: 6px solid transparent;
+        border-top-color: color-mix(in srgb, var(--divider-color) 45%, var(--card-background-color) 55%);
+      }
+      .power-graph-tooltip-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        font-variant-numeric: tabular-nums;
+      }
+      .power-graph-tooltip-row + .power-graph-tooltip-row {
+        margin-top: 4px;
+      }
+      .power-graph-tooltip-k {
+        color: var(--secondary-text-color);
+        flex: 0 0 auto;
+      }
+      .power-graph-tooltip-v {
+        font-weight: 600;
+        text-align: right;
+        min-width: 0;
+      }
+      .power-graph-tooltip-h {
+        font-weight: 700;
+        font-size: 0.74rem;
+        margin-bottom: 6px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid color-mix(in srgb, var(--divider-color) 55%, transparent);
+      }
       .power-xaxis {
         display: flex;
         justify-content: space-between;
         gap: 10px;
         margin-top: 6px;
+        margin-left: calc(2.75rem + 6px);
         font-size: 0.68rem;
         color: color-mix(in srgb, var(--primary-text-color) 35%, var(--secondary-text-color) 65%);
         font-variant-numeric: tabular-nums;
@@ -614,12 +744,118 @@ class HubEnergieCard extends LitElement {
     this._powerGraphLoading = false;
     this._powerGraphErr = null;
     this._powerGraphSeries = null;
+    this._powerGraphHoverIdx = null;
+    /** @type {ReturnType<typeof setTimeout> | null} */
+    this._hassRetryTimer = null;
+    /** @type {number | null} */
+    this._costMissingSinceMs = null;
+    /** @type {ReturnType<typeof setInterval> | null} */
+    this._powerGraphPollTimer = null;
+    /** Bumps on each new window load; refresh uses current id without bumping (see _loadPowerGraph). */
+    this._powerGraphLoadId = 0;
+    this._powerGraphRollingHours = 24;
+    this._powerGraphRollingInited = false;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    /* After F5, hass may attach before the websocket state map is populated — tick twice. */
+    requestAnimationFrame(() => requestAnimationFrame(() => this.requestUpdate()));
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this._clearHassRetryTimer();
+    this._clearPowerGraphPollTimer();
+    this._costMissingSinceMs = null;
+  }
+
+  _clearPowerGraphPollTimer() {
+    if (this._powerGraphPollTimer != null) {
+      clearInterval(this._powerGraphPollTimer);
+      this._powerGraphPollTimer = null;
+    }
+  }
+
+  /** Refresh interval only while the graph shows the current Paris day (live tail). */
+  _syncPowerGraphPollTimer() {
+    this._clearPowerGraphPollTimer();
+    if (!this._powerGraphOpen || !this.hass) return;
+    const ymd = this._date ?? todayParisISO();
+    if (ymd !== todayParisISO()) return;
+    const secRaw = parseFloat(this._config?.power_history_refresh_seconds);
+    const periodMs = Number.isFinite(secRaw) && secRaw > 0
+      ? Math.max(15_000, Math.min(300_000, Math.round(secRaw * 1000)))
+      : 120_000;
+    this._powerGraphPollTimer = window.setInterval(() => {
+      if (this._powerGraphOpen && this.hass) {
+        this._loadPowerGraph({ refresh: true });
+      }
+    }, periodMs);
+  }
+
+  _setPowerGraphRollingHours(hours) {
+    const h = snapPowerGraphRollingHours(hours);
+    if (this._powerGraphRollingHours === h) return;
+    this._powerGraphRollingHours = h;
+    this.__lastKey = null;
+  }
+
+  _clearHassRetryTimer() {
+    if (this._hassRetryTimer != null) {
+      clearTimeout(this._hassRetryTimer);
+      this._hassRetryTimer = null;
+    }
+  }
+
+  _scheduleHassRetry(delayMs = 96) {
+    if (this._hassRetryTimer != null) return;
+    this._hassRetryTimer = setTimeout(() => {
+      this._hassRetryTimer = null;
+      this.requestUpdate();
+    }, delayMs);
+  }
+
+  /**
+   * Live mode + cost_detail not in hass.states yet: wait for HA/WebSocket instead of error UI.
+   * Returns true when we should show the bootstrap placeholder (and schedule retries).
+   */
+  _liveBootstrapWaiting(costEntityId) {
+    const h = this.hass;
+    if (!h || !this._isLiveMode()) return false;
+    const states = h.states;
+    if (isCardReady(states, costEntityId)) {
+      this._costMissingSinceMs = null;
+      return false;
+    }
+    if (h.connected === false) {
+      this._scheduleHassRetry();
+      return true;
+    }
+    const n = states && typeof states === "object" ? Object.keys(states).length : 0;
+    if (n === 0) {
+      this._scheduleHassRetry();
+      return true;
+    }
+    const now = performance.now();
+    if (this._costMissingSinceMs == null) this._costMissingSinceMs = now;
+    /* Brief grace: entity may register a tick after the first state broadcast. */
+    if (now - this._costMissingSinceMs < 1800) {
+      this._scheduleHassRetry();
+      return true;
+    }
+    return false;
   }
 
   setConfig(config) {
     this._config = config ?? {};
     this._prefixCache = null;
     this.__lastKey = null;
+    if (!this._powerGraphRollingInited) {
+      const raw = parseFloat(this._config?.power_history_hours);
+      this._powerGraphRollingHours = snapPowerGraphRollingHours(Number.isFinite(raw) ? raw : 24);
+      this._powerGraphRollingInited = true;
+    }
   }
 
   getCardSize() {
@@ -647,6 +883,22 @@ class HubEnergieCard extends LitElement {
   }
 
   shouldUpdate(changedProps) {
+    if (changedProps.has("hass") && changedProps.size === 1 && this.hass) {
+      try {
+        /* While cost_detail is absent in live mode, state fingerprints can stay identical
+         * (empty states) and Lit would skip updates — never recover. Always refresh until ready. */
+        if (this._isLiveMode()) {
+          const E = this._map();
+          if (!isCardReady(this.hass.states, E.cost)) {
+            this.__lastKey = null;
+            return true;
+          }
+        }
+      } catch {
+        this.__lastKey = null;
+        return true;
+      }
+    }
     if (changedProps.has("hass") && changedProps.size === 1) {
       let key;
       try {
@@ -666,6 +918,17 @@ class HubEnergieCard extends LitElement {
     super.updated(changedProps);
     if (changedProps.has("hass") || changedProps.has("_date") || changedProps.has("_rangePreset")) {
       this._loadHistory();
+    }
+    if (
+      this._powerGraphOpen &&
+      (changedProps.has("_date") || changedProps.has("_powerGraphRollingHours")) &&
+      this.hass
+    ) {
+      this._powerGraphSeries = null;
+      this._powerGraphHoverIdx = null;
+      this._powerGraphErr = null;
+      this._loadPowerGraph({ force: true });
+      this._syncPowerGraphPollTimer();
     }
   }
 
@@ -907,54 +1170,111 @@ class HubEnergieCard extends LitElement {
       });
   }
 
-  async _loadPowerGraph() {
+  /**
+   * @param {{ refresh?: boolean; force?: boolean }} [opts]
+   *   refresh: reload statistics while the graph stays open (no full-screen loading).
+   *   force: new window fetch even if a previous load is still in flight (date / duration change).
+   */
+  async _loadPowerGraph(opts = {}) {
+    const refresh = opts.refresh === true;
+    const force = opts.force === true;
     if (!this.hass) return;
     const E = this._map();
     const costId = E.cost;
     if (!costId) return;
-    if (this._powerGraphLoading || this._powerGraphSeries !== null) return;
+    if (!refresh) {
+      if (!force && (this._powerGraphLoading || this._powerGraphSeries !== null)) return;
+      this._powerGraphLoading = true;
+      this._powerGraphErr = null;
+      this._powerGraphHoverIdx = null;
+    }
 
-    this._powerGraphLoading = true;
-    this._powerGraphErr = null;
-    try {
-      const rawHours = parseFloat(this._config?.power_history_hours);
-      const hoursBack = Number.isFinite(rawHours)
-        ? Math.max(1, Math.min(48, Math.trunc(rawHours)))
-        : 8;
-      const start = new Date(Date.now() - hoursBack * 60 * 60 * 1000);
-      const qs = new URLSearchParams({
-        filter_entity_id: costId,
-        end_time: new Date().toISOString(),
-        minimal_response: "false",
-        significant_changes_only: "false",
-      });
-      const url = `history/period/${encodeURIComponent(start.toISOString())}?${qs}`;
-      const raw = await this.hass.callApi("GET", url);
-      const frames = Array.isArray(raw) ? raw : [];
-      const list = [];
-      for (const frame of frames) {
-        if (!Array.isArray(frame)) continue;
-        for (const s of frame) {
-          // history endpoint can return compact keys: attributes => a, last_updated => lu, last_changed => lc.
-          // When filter_entity_id is used, entity_id may be omitted in each row.
-          const ts = Date.parse(s?.last_changed ?? s?.last_updated ?? s?.lc ?? s?.lu ?? "");
-          if (!Number.isFinite(ts)) continue;
-          const a = s?.attributes ?? s?.a ?? {};
-          if (!a || typeof a !== "object") continue;
-          const load = parseFloat(a.load_power_w);
-          const solar = parseFloat(a.solar_power_w ?? a.solar_estimate_power_w);
-          const battDis = parseFloat(a.batt_discharge_power_w);
-          list.push({
-            ts,
-            load: Number.isFinite(load) ? Math.max(0, load) : null,
-            solar: Number.isFinite(solar) ? Math.max(0, solar) : null,
-            batt: Number.isFinite(battDis) ? Math.max(0, battDis) : null,
-          });
+    let myLoadId;
+    if (refresh) {
+      myLoadId = this._powerGraphLoadId;
+    } else {
+      this._powerGraphLoadId += 1;
+      myLoadId = this._powerGraphLoadId;
+    }
+
+    const selectedYmd = this._date ?? todayParisISO();
+    const rollingH = snapPowerGraphRollingHours(this._powerGraphRollingHours);
+    const isTodayParis = selectedYmd === todayParisISO();
+    let start;
+    let end;
+    let useLiveTail = false;
+    let windowMode = "day";
+    /** @type {number | null} */
+    let rollingHoursOut = null;
+    let hoursBackMeta = 24;
+
+    if (isTodayParis) {
+      windowMode = "rolling";
+      rollingHoursOut = rollingH;
+      hoursBackMeta = rollingH;
+      const now = new Date();
+      end = now;
+      start = new Date(now.getTime() - rollingH * 60 * 60 * 1000);
+      useLiveTail = true;
+    } else {
+      start = parisYmdStartUtc(selectedYmd);
+      end = parisYmdStartUtc(addCalendarDays(selectedYmd, 1));
+      if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime())) {
+        if (!refresh && this._powerGraphLoadId === myLoadId) {
+          this._powerGraphLoading = false;
+          this._powerGraphErr = this._i18n().noData;
+          this._powerGraphSeries = null;
         }
+        return;
       }
-      list.sort((a, b) => a.ts - b.ts);
+    }
 
-      // Downsample to keep SVG light.
+    const emptySeriesMeta = {
+      hoursBack: hoursBackMeta,
+      statsPts: [],
+      hasLoadEntity: false,
+      useLiveTail,
+      windowMode,
+      rollingHours: rollingHoursOut,
+      dayIso: selectedYmd,
+    };
+
+    const i18n = this._i18n();
+    try {
+      const mapRaw = this.hass.states[costId]?.attributes?.power_graph_entity_map;
+      const map = mapRaw && typeof mapRaw === "object" ? mapRaw : null;
+      const statisticIds = collectPowerGraphStatisticIds(map);
+      if (!statisticIds.length) {
+        if (!refresh && this._powerGraphLoadId === myLoadId) {
+          this._powerGraphErr = i18n.powerHistoryNoSensors;
+          this._powerGraphSeries = { ...emptySeriesMeta };
+        }
+        return;
+      }
+
+      const statsResult = await fetchStatisticsDuringPeriod(this.hass, {
+        startTimeIso: start.toISOString(),
+        endTimeIso: end.toISOString(),
+        statisticIds,
+        period: "5minute",
+      });
+      if (this._powerGraphLoadId !== myLoadId) return;
+      if ((this._date ?? todayParisISO()) !== selectedYmd) return;
+      if (isTodayParis && snapPowerGraphRollingHours(this._powerGraphRollingHours) !== rollingH) return;
+
+      const merged = mergePowerStatisticsToChartPoints(map, statsResult);
+      if (!merged?.filled?.length) {
+        if (!refresh && this._powerGraphLoadId === myLoadId) {
+          this._powerGraphErr = i18n.powerHistoryNoStatistics;
+          this._powerGraphSeries = {
+            ...emptySeriesMeta,
+            hasLoadEntity: typeof map?.load_entity === "string" && map.load_entity.trim() !== "",
+          };
+        }
+        return;
+      }
+      const filled = merged.filled;
+
       const maxPoints = 160;
       const downsample = (arr) => {
         if (arr.length <= maxPoints) return arr;
@@ -965,18 +1285,37 @@ class HubEnergieCard extends LitElement {
         }
         return out;
       };
-      const pts = downsample(list);
-      const maxV = pts.reduce((m, p) => Math.max(m, p.load ?? 0, p.solar ?? 0, p.batt ?? 0), 0);
-      this._powerGraphSeries = {
-        hoursBack,
-        pts,
-        maxV,
-      };
+      const statsPts = downsample(filled);
+      if (this._powerGraphLoadId === myLoadId) {
+        this._powerGraphSeries = {
+          hoursBack: hoursBackMeta,
+          statsPts,
+          hasLoadEntity: typeof map?.load_entity === "string" && map.load_entity.trim() !== "",
+          useLiveTail,
+          windowMode,
+          rollingHours: rollingHoursOut,
+          dayIso: selectedYmd,
+        };
+        let dispLen = statsPts.length;
+        if (useLiveTail && map) {
+          const live = readLivePowerGraphComponents(this.hass, map);
+          const disp = mergeStatsPointsWithLiveTail(statsPts, live);
+          dispLen = disp.length;
+        }
+        if (this._powerGraphHoverIdx != null && dispLen) {
+          const mx = dispLen - 1;
+          if (this._powerGraphHoverIdx > mx) this._powerGraphHoverIdx = mx;
+        }
+      }
     } catch (err) {
-      this._powerGraphErr = err?.message ?? String(err);
-      this._powerGraphSeries = null;
+      if (!refresh && this._powerGraphLoadId === myLoadId) {
+        this._powerGraphErr = err?.message ?? String(err);
+        this._powerGraphSeries = null;
+      }
     } finally {
-      this._powerGraphLoading = false;
+      if (!refresh && this._powerGraphLoadId === myLoadId) {
+        this._powerGraphLoading = false;
+      }
       this.__lastKey = null;
     }
   }
@@ -985,10 +1324,77 @@ class HubEnergieCard extends LitElement {
     const next = !this._powerGraphOpen;
     this._powerGraphOpen = next;
     this.__lastKey = null;
+    if (!next) {
+      this._powerGraphHoverIdx = null;
+      this._clearPowerGraphPollTimer();
+    }
     if (next) {
       this._powerGraphSeries = null;
       this._powerGraphErr = null;
       this._loadPowerGraph();
+      this._syncPowerGraphPollTimer();
+    }
+  }
+
+  _powerGraphDisplaySeries() {
+    const ser = this._powerGraphSeries;
+    if (!ser?.statsPts?.length) return null;
+    const useLive = ser.useLiveTail === true;
+    const E = this._map();
+    const costId = E.cost;
+    const mapRaw = costId ? this.hass?.states[costId]?.attributes?.power_graph_entity_map : null;
+    const map = mapRaw && typeof mapRaw === "object" ? mapRaw : null;
+    const live = useLive && map && this.hass ? readLivePowerGraphComponents(this.hass, map) : null;
+    const pts = useLive ? mergeStatsPointsWithLiveTail(ser.statsPts, live) : ser.statsPts;
+    const { yMin, yMax } = yExtentFromPowerChartPoints(pts);
+    return {
+      hoursBack: ser.hoursBack,
+      pts,
+      yMin,
+      yMax,
+      hasLoadEntity: ser.hasLoadEntity === true,
+      windowMode: ser.windowMode ?? "rolling",
+      rollingHours: ser.rollingHours ?? null,
+      dayIso: ser.dayIso ?? (this._date ?? todayParisISO()),
+      useLiveTail: useLive,
+    };
+  }
+
+  /** @param {SVGSVGElement} el */
+  _updatePowerGraphHoverFromClientX(el, clientX) {
+    const s = this._powerGraphDisplaySeries();
+    if (!s?.pts?.length) return;
+    const r = el.getBoundingClientRect();
+    if (r.width <= 0) return;
+    const t = (clientX - r.left) / r.width;
+    const n = s.pts.length;
+    const idx = Math.max(0, Math.min(n - 1, Math.round(t * Math.max(n - 1, 1))));
+    if (this._powerGraphHoverIdx !== idx) {
+      this._powerGraphHoverIdx = idx;
+    }
+  }
+
+  /** @param {MouseEvent & { currentTarget: SVGSVGElement }} e */
+  _onPowerGraphSvgMove(e) {
+    this._updatePowerGraphHoverFromClientX(e.currentTarget, e.clientX);
+  }
+
+  _onPowerGraphSvgLeave() {
+    if (this._powerGraphHoverIdx != null) {
+      this._powerGraphHoverIdx = null;
+    }
+  }
+
+  /** @param {TouchEvent & { currentTarget: SVGSVGElement }} e */
+  _onPowerGraphSvgTouch(e) {
+    const t = e.touches?.[0];
+    if (!t) return;
+    this._updatePowerGraphHoverFromClientX(e.currentTarget, t.clientX);
+  }
+
+  _onPowerGraphSvgTouchEnd() {
+    if (this._powerGraphHoverIdx != null) {
+      this._powerGraphHoverIdx = null;
     }
   }
 
@@ -1010,15 +1416,16 @@ class HubEnergieCard extends LitElement {
     return area;
   }
 
-  _svgLinePath(values, maxV, w, h) {
-    if (!values?.length || !Number.isFinite(maxV) || maxV <= 0) return "";
+  _svgLinePath(values, yMin, yMax, w, h) {
+    if (!values?.length || !Number.isFinite(yMin) || !Number.isFinite(yMax) || yMax <= yMin) return "";
+    const span = yMax - yMin;
     const n = values.length;
     const pts = [];
+    const xAt = (i) => (n === 1 ? 0 : (i / (n - 1)) * w);
+    const yAt = (v) => h - ((Number(v) - yMin) / span) * h;
     for (let i = 0; i < n; i++) {
-      const v = Number(values[i] ?? 0);
-      const x = n === 1 ? 0 : (i / (n - 1)) * w;
-      const y = h - (Math.max(0, v) / maxV) * h;
-      pts.push({ x, y });
+      const v = Number(values[i]);
+      pts.push({ x: xAt(i), y: yAt(Number.isFinite(v) ? v : 0) });
     }
     return `M ${pts[0].x.toFixed(2)} ${pts[0].y.toFixed(2)} ${pts
       .slice(1)
@@ -1029,12 +1436,11 @@ class HubEnergieCard extends LitElement {
   _renderPowerGraph(i18n, locale) {
     if (!this._powerGraphOpen) return nothing;
 
-    const violet = "rgba(126, 87, 194, 0.45)"; // conso
-    const violetStroke = "rgba(126, 87, 194, 0.95)";
-    const yellow = "rgba(251, 192, 45, 0.42)"; // solar
-    const yellowStroke = "rgba(251, 192, 45, 0.95)";
-    const green = "rgba(76, 175, 80, 0.42)"; // battery
-    const greenStroke = "rgba(76, 175, 80, 0.95)";
+    const gridStroke = COLOR_GRID_SOURCE;
+    const solarStroke = COLOR_SOLAR;
+    const battDisStroke = COLOR_BATTERY;
+    const battChgStroke = "#2e7d32";
+    const loadStroke = "var(--primary-text-color, #e0e0e0)";
 
     if (this._powerGraphLoading) {
       return html`<div class="power-graph"><div class="loader">${i18n.loading}</div></div>`;
@@ -1042,52 +1448,268 @@ class HubEnergieCard extends LitElement {
     if (this._powerGraphErr) {
       return html`<div class="power-graph"><div class="alert">${this._powerGraphErr}</div></div>`;
     }
-    const s = this._powerGraphSeries;
-    if (!s?.pts?.length || !Number.isFinite(s.maxV) || s.maxV <= 0) {
+    const s = this._powerGraphDisplaySeries();
+    if (!s?.pts?.length) {
       return html`<div class="power-graph"><div class="loader">${i18n.noData}</div></div>`;
     }
 
     const w = 320;
     const h = 120;
-    const loads = s.pts.map((p) => p.load ?? 0);
-    const solars = s.pts.map((p) => p.solar ?? 0);
-    const batts = s.pts.map((p) => p.batt ?? 0);
+    const yMin = s.yMin ?? 0;
+    const yMax = s.yMax ?? 1;
+
+    const valsSolar = s.pts.map((p) => p.solar ?? 0);
+    const valsBattDis = s.pts.map((p) => Math.max(0, p.batt ?? 0));
+    const valsBattChg = s.pts.map((p) => Math.max(0, -(p.batt ?? 0)));
+    const valsGrid = s.pts.map((p) => p.grid ?? 0);
+    const hasLoad = s.hasLoadEntity === true;
+    const valsLoad = hasLoad ? s.pts.map((p) => (p.load == null ? 0 : p.load)) : [];
 
     const fmtTime = (ts) =>
       new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(ts));
+    const fmtTooltipTime = (ts) =>
+      new Intl.DateTimeFormat(locale, { dateStyle: "short", timeStyle: "short" }).format(new Date(ts));
     const firstTs = s.pts[0].ts;
     const lastTs = s.pts[s.pts.length - 1].ts;
     const mid1Ts = firstTs + (lastTs - firstTs) / 3;
     const mid2Ts = firstTs + ((lastTs - firstTs) * 2) / 3;
 
-    const areaLoad = this._svgAreaPath(loads, s.maxV, w, h);
-    const lineLoad = this._svgLinePath(loads, s.maxV, w, h);
-    const areaSolar = this._svgAreaPath(solars, s.maxV, w, h);
-    const lineSolar = this._svgLinePath(solars, s.maxV, w, h);
-    const areaBatt = this._svgAreaPath(batts, s.maxV, w, h);
-    const lineBatt = this._svgLinePath(batts, s.maxV, w, h);
+    const lineSolar = this._svgLinePath(valsSolar, yMin, yMax, w, h);
+    const lineBattDis = this._svgLinePath(valsBattDis, yMin, yMax, w, h);
+    const lineBattChg = this._svgLinePath(valsBattChg, yMin, yMax, w, h);
+    const lineGrid = this._svgLinePath(valsGrid, yMin, yMax, w, h);
+    const lineLoad = hasLoad && valsLoad.length ? this._svgLinePath(valsLoad, yMin, yMax, w, h) : "";
+
+    const gridStrokeCss = "color-mix(in srgb, var(--divider-color) 70%, transparent)";
+    const ySpan = Math.max(yMax - yMin, 1e-9);
+    const yPx = (v) => h - ((v - yMin) / ySpan) * h;
+    const yMidVal = (yMin + yMax) / 2;
+    const yTop = fmtPowerCompact(yMax);
+    const yMid = fmtPowerCompact(yMidVal);
+    const yBottom = fmtPowerCompact(yMin);
+    const yMidLine = yPx(yMidVal);
+    const zeroInRange = yMin < 0 && yMax > 0;
+    const yZeroLine = yPx(0);
+
+    const nPt = s.pts.length;
+    const hi = this._powerGraphHoverIdx;
+    const hoverPt = hi != null && hi >= 0 && hi < nPt ? s.pts[hi] : null;
+    const crossX = nPt <= 1 ? w / 2 : ((hi ?? 0) / Math.max(nPt - 1, 1)) * w;
+    const tooltipLeftPct = nPt <= 1 ? 50 : ((hi ?? 0) / Math.max(nPt - 1, 1)) * 100;
+
+    const dayStart = parisYmdStartUtc(s.dayIso);
+    const dayLabel = Number.isFinite(dayStart.getTime())
+      ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(dayStart)
+      : s.dayIso;
+    const metaPrimary =
+      s.windowMode === "rolling"
+        ? String(i18n.powerHistoryLastHours).replace("{hours}", String(s.rollingHours ?? s.hoursBack))
+        : String(i18n.powerHistoryFullDay).replace("{date}", dayLabel);
+    const stackedHint = s.useLiveTail ? i18n.powerHistoryStacked : i18n.powerHistoryStackedStats;
+    const rollingSnap = snapPowerGraphRollingHours(this._powerGraphRollingHours);
+    const isTodayGraph = (this._date ?? todayParisISO()) === todayParisISO();
 
     return html`
       <div class="power-graph">
         <div class="power-graph-head">
           <div class="power-graph-title">${i18n.powerHistoryTitle ?? "Power history"}</div>
-          <div class="power-graph-meta">${String(i18n.powerHistoryLastHours ?? "Last {hours} hours").replace("{hours}", String(s.hoursBack))}</div>
+          <div class="power-graph-meta">
+            ${metaPrimary} · ${i18n.power ?? "Power"} (W) · ${stackedHint}
+          </div>
         </div>
-        <svg viewBox="0 0 ${w} ${h}" width="100%" height="120" preserveAspectRatio="none" aria-label="power history chart">
-          <rect x="0" y="0" width="${w}" height="${h}" fill="transparent"></rect>
-          <path d="${areaLoad}" fill="${violet}" stroke="none"></path>
-          <path d="${areaSolar}" fill="${yellow}" stroke="none"></path>
-          <path d="${areaBatt}" fill="${green}" stroke="none"></path>
-
-          <path d="${lineLoad}" fill="none" stroke="${violetStroke}" stroke-width="1.8"></path>
-          <path d="${lineSolar}" fill="none" stroke="${yellowStroke}" stroke-width="1.6"></path>
-          <path d="${lineBatt}" fill="none" stroke="${greenStroke}" stroke-width="1.6"></path>
-        </svg>
+        ${isTodayGraph
+          ? html`<div class="power-graph-window-btns">
+              <span class="range-label">${i18n.powerHistoryWindow}</span>
+              ${POWER_GRAPH_ROLLING_HOURS.map(
+                (h) => html`
+                  <button
+                    type="button"
+                    class="range-btn ${rollingSnap === h ? "active" : ""}"
+                    @click=${() => this._setPowerGraphRollingHours(h)}
+                  >
+                    ${h}h
+                  </button>
+                `,
+              )}
+            </div>`
+          : nothing}
+        <div class="power-graph-chart-wrap">
+          <div class="power-yaxis" aria-hidden="true">
+            <span>${yTop}</span>
+            <span>${yMid}</span>
+            <span>${yBottom}</span>
+          </div>
+          <div class="power-graph-svg-wrap">
+            ${hoverPt
+              ? html`
+                  <div class="power-graph-tooltip" style="--power-tooltip-x:${tooltipLeftPct}%">
+                    <div class="power-graph-tooltip-h">
+                      ${i18n.powerGraphTooltipTime}: ${fmtTooltipTime(hoverPt.ts)}
+                    </div>
+                    ${hasLoad
+                      ? html`
+                          <div class="power-graph-tooltip-row">
+                            <span class="power-graph-tooltip-k">${i18n.houseLoad}</span>
+                            <span class="power-graph-tooltip-v"
+                              >${hoverPt.load != null ? fmtPowerCompact(hoverPt.load) : "—"}</span
+                            >
+                          </div>
+                        `
+                      : nothing}
+                    <div class="power-graph-tooltip-row">
+                      <span class="power-graph-tooltip-k">${i18n.powerGraphTooltipSolar}</span>
+                      <span class="power-graph-tooltip-v">${fmtPowerCompact(hoverPt.solar ?? 0)}</span>
+                    </div>
+                    <div class="power-graph-tooltip-row">
+                      <span class="power-graph-tooltip-k">${i18n.segBattDis}</span>
+                      <span class="power-graph-tooltip-v">${fmtPowerCompact(Math.max(0, hoverPt.batt ?? 0))}</span>
+                    </div>
+                    <div class="power-graph-tooltip-row">
+                      <span class="power-graph-tooltip-k">${i18n.segBattChg}</span>
+                      <span class="power-graph-tooltip-v">${fmtPowerCompact(Math.max(0, -(hoverPt.batt ?? 0)))}</span>
+                    </div>
+                    <div class="power-graph-tooltip-row">
+                      <span class="power-graph-tooltip-k">${i18n.powerGraphTooltipGrid}</span>
+                      <span class="power-graph-tooltip-v">${fmtPowerCompact(hoverPt.grid ?? 0)}</span>
+                    </div>
+                  </div>
+                `
+              : nothing}
+            <svg
+              viewBox="0 0 ${w} ${h}"
+              width="100%"
+              height="120"
+              preserveAspectRatio="none"
+              aria-label="power history chart"
+              @mousemove=${this._onPowerGraphSvgMove}
+              @mouseleave=${this._onPowerGraphSvgLeave}
+              @touchstart=${this._onPowerGraphSvgTouch}
+              @touchmove=${this._onPowerGraphSvgTouch}
+              @touchend=${this._onPowerGraphSvgTouchEnd}
+              @touchcancel=${this._onPowerGraphSvgTouchEnd}
+            >
+              <g class="power-grid-lines" stroke="${gridStrokeCss}" stroke-width="0.75" opacity="0.55" fill="none">
+                <line x1="0" y1="0" x2="${w}" y2="0"></line>
+                <line x1="0" y1="${yMidLine}" x2="${w}" y2="${yMidLine}" stroke-dasharray="3 3"></line>
+                <line x1="0" y1="${h}" x2="${w}" y2="${h}"></line>
+                ${zeroInRange
+                  ? svg`<line
+                      x1="0"
+                      y1="${yZeroLine}"
+                      x2="${w}"
+                      y2="${yZeroLine}"
+                      stroke-dasharray="4 3"
+                      opacity="0.75"
+                    ></line>`
+                  : nothing}
+                <line x1="0" y1="0" x2="0" y2="${h}" stroke-width="1"></line>
+              </g>
+              <path
+                d="${lineGrid}"
+                fill="none"
+                stroke="${gridStroke}"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                opacity="0.95"
+              ></path>
+              <path
+                d="${lineBattChg}"
+                fill="none"
+                stroke="${battChgStroke}"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                opacity="0.95"
+              ></path>
+              <path
+                d="${lineBattDis}"
+                fill="none"
+                stroke="${battDisStroke}"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                opacity="0.95"
+              ></path>
+              <path
+                d="${lineSolar}"
+                fill="none"
+                stroke="${solarStroke}"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                opacity="0.95"
+              ></path>
+              ${lineLoad
+                ? svg`<path
+                    d="${lineLoad}"
+                    fill="none"
+                    stroke="${loadStroke}"
+                    stroke-width="2.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    opacity="1"
+                  ></path>`
+                : nothing}
+              ${hi != null
+                ? svg`<line
+                    pointer-events="none"
+                    x1="${crossX}"
+                    y1="0"
+                    x2="${crossX}"
+                    y2="${h}"
+                    stroke="${gridStrokeCss}"
+                    stroke-width="1"
+                    opacity="0.85"
+                  ></line>`
+                : nothing}
+            </svg>
+          </div>
+        </div>
         <div class="power-xaxis">
           <span>${fmtTime(firstTs)}</span>
           <span>${fmtTime(mid1Ts)}</span>
           <span>${fmtTime(mid2Ts)}</span>
           <span>${fmtTime(lastTs)}</span>
+        </div>
+        <div class="power-graph-legend" aria-hidden="true">
+          ${hasLoad
+            ? html`<span class="power-graph-chip"
+                ><span
+                  class="power-graph-swatch power-graph-swatch-line"
+                  style="--swatch-line:${loadStroke}"
+                ></span
+                >${i18n.houseLoad}</span
+              >`
+            : nothing}
+          <span class="power-graph-chip"
+            ><span
+              class="power-graph-swatch power-graph-swatch-line"
+              style="--swatch-line:${solarStroke}"
+            ></span
+            >${i18n.colSolar}</span
+          >
+          <span class="power-graph-chip"
+            ><span
+              class="power-graph-swatch power-graph-swatch-line"
+              style="--swatch-line:${battDisStroke}"
+            ></span
+            >${i18n.segBattDis}</span
+          >
+          <span class="power-graph-chip"
+            ><span
+              class="power-graph-swatch power-graph-swatch-line"
+              style="--swatch-line:${battChgStroke}"
+            ></span
+            >${i18n.segBattChg}</span
+          >
+          <span class="power-graph-chip"
+            ><span
+              class="power-graph-swatch power-graph-swatch-line"
+              style="--swatch-line:${gridStroke}"
+            ></span
+            >${i18n.colGrid}</span
+          >
         </div>
       </div>
     `;
@@ -1164,6 +1786,21 @@ class HubEnergieCard extends LitElement {
   }
 
   render() {
+    try {
+      return this._renderCardImpl();
+    } catch (err) {
+      console.warn("[hub-energie-card] render error", err);
+      let msg = "…";
+      try {
+        msg = this._i18n()?.waitingHassBootstrap ?? "…";
+      } catch {
+        /* ignore */
+      }
+      return html`<ha-card><div class="loader">${msg}</div></ha-card>`;
+    }
+  }
+
+  _renderCardImpl() {
     const i18n = this._i18n();
     if (!this.hass) return html`<ha-card></ha-card>`;
 
@@ -1172,6 +1809,14 @@ class HubEnergieCard extends LitElement {
     const E = this._map();
 
     if (isToday && !isCardReady(this.hass?.states, E.cost)) {
+      if (this._liveBootstrapWaiting(E.cost)) {
+        return html`
+          <ha-card>
+            <div class="header"><h2>Hub Énergie</h2></div>
+            <div class="loader">${i18n.waitingHassBootstrap}</div>
+          </ha-card>
+        `;
+      }
       return html`
         <ha-card>
           <div class="header"><h2>Hub Énergie</h2></div>
@@ -1428,6 +2073,7 @@ class HubEnergieCard extends LitElement {
         <hub-power-now
           .i18n=${i18n}
           .data=${powerNowData}
+          .graphOpen=${this._powerGraphOpen}
           @hub-power-now-toggle=${() => this._togglePowerGraph()}
         ></hub-power-now>
         ${this._renderPowerGraph(i18n, locale)}
@@ -1609,7 +2255,7 @@ class HubEnergieCard extends LitElement {
 }
 
 /** Bump when deploying so DevTools shows whether this bundle loaded. */
-const HUB_ENERGIE_CARD_VERSION = "2026.04.04-1";
+const HUB_ENERGIE_CARD_VERSION = "2026.04.04-2";
 console.log("[hub-energie-card]", HUB_ENERGIE_CARD_VERSION);
 
 if (!customElements.get("hub-energie-card")) {

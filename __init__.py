@@ -13,12 +13,13 @@ from homeassistant.exceptions import ConfigEntryNotReady
 
 from .const import DOMAIN
 from .coordinator import HubEnergieCoordinator
+from .migration import async_migrate_entry  # noqa: F401 — entry point for HA
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.BINARY_SENSOR]
 _FRONTEND_STATIC_KEY = f"{DOMAIN}_frontend_static_registered"
-_LOVELACE_MODULE_URL_KEY = f"{DOMAIN}_lovelace_module_url"
+_LOVELACE_MODULE_URL_KEY = f"{DOMAIN}_lovelace_module_url"  # tuple[str, str] | str (legacy)
 _SERVICE_FLAG = f"{DOMAIN}_service_registered"
 
 
@@ -36,7 +37,9 @@ async def _async_register_card_route(hass: HomeAssistant) -> None:
     """Register /{domain} static route once; refresh extra Lovelace JS when dist/manifest changes."""
     integration_dir = Path(__file__).parent
     frontend_dir = integration_dir / "frontend"
-    dist_file = frontend_dir / "dist" / "hub-energie-card.js"
+    dist_dir = frontend_dir / "dist"
+    dist_file = dist_dir / "hub-energie-card.js"
+    preload_file = dist_dir / "hub-energie-card-preload.js"
 
     if not hass.data.get(_FRONTEND_STATIC_KEY):
         if not dist_file.is_file():
@@ -100,9 +103,15 @@ async def _async_register_card_route(hass: HomeAssistant) -> None:
             return "0"
 
     bust = await hass.async_add_executor_job(_dist_cache_bust)
-    new_url = f"/{DOMAIN}/dist/hub-energie-card.js?v={version}-{bust}"
-    old_url = hass.data.get(_LOVELACE_MODULE_URL_KEY)
-    if old_url == new_url:
+    query = f"v={version}-{bust}"
+    new_main = f"/{DOMAIN}/dist/hub-energie-card.js?{query}"
+    new_preload = f"/{DOMAIN}/dist/hub-energie-card-preload.js?{query}"
+    use_preload = await hass.async_add_executor_job(preload_file.is_file)
+    new_pair: tuple[str, str] | str = (
+        (new_preload, new_main) if use_preload else new_main
+    )
+    old_registered = hass.data.get(_LOVELACE_MODULE_URL_KEY)
+    if old_registered == new_pair:
         return
 
     try:
@@ -115,21 +124,28 @@ async def _async_register_card_route(hass: HomeAssistant) -> None:
         return
 
     try:
-        if old_url:
-            remove_extra_js_url(hass, old_url)
-        add_extra_js_url(hass, new_url)
+        if old_registered:
+            if isinstance(old_registered, tuple):
+                for u in old_registered:
+                    remove_extra_js_url(hass, u)
+            else:
+                remove_extra_js_url(hass, old_registered)
+        if use_preload:
+            add_extra_js_url(hass, new_preload)
+        add_extra_js_url(hass, new_main)
     except KeyError:
         _LOGGER.warning(
             "Could not register Hub Énergie card as extra module "
-            "(frontend component not ready; check manifest dependencies)"
+            "(frontend component not ready; check manifest dependencies)",
         )
         return
 
-    hass.data[_LOVELACE_MODULE_URL_KEY] = new_url
+    hass.data[_LOVELACE_MODULE_URL_KEY] = new_pair
     _LOGGER.info(
-        "Hub Énergie Lovelace card module URL updated: %s "
-        "(remove duplicate Dashboard resources for this path)",
-        new_url,
+        "Hub Énergie Lovelace module URL(s) updated: preload=%s main=%s "
+        "(remove duplicate Dashboard resources for these paths)",
+        new_preload if use_preload else "(disabled)",
+        new_main,
     )
 
 

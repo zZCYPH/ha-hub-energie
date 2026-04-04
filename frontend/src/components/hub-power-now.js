@@ -7,6 +7,8 @@ class HubPowerNow extends LitElement {
     return {
       i18n: { attribute: false },
       data: { attribute: false },
+      /** When true, power history panel is open (for aria-expanded). */
+      graphOpen: { type: Boolean },
     };
   }
 
@@ -114,6 +116,7 @@ class HubPowerNow extends LitElement {
     super();
     this.i18n = {};
     this.data = null;
+    this.graphOpen = false;
   }
 
   _emitToggle() {
@@ -165,6 +168,7 @@ class HubPowerNow extends LitElement {
         role="button"
         tabindex="0"
         aria-label=${this.i18n?.powerNowAria ?? this.i18n?.powerNow ?? "Power now"}
+        aria-expanded=${this.graphOpen ? "true" : "false"}
         @click=${this._emitToggle}
         @keydown=${this._onKeyDown}
       >

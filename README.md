@@ -2,7 +2,7 @@
 
 A Home Assistant custom integration for energy monitoring, cost tracking, and diagnostics.
 
-Fork of `edf_energy_tariffs` with a cleaner architecture, generic supplier support, multi-battery systems, solar PV estimation, and three-phase grid support.
+It targets generic supplier and tariff setups, multi-battery systems, solar PV estimation (optional), and three-phase grid support.
 
 **Home Assistant:** 2024.6.0 or newer (see `manifest.json`). **HACS:** optional `hacs.json` is provided for custom repository installs.
 
@@ -10,7 +10,7 @@ Fork of `edf_energy_tariffs` with a cleaner architecture, generic supplier suppo
 
 **Intended to be stable**
 
-- Config flow: supplier (EDF vs custom), tariff model (flat / HP–HC / multi-slot / EDF Tempo with RTE, API, or sensor), grid and optional solar/battery entity wiring.
+- Config flow: supplier (EDF vs custom), tariff model (flat / HP–HC / multi-slot / EDF Tempo with RTE, API, or sensor), grid and optional solar/battery entity wiring; validation and selectors aligned with runtime expectations (see changelog).
 - Positive energy deltas from `total_increasing` meter entities → internal slot-day accounting (Paris day) and integration-owned SSOT total sensors.
 - Daily cost estimate (€) from configured rates + subscription split; per-slot breakdown in attributes.
 - EDF Tempo helpers (when applicable): colours, quotas, next change timestamps.
@@ -70,7 +70,7 @@ After copying or cloning:
 2. **Restart Home Assistant** (full restart, not only “Reload YAML”).
 3. Add the integration: **Settings → Devices & services → Add integration → Hub Énergie**.
 
-**Version:** see `manifest.json` (`version` field). Release **v0.2.0** is tagged in Git for reproducible installs.
+**Version:** see `manifest.json` (`version` field). For reproducible installs, use the Git tag matching that version (e.g. **v0.2.2**).
 
 ## Lovelace Card
 
@@ -109,6 +109,8 @@ The integration creates one HA device per logical scope:
 | **Coûts** | Computed monetary values (€) |
 | **Diagnostics** | Health, reinjection diagnostics |
 
+Entity placement follows the measured or configured domain where possible (per-slot kWh, SSOT/today, power-flow, and split export lines on **Réseau** / **Solaire** / **Batteries (total)** / **Offre**); see the [0.2.2](https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/compare/0.2.0...0.2.2) notes in `CHANGELOG.md`.
+
 ## Configuration Flow
 
 1. **Supplier** — EDF or custom provider
@@ -119,10 +121,6 @@ The integration creates one HA device per logical scope:
 6. **Solar** — energy, power, resale contract, PV estimation
 7. **Batteries** — per-battery energy in/out, optional power/SOC/capacity
 
-## Coexistence
-
-This integration runs independently alongside `edf_energy_tariffs`. Both can be installed simultaneously — they use different domains and entity prefixes.
-
 ## Services
 
 | Service | Description |
@@ -132,4 +130,4 @@ This integration runs independently alongside `edf_energy_tariffs`. Both can be 
 
 ## License
 
-Same license as the original `edf_energy_tariffs` integration.
+Subject to the license terms under which you obtained this repository.

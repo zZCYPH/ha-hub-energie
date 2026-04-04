@@ -6,6 +6,7 @@ const humanReadableDist =
   process.env.HUB_ENERGIE_HUMAN_READABLE_DIST === "true";
 
 export default defineConfig({
+  publicDir: "public",
   build: {
     outDir: humanReadableDist ? "dist-human" : "dist",
     emptyOutDir: true,

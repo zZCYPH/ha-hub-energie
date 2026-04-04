@@ -2,6 +2,32 @@
 
 All notable changes to **Hub Énergie** are documented in this file.
 
+## [0.2.2] — 2026-04-04
+
+### Long-term statistics (recorder)
+
+- External per-slot kWh statistics now use **`TOTAL_INCREASING`** metadata and a **running cumulative `sum`** per `statistic_id`, matching Home Assistant counter semantics and avoiding blocked or inconsistent long-term statistics.
+- **Recorder rebuild** from history distinguishes **monotonic cumulative** series (deltas between rows) from **legacy daily** rows (pre‑v0.2.2 `sum` behaviour); hydration restores **`lts_cumulative_kwh_by_statistic_id`** accordingly.
+- Store payload preserves **`last_stable_attribution_slot`** when loading older snapshots.
+
+### Entities & device registry
+
+- **Device assignment** refactored: per-slot kWh, SSOT/today, power-flow, usage-flow, and split export diagnostics are attached to **Réseau**, **Solaire**, **Batteries (total)**, **Bilan énergétique**, **Offre**, or **Diagnostics** as appropriate (instead of lumping most under the energy-balance device).
+- **EDF Tempo “heures creuses”** binary sensor moved to the **Offre** device.
+- **Today kWh** helpers use `state_class: total` where applicable for clearer semantics.
+
+### Config flow & validation
+
+- Config flow and selector wiring hardened; validation and strings updated (EN/FR).
+
+### Lovelace card
+
+- **`shouldUpdate` / state key** hardened so invalid or non-serialisable Tempo payloads cannot throw and surface a generic HA “Configuration error”.
+
+### Tooling
+
+- **`scripts/deploy-integrations.sh`** and **`.deployignore`** added for deployment workflows.
+
 ## [0.2.0] — 2026-04-03
 
 ### Packaging
@@ -38,5 +64,6 @@ All notable changes to **Hub Énergie** are documented in this file.
 
 - Initial public baseline (fork architecture, coordinator, snapshot pipeline, multi-battery, solar estimation, EDF Tempo paths).
 
+[0.2.2]: https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/compare/0.2.0...0.2.2
 [0.2.0]: https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/compare/0.1.0...0.2.0
 [0.1.0]: https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/tree/0.1.0

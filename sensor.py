@@ -14,6 +14,7 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CURRENCY_EURO, UnitOfEnergy, UnitOfPower, UnitOfTime
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -23,9 +24,16 @@ from .const import (
     ATTR_DIRECT_MAISON,
     ATTR_VIA_BATTERIE,
     CONF_BATT_NAME,
+    CONF_BATT_POWER_IN,
+    CONF_BATT_POWER_NET,
+    CONF_BATT_POWER_NET_SIGN,
+    CONF_BATT_POWER_OUT,
     CONF_BATTERY_SYSTEMS,
+    BATT_SIGN_POSITIVE_CHARGE,
+    BATT_SIGN_POSITIVE_DISCHARGE,
     CONF_CONTRACT_POWER,
     CONF_CURRENT_SLOT_SENSOR,
+    CONF_GRID_POWER_PHASES,
     CONF_GRID_POWER_SENSOR,
     CONF_GRID_POWER_SIGN_MODE,
     CONF_HAS_BATTERIES,
@@ -99,6 +107,7 @@ from .const import (
     DATA_ORIGIN_GRID_ATTRS,
     DATA_ORIGIN_SOLAR,
     DATA_ORIGIN_SOLAR_ATTRS,
+    DATA_POWER_GRAPH_ENTITY_MAP,
     DATA_PRICING_STRUCTURE,
     DATA_REINJECTION_CAUSE,
     DATA_REINJECTION_CONFIDENCE,
@@ -135,7 +144,9 @@ from .const import (
     DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY,
     DATA_SECONDS_SINCE_LAST_APPLIED_DELTA,
     DOMAIN,
+    INTEGRATION_TITLE,
     LOGIC_VERSION,
+    scoped_device_name,
     OPT_TARIFF_FETCHED_AT,
     REINJECTION_OPTION_KEYS,
     SLOTS,
@@ -156,7 +167,7 @@ from .const import (
 from .coordinator import EnergyData, HubEnergieCoordinator
 from .time.paris_time import ParisTime
 
-_MANUFACTURER = "Hub Énergie"
+_MANUFACTURER = INTEGRATION_TITLE
 
 
 class HubEnergieSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
@@ -203,7 +214,7 @@ def _device_offer(coordinator: HubEnergieCoordinator) -> DeviceInfo:
     return DeviceInfo(
         entry_type=DeviceEntryType.SERVICE,
         identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_offer")},
-        name="Offre",
+        name=scoped_device_name("Offre"),
         manufacturer=_MANUFACTURER,
         model="Tariff & contract",
     )
@@ -213,7 +224,7 @@ def _device_grid_config(coordinator: HubEnergieCoordinator) -> DeviceInfo:
     return DeviceInfo(
         entry_type=DeviceEntryType.SERVICE,
         identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_grid_config")},
-        name="Réseau",
+        name=scoped_device_name("Réseau"),
         manufacturer=_MANUFACTURER,
         model="Grid configuration",
     )
@@ -223,7 +234,7 @@ def _device_solar_config(coordinator: HubEnergieCoordinator) -> DeviceInfo:
     return DeviceInfo(
         entry_type=DeviceEntryType.SERVICE,
         identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_solar_config")},
-        name="Solaire",
+        name=scoped_device_name("Solaire"),
         manufacturer=_MANUFACTURER,
         model="Solar configuration",
     )
@@ -233,10 +244,10 @@ def _battery_device_display_name(batt_id: str, batt_name: str) -> str:
     """Short device title: user label, else id (readable lists / dashboards)."""
     label = (batt_name or "").strip()
     if label:
-        return label
+        return scoped_device_name(label)
     if batt_id:
-        return str(batt_id)
-    return "Batterie"
+        return scoped_device_name(str(batt_id))
+    return scoped_device_name("Batterie")
 
 
 def _device_battery(
@@ -265,7 +276,7 @@ def _device_energy_balance(coordinator: HubEnergieCoordinator) -> DeviceInfo:
     return DeviceInfo(
         entry_type=DeviceEntryType.SERVICE,
         identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_energy_balance")},
-        name="Bilan énergétique",
+        name=scoped_device_name("Bilan énergétique"),
         manufacturer=_MANUFACTURER,
         model="Energy flows (kWh)",
     )
@@ -275,7 +286,7 @@ def _device_cost(coordinator: HubEnergieCoordinator) -> DeviceInfo:
     return DeviceInfo(
         entry_type=DeviceEntryType.SERVICE,
         identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_cost")},
-        name="Coûts",
+        name=scoped_device_name("Coûts"),
         manufacturer=_MANUFACTURER,
         model="Monetary (€)",
     )
@@ -285,7 +296,7 @@ def _device_diagnostics(coordinator: HubEnergieCoordinator) -> DeviceInfo:
     return DeviceInfo(
         entry_type=DeviceEntryType.SERVICE,
         identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_diagnostics")},
-        name="Diagnostics",
+        name=scoped_device_name("Diagnostics"),
         manufacturer=_MANUFACTURER,
         model="Reinjection & export diagnostics",
     )
@@ -1006,6 +1017,69 @@ class HubEnergieOriginSensor(HubEnergieSensor):
         }
 
 
+def _integration_home_power_entity_id(hass: HomeAssistant, entry: ConfigEntry) -> str | None:
+    """Entity ID of Hub Énergie's Puissance maison sensor (unique_id …_home_power_w), if registered."""
+    unique_id = f"{entry.unique_id}_home_power_w"
+    return er.async_get(hass).async_get_entity_id("sensor", DOMAIN, unique_id)
+
+
+def _build_power_graph_entity_map(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
+    """Entity IDs backing live power (same sources as coordinator) for Lovelace history charts."""
+    data, opts = entry.data, entry.options
+
+    def pick(key: str) -> str | None:
+        raw = opts.get(key) or data.get(key)
+        if raw is None or raw == "":
+            return None
+        s = str(raw).strip()
+        return s or None
+
+    grid_entities: list[str] = []
+    phases = data.get(CONF_GRID_POWER_PHASES)
+    if isinstance(phases, list) and phases:
+        for ph in phases:
+            if isinstance(ph, dict):
+                eid = ph.get("entity_id")
+                if eid:
+                    grid_entities.append(str(eid).strip())
+    else:
+        g = pick(CONF_GRID_POWER_SENSOR)
+        if g:
+            grid_entities.append(g)
+
+    solar_entity = pick(CONF_SOLAR_POWER_SENSOR) if data.get(CONF_HAS_SOLAR) else None
+    load_entity = pick(CONF_LOAD_POWER_SENSOR)
+    if load_entity is None:
+        load_entity = _integration_home_power_entity_id(hass, entry)
+
+    batteries: list[dict[str, Any]] = []
+    if data.get(CONF_HAS_BATTERIES):
+        for batt in data.get(CONF_BATTERY_SYSTEMS, []) or []:
+            if not isinstance(batt, dict):
+                continue
+            net_raw = batt.get(CONF_BATT_POWER_NET)
+            net = str(net_raw).strip() if net_raw else None
+            if net:
+                sign = batt.get(CONF_BATT_POWER_NET_SIGN, BATT_SIGN_POSITIVE_DISCHARGE)
+                if sign not in (BATT_SIGN_POSITIVE_DISCHARGE, BATT_SIGN_POSITIVE_CHARGE):
+                    sign = BATT_SIGN_POSITIVE_DISCHARGE
+                batteries.append({"mode": "net", "entity": net, "net_sign": sign})
+                continue
+            pin_raw = batt.get(CONF_BATT_POWER_IN)
+            pout_raw = batt.get(CONF_BATT_POWER_OUT)
+            pin = str(pin_raw).strip() if pin_raw else None
+            pout = str(pout_raw).strip() if pout_raw else None
+            if pin or pout:
+                batteries.append({"mode": "in_out", "in": pin, "out": pout})
+
+    return {
+        "grid_entities": grid_entities,
+        "solar_entity": solar_entity,
+        "load_entity": load_entity,
+        "batteries": batteries,
+    }
+
+
 class HubEnergieCostDetailSensor(HubEnergieSensor):
     """Daily cost with per-slot attributes — the main sensor the card reads."""
 
@@ -1030,6 +1104,10 @@ class HubEnergieCostDetailSensor(HubEnergieSensor):
         data = self.coordinator.data or {}
         cbs = data.get(DATA_COST_BY_SLOT)
         attrs: dict[str, Any] = {
+            DATA_POWER_GRAPH_ENTITY_MAP: _build_power_graph_entity_map(
+                self.hass,
+                self.coordinator.entry,
+            ),
             DATA_LOGIC_VERSION: data.get(DATA_LOGIC_VERSION, LOGIC_VERSION),
             DATA_ABONNEMENT_EUR: data.get(DATA_ABONNEMENT_EUR, 0.0),
             DATA_OFFER: data.get(DATA_OFFER),

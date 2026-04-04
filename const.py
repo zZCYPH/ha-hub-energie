@@ -6,6 +6,15 @@ from typing import Final
 
 DOMAIN: Final = "hub_energie"
 LOGIC_VERSION: Final = "1"
+INTEGRATION_TITLE: Final = "Hub Énergie"
+
+
+def scoped_device_name(short_label: str) -> str:
+    """DeviceInfo `name` prefix so HA slugifies entity_ids as hub_energie_<scope>_<sensor>."""
+    label = (short_label or "").strip()
+    if not label:
+        return INTEGRATION_TITLE
+    return f"{INTEGRATION_TITLE} {label}"
 
 # ---------------------------------------------------------------------------
 # Device identifiers (one device per scope)
@@ -365,6 +374,7 @@ DATA_BATT_DISCHARGE_POWER_W: Final = "batt_discharge_power_w"
 DATA_BATT_CHARGE_POWER_W: Final = "batt_charge_power_w"
 DATA_LOAD_POWER_W: Final = "load_power_w"
 DATA_LOAD_POWER_INFERRED: Final = "load_power_inferred"
+DATA_POWER_GRAPH_ENTITY_MAP: Final = "power_graph_entity_map"
 DATA_EXPORT_POWER_W: Final = "export_power_w"
 DATA_REINJECTION_CAUSE: Final = "reinjection_cause"
 DATA_REINJECTION_CONFIDENCE: Final = "reinjection_confidence"

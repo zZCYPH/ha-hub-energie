@@ -1,8 +1,4 @@
-"""EDF provider – tariff fetcher, RTE calendar, api-couleur-tempo, slot engine.
-
-Consolidates logic from the standalone edf_energy_tariffs integration into a
-single provider module for hub_energie.
-"""
+"""EDF provider – tariff fetcher, RTE calendar, api-couleur-tempo, slot engine."""
 
 from __future__ import annotations
 
