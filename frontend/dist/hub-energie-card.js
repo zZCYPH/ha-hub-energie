@@ -717,9 +717,15 @@ const O = (o, t) => {
   if (!Number.isFinite(t)) return "—";
   const e = Math.abs(t);
   return e >= 1e3 ? `${(t / 1e3).toFixed(e >= 1e4 ? 0 : 1)} kW` : `${Math.round(t)} W`;
-}, ir = (o) => o < 1 ? `${Math.round(o * 1e3)} Wh` : `${o.toFixed(2)} kWh`, ut = (o) => {
-  const t = (o ?? []).some((e) => Number(e) >= 1);
-  return (e) => t ? `${Number(e).toFixed(2)} kWh` : `${Math.round(Number(e) * 1e3)} Wh`;
+}, ir = (o) => {
+  const t = Number(o), e = Number.isFinite(t) ? t : 0;
+  return e < 1 ? `${Math.round(e * 1e3)} Wh` : `${e.toFixed(2)} kWh`;
+}, ut = (o) => {
+  const e = (o ?? []).map((r) => Number(r)).filter((r) => Number.isFinite(r)).some((r) => r >= 1);
+  return (r) => {
+    const i = Number(r), a = Number.isFinite(i) ? i : 0;
+    return e ? `${a.toFixed(2)} kWh` : `${Math.round(a * 1e3)} Wh`;
+  };
 }, or = {
   reseau: "mdi:transmission-tower",
   réseau: "mdi:transmission-tower",
@@ -2161,7 +2167,12 @@ class _r extends j {
   }
   shouldUpdate(t) {
     if (t.has("hass") && t.size === 1) {
-      const e = this._stateKey();
+      let e;
+      try {
+        e = this._stateKey();
+      } catch {
+        e = null;
+      }
       return e !== null && e === this.__lastKey ? !1 : (this.__lastKey = e, !0);
     }
     return !0;
@@ -2195,6 +2206,16 @@ class _r extends j {
     const t = this._getRange();
     return (this._rangePreset ?? "day") === "day" && t.endIso === G();
   }
+  /** Safe fingerprint for change detection; must never throw (used from shouldUpdate). */
+  _fingerprintTempoDays(t) {
+    if (t == null) return "";
+    if (typeof t != "object") return String(t);
+    try {
+      return JSON.stringify(t);
+    } catch {
+      return "";
+    }
+  }
   _stateKey() {
     const t = this._getRange();
     if (!this._isLiveMode())
@@ -2217,7 +2238,7 @@ class _r extends j {
       a.contract_power ?? "",
       a.tariff_fetched_at ?? "",
       a.current_slot ?? "",
-      JSON.stringify(a.tempo_days ?? {}),
+      this._fingerprintTempoDays(a.tempo_days),
       a.grid_power_signed_w ?? "",
       a.solar_power_w ?? "",
       a.solar_estimate_power_w ?? "",
@@ -2823,7 +2844,7 @@ class _r extends j {
     `;
   }
 }
-const wr = "2026.04.02-1";
+const wr = "2026.04.04-1";
 console.log("[hub-energie-card]", wr);
 customElements.get("hub-energie-card") || customElements.define("hub-energie-card", _r);
 window.customCards ??= [];

@@ -648,7 +648,13 @@ class HubEnergieCard extends LitElement {
 
   shouldUpdate(changedProps) {
     if (changedProps.has("hass") && changedProps.size === 1) {
-      const key = this._stateKey();
+      let key;
+      try {
+        key = this._stateKey();
+      } catch {
+        /* Avoid throwing into HA's hui-card hass setter (shows generic "Configuration error"). */
+        key = null;
+      }
       if (key !== null && key === this.__lastKey) return false;
       this.__lastKey = key;
       return true;
@@ -698,6 +704,17 @@ class HubEnergieCard extends LitElement {
     return (this._rangePreset ?? "day") === "day" && r.endIso === todayParisISO();
   }
 
+  /** Safe fingerprint for change detection; must never throw (used from shouldUpdate). */
+  _fingerprintTempoDays(raw) {
+    if (raw == null) return "";
+    if (typeof raw !== "object") return String(raw);
+    try {
+      return JSON.stringify(raw);
+    } catch {
+      return "";
+    }
+  }
+
   _stateKey() {
     const r = this._getRange();
     if (!this._isLiveMode()) {
@@ -724,7 +741,7 @@ class HubEnergieCard extends LitElement {
       costAttrs.contract_power ?? "",
       costAttrs.tariff_fetched_at ?? "",
       costAttrs.current_slot ?? "",
-      JSON.stringify(costAttrs.tempo_days ?? {}),
+      this._fingerprintTempoDays(costAttrs.tempo_days),
       costAttrs.grid_power_signed_w ?? "",
       costAttrs.solar_power_w ?? "",
       costAttrs.solar_estimate_power_w ?? "",
@@ -1592,7 +1609,7 @@ class HubEnergieCard extends LitElement {
 }
 
 /** Bump when deploying so DevTools shows whether this bundle loaded. */
-const HUB_ENERGIE_CARD_VERSION = "2026.04.02-1";
+const HUB_ENERGIE_CARD_VERSION = "2026.04.04-1";
 console.log("[hub-energie-card]", HUB_ENERGIE_CARD_VERSION);
 
 if (!customElements.get("hub-energie-card")) {

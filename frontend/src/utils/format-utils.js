@@ -23,11 +23,20 @@ export const fmtPowerCompact = (w) => {
   return `${Math.round(x)} W`;
 };
 
-export const fmtEnergy = (kwh) => (kwh < 1 ? `${Math.round(kwh * 1000)} Wh` : `${kwh.toFixed(2)} kWh`);
+export const fmtEnergy = (kwh) => {
+  const x = Number(kwh);
+  const safe = Number.isFinite(x) ? x : 0;
+  return safe < 1 ? `${Math.round(safe * 1000)} Wh` : `${safe.toFixed(2)} kWh`;
+};
 
 export const makeSectionEnergyFormatter = (values) => {
-  const useKwh = (values ?? []).some((v) => Number(v) >= 1);
-  return (kwh) => (useKwh ? `${Number(kwh).toFixed(2)} kWh` : `${Math.round(Number(kwh) * 1000)} Wh`);
+  const nums = (values ?? []).map((v) => Number(v)).filter((n) => Number.isFinite(n));
+  const useKwh = nums.some((v) => v >= 1);
+  return (kwh) => {
+    const x = Number(kwh);
+    const safe = Number.isFinite(x) ? x : 0;
+    return useKwh ? `${safe.toFixed(2)} kWh` : `${Math.round(safe * 1000)} Wh`;
+  };
 };
 
 const ICON_MAP = {
