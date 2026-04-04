@@ -68,6 +68,34 @@ def test_battery_advanced_rejects_manual_and_entity_pair() -> None:
     }
 
 
+def test_battery_advanced_entity_only_and_manual_only_can_mix() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "battery_advanced",
+        {},
+        {
+            const.CONF_BATT_CAPACITY_KWH_ENTITY: "sensor.battery_capacity",
+            const.CONF_BATT_MAX_CHARGE_W: 2500,
+        },
+    )
+
+    assert errors == {}
+    assert patch[const.CONF_BATT_CAPACITY_KWH] is None
+    assert patch[const.CONF_BATT_CAPACITY_KWH_ENTITY] == "sensor.battery_capacity"
+    assert patch[const.CONF_BATT_MAX_CHARGE_W] == 2500.0
+    assert patch[const.CONF_BATT_MAX_CHARGE_W_ENTITY] is None
+
+
+def test_battery_advanced_manual_zero_allowed_for_power_fields() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "battery_advanced",
+        {},
+        {const.CONF_BATT_MAX_CHARGE_W: 0},
+    )
+    assert errors == {}
+    assert patch[const.CONF_BATT_MAX_CHARGE_W] == 0.0
+    assert patch[const.CONF_BATT_MAX_CHARGE_W_ENTITY] is None
+
+
 def test_solar_toggle_false_returns_clear_patch() -> None:
     patch, errors = HubEnergieConfigValidator.validate_step(
         "solar_toggle",
@@ -165,3 +193,53 @@ def test_battery_add_normalizes_optional_fields_to_none() -> None:
     assert patch[const.CONF_BATT_NAME] == "Main battery"
     assert patch[const.CONF_BATT_POWER_NET] is None
     assert patch[const.CONF_BATT_POWER_NET_SIGN] is None
+
+
+def test_battery_add_advanced_off_clears_advanced_fields() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "battery_add",
+        {BATTERY_ID: "abc123"},
+        {
+            const.CONF_BATT_NAME: "Main",
+            const.CONF_BATT_ENERGY_IN: "sensor.battery_charge_energy",
+            const.CONF_BATT_ENERGY_OUT: "sensor.battery_discharge_energy",
+            const.CONF_BATT_ADVANCED: False,
+            const.CONF_BATT_CAPACITY_KWH: 10.0,
+        },
+    )
+
+    assert errors == {}
+    assert patch[const.CONF_BATT_ADVANCED] is False
+    assert patch[const.CONF_BATT_CAPACITY_KWH] is None
+    assert patch[const.CONF_BATT_CAPACITY_KWH_ENTITY] is None
+
+
+def test_battery_add_advanced_on_defers_xor_to_next_step() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "battery_add",
+        {BATTERY_ID: "abc123"},
+        {
+            const.CONF_BATT_NAME: "Main",
+            const.CONF_BATT_ENERGY_IN: "sensor.battery_charge_energy",
+            const.CONF_BATT_ENERGY_OUT: "sensor.battery_discharge_energy",
+            const.CONF_BATT_ADVANCED: True,
+            const.CONF_BATT_CAPACITY_KWH_ENTITY: "sensor.batt_capacity",
+        },
+    )
+
+    assert errors == {}
+    assert patch[const.CONF_BATT_ADVANCED] is True
+    assert const.CONF_BATT_CAPACITY_KWH not in patch
+    assert const.CONF_BATT_CAPACITY_KWH_ENTITY not in patch
+
+
+def test_battery_advanced_validates_xor() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "battery_advanced",
+        {BATTERY_ID: "abc123"},
+        {const.CONF_BATT_CAPACITY_KWH_ENTITY: "sensor.batt_capacity"},
+    )
+
+    assert errors == {}
+    assert patch[const.CONF_BATT_CAPACITY_KWH] is None
+    assert patch[const.CONF_BATT_CAPACITY_KWH_ENTITY] == "sensor.batt_capacity"

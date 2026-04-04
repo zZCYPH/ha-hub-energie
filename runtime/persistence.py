@@ -268,6 +268,7 @@ class PersistenceManager:
     async def rebuild_from_recorder(self) -> None:
         """Rebuild SSOT from recorder for completed days only."""
         try:
+            from homeassistant.components.recorder import get_instance
             from homeassistant.components.recorder.statistics import statistics_during_period
         except Exception:  # noqa: BLE001
             return
@@ -284,27 +285,51 @@ class PersistenceManager:
         ]
 
         def _fetch() -> dict[str, list[Any]]:
+            stat_id_set = set(stat_ids)
             try:
                 return statistics_during_period(
                     self._hass,
                     start_time=start,
                     end_time=end,
-                    statistic_ids=stat_ids,
+                    statistic_ids=stat_id_set,
                     period="day",
+                    units=None,
                     types={"sum"},
                 )
             except TypeError:
-                return statistics_during_period(
-                    self._hass,
-                    start,
-                    end_time=end,
-                    statistic_ids=stat_ids,
-                    period="day",
-                    types={"sum"},
-                )
+                # Older core: no `units` parameter; `statistic_ids` may be a list
+                try:
+                    return statistics_during_period(
+                        self._hass,
+                        start_time=start,
+                        end_time=end,
+                        statistic_ids=stat_ids,
+                        period="day",
+                        types={"sum"},
+                    )
+                except TypeError:
+                    return statistics_during_period(
+                        self._hass,
+                        start,
+                        end,
+                        stat_ids,
+                        "day",
+                        {"sum"},
+                    )
 
         try:
-            stats = await self._hass.async_add_executor_job(_fetch)
+            recorder = get_instance(self._hass)
+        except Exception:  # noqa: BLE001
+            return
+
+        if not await recorder.async_db_ready:
+            self._logger.warning(
+                "Recorder database not ready; skipping statistics rebuild from recorder"
+            )
+            return
+
+        try:
+            stats = await recorder.async_add_executor_job(_fetch)
         except Exception as err:  # noqa: BLE001
             self._logger.warning("Recorder fallback statistics rebuild failed: %s", err)
             return

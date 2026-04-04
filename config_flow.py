@@ -36,8 +36,11 @@ from .config_flow_selectors import (
     grid_power_sign_selector,
     offer_selector,
     optional_energy_entity,
-    optional_number_entity,
-    optional_percentage_entity,
+    optional_manual_kwh_selector,
+    optional_manual_percent_selector,
+    optional_manual_power_w_selector,
+    optional_number_entity_or_empty,
+    optional_percentage_entity_or_empty,
     optional_power_entity,
     optional_soc_entity,
     phase_selector,
@@ -225,6 +228,24 @@ def _add_optional(
     schema[vol.Optional(key, default=default)] = selector
 
 
+def _required_energy_entity(key: str, stored: Any) -> dict[Any, Any]:
+    """Required energy entity field: only set Voluptuous default when value is a non-empty entity id."""
+    if isinstance(stored, str) and stored.strip():
+        return {vol.Required(key, default=stored): energy_entity_selector()}
+    return {vol.Required(key): energy_entity_selector()}
+
+
+def _battery_add_form_energy_entity(key: str, stored: Any) -> dict[Any, Any]:
+    """Energy pickers are Optional in the Voluptuous schema so HA does not reject stray payloads.
+
+    (e.g. ``{has_batteries: true}`` submitted while ``cur_step`` is still ``battery_add`` after a duplicate
+    request or UI refresh). Required fields are still enforced in ``HubEnergieConfigValidator`` (``battery_add``).
+    """
+    if isinstance(stored, str) and stored.strip():
+        return {vol.Optional(key, default=stored): energy_entity_selector()}
+    return {vol.Optional(key): energy_entity_selector()}
+
+
 def _json_default(value: Any, fallback: str) -> str:
     if isinstance(value, list):
         return json.dumps(value, indent=2)
@@ -313,6 +334,13 @@ def _wants_advanced(battery: dict[str, Any]) -> bool:
     return any(key in battery for key in _BATTERY_ADV_KEYS)
 
 
+def _battery_advanced_toggle_default(battery: dict[str, Any]) -> bool:
+    """Default for the advanced toggle when opening ``battery_add``."""
+    if CONF_BATT_ADVANCED in battery:
+        return bool(battery[CONF_BATT_ADVANCED])
+    return _wants_advanced(battery)
+
+
 def _battery_add_schema(
     battery: dict[str, Any],
     *,
@@ -321,9 +349,9 @@ def _battery_add_schema(
 ) -> vol.Schema:
     schema: dict[Any, Any] = {
         vol.Required(CONF_BATT_NAME, default=battery.get(CONF_BATT_NAME, f"Battery {number}")): text_selector(),
-        vol.Required(CONF_BATT_ENERGY_IN, default=battery.get(CONF_BATT_ENERGY_IN)): energy_entity_selector(),
-        vol.Required(CONF_BATT_ENERGY_OUT, default=battery.get(CONF_BATT_ENERGY_OUT)): energy_entity_selector(),
     }
+    schema.update(_battery_add_form_energy_entity(CONF_BATT_ENERGY_IN, battery.get(CONF_BATT_ENERGY_IN)))
+    schema.update(_battery_add_form_energy_entity(CONF_BATT_ENERGY_OUT, battery.get(CONF_BATT_ENERGY_OUT)))
     _add_optional(schema, CONF_BATT_POWER_IN, optional_power_entity(), battery.get(CONF_BATT_POWER_IN))
     _add_optional(schema, CONF_BATT_POWER_OUT, optional_power_entity(), battery.get(CONF_BATT_POWER_OUT))
     _add_optional(schema, CONF_BATT_POWER_NET, optional_power_entity(), battery.get(CONF_BATT_POWER_NET))
@@ -335,42 +363,76 @@ def _battery_add_schema(
             battery.get(CONF_BATT_POWER_NET_SIGN, BATT_SIGN_POSITIVE_DISCHARGE),
         )
     _add_optional(schema, CONF_BATT_SOC, optional_soc_entity(), battery.get(CONF_BATT_SOC))
-    schema[vol.Optional(CONF_BATT_ADVANCED, default=_wants_advanced(battery))] = BooleanSelector()
-    return vol.Schema(schema)
+    schema[vol.Optional(CONF_BATT_ADVANCED, default=_battery_advanced_toggle_default(battery))] = BooleanSelector()
+    # Absorb stray keys (e.g. has_batteries) if the UI step and in-memory schema diverge.
+    return vol.Schema(schema, extra=vol.ALLOW_EXTRA)
+
+
+def _manual_xor_default(battery: dict[str, Any], key: str) -> str:
+    """String default for manual XOR rows (TextSelector / JSON text field)."""
+    v = battery.get(key)
+    if v is None:
+        return ""
+    if type(v) in (int, float):
+        return str(v)
+    return str(v)
+
+
+def _battery_advanced_schema_dict(battery: dict[str, Any]) -> dict[Any, Any]:
+    """Advanced XOR fields for the ``battery_advanced`` step."""
+    return {
+        vol.Optional(
+            CONF_BATT_CAPACITY_KWH_ENTITY,
+            default=battery.get(CONF_BATT_CAPACITY_KWH_ENTITY),
+        ): optional_number_entity_or_empty(),
+        vol.Optional(
+            CONF_BATT_CAPACITY_KWH,
+            default=_manual_xor_default(battery, CONF_BATT_CAPACITY_KWH),
+        ): optional_manual_kwh_selector(),
+        vol.Optional(
+            CONF_BATT_MAX_CHARGE_W_ENTITY,
+            default=battery.get(CONF_BATT_MAX_CHARGE_W_ENTITY),
+        ): optional_number_entity_or_empty(),
+        vol.Optional(
+            CONF_BATT_MAX_CHARGE_W,
+            default=_manual_xor_default(battery, CONF_BATT_MAX_CHARGE_W),
+        ): optional_manual_power_w_selector(),
+        vol.Optional(
+            CONF_BATT_MAX_DISCHARGE_W_ENTITY,
+            default=battery.get(CONF_BATT_MAX_DISCHARGE_W_ENTITY),
+        ): optional_number_entity_or_empty(),
+        vol.Optional(
+            CONF_BATT_MAX_DISCHARGE_W,
+            default=_manual_xor_default(battery, CONF_BATT_MAX_DISCHARGE_W),
+        ): optional_manual_power_w_selector(),
+        vol.Optional(
+            CONF_BATT_SOC_MIN_ENTITY,
+            default=battery.get(CONF_BATT_SOC_MIN_ENTITY),
+        ): optional_percentage_entity_or_empty(),
+        vol.Optional(
+            CONF_BATT_SOC_MIN,
+            default=_manual_xor_default(battery, CONF_BATT_SOC_MIN),
+        ): optional_manual_percent_selector(),
+        vol.Optional(
+            CONF_BATT_SOC_MAX_ENTITY,
+            default=battery.get(CONF_BATT_SOC_MAX_ENTITY),
+        ): optional_percentage_entity_or_empty(),
+        vol.Optional(
+            CONF_BATT_SOC_MAX,
+            default=_manual_xor_default(battery, CONF_BATT_SOC_MAX),
+        ): optional_manual_percent_selector(),
+    }
 
 
 def _battery_advanced_schema(battery: dict[str, Any]) -> vol.Schema:
-    return vol.Schema(
-        {
-            vol.Optional(CONF_BATT_CAPACITY_KWH_ENTITY, default=battery.get(CONF_BATT_CAPACITY_KWH_ENTITY)): optional_number_entity(),
-            vol.Optional(CONF_BATT_CAPACITY_KWH, default=battery.get(CONF_BATT_CAPACITY_KWH)): NumberSelector(
-                NumberSelectorConfig(min=0.1, max=500, step=0.01, mode=NumberSelectorMode.BOX, unit_of_measurement="kWh")
-            ),
-            vol.Optional(CONF_BATT_MAX_CHARGE_W_ENTITY, default=battery.get(CONF_BATT_MAX_CHARGE_W_ENTITY)): optional_number_entity(),
-            vol.Optional(CONF_BATT_MAX_CHARGE_W, default=battery.get(CONF_BATT_MAX_CHARGE_W)): NumberSelector(
-                NumberSelectorConfig(min=0, max=50000, mode=NumberSelectorMode.BOX, unit_of_measurement="W")
-            ),
-            vol.Optional(CONF_BATT_MAX_DISCHARGE_W_ENTITY, default=battery.get(CONF_BATT_MAX_DISCHARGE_W_ENTITY)): optional_number_entity(),
-            vol.Optional(CONF_BATT_MAX_DISCHARGE_W, default=battery.get(CONF_BATT_MAX_DISCHARGE_W)): NumberSelector(
-                NumberSelectorConfig(min=0, max=50000, mode=NumberSelectorMode.BOX, unit_of_measurement="W")
-            ),
-            vol.Optional(CONF_BATT_SOC_MIN_ENTITY, default=battery.get(CONF_BATT_SOC_MIN_ENTITY)): optional_percentage_entity(),
-            vol.Optional(CONF_BATT_SOC_MIN, default=battery.get(CONF_BATT_SOC_MIN)): NumberSelector(
-                NumberSelectorConfig(min=0, max=100, step=0.1, mode=NumberSelectorMode.BOX, unit_of_measurement="%")
-            ),
-            vol.Optional(CONF_BATT_SOC_MAX_ENTITY, default=battery.get(CONF_BATT_SOC_MAX_ENTITY)): optional_percentage_entity(),
-            vol.Optional(CONF_BATT_SOC_MAX, default=battery.get(CONF_BATT_SOC_MAX)): NumberSelector(
-                NumberSelectorConfig(min=0, max=100, step=0.1, mode=NumberSelectorMode.BOX, unit_of_measurement="%")
-            ),
-        }
-    )
+    return vol.Schema(_battery_advanced_schema_dict(battery), extra=vol.ALLOW_EXTRA)
 
 
 def _grid_schema(data: dict[str, Any]) -> vol.Schema:
     schema: dict[Any, Any] = {
-        vol.Required(CONF_GRID_IMPORT_ENERGY, default=data.get(CONF_GRID_IMPORT_ENERGY)): energy_entity_selector(),
         vol.Required(CONF_GRID_POWER_SIGN_MODE, default=data.get(CONF_GRID_POWER_SIGN_MODE, GRID_POWER_SIGN_EXPORT_NEGATIVE)): grid_power_sign_selector(),
     }
+    schema.update(_required_energy_entity(CONF_GRID_IMPORT_ENERGY, data.get(CONF_GRID_IMPORT_ENERGY)))
     _add_optional(schema, CONF_GRID_EXPORT_ENERGY, optional_energy_entity(), data.get(CONF_GRID_EXPORT_ENERGY))
     _add_optional(schema, CONF_GRID_POWER_SENSOR, optional_power_entity(), data.get(CONF_GRID_POWER_SENSOR))
     _add_optional(schema, CONF_LOAD_POWER_SENSOR, optional_power_entity(), data.get(CONF_LOAD_POWER_SENSOR))
@@ -388,10 +450,10 @@ def _grid_phases_schema(data: dict[str, Any]) -> vol.Schema:
 def _solar_config_schema(data: dict[str, Any]) -> vol.Schema:
     currency = data.get(CONF_CURRENCY, "EUR")
     schema: dict[Any, Any] = {
-        vol.Required(CONF_SOLAR_ENERGY, default=data.get(CONF_SOLAR_ENERGY)): energy_entity_selector(),
         vol.Required(CONF_SOLAR_RESALE_CONTRACT, default=bool(data.get(CONF_SOLAR_RESALE_CONTRACT, False))): BooleanSelector(),
         vol.Required(CONF_SOLAR_ESTIMATION_ENABLED, default=bool(data.get(CONF_SOLAR_ESTIMATION_ENABLED, False))): BooleanSelector(),
     }
+    schema.update(_required_energy_entity(CONF_SOLAR_ENERGY, data.get(CONF_SOLAR_ENERGY)))
     _add_optional(schema, CONF_SOLAR_POWER_SENSOR, optional_power_entity(), data.get(CONF_SOLAR_POWER_SENSOR))
     _add_optional(
         schema,
@@ -449,6 +511,11 @@ class _BatteryWizardMixin(_StepLoggingMixin):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         battery = dict(self._current_battery or {BATTERY_ID: uuid.uuid4().hex[:8]})
+        if user_input is not None and CONF_HAS_BATTERIES in user_input:
+            if set(user_input) == {CONF_HAS_BATTERIES}:
+                user_input = None
+            else:
+                user_input = {k: v for k, v in user_input.items() if k != CONF_HAS_BATTERIES}
         if user_input is not None:
             patch, errors = await _async_validate_step(self.hass, "battery_add", battery, user_input)
             if not errors:
@@ -456,7 +523,7 @@ class _BatteryWizardMixin(_StepLoggingMixin):
                 updated.setdefault(BATTERY_ID, uuid.uuid4().hex[:8])
                 _apply_patch(updated, patch)
                 self._current_battery = updated
-                if bool(user_input.get(CONF_BATT_ADVANCED, False)):
+                if updated.get(CONF_BATT_ADVANCED):
                     return await self.async_step_battery_advanced()
                 return await self._commit_current_battery()
         number = (self._edit_batt_index + 1) if self._edit_batt_index is not None else (len(self._batteries) + 1)
@@ -472,16 +539,19 @@ class _BatteryWizardMixin(_StepLoggingMixin):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         battery = dict(self._current_battery)
+        if not battery.get(CONF_BATT_ADVANCED):
+            return await self.async_step_battery_add(user_input)
         if user_input is not None:
-            patch, errors = _validate_step("battery_advanced", battery, user_input)
+            patch, errors = await _async_validate_step(self.hass, "battery_advanced", battery, user_input)
             if not errors:
-                _apply_patch(battery, patch)
-                self._current_battery = battery
+                _apply_patch(self._current_battery, patch)
                 return await self._commit_current_battery()
+        number = (self._edit_batt_index + 1) if self._edit_batt_index is not None else (len(self._batteries) + 1)
         return self.async_show_form(
             step_id="battery_advanced",
             data_schema=_battery_advanced_schema(battery),
             errors=errors,
+            description_placeholders={"battery_number": str(number)},
         )
 
     async def async_step_battery_more(
@@ -495,7 +565,10 @@ class _BatteryWizardMixin(_StepLoggingMixin):
             return await self._after_batteries_finished()
         return self.async_show_form(
             step_id="battery_more",
-            data_schema=vol.Schema({vol.Required("add_another", default=False): BooleanSelector()}),
+            data_schema=vol.Schema(
+                {vol.Required("add_another", default=False): BooleanSelector()},
+                extra=vol.ALLOW_EXTRA,
+            ),
             description_placeholders={"battery_count": str(len(self._batteries))},
         )
 
@@ -871,7 +944,15 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
                 return await self._create_entry()
         return self.async_show_form(
             step_id="battery",
-            data_schema=vol.Schema({vol.Required(CONF_HAS_BATTERIES, default=bool(self._data.get(CONF_HAS_BATTERIES, False))): BooleanSelector()}),
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_HAS_BATTERIES,
+                        default=bool(self._data.get(CONF_HAS_BATTERIES, False)),
+                    ): BooleanSelector()
+                },
+                extra=vol.ALLOW_EXTRA,
+            ),
             errors=errors,
         )
 
@@ -881,7 +962,10 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
             step_id = "battery_more" if self._data.get(CONF_HAS_BATTERIES) else "battery"
             return self.async_show_form(
                 step_id=step_id,
-                data_schema=vol.Schema({vol.Required("add_another", default=False): BooleanSelector()})
+                data_schema=vol.Schema(
+                    {vol.Required("add_another", default=False): BooleanSelector()},
+                    extra=vol.ALLOW_EXTRA,
+                )
                 if step_id == "battery_more"
                 else vol.Schema(
                     {
@@ -889,7 +973,8 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
                             CONF_HAS_BATTERIES,
                             default=bool(self._data.get(CONF_HAS_BATTERIES, False)),
                         ): BooleanSelector()
-                    }
+                    },
+                    extra=vol.ALLOW_EXTRA,
                 ),
                 errors=errors,
                 description_placeholders={"battery_count": str(len(self._batteries))}
@@ -946,7 +1031,21 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
         return self.async_abort(reason=reason)
 
     async def _after_batteries_finished(self) -> ConfigFlowResult:
-        return await self._persist(data_patch={CONF_HAS_BATTERIES: True, CONF_BATTERY_SYSTEMS: list(self._batteries)})
+        try:
+            return await self._persist(
+                data_patch={CONF_HAS_BATTERIES: True, CONF_BATTERY_SYSTEMS: list(self._batteries)}
+            )
+        except ValueError as err:
+            errors = dict(err.args[0])
+            return self.async_show_form(
+                step_id="battery_more",
+                data_schema=vol.Schema(
+                    {vol.Required("add_another", default=False): BooleanSelector()},
+                    extra=vol.ALLOW_EXTRA,
+                ),
+                errors=errors,
+                description_placeholders={"battery_count": str(len(self._batteries))},
+            )
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -1051,16 +1150,28 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
             patch, errors = _validate_step("battery_toggle", data, user_input)
             if not errors:
                 if not bool(patch.get(CONF_HAS_BATTERIES, False)):
-                    return await self._persist(data_patch=patch)
-                self._batteries = list(batteries)
-                self._current_battery = {BATTERY_ID: uuid.uuid4().hex[:8]}
-                self._edit_batt_index = None
-                if self._batteries:
-                    return await self.async_step_battery_pick()
-                return await self.async_step_battery_add()
+                    try:
+                        return await self._persist(data_patch=patch)
+                    except ValueError as err:
+                        errors = dict(err.args[0])
+                else:
+                    self._batteries = list(batteries)
+                    self._current_battery = {BATTERY_ID: uuid.uuid4().hex[:8]}
+                    self._edit_batt_index = None
+                    if self._batteries:
+                        return await self.async_step_battery_pick()
+                    return await self.async_step_battery_add()
         return self.async_show_form(
             step_id="battery",
-            data_schema=vol.Schema({vol.Required(CONF_HAS_BATTERIES, default=bool(data.get(CONF_HAS_BATTERIES, False))): BooleanSelector()}),
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_HAS_BATTERIES,
+                        default=bool(data.get(CONF_HAS_BATTERIES, False)),
+                    ): BooleanSelector()
+                },
+                extra=vol.ALLOW_EXTRA,
+            ),
             errors=errors,
             description_placeholders={"battery_count": str(len(batteries))},
         )
@@ -1102,7 +1213,8 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
                         SelectSelectorConfig(options=options, mode=SelectSelectorMode.DROPDOWN)
                     ),
                     vol.Optional("add_new", default=False): BooleanSelector(),
-                }
+                },
+                extra=vol.ALLOW_EXTRA,
             ),
             errors=errors,
         )

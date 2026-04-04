@@ -42,6 +42,7 @@ from .const import (
     DATA_ABONNEMENT_EUR,
     DATA_BATT_CHARGE_METER_KWH,
     DATA_BATT_CHARGE_POWER_W,
+    DATA_BATT_DISCHARGE_POWER_W,
     DATA_BATTERY_AVAILABLE_ENERGY_KWH,
     DATA_BATTERY_CARD,
     DATA_BATTERY_CHARGE_KWH,
@@ -55,6 +56,7 @@ from .const import (
     DATA_BATTERY_TOTAL_CHARGE_KWH,
     DATA_BATTERY_TOTAL_DISCHARGE_KWH,
     DATA_BATTERY_TOTAL_NET_POWER_W,
+    DATA_CONTRACT_POWER,
     DATA_COST_BY_SLOT,
     DATA_COST_TOTAL,
     DATA_CURRENT_SLOT,
@@ -289,6 +291,67 @@ def _device_diagnostics(coordinator: HubEnergieCoordinator) -> DeviceInfo:
     )
 
 
+def _device_for_slot_source(coordinator: HubEnergieCoordinator, source: str) -> DeviceInfo:
+    """Map daily slot kWh source to the physical/logical device (grid / solar / batteries)."""
+    if source == SOURCE_GRID:
+        return _device_grid_config(coordinator)
+    if source == SOURCE_SOLAR:
+        return _device_solar_config(coordinator)
+    return _device_battery_summary(coordinator)
+
+
+def _device_for_ssot_today_kind(coordinator: HubEnergieCoordinator, kind: str) -> DeviceInfo:
+    """SSOT totals and 'today' sensors: grid / solar+export / battery aggregates."""
+    if kind == "grid":
+        return _device_grid_config(coordinator)
+    if kind in ("solar", "export"):
+        return _device_solar_config(coordinator)
+    return _device_battery_summary(coordinator)
+
+
+def _device_for_power_flow_kind(coordinator: HubEnergieCoordinator, kind: str) -> DeviceInfo:
+    """Real-time power flow sensors."""
+    if kind == "home":
+        return _device_energy_balance(coordinator)
+    if kind in ("grid_import", "grid_to_home"):
+        return _device_grid_config(coordinator)
+    if kind in (
+        "solar_production",
+        "solar_to_home",
+        "solar_to_battery",
+        "solar_export",
+    ):
+        return _device_solar_config(coordinator)
+    return _device_battery_summary(coordinator)
+
+
+def _device_for_usage_flow_key(coordinator: HubEnergieCoordinator, key: str) -> DeviceInfo:
+    """Usage kWh flows (grid / solar / battery→home)."""
+    if key in ("grid_direct", "grid_batt_charge"):
+        return _device_grid_config(coordinator)
+    if key in ("solar_direct", "solar_batt_charge"):
+        return _device_solar_config(coordinator)
+    return _device_battery_summary(coordinator)
+
+
+def _device_for_diagnostic_metric_key(
+    coordinator: HubEnergieCoordinator, key: str,
+) -> DeviceInfo:
+    """Split export-related diagnostics onto solar vs battery devices when unambiguous."""
+    if key in (
+        "export_power_w",
+        "export_due_to_solar_surplus_kwh",
+        "export_opportunity_cost_solar_surplus_eur",
+    ):
+        return _device_solar_config(coordinator)
+    if key in (
+        "export_due_to_battery_full_or_absent_kwh",
+        "export_opportunity_cost_battery_full_or_absent_eur",
+    ):
+        return _device_battery_summary(coordinator)
+    return _device_diagnostics(coordinator)
+
+
 def _slot_label_fr(slot: str) -> str:
     """Compact French label for a tariff slot (Tempo / HPHC)."""
     if slot == SLOT_UNKNOWN:
@@ -500,7 +563,7 @@ class HubEnergieSsotTotalSensor(HubEnergieSensor):
         self._attr_unique_id = f"{entry.unique_id}_ssot_{kind}_total_kwh"
         self._attr_name = cfg["name"]
         self._attr_entity_registry_enabled_default = enabled_default
-        self._attr_device_info = _device_energy_balance(coordinator)
+        self._attr_device_info = _device_for_ssot_today_kind(coordinator, kind)
 
     @property
     def native_value(self) -> float | None:
@@ -513,7 +576,7 @@ class HubEnergieTodayEnergySensor(HubEnergieSensor):
     _attr_has_entity_name = True
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_state_class = SensorStateClass.TOTAL
     _attr_should_poll = False
 
     def __init__(
@@ -530,7 +593,7 @@ class HubEnergieTodayEnergySensor(HubEnergieSensor):
         self._attr_unique_id = f"{entry.unique_id}_{kind}_today_kwh"
         self._attr_name = cfg["name"]
         self._attr_entity_registry_enabled_default = enabled_default
-        self._attr_device_info = _device_energy_balance(coordinator)
+        self._attr_device_info = _device_for_ssot_today_kind(coordinator, kind)
 
     @property
     def native_value(self) -> float | None:
@@ -560,7 +623,7 @@ class HubEnergiePowerFlowSensor(HubEnergieSensor):
         self._attr_unique_id = f"{entry.unique_id}_{kind}_power_w"
         self._attr_name = cfg["name"]
         self._attr_entity_registry_enabled_default = enabled_default
-        self._attr_device_info = _device_energy_balance(coordinator)
+        self._attr_device_info = _device_for_power_flow_kind(coordinator, kind)
 
     @property
     def native_value(self) -> float | None:
@@ -781,7 +844,7 @@ class HubEnergieSlotSensor(HubEnergieSensor):
         self._attr_name = (
             f"{_energy_source_label_fr(source)} {_slot_label_fr(slot)}"
         )
-        self._attr_device_info = _device_energy_balance(coordinator)
+        self._attr_device_info = _device_for_slot_source(coordinator, source)
 
     @property
     def native_value(self) -> float | None:
@@ -877,7 +940,7 @@ class HubEnergieUsageSensor(HubEnergieSensor):
         self._attr_name = _USAGE_FLOW_LABELS.get(
             key, key.replace("_", " ").title(),
         )
-        self._attr_device_info = _device_energy_balance(coordinator)
+        self._attr_device_info = _device_for_usage_flow_key(coordinator, key)
 
     @property
     def native_value(self) -> float | None:
@@ -922,7 +985,11 @@ class HubEnergieOriginSensor(HubEnergieSensor):
         self._kind = kind
         self._attr_unique_id = f"{entry.unique_id}_origin_{kind}_kwh"
         self._attr_name = _ORIGIN_LABELS.get(kind, kind.title())
-        self._attr_device_info = _device_energy_balance(coordinator)
+        self._attr_device_info = (
+            _device_grid_config(coordinator)
+            if kind == "grid"
+            else _device_solar_config(coordinator)
+        )
 
     @property
     def native_value(self) -> float | None:
@@ -945,7 +1012,7 @@ class HubEnergieCostDetailSensor(HubEnergieSensor):
     _attr_has_entity_name = True
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_native_unit_of_measurement = CURRENCY_EURO
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_state_class = SensorStateClass.TOTAL
     _attr_should_poll = False
 
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
@@ -1062,7 +1129,7 @@ class HubEnergieSavingsSensor(HubEnergieSensor):
     _attr_has_entity_name = True
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_native_unit_of_measurement = CURRENCY_EURO
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_state_class = SensorStateClass.TOTAL
     _attr_should_poll = False
 
     def __init__(
@@ -1075,7 +1142,11 @@ class HubEnergieSavingsSensor(HubEnergieSensor):
         self._kind = kind
         self._attr_unique_id = f"{entry.unique_id}_savings_{kind}_eur"
         self._attr_name = _SAVINGS_LABELS.get(kind, kind.title())
-        self._attr_device_info = _device_cost(coordinator)
+        self._attr_device_info = (
+            _device_solar_config(coordinator)
+            if kind == "solar"
+            else _device_battery_summary(coordinator)
+        )
 
     @property
     def native_value(self) -> float | None:
@@ -1105,10 +1176,9 @@ class HubEnergieInfoSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntit
         self._attr_name = _INFO_LABELS.get(
             info, info.replace("_", " ").title(),
         )
-        self._attr_device_info = _device_energy_balance(coordinator)
+        self._attr_device_info = _device_offer(coordinator)
         if info in ("today_color", "tomorrow_color"):
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
-            self._attr_device_info = _device_diagnostics(coordinator)
 
     @property
     def native_value(self) -> str | None:
@@ -1134,7 +1204,7 @@ class HubEnergieRteDataSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEn
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_tempo_rte_data"
         self._attr_name = "Source Tempo"
-        self._attr_device_info = _device_diagnostics(coordinator)
+        self._attr_device_info = _device_offer(coordinator)
 
     @property
     def native_value(self) -> str | None:
@@ -1180,7 +1250,7 @@ class HubEnergieQuotaDaySensor(CoordinatorEntity[HubEnergieCoordinator], SensorE
         self._attr_unique_id = f"{entry.unique_id}_tempo_quota_{color_key}"
         adj = _TEMPO_QUOTA_DAY_LABEL.get(color_key, color_key)
         self._attr_name = f"Jours {adj} restants"
-        self._attr_device_info = _device_diagnostics(coordinator)
+        self._attr_device_info = _device_offer(coordinator)
 
     @property
     def native_value(self) -> int | None:
@@ -1218,7 +1288,7 @@ class HubEnergieNextColourChangeSensor(CoordinatorEntity[HubEnergieCoordinator],
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_tempo_next_colour_change"
         self._attr_name = "Prochain changement de couleur"
-        self._attr_device_info = _device_diagnostics(coordinator)
+        self._attr_device_info = _device_offer(coordinator)
 
     @property
     def native_value(self) -> datetime | None:
@@ -1241,7 +1311,7 @@ class HubEnergieNextHcStartSensor(CoordinatorEntity[HubEnergieCoordinator], Sens
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_tempo_next_hc_start"
         self._attr_name = "Prochain début heures creuses"
-        self._attr_device_info = _device_diagnostics(coordinator)
+        self._attr_device_info = _device_offer(coordinator)
 
     @property
     def native_value(self) -> datetime | None:
@@ -1300,7 +1370,7 @@ class HubEnergieDiagUnknownBucketSensor(HubEnergieSensor):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_state_class = SensorStateClass.TOTAL
     _attr_should_poll = False
     _attr_icon = "mdi:help-circle-outline"
 
@@ -1308,7 +1378,7 @@ class HubEnergieDiagUnknownBucketSensor(HubEnergieSensor):
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_grid_unknown_bucket_today"
         self._attr_name = "Réseau — créneau indéterminé (jour en cours)"
-        self._attr_device_info = _device_diagnostics(coordinator)
+        self._attr_device_info = _device_grid_config(coordinator)
 
     @property
     def native_value(self) -> float | None:
@@ -1406,7 +1476,7 @@ class HubEnergieDiagPowerSensor(HubEnergieSensor):
         self._attr_name = _DIAG_ENTITY_LABELS.get(
             key, key.replace("_", " ").title(),
         )
-        self._attr_device_info = _device_diagnostics(coordinator)
+        self._attr_device_info = _device_for_diagnostic_metric_key(coordinator, key)
 
     @property
     def native_value(self) -> float | None:
@@ -1435,7 +1505,7 @@ class HubEnergieDiagEnergySensor(HubEnergieSensor):
         self._attr_name = _DIAG_ENTITY_LABELS.get(
             key, key.replace("_", " ").title(),
         )
-        self._attr_device_info = _device_diagnostics(coordinator)
+        self._attr_device_info = _device_for_diagnostic_metric_key(coordinator, key)
 
     @property
     def native_value(self) -> float | None:
@@ -1448,7 +1518,7 @@ class HubEnergieDiagCostSensor(HubEnergieSensor):
     _attr_has_entity_name = True
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_native_unit_of_measurement = CURRENCY_EURO
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_state_class = SensorStateClass.TOTAL
     _attr_should_poll = False
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
@@ -1464,7 +1534,7 @@ class HubEnergieDiagCostSensor(HubEnergieSensor):
         self._attr_name = _DIAG_ENTITY_LABELS.get(
             key, key.replace("_", " ").title(),
         )
-        self._attr_device_info = _device_diagnostics(coordinator)
+        self._attr_device_info = _device_for_diagnostic_metric_key(coordinator, key)
 
     @property
     def native_value(self) -> float | None:
@@ -1752,7 +1822,7 @@ class HubEnergieSolarRevenueSensor(HubEnergieSensor):
     _attr_has_entity_name = True
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_native_unit_of_measurement = CURRENCY_EURO
-    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_state_class = SensorStateClass.TOTAL
     _attr_should_poll = False
     _attr_icon = "mdi:cash-plus"
 
@@ -1760,7 +1830,7 @@ class HubEnergieSolarRevenueSensor(HubEnergieSensor):
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_solar_export_revenue"
         self._attr_name = "Revenus d'injection"
-        self._attr_device_info = _device_cost(coordinator)
+        self._attr_device_info = _device_solar_config(coordinator)
 
     @property
     def native_value(self) -> float | None:

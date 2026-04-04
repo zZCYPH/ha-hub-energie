@@ -1,0 +1,18 @@
+# Rsync exclusions for scripts/deploy-integrations.sh (merged with .gitignore).
+# Paths are relative to the integration root.
+
+.git/
+.github/
+.cursor/
+.venv-wsl/
+scripts/
+tests/
+.pytest_cache/
+pytest-cache-files-*/
+pytest.ini
+test_standalone.py
+*.md
+frontend/src/
+frontend/vite.config.js
+frontend/package.json
+frontend/package-lock.json

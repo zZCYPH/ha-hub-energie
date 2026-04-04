@@ -171,7 +171,7 @@
       },
       "battery_add": {
         "title": "Add battery system",
-        "description": "Configure a battery/inverter system. Only charge and discharge energy sensors are required.",
+        "description": "Configure a battery/inverter system. Only charge and discharge energy sensors are required. If you enable advanced fields, the next step will ask for optional capacity, power limits, and SOC bounds.",
         "data": {
           "batt_name": "Battery name",
           "batt_energy_in": "Charge energy (kWh, total increasing)",
@@ -188,12 +188,12 @@
           "batt_power_net": "Use this if you have a single signed sensor instead of separate charge/discharge. If you set charge + discharge sensors, you can leave this empty.",
           "batt_power_net_sign": "Only needed if you use a net power sensor.",
           "batt_soc": "Optional percentage sensor (0–100). Used for the SOC bar and ETA.",
-          "batt_advanced": "Unlocks nominal capacity (kWh), charge/discharge limits (W), and SOC min/max. Improves stored energy and time-to-full/empty estimates."
+          "batt_advanced": "Opens a separate step for nominal capacity (kWh), charge/discharge limits (W), and SOC min/max."
         }
       },
       "battery_advanced": {
         "title": "Battery advanced settings",
-        "description": "For each setting, two rows share the same title: first a sensor/helper, then a manual value. Only fill one of the two rows (not both).",
+        "description": "Battery #{battery_number}: for each setting, two rows share the same title: first a sensor/helper, then a manual value. Only fill one of the two rows (not both).",
         "data": {
           "batt_capacity_kwh_entity": "Nominal capacity — sensor or helper",
           "batt_capacity_kwh": "Nominal capacity — manual entry",
@@ -362,7 +362,7 @@
         }
       },
       "battery_pick": {
-        "title": "Battery systems",
+        "title": "Pick battery system",
         "description": "Edit an existing battery system or add a new one.",
         "data": {
           "battery_index": "Battery to edit",

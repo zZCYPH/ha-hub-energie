@@ -171,7 +171,7 @@
       },
       "battery_add": {
         "title": "Ajouter un système de batterie",
-        "description": "Configurez un système batterie/onduleur. Seuls les capteurs d'énergie charge et décharge sont requis.",
+        "description": "Configurez un système batterie/onduleur. Seuls les capteurs d'énergie charge et décharge sont requis. Si vous activez les champs avancés, une étape suivante proposera capacité, limites de puissance et bornes SOC.",
         "data": {
           "batt_name": "Nom de la batterie",
           "batt_energy_in": "Capteur énergie de charge (kWh, total croissant)",
@@ -188,12 +188,12 @@
           "batt_power_net": "À utiliser si vous avez un seul capteur signé au lieu de deux capteurs séparés. Si vous renseignez charge + décharge, vous pouvez laisser ce champ vide.",
           "batt_power_net_sign": "Nécessaire uniquement si vous utilisez un capteur de puissance nette.",
           "batt_soc": "Capteur % optionnel (0–100). Utilisé pour la barre SOC et l'estimation.",
-          "batt_advanced": "Débloque la capacité nominale (kWh), les limites de charge/décharge (W) et le SOC min/max. Utile pour l'énergie stockée et l'estimation du temps jusqu'à charge/décharge complète."
+          "batt_advanced": "Ouvre une étape séparée pour la capacité nominale (kWh), les limites charge/décharge (W) et le SOC min/max."
         }
       },
       "battery_advanced": {
         "title": "Paramètres avancés batterie",
-        "description": "Pour chaque réglage, les deux lignes portent le même titre : d'abord un capteur (ou helper), puis une saisie manuelle. Ne remplissez qu'une des deux (pas les deux).",
+        "description": "Batterie n°{battery_number} : pour chaque réglage, deux lignes partagent le même titre — d'abord un capteur (ou helper), puis une saisie manuelle. Ne remplissez qu'une des deux (pas les deux).",
         "data": {
           "batt_capacity_kwh_entity": "Capacité nominale — capteur ou helper",
           "batt_capacity_kwh": "Capacité nominale — saisie manuelle",
@@ -362,7 +362,7 @@
         }
       },
       "battery_pick": {
-        "title": "Systèmes de batterie",
+        "title": "Sélection du système batterie",
         "description": "Modifier une batterie existante ou en ajouter une nouvelle.",
         "data": {
           "battery_index": "Batterie à modifier",

@@ -1,11 +1,14 @@
-"""Selector builders and default form payloads for Hub Energie flows."""
+"""Selector builders and default form payloads for Hub Energie flows.
+
+Config-entry flows serialize ``data_schema`` with ``voluptuous_serialize``: avoid
+``vol.Any(..., selector)`` (especially with ``""`` / ``None`` branches). Use plain
+selectors and rely on ``vol.Optional`` plus validation in ``config_validation``.
+"""
 
 from __future__ import annotations
 
 import json
 from typing import Final
-
-import voluptuous as vol
 
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.helpers.selector import (
@@ -75,16 +78,17 @@ def soc_entity_selector() -> EntitySelector:
     )
 
 
-def optional_energy_entity() -> vol.Any:
-    return vol.Any(None, energy_entity_selector())
+def optional_energy_entity() -> EntitySelector:
+    """Use with ``vol.Optional``; do not wrap in ``vol.Any(None, ...)`` (see module doc patterns)."""
+    return energy_entity_selector()
 
 
-def optional_power_entity() -> vol.Any:
-    return vol.Any(None, power_entity_selector())
+def optional_power_entity() -> EntitySelector:
+    return power_entity_selector()
 
 
-def optional_soc_entity() -> vol.Any:
-    return vol.Any(None, soc_entity_selector())
+def optional_soc_entity() -> EntitySelector:
+    return soc_entity_selector()
 
 
 def optional_number_entity() -> EntitySelector:
@@ -93,10 +97,54 @@ def optional_number_entity() -> EntitySelector:
     )
 
 
+def optional_number_entity_or_empty() -> EntitySelector:
+    """Numeric entity picker for battery advanced XOR fields.
+
+    Do not wrap ``EntitySelector`` in ``vol.Any(..., "", ...)``: Home Assistant cannot
+    serialize that shape for the config-flow API (voluptuous_serialize raises).
+    A cleared picker sends ``""``, which validation treats as unset.
+    """
+    return optional_number_entity()
+
+
+class OptionalEmptyTextSelector(TextSelector):
+    """Like ``TextSelector`` but accepts ``null`` and JSON numbers from the frontend.
+
+    Optional XOR manual fields are stored as floats in config; the UI may POST a number
+    while ``TextSelector`` only accepts ``str`` (*expected str*). Empty entity-only rows
+    often POST ``null`` for the manual key — also treated as empty string.
+    """
+
+    def __call__(self, data: Any) -> str:
+        if data is None:
+            return ""
+        if type(data) in (int, float):
+            return super().__call__(str(data))
+        return super().__call__(data)
+
+
+def optional_manual_kwh_selector() -> OptionalEmptyTextSelector:
+    """Manual kWh text field; xor with entity. See ``OptionalEmptyTextSelector``."""
+    return OptionalEmptyTextSelector(TextSelectorConfig(type=TextSelectorType.TEXT))
+
+
+def optional_manual_power_w_selector() -> OptionalEmptyTextSelector:
+    return OptionalEmptyTextSelector(TextSelectorConfig(type=TextSelectorType.TEXT))
+
+
+def optional_manual_percent_selector() -> OptionalEmptyTextSelector:
+    return OptionalEmptyTextSelector(TextSelectorConfig(type=TextSelectorType.TEXT))
+
+
 def optional_percentage_entity() -> EntitySelector:
     return EntitySelector(
         EntitySelectorConfig(domain=_ENTITY_DOMAINS_NUMERIC, multiple=False)
     )
+
+
+def optional_percentage_entity_or_empty() -> EntitySelector:
+    """Percentage entity picker for battery advanced XOR fields (see ``optional_number_entity_or_empty``)."""
+    return optional_percentage_entity()
 
 
 def supplier_selector() -> SelectSelector:

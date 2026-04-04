@@ -21,6 +21,7 @@ from .const import (
     CONF_BATT_MAX_DISCHARGE_W,
     CONF_BATT_MAX_DISCHARGE_W_ENTITY,
     CONF_BATT_NAME,
+    CONF_BATT_ADVANCED,
     CONF_BATT_POWER_IN,
     CONF_BATT_POWER_NET,
     CONF_BATT_POWER_NET_SIGN,
@@ -371,33 +372,54 @@ def _validate_schedule_items(
     return normalized
 
 
+def _manual_numeric_provided(value: Any) -> bool:
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return bool(value.strip())
+    return True
+
+
 def _validate_battery_advanced(
     user_input: Mapping[str, Any],
 ) -> tuple[HubEnergieConfigPartial, dict[str, str]]:
     patch: HubEnergieConfigPartial = {}
     errors: dict[str, str] = {}
     for value_key, entity_key, minimum, maximum, error_code in _BATTERY_ADVANCED_RULES:
-        if user_input.get(value_key) not in (None, "") and _clean_optional_text(
-            user_input.get(entity_key)
-        ):
+        manual_on = _manual_numeric_provided(user_input.get(value_key))
+        entity_on = _clean_optional_text(user_input.get(entity_key)) is not None
+
+        if manual_on and entity_on:
             errors[value_key] = error_code
             errors[entity_key] = error_code
             continue
 
-        number = _normalize_float(
-            user_input.get(value_key),
-            errors,
-            value_key,
-            minimum=minimum,
-            maximum=maximum,
-        )
-        entity_id = _optional_entity_id(user_input.get(entity_key), errors, entity_key)
-        if user_input.get(value_key) in (None, ""):
-            patch[value_key] = None
-        elif number is not None:
+        if manual_on:
+            number = _normalize_float(
+                user_input.get(value_key),
+                errors,
+                value_key,
+                minimum=minimum,
+                maximum=maximum,
+            )
+            if value_key in errors:
+                continue
             patch[value_key] = number
+            patch[entity_key] = None
+            continue
 
-        patch[entity_key] = entity_id
+        if entity_on:
+            entity_id = _optional_entity_id(
+                user_input.get(entity_key), errors, entity_key
+            )
+            if entity_key in errors:
+                continue
+            patch[value_key] = None
+            patch[entity_key] = entity_id
+            continue
+
+        patch[value_key] = None
+        patch[entity_key] = None
 
     if (
         CONF_BATT_SOC_MIN in patch
@@ -873,6 +895,16 @@ class HubEnergieConfigValidator:
                     patch[CONF_BATT_POWER_NET_SIGN] = sign
             else:
                 patch[CONF_BATT_POWER_NET_SIGN] = None
+
+            wants_adv = _normalize_bool(user_input.get(CONF_BATT_ADVANCED))
+            patch[CONF_BATT_ADVANCED] = wants_adv
+            if wants_adv:
+                # Advanced XOR is validated on the separate ``battery_advanced`` step.
+                pass
+            else:
+                for value_key, entity_key, *_rest in _BATTERY_ADVANCED_RULES:
+                    patch[value_key] = None
+                    patch[entity_key] = None
             return patch, errors
 
         if scope == "battery_advanced":

@@ -83,6 +83,16 @@ def _device_energy_balance(coordinator: HubEnergieCoordinator) -> DeviceInfo:
     )
 
 
+def _device_offer(coordinator: HubEnergieCoordinator) -> DeviceInfo:
+    return DeviceInfo(
+        entry_type=DeviceEntryType.SERVICE,
+        identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_offer")},
+        name="Offre",
+        manufacturer="Hub Énergie",
+        model="Tariff & contract",
+    )
+
+
 def _device_solar_config(coordinator: HubEnergieCoordinator) -> DeviceInfo:
     return DeviceInfo(
         entry_type=DeviceEntryType.SERVICE,
@@ -151,7 +161,7 @@ class HubEnergieOffPeakSensor(
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_off_peak"
         self._attr_name = "Heures creuses Tempo"
-        self._attr_device_info = _device_energy_balance(coordinator)
+        self._attr_device_info = _device_offer(coordinator)
 
     @property
     def is_on(self) -> bool | None:
