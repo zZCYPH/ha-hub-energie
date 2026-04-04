@@ -59,13 +59,8 @@ export const I18N = Object.freeze({
     redHpWarning: "Jour rouge : conso élevée, vérifier vos appareils",
     loadConsumed: "consommés",
     powerHistoryTitle: "Historique puissance",
-    powerHistoryLastHours: "Dernières {hours} heures",
     powerHistoryFullDay: "Journée du {date} (0h–24h)",
     powerHistoryWindow: "Durée",
-    powerHistoryStacked:
-      "courbes W : charge maison (dérivée intégration ou capteur optionnel), solaire, décharge/charge batt., réseau (signé) · stats + live",
-    powerHistoryStackedStats:
-      "courbes W : charge maison, solaire, décharge/charge batt., réseau (signé) · statistiques",
     powerGraphTooltipTime: "Heure",
     powerGraphTooltipSolar: "Solaire",
     powerGraphTooltipGrid: "Réseau",
@@ -136,13 +131,8 @@ export const I18N = Object.freeze({
     redHpWarning: "Red day: high consumption — check appliances",
     loadConsumed: "consumed",
     powerHistoryTitle: "Power history",
-    powerHistoryLastHours: "Last {hours} hours",
     powerHistoryFullDay: "Day {date} (midnight–midnight)",
     powerHistoryWindow: "Window",
-    powerHistoryStacked:
-      "W lines: house load (integration derived or optional sensor), solar, batt. discharge/charge, grid (signed) · stats + live",
-    powerHistoryStackedStats:
-      "W lines: house load, solar, batt. discharge/charge, grid (signed) · statistics only",
     powerGraphTooltipTime: "Time",
     powerGraphTooltipSolar: "Solar",
     powerGraphTooltipGrid: "Grid",

@@ -53,15 +53,71 @@ import "./components/hub-insight-bar.js";
 
 /** Rolling window presets for live-day power graph (hours). */
 const POWER_GRAPH_ROLLING_HOURS = [24, 12, 6, 3, 1];
+const DEFAULT_POWER_GRAPH_ROLLING_HOURS = 6;
+
+/** Floor for half tooltip width (px); max is derived from visual viewport (see clamp). */
+const POWER_GRAPH_TOOLTIP_HALFWIDTH_MIN = 100;
+const POWER_GRAPH_TOOLTIP_EDGE_PAD = 12;
+/** Cap half-width so laptop layouts are not over-constrained vs 16rem tooltip. */
+const POWER_GRAPH_TOOLTIP_HALFWIDTH_CAP = 168;
 
 function snapPowerGraphRollingHours(raw) {
-  if (!Number.isFinite(raw)) return 24;
+  if (!Number.isFinite(raw)) return DEFAULT_POWER_GRAPH_ROLLING_HOURS;
   const n = Math.trunc(raw);
   if (POWER_GRAPH_ROLLING_HOURS.includes(n)) return n;
   return POWER_GRAPH_ROLLING_HOURS.reduce(
     (best, h) => (Math.abs(h - n) < Math.abs(best - n) ? h : best),
-    24,
+    DEFAULT_POWER_GRAPH_ROLLING_HOURS,
   );
+}
+
+/**
+ * Split house load (W) into stacked layers: battery discharge, grid import, solar.
+ * Grid export is ignored here (gImp only); the signed grid line still shows reinjection.
+ */
+function houseLoadSupplySlicesPerPoint(loadW, gridSigned, battSigned, solarW) {
+  const gImp = Math.max(0, Number(gridSigned) || 0);
+  const bDis = Math.max(0, Number(battSigned) || 0);
+  const sAvail = Math.max(0, Number(solarW) || 0);
+  const loadV = Math.max(0, Number(loadW) || 0);
+  if (loadV < 1e-6) return { b: 0, g: 0, s: 0 };
+  const sum = bDis + gImp + sAvail;
+  if (sum > loadV + 1e-6) {
+    const k = loadV / sum;
+    return { b: bDis * k, g: gImp * k, s: sAvail * k };
+  }
+  let b = Math.min(bDis, loadV);
+  let rem = loadV - b;
+  let g = Math.min(gImp, rem);
+  rem -= g;
+  let s = Math.min(sAvail, rem);
+  rem -= s;
+  if (rem > 1) s += rem;
+  return { b, g, s };
+}
+
+/** @param {{ ts: number; grid: number; solar: number; batt: number; load?: number | null }[]} pts */
+function houseLoadStackSeriesFromPts(pts) {
+  const n = pts.length;
+  const b = new Array(n);
+  const g = new Array(n);
+  const sol = new Array(n);
+  for (let i = 0; i < n; i++) {
+    const p = pts[i];
+    const loadRaw = p.load != null && Number.isFinite(p.load) ? Math.max(0, p.load) : NaN;
+    let loadV = loadRaw;
+    const gImp = Math.max(0, p.grid ?? 0);
+    const bDis = Math.max(0, p.batt ?? 0);
+    const sAvail = Math.max(0, p.solar ?? 0);
+    if (!Number.isFinite(loadV)) {
+      loadV = gImp + bDis + sAvail;
+    }
+    const sl = houseLoadSupplySlicesPerPoint(loadV, p.grid ?? 0, p.batt ?? 0, p.solar ?? 0);
+    b[i] = sl.b;
+    g[i] = sl.g;
+    sol[i] = sl.s;
+  }
+  return { sliceBatt: b, sliceGrid: g, sliceSolar: sol };
 }
 
 async function fetchHistoryStates(hass, startIso, endIso, entityIds, costEntityId) {
@@ -176,6 +232,8 @@ class HubEnergieCard extends LitElement {
       _powerGraphErr: { state: true },
       _powerGraphSeries: { state: true },
       _powerGraphHoverIdx: { state: true },
+      /** Clamped % `left` for tooltip (vs chart wrap); null when not hovering. */
+      _powerGraphTooltipXPct: { state: true },
       _powerGraphRollingHours: { state: true },
     };
   }
@@ -572,10 +630,11 @@ class HubEnergieCard extends LitElement {
       }
       .power-graph-head {
         display: flex;
-        align-items: baseline;
+        align-items: center;
         justify-content: space-between;
         gap: 10px;
         margin: 0 0 6px;
+        flex-wrap: wrap;
       }
       .power-graph-title {
         font-size: 0.72rem;
@@ -584,21 +643,28 @@ class HubEnergieCard extends LitElement {
         text-transform: uppercase;
         letter-spacing: 0.05em;
         margin: 0;
+        flex: 0 0 auto;
       }
-      .power-graph-meta {
+      .power-graph-head-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .power-graph-archive-day {
         font-size: 0.72rem;
         color: var(--secondary-text-color);
-        white-space: normal;
         text-align: right;
-        max-width: min(100%, 26rem);
-        line-height: 1.35;
+        line-height: 1.3;
       }
       .power-graph-window-btns {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
+        justify-content: flex-end;
         gap: 4px;
-        margin: 6px 0 0;
+        margin: 0;
       }
       .power-graph-window-btns .range-label {
         margin-right: 2px;
@@ -669,8 +735,10 @@ class HubEnergieCard extends LitElement {
         transform: translateX(-50%);
         z-index: 3;
         pointer-events: none;
-        min-width: 10.5rem;
-        max-width: 16rem;
+        box-sizing: border-box;
+        width: max-content;
+        min-width: min(10.5rem, calc(100vw - 1.5rem));
+        max-width: min(16rem, calc(100vw - 1.25rem));
         padding: 9px 11px;
         border-radius: 10px;
         font-size: 0.72rem;
@@ -701,8 +769,8 @@ class HubEnergieCard extends LitElement {
         margin-top: 4px;
       }
       .power-graph-tooltip-k {
-        color: var(--secondary-text-color);
         flex: 0 0 auto;
+        font-weight: 600;
       }
       .power-graph-tooltip-v {
         font-weight: 600;
@@ -745,6 +813,7 @@ class HubEnergieCard extends LitElement {
     this._powerGraphErr = null;
     this._powerGraphSeries = null;
     this._powerGraphHoverIdx = null;
+    this._powerGraphTooltipXPct = null;
     /** @type {ReturnType<typeof setTimeout> | null} */
     this._hassRetryTimer = null;
     /** @type {number | null} */
@@ -753,7 +822,7 @@ class HubEnergieCard extends LitElement {
     this._powerGraphPollTimer = null;
     /** Bumps on each new window load; refresh uses current id without bumping (see _loadPowerGraph). */
     this._powerGraphLoadId = 0;
-    this._powerGraphRollingHours = 24;
+    this._powerGraphRollingHours = DEFAULT_POWER_GRAPH_ROLLING_HOURS;
     this._powerGraphRollingInited = false;
   }
 
@@ -853,7 +922,7 @@ class HubEnergieCard extends LitElement {
     this.__lastKey = null;
     if (!this._powerGraphRollingInited) {
       const raw = parseFloat(this._config?.power_history_hours);
-      this._powerGraphRollingHours = snapPowerGraphRollingHours(Number.isFinite(raw) ? raw : 24);
+      this._powerGraphRollingHours = snapPowerGraphRollingHours(Number.isFinite(raw) ? raw : NaN);
       this._powerGraphRollingInited = true;
     }
   }
@@ -929,6 +998,36 @@ class HubEnergieCard extends LitElement {
       this._powerGraphErr = null;
       this._loadPowerGraph({ force: true });
       this._syncPowerGraphPollTimer();
+    }
+    if (
+      this._powerGraphOpen &&
+      this._powerGraphHoverIdx != null &&
+      (changedProps.has("_powerGraphHoverIdx") ||
+        changedProps.has("_powerGraphSeries") ||
+        (changedProps.has("_powerGraphOpen") && this._powerGraphOpen))
+    ) {
+      queueMicrotask(() => this._syncPowerGraphTooltipXFromHover());
+    }
+  }
+
+  /** Re-apply viewport clamp from hover index after layout / series refresh (tooltip % vs SVG grid). */
+  _syncPowerGraphTooltipXFromHover() {
+    if (!this._powerGraphOpen || this._powerGraphHoverIdx == null) return;
+    const root = this.renderRoot;
+    if (!root) return;
+    const wrap = root.querySelector(".power-graph-svg-wrap");
+    const svg = wrap?.querySelector("svg");
+    const s = this._powerGraphDisplaySeries();
+    const wr = wrap?.getBoundingClientRect();
+    const sr = svg?.getBoundingClientRect();
+    if (!s?.pts?.length || !wr?.width || !sr?.width) return;
+    const n = s.pts.length;
+    const hi = Math.max(0, Math.min(n - 1, this._powerGraphHoverIdx));
+    const t = n <= 1 ? 0.5 : hi / Math.max(n - 1, 1);
+    const clientX = sr.left + t * sr.width;
+    const xpct = this._clampPowerGraphTooltipXPct(wr, clientX);
+    if (this._powerGraphTooltipXPct !== xpct) {
+      this._powerGraphTooltipXPct = xpct;
     }
   }
 
@@ -1179,6 +1278,7 @@ class HubEnergieCard extends LitElement {
     const refresh = opts.refresh === true;
     const force = opts.force === true;
     if (!this.hass) return;
+    if (!this._powerGraphOpen) return;
     const E = this._map();
     const costId = E.cost;
     if (!costId) return;
@@ -1187,6 +1287,7 @@ class HubEnergieCard extends LitElement {
       this._powerGraphLoading = true;
       this._powerGraphErr = null;
       this._powerGraphHoverIdx = null;
+      this._powerGraphTooltipXPct = null;
     }
 
     let myLoadId;
@@ -1259,6 +1360,7 @@ class HubEnergieCard extends LitElement {
         period: "5minute",
       });
       if (this._powerGraphLoadId !== myLoadId) return;
+      if (!this._powerGraphOpen) return;
       if ((this._date ?? todayParisISO()) !== selectedYmd) return;
       if (isTodayParis && snapPowerGraphRollingHours(this._powerGraphRollingHours) !== rollingH) return;
 
@@ -1326,6 +1428,7 @@ class HubEnergieCard extends LitElement {
     this.__lastKey = null;
     if (!next) {
       this._powerGraphHoverIdx = null;
+      this._powerGraphTooltipXPct = null;
       this._clearPowerGraphPollTimer();
     }
     if (next) {
@@ -1337,6 +1440,7 @@ class HubEnergieCard extends LitElement {
   }
 
   _powerGraphDisplaySeries() {
+    if (!this._powerGraphOpen) return null;
     const ser = this._powerGraphSeries;
     if (!ser?.statsPts?.length) return null;
     const useLive = ser.useLiveTail === true;
@@ -1360,6 +1464,39 @@ class HubEnergieCard extends LitElement {
     };
   }
 
+  /**
+   * Horizontal center for tooltip: `left: pct%` + translateX(-50%).
+   * Keeps the box inside the visual viewport (offsetLeft-aware); pct may go &lt;0 or &gt;100 if needed.
+   * @param {DOMRect} wrapRect .power-graph-svg-wrap
+   */
+  _clampPowerGraphTooltipXPct(wrapRect, clientX) {
+    if (!wrapRect || wrapRect.width <= 0) return 50;
+    const rawPct = ((clientX - wrapRect.left) / wrapRect.width) * 100;
+    const edge = POWER_GRAPH_TOOLTIP_EDGE_PAD;
+    const win = typeof window !== "undefined" ? window : null;
+    const vv = win?.visualViewport ?? null;
+    const vLeft = Number.isFinite(vv?.offsetLeft) ? vv.offsetLeft : 0;
+    const vWidth =
+      vv && Number.isFinite(vv.width) && vv.width > 0
+        ? vv.width
+        : win?.innerWidth ?? 1e9;
+
+    const half = Math.min(
+      POWER_GRAPH_TOOLTIP_HALFWIDTH_CAP,
+      Math.max(POWER_GRAPH_TOOLTIP_HALFWIDTH_MIN, vWidth * 0.48),
+    );
+
+    let pct = Math.max(-8, Math.min(108, rawPct));
+    let cx = wrapRect.left + (pct / 100) * wrapRect.width;
+    if (Number.isFinite(vWidth) && vWidth > 2 * (half + edge)) {
+      const cxMin = vLeft + half + edge;
+      const cxMax = vLeft + vWidth - half - edge;
+      cx = Math.max(cxMin, Math.min(cxMax, cx));
+      pct = ((cx - wrapRect.left) / wrapRect.width) * 100;
+    }
+    return Math.round(pct * 10) / 10;
+  }
+
   /** @param {SVGSVGElement} el */
   _updatePowerGraphHoverFromClientX(el, clientX) {
     const s = this._powerGraphDisplaySeries();
@@ -1369,8 +1506,18 @@ class HubEnergieCard extends LitElement {
     const t = (clientX - r.left) / r.width;
     const n = s.pts.length;
     const idx = Math.max(0, Math.min(n - 1, Math.round(t * Math.max(n - 1, 1))));
+    const wrap = el.closest(".power-graph-svg-wrap");
+    const wr = wrap?.getBoundingClientRect();
+    const xpct =
+      wr && wr.width > 0 ? this._clampPowerGraphTooltipXPct(wr, clientX) : n <= 1
+        ? 50
+        : (idx / Math.max(n - 1, 1)) * 100;
+
     if (this._powerGraphHoverIdx !== idx) {
       this._powerGraphHoverIdx = idx;
+    }
+    if (this._powerGraphTooltipXPct !== xpct) {
+      this._powerGraphTooltipXPct = xpct;
     }
   }
 
@@ -1382,6 +1529,9 @@ class HubEnergieCard extends LitElement {
   _onPowerGraphSvgLeave() {
     if (this._powerGraphHoverIdx != null) {
       this._powerGraphHoverIdx = null;
+    }
+    if (this._powerGraphTooltipXPct != null) {
+      this._powerGraphTooltipXPct = null;
     }
   }
 
@@ -1395,6 +1545,9 @@ class HubEnergieCard extends LitElement {
   _onPowerGraphSvgTouchEnd() {
     if (this._powerGraphHoverIdx != null) {
       this._powerGraphHoverIdx = null;
+    }
+    if (this._powerGraphTooltipXPct != null) {
+      this._powerGraphTooltipXPct = null;
     }
   }
 
@@ -1431,6 +1584,39 @@ class HubEnergieCard extends LitElement {
       .slice(1)
       .map((p) => `L ${p.x.toFixed(2)} ${p.y.toFixed(2)}`)
       .join(" ")}`;
+  }
+
+  /** Closed path: curve (same as line) down to chart bottom (y = h), for area fill. */
+  _svgAreaFillUnderLine(values, yMin, yMax, w, h) {
+    const line = this._svgLinePath(values, yMin, yMax, w, h);
+    if (!line) return "";
+    const n = values.length;
+    const xAt = (i) => (n === 1 ? 0 : (i / (n - 1)) * w);
+    const lastX = xAt(n - 1);
+    const firstX = xAt(0);
+    return `${line} L ${lastX.toFixed(2)} ${h.toFixed(2)} L ${firstX.toFixed(2)} ${h.toFixed(2)} Z`;
+  }
+
+  /** Band between two value series (watts), same Y scale as line chart. Bottom edge reversed to close. */
+  _svgStackedBandPath(bottomW, topW, yMin, yMax, w, h) {
+    if (!bottomW?.length || bottomW.length !== topW?.length) return "";
+    const span = Math.max(yMax - yMin, 1e-9);
+    const n = bottomW.length;
+    const xAt = (i) => (n === 1 ? 0 : (i / (n - 1)) * w);
+    const yAt = (v) => h - ((Number(v) - yMin) / span) * h;
+    let d = "";
+    for (let i = 0; i < n; i++) {
+      const x = xAt(i);
+      const y = yAt(Number(topW[i]));
+      d += i === 0 ? `M ${x.toFixed(2)} ${y.toFixed(2)}` : ` L ${x.toFixed(2)} ${y.toFixed(2)}`;
+    }
+    for (let i = n - 1; i >= 0; i--) {
+      const x = xAt(i);
+      const y = yAt(Number(bottomW[i]));
+      d += ` L ${x.toFixed(2)} ${y.toFixed(2)}`;
+    }
+    d += " Z";
+    return d;
   }
 
   _renderPowerGraph(i18n, locale) {
@@ -1480,6 +1666,26 @@ class HubEnergieCard extends LitElement {
     const lineGrid = this._svgLinePath(valsGrid, yMin, yMax, w, h);
     const lineLoad = hasLoad && valsLoad.length ? this._svgLinePath(valsLoad, yMin, yMax, w, h) : "";
 
+    /** Stacked areas under house load: batt (bottom) → grid import → solar; grid line stays signed (export). */
+    let areaHouseBatt = "";
+    let areaHouseGrid = "";
+    let areaHouseSolar = "";
+    if (hasLoad && valsLoad.length) {
+      const { sliceBatt, sliceGrid, sliceSolar } = houseLoadStackSeriesFromPts(s.pts);
+      const n = sliceBatt.length;
+      const zero = new Array(n).fill(0);
+      const cumAfterBatt = sliceBatt.slice();
+      const cumAfterGrid = sliceBatt.map((b, i) => b + sliceGrid[i]);
+      const cumTop = sliceBatt.map((b, i) => b + sliceGrid[i] + sliceSolar[i]);
+      areaHouseBatt = this._svgStackedBandPath(zero, cumAfterBatt, yMin, yMax, w, h);
+      areaHouseGrid = this._svgStackedBandPath(cumAfterBatt, cumAfterGrid, yMin, yMax, w, h);
+      areaHouseSolar = this._svgStackedBandPath(cumAfterGrid, cumTop, yMin, yMax, w, h);
+    }
+
+    const fillHouseBatt = `color-mix(in srgb, ${COLOR_BATTERY} 30%, transparent)`;
+    const fillHouseGrid = `color-mix(in srgb, ${COLOR_GRID_SOURCE} 30%, transparent)`;
+    const fillHouseSolar = `color-mix(in srgb, ${COLOR_SOLAR} 30%, transparent)`;
+
     const gridStrokeCss = "color-mix(in srgb, var(--divider-color) 70%, transparent)";
     const ySpan = Math.max(yMax - yMin, 1e-9);
     const yPx = (v) => h - ((v - yMin) / ySpan) * h;
@@ -1495,17 +1701,18 @@ class HubEnergieCard extends LitElement {
     const hi = this._powerGraphHoverIdx;
     const hoverPt = hi != null && hi >= 0 && hi < nPt ? s.pts[hi] : null;
     const crossX = nPt <= 1 ? w / 2 : ((hi ?? 0) / Math.max(nPt - 1, 1)) * w;
-    const tooltipLeftPct = nPt <= 1 ? 50 : ((hi ?? 0) / Math.max(nPt - 1, 1)) * 100;
+    const tooltipLeftPct =
+      this._powerGraphTooltipXPct != null
+        ? this._powerGraphTooltipXPct
+        : nPt <= 1
+          ? 50
+          : ((hi ?? 0) / Math.max(nPt - 1, 1)) * 100;
 
     const dayStart = parisYmdStartUtc(s.dayIso);
     const dayLabel = Number.isFinite(dayStart.getTime())
       ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(dayStart)
       : s.dayIso;
-    const metaPrimary =
-      s.windowMode === "rolling"
-        ? String(i18n.powerHistoryLastHours).replace("{hours}", String(s.rollingHours ?? s.hoursBack))
-        : String(i18n.powerHistoryFullDay).replace("{date}", dayLabel);
-    const stackedHint = s.useLiveTail ? i18n.powerHistoryStacked : i18n.powerHistoryStackedStats;
+    const archiveDayLine = String(i18n.powerHistoryFullDay).replace("{date}", dayLabel);
     const rollingSnap = snapPowerGraphRollingHours(this._powerGraphRollingHours);
     const isTodayGraph = (this._date ?? todayParisISO()) === todayParisISO();
 
@@ -1513,26 +1720,25 @@ class HubEnergieCard extends LitElement {
       <div class="power-graph">
         <div class="power-graph-head">
           <div class="power-graph-title">${i18n.powerHistoryTitle ?? "Power history"}</div>
-          <div class="power-graph-meta">
-            ${metaPrimary} · ${i18n.power ?? "Power"} (W) · ${stackedHint}
+          <div class="power-graph-head-actions">
+            ${isTodayGraph
+              ? html`<div class="power-graph-window-btns">
+                  <span class="range-label">${i18n.powerHistoryWindow}</span>
+                  ${POWER_GRAPH_ROLLING_HOURS.map(
+                    (h) => html`
+                      <button
+                        type="button"
+                        class="range-btn ${rollingSnap === h ? "active" : ""}"
+                        @click=${() => this._setPowerGraphRollingHours(h)}
+                      >
+                        ${h}h
+                      </button>
+                    `,
+                  )}
+                </div>`
+              : html`<div class="power-graph-archive-day">${archiveDayLine}</div>`}
           </div>
         </div>
-        ${isTodayGraph
-          ? html`<div class="power-graph-window-btns">
-              <span class="range-label">${i18n.powerHistoryWindow}</span>
-              ${POWER_GRAPH_ROLLING_HOURS.map(
-                (h) => html`
-                  <button
-                    type="button"
-                    class="range-btn ${rollingSnap === h ? "active" : ""}"
-                    @click=${() => this._setPowerGraphRollingHours(h)}
-                  >
-                    ${h}h
-                  </button>
-                `,
-              )}
-            </div>`
-          : nothing}
         <div class="power-graph-chart-wrap">
           <div class="power-yaxis" aria-hidden="true">
             <span>${yTop}</span>
@@ -1549,7 +1755,9 @@ class HubEnergieCard extends LitElement {
                     ${hasLoad
                       ? html`
                           <div class="power-graph-tooltip-row">
-                            <span class="power-graph-tooltip-k">${i18n.houseLoad}</span>
+                            <span class="power-graph-tooltip-k" style="color:${loadStroke}"
+                              >${i18n.houseLoad}</span
+                            >
                             <span class="power-graph-tooltip-v"
                               >${hoverPt.load != null ? fmtPowerCompact(hoverPt.load) : "—"}</span
                             >
@@ -1557,19 +1765,27 @@ class HubEnergieCard extends LitElement {
                         `
                       : nothing}
                     <div class="power-graph-tooltip-row">
-                      <span class="power-graph-tooltip-k">${i18n.powerGraphTooltipSolar}</span>
+                      <span class="power-graph-tooltip-k" style="color:${solarStroke}"
+                        >${i18n.powerGraphTooltipSolar}</span
+                      >
                       <span class="power-graph-tooltip-v">${fmtPowerCompact(hoverPt.solar ?? 0)}</span>
                     </div>
                     <div class="power-graph-tooltip-row">
-                      <span class="power-graph-tooltip-k">${i18n.segBattDis}</span>
+                      <span class="power-graph-tooltip-k" style="color:${battDisStroke}"
+                        >${i18n.segBattDis}</span
+                      >
                       <span class="power-graph-tooltip-v">${fmtPowerCompact(Math.max(0, hoverPt.batt ?? 0))}</span>
                     </div>
                     <div class="power-graph-tooltip-row">
-                      <span class="power-graph-tooltip-k">${i18n.segBattChg}</span>
+                      <span class="power-graph-tooltip-k" style="color:${battChgStroke}"
+                        >${i18n.segBattChg}</span
+                      >
                       <span class="power-graph-tooltip-v">${fmtPowerCompact(Math.max(0, -(hoverPt.batt ?? 0)))}</span>
                     </div>
                     <div class="power-graph-tooltip-row">
-                      <span class="power-graph-tooltip-k">${i18n.powerGraphTooltipGrid}</span>
+                      <span class="power-graph-tooltip-k" style="color:${gridStroke}"
+                        >${i18n.powerGraphTooltipGrid}</span
+                      >
                       <span class="power-graph-tooltip-v">${fmtPowerCompact(hoverPt.grid ?? 0)}</span>
                     </div>
                   </div>
@@ -1604,6 +1820,30 @@ class HubEnergieCard extends LitElement {
                   : nothing}
                 <line x1="0" y1="0" x2="0" y2="${h}" stroke-width="1"></line>
               </g>
+              ${areaHouseBatt
+                ? svg`<path
+                    d="${areaHouseBatt}"
+                    fill="${fillHouseBatt}"
+                    stroke="none"
+                    pointer-events="none"
+                  ></path>`
+                : nothing}
+              ${areaHouseGrid
+                ? svg`<path
+                    d="${areaHouseGrid}"
+                    fill="${fillHouseGrid}"
+                    stroke="none"
+                    pointer-events="none"
+                  ></path>`
+                : nothing}
+              ${areaHouseSolar
+                ? svg`<path
+                    d="${areaHouseSolar}"
+                    fill="${fillHouseSolar}"
+                    stroke="none"
+                    pointer-events="none"
+                  ></path>`
+                : nothing}
               <path
                 d="${lineGrid}"
                 fill="none"

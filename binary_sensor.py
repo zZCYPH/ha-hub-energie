@@ -69,8 +69,8 @@ def _device_diagnostics(coordinator: HubEnergieCoordinator) -> DeviceInfo:
     return DeviceInfo(
         entry_type=DeviceEntryType.SERVICE,
         identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_diagnostics")},
-        name="Diagnostics",
-        manufacturer="Hub Énergie",
+        name=scoped_device_name("Diagnostics"),
+        manufacturer=INTEGRATION_TITLE,
         model="Diagnostics",
     )
 
@@ -89,8 +89,8 @@ def _device_offer(coordinator: HubEnergieCoordinator) -> DeviceInfo:
     return DeviceInfo(
         entry_type=DeviceEntryType.SERVICE,
         identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_offer")},
-        name="Offre",
-        manufacturer="Hub Énergie",
+        name=scoped_device_name("Offre"),
+        manufacturer=INTEGRATION_TITLE,
         model="Tariff & contract",
     )
 

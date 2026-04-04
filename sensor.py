@@ -266,7 +266,7 @@ def _device_battery_summary(coordinator: HubEnergieCoordinator) -> DeviceInfo:
     return DeviceInfo(
         entry_type=DeviceEntryType.SERVICE,
         identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_battery_summary")},
-        name="Toutes batteries",
+        name=scoped_device_name("Toutes batteries"),
         manufacturer=_MANUFACTURER,
         model="Battery aggregates",
     )
