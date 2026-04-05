@@ -14,6 +14,16 @@
           "phase_type": "Installation monophasée ou triphasée."
         }
       },
+      "supplier_custom": {
+        "title": "Autre fournisseur",
+        "description": "Vous avez choisi « Autre » comme fournisseur. Indiquez un nom court pour les tableaux de bord et le libellé des entités (par ex. le nom sur votre facture). Les tarifs se saisissent manuellement lorsqu’aucun flux automatique n’existe pour ce fournisseur.",
+        "data": {
+          "supplier_custom_name": "Nom affiché du fournisseur"
+        },
+        "data_description": {
+          "supplier_custom_name": "Obligatoire. Le nom commercial ou une abréviation suffisent."
+        }
+      },
       "tariff_mode": {
         "title": "Mode de récupération tarifaire",
         "description": "Choisissez comment les tarifs doivent être configurés.",
@@ -64,10 +74,14 @@
       },
       "manual_pricing": {
         "title": "Structure tarifaire",
+        "description": "Choisissez comment modéliser votre tarif manuel. L’option doit correspondre à la structure de votre facturation.",
         "data": {
           "pricing_structure": "Type de tarification",
           "price_basis": "Les prix sont",
           "currency": "Devise"
+        },
+        "data_description": {
+          "pricing_structure": "Tarif unique : un seul prix au kWh. Heures creuses / pleines : plages horaires avec prix différents (comme HC/HP). Avancé : créneaux selon le type de jour."
         }
       },
       "manual_flat": {
@@ -95,37 +109,45 @@
       "manual_schedule_form": {
         "title": "Planning avancé — formulaire",
         "description": "Une ligne par créneau (6 max). Laissez les lignes inutilisées vides. Voir {doc_url} pour les plages après minuit et les types de jour.",
+        "sections": {
+          "sched_slot_0": {"name": "Créneau 1"},
+          "sched_slot_1": {"name": "Créneau 2"},
+          "sched_slot_2": {"name": "Créneau 3"},
+          "sched_slot_3": {"name": "Créneau 4"},
+          "sched_slot_4": {"name": "Créneau 5"},
+          "sched_slot_5": {"name": "Créneau 6"}
+        },
         "data": {
-          "sched_r0_start": "Créneau 1 — début",
-          "sched_r0_end": "Créneau 1 — fin",
-          "sched_r0_price": "Créneau 1 — prix (par kWh)",
-          "sched_r0_day_type": "Créneau 1 — type de jour",
-          "sched_r0_name": "Créneau 1 — libellé (optionnel)",
-          "sched_r1_start": "Créneau 2 — début",
-          "sched_r1_end": "Créneau 2 — fin",
-          "sched_r1_price": "Créneau 2 — prix (par kWh)",
-          "sched_r1_day_type": "Créneau 2 — type de jour",
-          "sched_r1_name": "Créneau 2 — libellé (optionnel)",
-          "sched_r2_start": "Créneau 3 — début",
-          "sched_r2_end": "Créneau 3 — fin",
-          "sched_r2_price": "Créneau 3 — prix (par kWh)",
-          "sched_r2_day_type": "Créneau 3 — type de jour",
-          "sched_r2_name": "Créneau 3 — libellé (optionnel)",
-          "sched_r3_start": "Créneau 4 — début",
-          "sched_r3_end": "Créneau 4 — fin",
-          "sched_r3_price": "Créneau 4 — prix (par kWh)",
-          "sched_r3_day_type": "Créneau 4 — type de jour",
-          "sched_r3_name": "Créneau 4 — libellé (optionnel)",
-          "sched_r4_start": "Créneau 5 — début",
-          "sched_r4_end": "Créneau 5 — fin",
-          "sched_r4_price": "Créneau 5 — prix (par kWh)",
-          "sched_r4_day_type": "Créneau 5 — type de jour",
-          "sched_r4_name": "Créneau 5 — libellé (optionnel)",
-          "sched_r5_start": "Créneau 6 — début",
-          "sched_r5_end": "Créneau 6 — fin",
-          "sched_r5_price": "Créneau 6 — prix (par kWh)",
-          "sched_r5_day_type": "Créneau 6 — type de jour",
-          "sched_r5_name": "Créneau 6 — libellé (optionnel)",
+          "sched_r0_start": "Début",
+          "sched_r0_end": "Fin",
+          "sched_r0_price": "Prix énergie (par kWh)",
+          "sched_r0_day_type": "Type de jour",
+          "sched_r0_name": "Libellé (optionnel)",
+          "sched_r1_start": "Début",
+          "sched_r1_end": "Fin",
+          "sched_r1_price": "Prix énergie (par kWh)",
+          "sched_r1_day_type": "Type de jour",
+          "sched_r1_name": "Libellé (optionnel)",
+          "sched_r2_start": "Début",
+          "sched_r2_end": "Fin",
+          "sched_r2_price": "Prix énergie (par kWh)",
+          "sched_r2_day_type": "Type de jour",
+          "sched_r2_name": "Libellé (optionnel)",
+          "sched_r3_start": "Début",
+          "sched_r3_end": "Fin",
+          "sched_r3_price": "Prix énergie (par kWh)",
+          "sched_r3_day_type": "Type de jour",
+          "sched_r3_name": "Libellé (optionnel)",
+          "sched_r4_start": "Début",
+          "sched_r4_end": "Fin",
+          "sched_r4_price": "Prix énergie (par kWh)",
+          "sched_r4_day_type": "Type de jour",
+          "sched_r4_name": "Libellé (optionnel)",
+          "sched_r5_start": "Début",
+          "sched_r5_end": "Fin",
+          "sched_r5_price": "Prix énergie (par kWh)",
+          "sched_r5_day_type": "Type de jour",
+          "sched_r5_name": "Libellé (optionnel)",
           "subscription_price": "Abonnement mensuel"
         }
       },
@@ -635,6 +657,34 @@
     },
     "error": {
       "tariff_fetch_failed": "Échec de la récupération des tarifs. Vérifiez l'offre, le kVA et le réseau."
+    }
+  },
+  "selector": {
+    "pricing_structure": {
+      "options": {
+        "flat": "Tarif unique — un seul prix au kWh",
+        "time_of_use": "Heures pleines / creuses — plusieurs plages avec des prix différents (type HC/HP)",
+        "schedule": "Planning avancé — créneaux par type de jour (semaine, week-end, …)"
+      }
+    },
+    "schedule_day_type": {
+      "options": {
+        "all": "Tous les jours",
+        "weekdays": "Semaine (lun–ven)",
+        "weekends": "Week-end (sam–dim)"
+      }
+    },
+    "grid_tri_energy_mode": {
+      "options": {
+        "single": "Un seul compteur pour toutes les phases (import total)",
+        "per_phase": "Un compteur d'import par phase (somme L1+L2+L3 par l'intégration)"
+      }
+    },
+    "grid_tri_sensor_layout": {
+      "options": {
+        "total": "Un capteur pour toutes les phases (JSON)",
+        "per_phase": "Un capteur par phase (étape par étape)"
+      }
     }
   },
   "entity": {

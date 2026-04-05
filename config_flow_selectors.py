@@ -30,20 +30,13 @@ from .const import (
     BATT_SIGN_POSITIVE_CHARGE,
     BATT_SIGN_POSITIVE_DISCHARGE,
     CONTRACT_POWER_OPTIONS,
-    DAY_TYPE_ALL,
-    DAY_TYPE_WEEKDAYS,
-    DAY_TYPE_WEEKENDS,
+    DAY_TYPE_OPTIONS,
     GRID_POWER_SIGN_OPTIONS,
     PHASE_OPTIONS,
     PRICE_BASIS_OPTIONS,
-    TRI_GRID_ENERGY_PER_PHASE,
-    TRI_GRID_ENERGY_SINGLE,
+    TRI_GRID_ENERGY_OPTIONS,
     TRI_GRID_SENSOR_OPTIONS,
-    TRI_GRID_SENSOR_PER_PHASE,
-    TRI_GRID_SENSOR_TOTAL,
-    PRICING_FLAT,
-    PRICING_SCHEDULE,
-    PRICING_TIME_OF_USE,
+    PRICING_OPTIONS,
     SOLAR_PERF_OPTIONS,
     SOLAR_SHADING_OPTIONS,
     SOLAR_TILT_AUTO,
@@ -182,17 +175,9 @@ def phase_selector() -> SelectSelector:
 def tri_grid_sensor_layout_selector() -> SelectSelector:
     return SelectSelector(
         SelectSelectorConfig(
-            options=[
-                SelectOptionDict(
-                    value=TRI_GRID_SENSOR_TOTAL,
-                    label="One sensor for all phases (JSON)",
-                ),
-                SelectOptionDict(
-                    value=TRI_GRID_SENSOR_PER_PHASE,
-                    label="One sensor per phase (step-by-step)",
-                ),
-            ],
+            options=list(TRI_GRID_SENSOR_OPTIONS),
             mode=SelectSelectorMode.DROPDOWN,
+            translation_key="grid_tri_sensor_layout",
         )
     )
 
@@ -200,17 +185,9 @@ def tri_grid_sensor_layout_selector() -> SelectSelector:
 def tri_grid_energy_mode_selector() -> SelectSelector:
     return SelectSelector(
         SelectSelectorConfig(
-            options=[
-                SelectOptionDict(
-                    value=TRI_GRID_ENERGY_SINGLE,
-                    label="One meter for all phases (total import)",
-                ),
-                SelectOptionDict(
-                    value=TRI_GRID_ENERGY_PER_PHASE,
-                    label="One import meter per phase (summed by the integration)",
-                ),
-            ],
+            options=list(TRI_GRID_ENERGY_OPTIONS),
             mode=SelectSelectorMode.DROPDOWN,
+            translation_key="grid_tri_energy_mode",
         )
     )
 
@@ -265,12 +242,9 @@ def offer_selector() -> SelectSelector:
 def schedule_day_type_selector() -> SelectSelector:
     return SelectSelector(
         SelectSelectorConfig(
-            options=[
-                SelectOptionDict(value=DAY_TYPE_ALL, label="All days"),
-                SelectOptionDict(value=DAY_TYPE_WEEKDAYS, label="Weekdays"),
-                SelectOptionDict(value=DAY_TYPE_WEEKENDS, label="Weekends"),
-            ],
+            options=list(DAY_TYPE_OPTIONS),
             mode=SelectSelectorMode.DROPDOWN,
+            translation_key="schedule_day_type",
         )
     )
 
@@ -282,12 +256,9 @@ def time_slot_selector() -> TextSelector:
 def pricing_structure_selector() -> SelectSelector:
     return SelectSelector(
         SelectSelectorConfig(
-            options=[
-                SelectOptionDict(value=PRICING_FLAT, label="Flat"),
-                SelectOptionDict(value=PRICING_TIME_OF_USE, label="Time of use"),
-                SelectOptionDict(value=PRICING_SCHEDULE, label="Advanced schedule"),
-            ],
+            options=list(PRICING_OPTIONS),
             mode=SelectSelectorMode.DROPDOWN,
+            translation_key="pricing_structure",
         )
     )
 
@@ -376,11 +347,14 @@ def batt_net_sign_selector() -> SelectSelector:
     )
 
 
-def text_selector(*, multiline: bool = False, password: bool = False) -> TextSelector:
+def text_selector(
+    *, multiline: bool = False, password: bool = False, placeholder: str | None = None
+) -> TextSelector:
     selector_type = TextSelectorType.PASSWORD if password else TextSelectorType.TEXT
-    return TextSelector(
-        TextSelectorConfig(type=selector_type, multiline=multiline)
-    )
+    cfg_kw: dict = {"type": selector_type, "multiline": multiline}
+    if placeholder is not None:
+        cfg_kw["placeholder"] = placeholder
+    return TextSelector(TextSelectorConfig(**cfg_kw))
 
 
 def default_tou_json() -> str:

@@ -4,7 +4,7 @@ A Home Assistant custom integration for energy monitoring, cost tracking, and di
 
 It targets generic supplier and tariff setups, multi-battery systems, solar PV estimation (optional), and three-phase grid support.
 
-**Home Assistant:** 2024.6.0 or newer (see `manifest.json`). **HACS:** the repo is structured for HACS (`hacs.json` with `content_in_root`, `brand/icon.png` per [HACS integration requirements](https://hacs.xyz/docs/publish/integration/)).
+**Home Assistant:** 2024.10.0 or newer (see `manifest.json`). **HACS:** the repo is structured for HACS (`hacs.json` with `content_in_root`, `brand/icon.png` per [HACS integration requirements](https://hacs.xyz/docs/publish/integration/)).
 
 ## Supported scope (v0.2.x)
 

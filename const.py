@@ -120,6 +120,8 @@ CONF_TOU_PERIODS: Final = "tou_periods"
 CONF_SCHEDULE_SLOTS: Final = "schedule_slots"
 # Fixed rows in the config-flow form (add/remove is not supported by the HA schema).
 SCHEDULE_FORM_MAX_SLOTS: Final = 6
+# ``section()`` keys in ``manual_schedule_form`` (visual grouping in the UI).
+SCHEDULE_FORM_SECTION_PREFIX: Final = "sched_slot_"
 DOCUMENTATION_ADVANCED_SCHEDULE_SLOTS_URL: Final = (
     "https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/blob/master/docs/advanced-schedule-slots.md"
 )

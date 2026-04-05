@@ -12,6 +12,7 @@ from aiohttp import ClientError
 
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.data_entry_flow import section
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
     BooleanSelector,
@@ -118,6 +119,7 @@ from .const import (
     DAY_TYPE_ALL,
     DOCUMENTATION_ADVANCED_SCHEDULE_SLOTS_URL,
     SCHEDULE_FORM_MAX_SLOTS,
+    SCHEDULE_FORM_SECTION_PREFIX,
     CONF_SOLAR_ENERGY,
     CONF_SOLAR_ESTIMATION_ENABLED,
     CONF_SOLAR_EXPORT_TARIFF,
@@ -301,19 +303,25 @@ def _manual_schedule_form_schema(draft: dict[str, Any], currency: str) -> vol.Sc
     fields: dict[Any, Any] = {}
     for i in range(SCHEDULE_FORM_MAX_SLOTS):
         p = f"sched_r{i}_"
-        fields[vol.Optional(f"{p}start", default=dfn[f"{p}start"])] = time_slot_selector()
-        fields[vol.Optional(f"{p}end", default=dfn[f"{p}end"])] = time_slot_selector()
-        fields[vol.Optional(f"{p}price", default=dfn[f"{p}price"])] = NumberSelector(
-            NumberSelectorConfig(
-                min=0,
-                max=5,
-                step=0.01,
-                mode=NumberSelectorMode.BOX,
-                unit_of_measurement=f"{currency}/kWh",
-            )
+        inner: dict[Any, Any] = {
+            vol.Optional(f"{p}start", default=dfn[f"{p}start"]): time_slot_selector(),
+            vol.Optional(f"{p}end", default=dfn[f"{p}end"]): time_slot_selector(),
+            vol.Optional(f"{p}price", default=dfn[f"{p}price"]): NumberSelector(
+                NumberSelectorConfig(
+                    min=0,
+                    max=5,
+                    step=0.01,
+                    mode=NumberSelectorMode.BOX,
+                    unit_of_measurement=f"{currency}/kWh",
+                )
+            ),
+            vol.Optional(f"{p}day_type", default=dfn[f"{p}day_type"]): schedule_day_type_selector(),
+            vol.Optional(f"{p}name", default=dfn[f"{p}name"]): text_selector(),
+        }
+        fields[vol.Required(f"{SCHEDULE_FORM_SECTION_PREFIX}{i}")] = section(
+            vol.Schema(inner),
+            {"collapsed": False},
         )
-        fields[vol.Optional(f"{p}day_type", default=dfn[f"{p}day_type"])] = schedule_day_type_selector()
-        fields[vol.Optional(f"{p}name", default=dfn[f"{p}name"])] = text_selector()
     fields[vol.Optional(CONF_SUBSCRIPTION_PRICE, default=draft.get(CONF_SUBSCRIPTION_PRICE, 0.0))] = NumberSelector(
         NumberSelectorConfig(
             min=0,
@@ -793,7 +801,12 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="supplier_custom",
             data_schema=vol.Schema(
-                {vol.Required(CONF_SUPPLIER_CUSTOM_NAME, default=self._data.get(CONF_SUPPLIER_CUSTOM_NAME, "")): text_selector()}
+                {
+                    vol.Required(
+                        CONF_SUPPLIER_CUSTOM_NAME,
+                        default=self._data.get(CONF_SUPPLIER_CUSTOM_NAME, ""),
+                    ): text_selector(placeholder="ENGIE"),
+                }
             ),
             errors=errors,
         )

@@ -97,6 +97,7 @@ from .const import (
     PRICING_OPTIONS,
     PRICING_SCHEDULE,
     SCHEDULE_FORM_MAX_SLOTS,
+    SCHEDULE_FORM_SECTION_PREFIX,
     PRICING_TIME_OF_USE,
     SOLAR_PERF_OPTIONS,
     TRI_GRID_ENERGY_OPTIONS,
@@ -323,10 +324,28 @@ def _validate_time(value: Any, errors: dict[str, str], field: str) -> str | None
     return cleaned
 
 
+def _flatten_schedule_form_input(user_input: Mapping[str, Any]) -> dict[str, Any]:
+    """Expand ``sched_slot_N`` section payloads to flat ``sched_r*`` keys (HA ``section()``)."""
+    if not any(f"{SCHEDULE_FORM_SECTION_PREFIX}{i}" in user_input for i in range(SCHEDULE_FORM_MAX_SLOTS)):
+        return dict(user_input)
+    flat: dict[str, Any] = {}
+    for i in range(SCHEDULE_FORM_MAX_SLOTS):
+        key = f"{SCHEDULE_FORM_SECTION_PREFIX}{i}"
+        block = user_input.get(key)
+        if isinstance(block, dict):
+            flat.update(block)
+    for k, v in user_input.items():
+        if isinstance(k, str) and k.startswith(SCHEDULE_FORM_SECTION_PREFIX):
+            continue
+        flat[k] = v
+    return flat
+
+
 def _schedule_items_from_form_input(
     user_input: Mapping[str, Any], errors: dict[str, str]
 ) -> list[dict[str, Any]] | None:
     """Build slot dicts from ``sched_r{i}_*`` form keys; skip empty rows."""
+    user_input = _flatten_schedule_form_input(user_input)
     rows: list[dict[str, Any]] = []
     for i in range(SCHEDULE_FORM_MAX_SLOTS):
         p = f"sched_r{i}_"

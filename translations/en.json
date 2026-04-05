@@ -14,6 +14,16 @@
           "phase_type": "Single-phase (mono) or three-phase (tri) installation."
         }
       },
+      "supplier_custom": {
+        "title": "Custom supplier",
+        "description": "You chose Other as your energy supplier. Enter a short name for dashboards and entity labels (for example the name on your bill). Tariffs are entered manually when there is no automatic feed for this provider.",
+        "data": {
+          "supplier_custom_name": "Supplier display name"
+        },
+        "data_description": {
+          "supplier_custom_name": "Required. A brand name or abbreviation is enough."
+        }
+      },
       "tariff_mode": {
         "title": "Tariff retrieval mode",
         "description": "Choose how tariffs should be configured.",
@@ -64,10 +74,14 @@
       },
       "manual_pricing": {
         "title": "Pricing structure",
+        "description": "Choose how your manual tariff is modeled. Pick the option that best matches how your bill is structured.",
         "data": {
           "pricing_structure": "Pricing type",
           "price_basis": "Prices are",
           "currency": "Currency"
+        },
+        "data_description": {
+          "pricing_structure": "Single rate: one kWh price. Peak/off-peak: time windows with different prices (e.g. off-peak nights). Advanced: slots per day type."
         }
       },
       "manual_flat": {
@@ -95,37 +109,45 @@
       "manual_schedule_form": {
         "title": "Advanced schedule — form",
         "description": "Fill one row per slot (up to 6). Leave unused rows empty. See {doc_url} for midnight ranges and day types.",
+        "sections": {
+          "sched_slot_0": {"name": "Time slot 1"},
+          "sched_slot_1": {"name": "Time slot 2"},
+          "sched_slot_2": {"name": "Time slot 3"},
+          "sched_slot_3": {"name": "Time slot 4"},
+          "sched_slot_4": {"name": "Time slot 5"},
+          "sched_slot_5": {"name": "Time slot 6"}
+        },
         "data": {
-          "sched_r0_start": "Slot 1 — start",
-          "sched_r0_end": "Slot 1 — end",
-          "sched_r0_price": "Slot 1 — price (per kWh)",
-          "sched_r0_day_type": "Slot 1 — day type",
-          "sched_r0_name": "Slot 1 — label (optional)",
-          "sched_r1_start": "Slot 2 — start",
-          "sched_r1_end": "Slot 2 — end",
-          "sched_r1_price": "Slot 2 — price (per kWh)",
-          "sched_r1_day_type": "Slot 2 — day type",
-          "sched_r1_name": "Slot 2 — label (optional)",
-          "sched_r2_start": "Slot 3 — start",
-          "sched_r2_end": "Slot 3 — end",
-          "sched_r2_price": "Slot 3 — price (per kWh)",
-          "sched_r2_day_type": "Slot 3 — day type",
-          "sched_r2_name": "Slot 3 — label (optional)",
-          "sched_r3_start": "Slot 4 — start",
-          "sched_r3_end": "Slot 4 — end",
-          "sched_r3_price": "Slot 4 — price (per kWh)",
-          "sched_r3_day_type": "Slot 4 — day type",
-          "sched_r3_name": "Slot 4 — label (optional)",
-          "sched_r4_start": "Slot 5 — start",
-          "sched_r4_end": "Slot 5 — end",
-          "sched_r4_price": "Slot 5 — price (per kWh)",
-          "sched_r4_day_type": "Slot 5 — day type",
-          "sched_r4_name": "Slot 5 — label (optional)",
-          "sched_r5_start": "Slot 6 — start",
-          "sched_r5_end": "Slot 6 — end",
-          "sched_r5_price": "Slot 6 — price (per kWh)",
-          "sched_r5_day_type": "Slot 6 — day type",
-          "sched_r5_name": "Slot 6 — label (optional)",
+          "sched_r0_start": "Start",
+          "sched_r0_end": "End",
+          "sched_r0_price": "Energy price (per kWh)",
+          "sched_r0_day_type": "Day type",
+          "sched_r0_name": "Label (optional)",
+          "sched_r1_start": "Start",
+          "sched_r1_end": "End",
+          "sched_r1_price": "Energy price (per kWh)",
+          "sched_r1_day_type": "Day type",
+          "sched_r1_name": "Label (optional)",
+          "sched_r2_start": "Start",
+          "sched_r2_end": "End",
+          "sched_r2_price": "Energy price (per kWh)",
+          "sched_r2_day_type": "Day type",
+          "sched_r2_name": "Label (optional)",
+          "sched_r3_start": "Start",
+          "sched_r3_end": "End",
+          "sched_r3_price": "Energy price (per kWh)",
+          "sched_r3_day_type": "Day type",
+          "sched_r3_name": "Label (optional)",
+          "sched_r4_start": "Start",
+          "sched_r4_end": "End",
+          "sched_r4_price": "Energy price (per kWh)",
+          "sched_r4_day_type": "Day type",
+          "sched_r4_name": "Label (optional)",
+          "sched_r5_start": "Start",
+          "sched_r5_end": "End",
+          "sched_r5_price": "Energy price (per kWh)",
+          "sched_r5_day_type": "Day type",
+          "sched_r5_name": "Label (optional)",
           "subscription_price": "Monthly subscription"
         }
       },
@@ -635,6 +657,34 @@
     },
     "error": {
       "tariff_fetch_failed": "Failed to fetch tariffs. Check offer, kVA, and network."
+    }
+  },
+  "selector": {
+    "pricing_structure": {
+      "options": {
+        "flat": "Single rate — one price per kWh",
+        "time_of_use": "Peak / off-peak — several time bands with different prices (HC/HP style)",
+        "schedule": "Advanced schedule — slots by day type (weekday, weekend, …)"
+      }
+    },
+    "schedule_day_type": {
+      "options": {
+        "all": "All days",
+        "weekdays": "Weekdays (Mon–Fri)",
+        "weekends": "Weekends (Sat–Sun)"
+      }
+    },
+    "grid_tri_energy_mode": {
+      "options": {
+        "single": "One meter for all phases (total import)",
+        "per_phase": "One import meter per phase (summed by the integration)"
+      }
+    },
+    "grid_tri_sensor_layout": {
+      "options": {
+        "total": "One sensor for all phases (JSON)",
+        "per_phase": "One sensor per phase (step-by-step)"
+      }
     }
   },
   "entity": {

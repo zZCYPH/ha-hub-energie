@@ -387,6 +387,23 @@ def test_manual_schedule_form_valid() -> None:
     assert patch[const.CONF_SCHEDULE_SLOTS][0]["name"] == "HP"
 
 
+def test_manual_schedule_form_valid_nested_sections() -> None:
+    """``section()`` payloads (sched_slot_N) flatten to the same validation as flat keys."""
+    ui = {
+        f"{const.SCHEDULE_FORM_SECTION_PREFIX}0": {
+            "sched_r0_start": "06:00",
+            "sched_r0_end": "22:00",
+            "sched_r0_price": 0.18,
+            "sched_r0_day_type": const.DAY_TYPE_WEEKDAYS,
+            "sched_r0_name": "HP",
+        },
+        const.CONF_SUBSCRIPTION_PRICE: 0.0,
+    }
+    patch, errors = HubEnergieConfigValidator.validate_step("manual_schedule_form", {}, ui)
+    assert errors == {}
+    assert patch[const.CONF_SCHEDULE_SLOTS][0]["name"] == "HP"
+
+
 def test_manual_schedule_form_incomplete_row() -> None:
     ui = {
         "sched_r0_start": "06:00",

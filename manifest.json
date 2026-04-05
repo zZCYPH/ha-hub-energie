@@ -5,7 +5,7 @@
   "config_flow": true,
   "dependencies": ["recorder", "http", "frontend"],
   "documentation": "https://gitlab.com/zzcyph1/home-assistant/hub-energie",
-  "homeassistant": "2024.6.0",
+  "homeassistant": "2024.10.0",
   "integration_type": "hub",
   "iot_class": "local_polling",
   "issue_tracker": "https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/issues",
