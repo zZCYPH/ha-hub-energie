@@ -75,9 +75,9 @@ After copying or cloning:
 
 ## Lovelace Card
 
-The integration serves only the Vite build output (`frontend/dist/`) at `/hub_energie/` and registers the card automatically at `/hub_energie/hub-energie-card.js`.
+The Vite bundle is written to `frontend/dist/` on disk, but Home Assistant serves those files at the **`/hub_energie/`** URL root: the static route maps the `dist` directory to `/hub_energie/`, so the public module URL is **`/hub_energie/hub-energie-card.js`**, not `/hub_energie/dist/hub-energie-card.js`. The integration registers this URL automatically.
 
-If you add the resource manually, use that same URL (single bundled module):
+If you add the resource manually, use the same URL (single bundled module):
 
 ```yaml
 resources:
@@ -85,7 +85,7 @@ resources:
     type: module
 ```
 
-**Upgrade note:** if you previously used `/hub_energie/dist/hub-energie-card.js`, change it to `/hub_energie/hub-energie-card.js` and remove the old dashboard resource entry (the `/dist/` path no longer exists).
+**Legacy dashboards:** if an older resource still points at `/hub_energie/dist/hub-energie-card.js`, remove it and add `/hub_energie/hub-energie-card.js` instead; the `/dist/` URL is not served.
 
 Then add a card:
 

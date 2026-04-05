@@ -12,6 +12,10 @@ omit =
     */__init__.py
     __init__.py
     # --- Home Assistant glue (UI, lifecycle, listeners) ---
+    # coordinator.py: still where enriched snapshot trust/input is *wired* (_build_snapshot:
+    # TrustInputs assembly, probe + derive_input_status, delta fields). Core rules are measured
+    # elsewhere: energy/trust_level.py, utils/input_availability.py, energy/delta_observability.py,
+    # snapshot/pipeline.py, snapshot/snapshot_builder.py. If assembly grows, extract or add tests.
     sensor.py
     binary_sensor.py
     config_flow.py
