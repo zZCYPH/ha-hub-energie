@@ -147,6 +147,7 @@ class PersistenceManager:
                 safe_float=self._safe_float,
             )
             loaded_from_store = True
+            self._warn_if_missing_lts_floor_after_hydrate(raw_loaded)
         else:
             if raw_loaded:
                 self._logger.warning("Invalid Store payload detected; rebuilding from recorder fallback")
@@ -182,6 +183,24 @@ class PersistenceManager:
                 self.schedule_save_locked()
             await self.flush_pending_store_save()
         return loaded_from_store, recorder_rebuild_ran
+
+    def _warn_if_missing_lts_floor_after_hydrate(self, raw_loaded: Any) -> None:
+        """Observability: prior stats writes recorded but LTS cumulative floor not restored."""
+        if isinstance(raw_loaded, dict) and "model_version" not in raw_loaded:
+            return
+        if (
+            not self._runtime_state.written_stats_days
+            or self._runtime_state.lts_cumulative_kwh_by_statistic_id
+        ):
+            return
+        self._logger.warning(
+            "%s [%s]: lts_cumulative_kwh_by_statistic_id is empty while written_stats_days "
+            "records prior external statistics writes. Recorder long-term sums may show a "
+            "discontinuity versus earlier history (e.g. missing or cleared store field); "
+            "integration continues.",
+            self._domain,
+            self._entry.entry_id,
+        )
 
     def _store_payload(self) -> dict[str, Any]:
         return self._runtime_state.export_store_payload(store_manager=self._store_manager)

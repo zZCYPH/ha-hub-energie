@@ -12,6 +12,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import pytest
+
 HUB_DIR = Path(__file__).resolve().parents[1]
 
 
@@ -409,6 +411,100 @@ def test_save_writes_store_snapshot() -> None:
     asyncio.run(_run())
     assert saves and saves[0].get("model_version") == 1
     assert "grid" in saves[0].get("totals_kwh_by_source", {})
+
+
+def test_load_warns_when_written_stats_but_missing_lts_floor(caplog: pytest.LogCaptureFixture) -> None:
+    caplog.set_level(logging.WARNING)
+    stats_mod = sys.modules["homeassistant.components.recorder.statistics"]
+    stats_mod._captured_external.clear()
+    payload = _v1_payload(day="2026-04-01", bleu_hp=2.0, written=["2026-01-15"])
+    assert payload.get("lts_cumulative_kwh_by_statistic_id") == {}
+
+    class _MemStore:
+        def __init__(self, _h: object, _v: int, _k: str) -> None:
+            pass
+
+        async def async_load(self) -> dict:
+            return payload
+
+        async def async_save(self, _data: dict) -> None:
+            return None
+
+    class _FixedParis(paris_time_mod.ParisTime):
+        @staticmethod
+        def today() -> str:
+            return "2026-04-02"
+
+        @staticmethod
+        def yesterday() -> str:
+            return "2026-04-01"
+
+        @staticmethod
+        def now():
+            return datetime(2026, 4, 2, 14, 0, 0, tzinfo=PARIS_TZ)
+
+    rs = _make_runtime_state()
+
+    async def _run() -> None:
+        with patch.object(persistence_mod, "Store", _MemStore):
+            with patch.object(persistence_mod, "ParisTime", _FixedParis):
+                pm = _pm(rs)
+                await pm.load()
+
+    asyncio.run(_run())
+    assert any("discontinuity" in r.message for r in caplog.records)
+    assert any("test-entry" in r.message for r in caplog.records)
+
+
+def test_load_no_lts_floor_warning_on_legacy_first_migration(caplog: pytest.LogCaptureFixture) -> None:
+    caplog.set_level(logging.WARNING)
+    stats_mod = sys.modules["homeassistant.components.recorder.statistics"]
+    stats_mod._captured_external.clear()
+    legacy_raw = {
+        "accum": {
+            "2026-04-01": {
+                "grid": {s: (1.0 if s == "bleu_hp" else 0.0) for s in SLOTS},
+            }
+        },
+        "last_raw": {"sensor.grid_energy": 99.5},
+        "written_stats_days": ["2026-04-01"],
+    }
+
+    class _MemStore:
+        def __init__(self, _h: object, _v: int, _k: str) -> None:
+            pass
+
+        async def async_load(self) -> dict:
+            return legacy_raw
+
+        async def async_save(self, _data: dict) -> None:
+            return None
+
+    class _FixedParis(paris_time_mod.ParisTime):
+        @staticmethod
+        def today() -> str:
+            return "2026-04-03"
+
+        @staticmethod
+        def yesterday() -> str:
+            return "2026-04-02"
+
+        @staticmethod
+        def now():
+            return datetime(2026, 4, 3, 14, 0, 0, tzinfo=PARIS_TZ)
+
+    rs = _make_runtime_state()
+
+    async def _run() -> None:
+        with patch.object(persistence_mod, "Store", _MemStore):
+            with patch.object(persistence_mod, "ParisTime", _FixedParis):
+                pm = _pm(rs)
+                loaded, _rebuilt = await pm.load()
+        assert loaded is True
+
+    asyncio.run(_run())
+    assert not any("discontinuity" in r.message for r in caplog.records)
+    assert not rs.lts_cumulative_kwh_by_statistic_id
 
 
 def test_write_statistics_partial_failure_leaves_day_unmarked() -> None:
