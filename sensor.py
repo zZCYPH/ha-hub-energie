@@ -143,6 +143,9 @@ from .const import (
     DATA_DELTA_TELEMETRY,
     DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY,
     DATA_SECONDS_SINCE_LAST_APPLIED_DELTA,
+    DATA_TRUST_CAUSE,
+    DATA_TRUST_CAUSE_CODE,
+    DATA_TRUST_LEVEL,
     DOMAIN,
     INTEGRATION_TITLE,
     LOGIC_VERSION,
@@ -1356,11 +1359,14 @@ class HubEnergieNextHcStartSensor(CoordinatorEntity[HubEnergieCoordinator], Sens
 
 
 class HubEnergieHealthSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
-    """Simple health: ok / warning."""
+    """Synthetic trust level from telemetry, drift, tariff readiness, and store rebuild."""
 
     _attr_has_entity_name = True
     _attr_should_poll = False
     _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_translation_key = "health"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = ("ok", "degraded", "rebuilding", "inconsistent")
 
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
@@ -1371,14 +1377,11 @@ class HubEnergieHealthSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnt
     @property
     def native_value(self) -> str:
         data = self.coordinator.data
-        c = self.coordinator
-        if data and data.get(DATA_DATA_QUALITY) == "degraded":
-            return "warning"
-        if c.is_edf and c.tariff_offer == TARIFF_OFFER_TEMPO:
-            if c.tempo_mode == TEMPO_MODE_RTE and not c.tempo_rte_calendar_ready:
-                return "warning"
-        if data and not c.get_current_slot():
-            return "warning"
+        if not data:
+            return "ok"
+        raw = data.get(DATA_TRUST_LEVEL)
+        if raw in self._attr_options:
+            return str(raw)
         return "ok"
 
     @property
@@ -1389,6 +1392,9 @@ class HubEnergieHealthSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnt
             DATA_CURRENT_SLOT: data.get(DATA_CURRENT_SLOT),
             DATA_LOGIC_VERSION: data.get(DATA_LOGIC_VERSION, LOGIC_VERSION),
             DATA_DATA_QUALITY: data.get(DATA_DATA_QUALITY),
+            DATA_TRUST_LEVEL: data.get(DATA_TRUST_LEVEL),
+            DATA_TRUST_CAUSE_CODE: data.get(DATA_TRUST_CAUSE_CODE),
+            DATA_TRUST_CAUSE: data.get(DATA_TRUST_CAUSE),
             DATA_DELTA_DISCARDS: data.get(DATA_DELTA_DISCARDS, {}),
             DATA_DELTA_TELEMETRY: data.get(DATA_DELTA_TELEMETRY, {}),
             DATA_DELTA_LAST_REJECTION: data.get(DATA_DELTA_LAST_REJECTION, {}),

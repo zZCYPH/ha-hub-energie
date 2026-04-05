@@ -129,6 +129,9 @@ from .const import (
     DATA_DELTA_TELEMETRY,
     DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY,
     DATA_SECONDS_SINCE_LAST_APPLIED_DELTA,
+    DATA_TRUST_CAUSE,
+    DATA_TRUST_CAUSE_CODE,
+    DATA_TRUST_LEVEL,
     DATA_OFFER,
     DIAG_CAUSE_BATTERY_FULL_OR_ABSENT,
     DIAG_CAUSE_SOLAR_SURPLUS,
@@ -155,6 +158,7 @@ from .const import (
 from .diagnostics.reinjection_state import ReinjectionState
 from .energy.delta_observability import seconds_since_last_applied_delta
 from .energy.delta_policy import DeltaPolicy
+from .energy.trust_level import TrustInputs, compute_trust
 from .ha.reader import HAReader
 from .runtime.events import create_state_changed_handler
 from .runtime.persistence import PersistenceManager
@@ -307,6 +311,9 @@ class EnergyData(TypedDict, total=False):
     delta_last_rejection: dict[str, dict[str, Any]]
     grid_unknown_bucket_kwh_today: float
     seconds_since_last_applied_delta: float | None
+    trust_level: str
+    trust_cause_code: str
+    trust_cause: str
 
 
 class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
@@ -339,6 +346,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             reinjection_state=self._reinjection_state,
         )
         self._delta_policy = DeltaPolicy()
+        self._trust_rebuilding_after_recorder = False
 
         self._persistence = PersistenceManager(
             hass=self.hass,
@@ -539,7 +547,8 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             return DEFAULT_TARIFF_REFRESH_HOURS
 
     async def async_setup(self) -> None:
-        await self._persistence.load()
+        _, rebuilt = await self._persistence.load()
+        self._trust_rebuilding_after_recorder = rebuilt
         self._tariff = self._build_tariff_resolver()
         self.entry.async_on_unload(
             self.hass.bus.async_listen("state_changed", create_state_changed_handler(self))
@@ -830,6 +839,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
                 self._reinjection_state.mark_clean()
                 self._schedule_store_save_locked()
         self.async_update_listeners()
+        self._trust_rebuilding_after_recorder = False
         return snapshot
 
     def _compute_data_quality(self) -> str:
@@ -898,6 +908,30 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             self._runtime_state.delta_telemetry,
             now_utc=dt_util.utcnow(),
         )
+        slot_raw = snap.get(DATA_CURRENT_SLOT)
+        slot_str = str(slot_raw).strip() if slot_raw is not None else ""
+        trust = compute_trust(
+            TrustInputs(
+                post_recorder_rebuild_pending=self._trust_rebuilding_after_recorder,
+                delta_telemetry=snap[DATA_DELTA_TELEMETRY],
+                delta_discards=snap[DATA_DELTA_DISCARDS],
+                grid_unknown_bucket_kwh_today=float(snap[DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY]),
+                seconds_since_last_applied_delta=snap[DATA_SECONDS_SINCE_LAST_APPLIED_DELTA],
+                has_configured_energy_sources=bool(self._expected_source_keys()),
+                current_slot=slot_str if slot_str else None,
+                is_edf_tempo_rte_not_ready=(
+                    self.is_edf
+                    and self.tariff_offer == TARIFF_OFFER_TEMPO
+                    and self.tempo_mode == TEMPO_MODE_RTE
+                    and not self.tempo_rte_calendar_ready
+                ),
+                battery_data_quality=str(snap.get("battery_data_quality") or "ok"),
+                data_quality=str(snap[DATA_DATA_QUALITY]),
+            ),
+        )
+        snap[DATA_TRUST_LEVEL] = trust.level
+        snap[DATA_TRUST_CAUSE_CODE] = trust.cause_code
+        snap[DATA_TRUST_CAUSE] = trust.cause_message
         return cast(EnergyData, snap)
 
     async def async_manual_tariff_refresh(self) -> bool:

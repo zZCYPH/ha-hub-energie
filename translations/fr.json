@@ -636,5 +636,18 @@
     "error": {
       "tariff_fetch_failed": "Échec de la récupération des tarifs. Vérifiez l'offre, le kVA et le réseau."
     }
+  },
+  "entity": {
+    "sensor": {
+      "health": {
+        "name": "État général",
+        "state": {
+          "ok": "OK",
+          "degraded": "Dégradé",
+          "rebuilding": "Reconstruction",
+          "inconsistent": "Incohérent"
+        }
+      }
+    }
   }
 }

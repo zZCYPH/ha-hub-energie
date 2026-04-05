@@ -315,6 +315,13 @@ DATA_DELTA_LAST_REJECTION: Final = "delta_last_rejection"
 DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY: Final = "grid_unknown_bucket_kwh_today"
 DATA_SECONDS_SINCE_LAST_APPLIED_DELTA: Final = "seconds_since_last_applied_delta"
 
+# Trust / health sensor (heuristic thresholds; not physical guarantees).
+TRUST_DRIFT_INCONSISTENT_KWH: Final = 1.0
+TRUST_STALENESS_DEGRADED_SECONDS: Final = 6 * 3600
+DATA_TRUST_LEVEL: Final = "trust_level"
+DATA_TRUST_CAUSE_CODE: Final = "trust_cause_code"
+DATA_TRUST_CAUSE: Final = "trust_cause"
+
 OPT_BLEU_HC: Final = "bleu_hc"
 OPT_BLEU_HP: Final = "bleu_hp"
 OPT_BLANC_HC: Final = "blanc_hc"

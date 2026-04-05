@@ -14,7 +14,7 @@ It targets generic supplier and tariff setups, multi-battery systems, solar PV e
 - Positive energy deltas from `total_increasing` meter entities → internal slot-day accounting (Paris day) and integration-owned SSOT total sensors.
 - Daily cost estimate (€) from configured rates + subscription split; per-slot breakdown in attributes.
 - EDF Tempo helpers (when applicable): colours, quotas, next change timestamps.
-- Diagnostics: export / réinjection split, data quality, delta telemetry, unknown bucket and staleness sensors.
+- Diagnostics: export / réinjection split, data quality, delta telemetry, unknown bucket and staleness sensors; **overall health** sensor with synthetic **trust** states (`ok` / `degraded` / `rebuilding` / `inconsistent`) and a readable **cause**.
 - Optional clear-sky PV estimation and solar resale revenue line (when configured).
 - Lovelace card served from `/hub_energie/` after build.
 
@@ -47,7 +47,7 @@ Understanding what is authoritative avoids misconfiguring the Energy Dashboard o
 2. **Internal accounting** — The coordinator accumulates **positive deltas** from those entities into `totals_kwh_by_source` and per-day `slot_day_kwh` (including a dedicated `unknown` bucket when the tariff slot cannot be resolved without dropping energy). The integration’s **`total_increasing` SSOT sensors** reflect this internal sum, not a live re-read of the meter state each update.
 3. **Long-term per-slot kWh (daily)** — After each Paris day, the integration writes **external statistics** (`hub_energie:slot_<source>_<slot>_kwh`) via the recorder. Use these (or the physical meters) for historical analytics—not raw `cost_detail` attribute history, which is sampled and mixed with UI/diagnostic fields.
 
-Optional observability on the **health** and **`cost_detail`** sensors includes `data_quality`, `delta_telemetry`, and `delta_discards` (per-source last applied delta, gap, drift vs meter, attribution method).
+Optional observability on the **health** and **`cost_detail`** sensors includes synthetic **`trust_level`** / **`trust_cause`**, `data_quality`, `delta_telemetry`, and `delta_discards` (per-source last applied delta, gap, drift vs meter, attribution method).
 
 ## Installation
 

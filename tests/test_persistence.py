@@ -325,8 +325,9 @@ def test_load_from_store_hydrates_and_writes_yesterday_to_recorder() -> None:
         with patch.object(persistence_mod, "Store", _MemStore):
             with patch.object(persistence_mod, "ParisTime", _FixedParis):
                 pm = _pm(rs)
-                ok = await pm.load()
-        assert ok is True
+                loaded, rebuilt = await pm.load()
+        assert loaded is True
+        assert rebuilt is False
 
     asyncio.run(_run())
     assert rs.accum["2026-04-01"]["grid"]["bleu_hp"] == _norm(2.0)
@@ -372,7 +373,9 @@ def test_load_corrupt_store_rebuilds_from_recorder_rows() -> None:
             with patch.object(persistence_mod, "Store", _BadStore):
                 with patch.object(persistence_mod, "ParisTime", _ParisRebuild):
                     pm = _pm(rs)
-                    await pm.load()
+                    loaded, rebuilt = await pm.load()
+                    assert loaded is False
+                    assert rebuilt is True
 
         asyncio.run(_go())
     finally:

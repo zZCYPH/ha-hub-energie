@@ -2,6 +2,14 @@
 
 All notable changes to **Hub Énergie** are documented in this file.
 
+## Unreleased
+
+### Diagnostics / trust
+
+- **Breaking:** The diagnostic **`…_health`** sensor no longer uses state `warning`. It is now an **enum** with **`ok`**, **`degraded`**, **`rebuilding`**, and **`inconsistent`**. Update automations and dashboards accordingly.
+- Trust is computed from existing signals (data quality, delta telemetry and discards, unknown tariff bucket, staleness, Tempo RTE readiness, current slot, battery data quality, internal-vs-meter drift, and recorder store rebuild). Attributes **`trust_cause_code`** and **`trust_cause`** give a short primary reason; raw telemetry remains in the same entity attributes.
+- Coordinator snapshot includes **`trust_level`**, **`trust_cause_code`**, and **`trust_cause`** for reuse (e.g. Lovelace card).
+
 ## [0.2.2] — 2026-04-04
 
 ### Long-term statistics (recorder)

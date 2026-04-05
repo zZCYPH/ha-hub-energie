@@ -667,5 +667,18 @@
       "invalid_battery_choice": "Select a valid battery system.",
       "tariff_fetch_failed": "Failed to fetch tariffs. Check offer, kVA, and network."
     }
+  },
+  "entity": {
+    "sensor": {
+      "health": {
+        "name": "Overall health",
+        "state": {
+          "ok": "OK",
+          "degraded": "Degraded",
+          "rebuilding": "Rebuilding",
+          "inconsistent": "Inconsistent"
+        }
+      }
+    }
   }
 }

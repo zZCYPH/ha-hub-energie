@@ -636,5 +636,18 @@
     "error": {
       "tariff_fetch_failed": "Failed to fetch tariffs. Check offer, kVA, and network."
     }
+  },
+  "entity": {
+    "sensor": {
+      "health": {
+        "name": "Overall health",
+        "state": {
+          "ok": "OK",
+          "degraded": "Degraded",
+          "rebuilding": "Rebuilding",
+          "inconsistent": "Inconsistent"
+        }
+      }
+    }
   }
 }

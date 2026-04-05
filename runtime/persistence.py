@@ -128,13 +128,18 @@ class PersistenceManager:
             "lts_cumulative_kwh_by_statistic_id": {},
         }
 
-    async def load(self) -> bool:
+    async def load(self) -> tuple[bool, bool]:
+        """Return (loaded_from_store, recorder_rebuild_ran).
+
+        The second flag is True when the invalid-store path ran recorder rebuild fallback.
+        """
         raw_loaded = await self._store.async_load()
         migrated: dict[str, Any] | None = None
         if isinstance(raw_loaded, dict):
             migrated = self.migrate_legacy_store_payload(raw_loaded)
 
         loaded_from_store = False
+        recorder_rebuild_ran = False
         if isinstance(migrated, dict) and self.validate_payload(migrated):
             self._runtime_state.hydrate(
                 migrated,
@@ -146,6 +151,7 @@ class PersistenceManager:
             if raw_loaded:
                 self._logger.warning("Invalid Store payload detected; rebuilding from recorder fallback")
             self._runtime_state.reset()
+            recorder_rebuild_ran = True
             await self.rebuild_from_recorder()
 
         source_map = self._source_map()
@@ -175,7 +181,7 @@ class PersistenceManager:
             async with self._state_lock:
                 self.schedule_save_locked()
             await self.flush_pending_store_save()
-        return loaded_from_store
+        return loaded_from_store, recorder_rebuild_ran
 
     def _store_payload(self) -> dict[str, Any]:
         return self._runtime_state.export_store_payload(store_manager=self._store_manager)
