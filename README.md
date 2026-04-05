@@ -4,7 +4,7 @@ A Home Assistant custom integration for energy monitoring, cost tracking, and di
 
 It targets generic supplier and tariff setups, multi-battery systems, solar PV estimation (optional), and three-phase grid support.
 
-**Home Assistant:** 2024.6.0 or newer (see `manifest.json`). **HACS:** optional `hacs.json` is provided for custom repository installs.
+**Home Assistant:** 2024.6.0 or newer (see `manifest.json`). **HACS:** the repo is structured for HACS (`hacs.json` with `content_in_root`, `brand/icon.png` per [HACS integration requirements](https://hacs.xyz/docs/publish/integration/)).
 
 ## Supported scope (v0.2.x)
 
@@ -59,8 +59,9 @@ So that Home Assistant loads `custom_components/hub_energie/manifest.json` (not 
 
 **Ways to install**
 
-1. **Clone** this repo **into** `custom_components/hub_energie` (git clone URL `custom_components/hub_energie`), **or**
-2. **Copy** the full tree from the repo root into `custom_components/hub_energie`, preserving all subfolders (`battery/`, `energy/`, `frontend/`, `runtime/`, `snapshot/`, `translations/`, etc.).
+1. **HACS (custom repository)** — In HACS: open the menu (⋮) → **Custom repositories** → add your repository URL → category **Integration** → **Add**. Then open **HACS → Integrations**, find **Hub Énergie**, and **Download**. HACS installs the package under `custom_components/hub_energie/` (root-of-repo layout is enabled via `content_in_root` in `hacs.json`). After install, restart Home Assistant, then add the integration under **Settings → Devices & services**. If you use the Lovelace card, run `npm ci` and `npm run build` inside `custom_components/hub_energie/frontend/` on the host (same as a manual install). Listing in the default HACS store requires a public **GitHub** repo per [HACS publishing rules](https://hacs.xyz/docs/publish/start/); GitLab or other hosts still work for **manual** install or if your HACS version accepts them as custom repositories.
+2. **Clone** this repo **into** `custom_components/hub_energie` (git clone URL `custom_components/hub_energie`), **or**
+3. **Copy** the full tree from the repo root into `custom_components/hub_energie`, preserving all subfolders (`battery/`, `energy/`, `frontend/`, `runtime/`, `snapshot/`, `translations/`, etc.).
 
 Do **not** cherry-pick only a few files: the integration is a single Python package split across many modules.
 

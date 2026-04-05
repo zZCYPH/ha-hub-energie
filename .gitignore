@@ -8,3 +8,4 @@ pytest-cache-files-*/
 .coverage
 coverage.xml
 htmlcov/
+.hacs_build_pillow/
