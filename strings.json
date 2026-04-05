@@ -396,6 +396,7 @@
       "battery_adv_soc_max_not_both": "Choose either a maximum SOC entity or a manual maximum SOC value.",
       "invalid_battery_choice": "Select a valid battery system.",
       "tariff_fetch_failed": "Failed to fetch tariffs from provider API.",
+      "tariff_payload_incomplete": "Tariff data from the provider was incomplete or invalid. Try again or check offer and kVA.",
       "invalid_json": "Invalid JSON format.",
       "schedule_gap": "Schedule does not cover 00:00-24:00 completely.",
       "no_energy_sensor": "At least one grid energy sensor is required.",
@@ -687,7 +688,8 @@
       "battery_adv_soc_min_not_both": "Choose either a minimum SOC entity or a manual minimum SOC value.",
       "battery_adv_soc_max_not_both": "Choose either a maximum SOC entity or a manual maximum SOC value.",
       "invalid_battery_choice": "Select a valid battery system.",
-      "tariff_fetch_failed": "Failed to fetch tariffs. Check offer, kVA, and network."
+      "tariff_fetch_failed": "Failed to fetch tariffs. Check offer, kVA, and network.",
+      "tariff_payload_incomplete": "Tariff data from the provider was incomplete or invalid. Try again or check offer and kVA."
     }
   },
   "selector": {

@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import logging
+import math
+from typing import Any, Mapping
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -21,9 +23,33 @@ from ..const import (
     OPT_ROUGE_HP,
     OPT_TARIFF_FETCHED_AT,
 )
-from ..providers.edf import async_fetch_offer_tariffs
+from ..providers.edf import async_fetch_offer_tariffs, tariff_payload_completeness_issues
 
 __all__ = ("refresh_tariffs",)
+
+_STORED_TARIFF_OPTION_KEYS: tuple[str, ...] = (
+    OPT_BLEU_HC,
+    OPT_BLEU_HP,
+    OPT_BLANC_HC,
+    OPT_BLANC_HP,
+    OPT_ROUGE_HC,
+    OPT_ROUGE_HP,
+    OPT_FIXED_TTC,
+)
+
+
+def _stored_tariff_options_complete(options: Mapping[str, Any]) -> bool:
+    """True when *options* already holds a full finite numeric tariff set from a prior successful fetch."""
+    for key in _STORED_TARIFF_OPTION_KEYS:
+        if key not in options:
+            return False
+        try:
+            v = float(options[key])
+        except (TypeError, ValueError):
+            return False
+        if not math.isfinite(v):
+            return False
+    return True
 
 
 async def refresh_tariffs(
@@ -53,19 +79,38 @@ async def refresh_tariffs(
         logger.warning("Tariff refresh failed (offer=%s, power=%s): %s", offer, power, err)
         return False
 
+    issues = tariff_payload_completeness_issues(tariffs, expected_offer=offer)
+    if issues:
+        logger.warning(
+            "Tariff refresh rejected incomplete or invalid payload (offer=%s, power=%s, issues=%s); "
+            "config options were not updated to avoid false zero rates",
+            offer,
+            power,
+            issues,
+        )
+        if _stored_tariff_options_complete(entry.options):
+            return True
+        # No complete prior tariff row in options: do not invent defaults (e.g. DEFAULT_RATES).
+        # Operator must fix the API response or complete setup; state stays unchanged.
+        logger.warning(
+            "Tariff refresh could not apply new data and no complete prior tariff set exists in "
+            "config to retain"
+        )
+        return False
+
     new_options = dict(entry.options)
     new_options.update({
         CONF_TARIFF_OFFER: offer,
         CONF_CONTRACT_POWER: power,
-        OPT_BLEU_HC: float(tariffs.get("hc_bleu_ttc", 0)),
-        OPT_BLEU_HP: float(tariffs.get("hp_bleu_ttc", 0)),
-        OPT_BLANC_HC: float(tariffs.get("hc_blanc_ttc", 0)),
-        OPT_BLANC_HP: float(tariffs.get("hp_blanc_ttc", 0)),
-        OPT_ROUGE_HC: float(tariffs.get("hc_rouge_ttc", 0)),
-        OPT_ROUGE_HP: float(tariffs.get("hp_rouge_ttc", 0)),
-        OPT_FIXED_TTC: float(tariffs.get("fixed_ttc", 0)),
+        OPT_BLEU_HC: float(tariffs["hc_bleu_ttc"]),
+        OPT_BLEU_HP: float(tariffs["hp_bleu_ttc"]),
+        OPT_BLANC_HC: float(tariffs["hc_blanc_ttc"]),
+        OPT_BLANC_HP: float(tariffs["hp_blanc_ttc"]),
+        OPT_ROUGE_HC: float(tariffs["hc_rouge_ttc"]),
+        OPT_ROUGE_HP: float(tariffs["hp_rouge_ttc"]),
+        OPT_FIXED_TTC: float(tariffs["fixed_ttc"]),
         OPT_ABONNEMENT: 0.0,
-        OPT_TARIFF_FETCHED_AT: tariffs.get("fetched_at"),
+        OPT_TARIFF_FETCHED_AT: tariffs["fetched_at"],
     })
     if update_entry:
         hass.config_entries.async_update_entry(entry, options=new_options)

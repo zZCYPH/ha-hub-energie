@@ -29,7 +29,28 @@ def _ensure_stub_aiohttp() -> None:
     if "aiohttp" in sys.modules:
         return
     aio = types.ModuleType("aiohttp")
+
+    class ClientConnectionError(Exception):
+        """Minimal stub for ``hub_energie.providers.http_retry`` imports."""
+
+    class ClientResponseError(Exception):
+        """Minimal stub matching aiohttp's ``status`` attribute."""
+
+        def __init__(
+            self,
+            request_info: object = None,
+            history: object = None,
+            *,
+            status: int = 0,
+            message: str = "",
+            headers: object = None,
+        ) -> None:
+            self.status = status
+            self.message = message
+
     aio.ClientSession = type("ClientSession", (), {})  # noqa: PLC0415 — test stub only
+    aio.ClientConnectionError = ClientConnectionError
+    aio.ClientResponseError = ClientResponseError
     sys.modules["aiohttp"] = aio
 
 

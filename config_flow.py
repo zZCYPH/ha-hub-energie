@@ -61,7 +61,12 @@ from .config_flow_selectors import (
     time_slot_selector,
 )
 from .config_models import BATTERY_ID
-from .config_validation import ERR_RTE_CREDS_REQUIRED, HubEnergieConfigValidator
+from .config_validation import (
+    ERR_RTE_CREDS_REQUIRED,
+    ERR_TARIFF_PAYLOAD_INCOMPLETE,
+    HubEnergieConfigValidator,
+)
+from .providers.edf import tariff_payload_completeness_issues
 from .utils.grid_phases import ordered_phase_entity_ids
 from .const import (
     BATT_SIGN_POSITIVE_DISCHARGE,
@@ -393,17 +398,29 @@ async def _async_fetch_edf_tariffs(
     return tariffs, None
 
 
-def _tariff_options_from_payload(tariffs: dict[str, Any]) -> dict[str, Any]:
+def _tariff_options_from_payload(
+    tariffs: dict[str, Any],
+    *,
+    expected_offer: str | None = None,
+) -> dict[str, Any] | None:
+    exp = (expected_offer or "").strip() or None
+    issues = tariff_payload_completeness_issues(tariffs, expected_offer=exp)
+    if issues:
+        _LOGGER.warning(
+            "EDF tariff payload incomplete or invalid; not merging tariff options (issues=%s)",
+            issues,
+        )
+        return None
     return {
-        OPT_BLEU_HC: tariffs.get("hc_bleu_ttc", 0),
-        OPT_BLEU_HP: tariffs.get("hp_bleu_ttc", 0),
-        OPT_BLANC_HC: tariffs.get("hc_blanc_ttc", 0),
-        OPT_BLANC_HP: tariffs.get("hp_blanc_ttc", 0),
-        OPT_ROUGE_HC: tariffs.get("hc_rouge_ttc", 0),
-        OPT_ROUGE_HP: tariffs.get("hp_rouge_ttc", 0),
-        OPT_FIXED_TTC: tariffs.get("fixed_ttc", 0),
+        OPT_BLEU_HC: float(tariffs["hc_bleu_ttc"]),
+        OPT_BLEU_HP: float(tariffs["hp_bleu_ttc"]),
+        OPT_BLANC_HC: float(tariffs["hc_blanc_ttc"]),
+        OPT_BLANC_HP: float(tariffs["hp_blanc_ttc"]),
+        OPT_ROUGE_HC: float(tariffs["hc_rouge_ttc"]),
+        OPT_ROUGE_HP: float(tariffs["hp_rouge_ttc"]),
+        OPT_FIXED_TTC: float(tariffs["fixed_ttc"]),
         OPT_ABONNEMENT: 0,
-        OPT_TARIFF_FETCHED_AT: tariffs.get("fetched_at"),
+        OPT_TARIFF_FETCHED_AT: tariffs["fetched_at"],
     }
 
 
@@ -936,7 +953,17 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
                 ),
                 errors={"base": error},
             )
-        self._options.update(_tariff_options_from_payload(tariffs or {}))
+        offer_key = str(self._data.get(CONF_TARIFF_OFFER, "") or "").strip() or None
+        tariff_patch = _tariff_options_from_payload(tariffs or {}, expected_offer=offer_key)
+        if tariff_patch is None:
+            return self.async_show_form(
+                step_id="edf_offer",
+                data_schema=vol.Schema(
+                    {vol.Required(CONF_TARIFF_OFFER, default=self._data.get(CONF_TARIFF_OFFER, TARIFF_OFFER_TEMPO)): offer_selector()}
+                ),
+                errors={"base": ERR_TARIFF_PAYLOAD_INCOMPLETE},
+            )
+        self._options.update(tariff_patch)
         self._data[CONF_TARIFF_SOURCE] = "auto"
         return await self.async_step_grid()
 
@@ -1744,14 +1771,19 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
                 if error:
                     errors["base"] = error
                 else:
-                    try:
-                        return await self._persist(
-                            data_patch=patch,
-                            options_patch=_tariff_options_from_payload(tariffs or {}),
-                            reason="tariffs_fetched",
-                        )
-                    except ValueError as err:
-                        errors = dict(err.args[0])
+                    offer_key = str(merged.get(CONF_TARIFF_OFFER, "") or "").strip() or None
+                    opt_patch = _tariff_options_from_payload(tariffs or {}, expected_offer=offer_key)
+                    if opt_patch is None:
+                        errors["base"] = ERR_TARIFF_PAYLOAD_INCOMPLETE
+                    else:
+                        try:
+                            return await self._persist(
+                                data_patch=patch,
+                                options_patch=opt_patch,
+                                reason="tariffs_fetched",
+                            )
+                        except ValueError as err:
+                            errors = dict(err.args[0])
         return self.async_show_form(
             step_id="tariff_refresh",
             data_schema=vol.Schema(

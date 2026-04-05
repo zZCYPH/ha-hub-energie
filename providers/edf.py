@@ -6,14 +6,20 @@ import asyncio
 import base64
 import json
 import logging
+import math
 import re
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from typing import Any
+from typing import Any, Final, Mapping
 from zoneinfo import ZoneInfo
 
 from aiohttp import ClientSession
 
+from .http_retry import (
+    RETRYABLE_HTTP_STATUSES,
+    TransientHttpError,
+    async_run_with_transient_retry,
+)
 from ..const import (
     API_CALENDAR_URL,
     API_COULEUR_TEMPO_BASE_URL,
@@ -268,6 +274,50 @@ def extract_offer_tariffs(
     return result
 
 
+# Keys produced by ``_normalize_for_slots`` (all offers); keep in sync with ``extract_offer_tariffs``.
+NORMALIZED_TARIFF_NUMERIC_KEYS: Final[tuple[str, ...]] = (
+    "fixed_ttc",
+    "hc_bleu_ttc",
+    "hp_bleu_ttc",
+    "hc_blanc_ttc",
+    "hp_blanc_ttc",
+    "hc_rouge_ttc",
+    "hp_rouge_ttc",
+)
+
+
+def tariff_payload_completeness_issues(
+    payload: Mapping[str, Any],
+    *,
+    expected_offer: str | None = None,
+) -> list[str]:
+    """Return human-readable issue codes if *payload* is not safe to persist.
+
+    Must stay aligned with ``_normalize_for_slots`` / ``extract_offer_tariffs`` output.
+    """
+    issues: list[str] = []
+    for key in NORMALIZED_TARIFF_NUMERIC_KEYS:
+        if key not in payload:
+            issues.append(f"missing:{key}")
+            continue
+        raw = payload[key]
+        try:
+            v = float(raw)
+        except (TypeError, ValueError):
+            issues.append(f"invalid:{key}")
+            continue
+        if not math.isfinite(v):
+            issues.append(f"non_finite:{key}")
+    raw_fa = payload.get("fetched_at")
+    if raw_fa is None or not str(raw_fa).strip():
+        issues.append("missing_or_empty:fetched_at")
+    if expected_offer and "offer" in payload and payload.get("offer") != expected_offer:
+        issues.append(
+            f"offer_mismatch:expected={expected_offer!r} got={payload.get('offer')!r}"
+        )
+    return issues
+
+
 # ── Async fetch entry point ───────────────────────────────────────────────────
 
 
@@ -296,9 +346,17 @@ async def async_fetch_offer_tariffs(
         "DATE_DEBUT__sort": "desc",
         "page_size": 100,
     }
-    async with session.get(url, headers=headers, params=params, timeout=30) as resp:
-        resp.raise_for_status()
-        payload = await resp.json(content_type=None)
+
+    async def _fetch_tabular_once() -> Any:
+        async with session.get(url, headers=headers, params=params, timeout=30) as resp:
+            resp.raise_for_status()
+            return await resp.json(content_type=None)
+
+    payload = await async_run_with_transient_retry(
+        _fetch_tabular_once,
+        logger=_LOGGER,
+        operation="EDF tabular tariffs",
+    )
 
     if not isinstance(payload, dict):
         raise ValueError("Tariff JSON payload is invalid: expected object")
@@ -492,14 +550,21 @@ async def async_fetch_access_token(
         "Content-Type": "application/x-www-form-urlencoded",
         "User-Agent": USER_AGENT,
     }
-    async with session.post(
-        API_TOKEN_URL,
-        headers=headers,
-        data="grant_type=client_credentials",
-        timeout=30,
-    ) as resp:
-        resp.raise_for_status()
-        data: dict[str, Any] = await resp.json()
+    async def _fetch_token_once() -> dict[str, Any]:
+        async with session.post(
+            API_TOKEN_URL,
+            headers=headers,
+            data="grant_type=client_credentials",
+            timeout=30,
+        ) as resp:
+            resp.raise_for_status()
+            return await resp.json()
+
+    data = await async_run_with_transient_retry(
+        _fetch_token_once,
+        logger=_LOGGER,
+        operation="RTE OAuth token",
+    )
     token = data.get("access_token")
     if not token:
         raise ValueError("RTE token response missing access_token")
@@ -526,13 +591,23 @@ async def async_fetch_tempo_calendar(
         "Accept": "application/json",
         "User-Agent": USER_AGENT,
     }
-    async with session.get(
-        API_CALENDAR_URL, headers=headers, params=params, timeout=45
-    ) as resp:
-        if resp.status >= 400:
-            text = await resp.text()
-            _raise_rte_calendar_http_error(resp.status, text)
-        payload: dict[str, Any] = await resp.json()
+
+    async def _fetch_calendar_once() -> dict[str, Any]:
+        async with session.get(
+            API_CALENDAR_URL, headers=headers, params=params, timeout=45
+        ) as resp:
+            if resp.status >= 400:
+                text = await resp.text()
+                if resp.status in RETRYABLE_HTTP_STATUSES:
+                    raise TransientHttpError(resp.status)
+                _raise_rte_calendar_http_error(resp.status, text)
+            return await resp.json()
+
+    payload: dict[str, Any] = await async_run_with_transient_retry(
+        _fetch_calendar_once,
+        logger=_LOGGER,
+        operation="RTE tempo_like_calendars",
+    )
 
     values = _calendar_interval_dicts(payload)
     rows: list[TempoCalendarRow] = []
@@ -577,10 +652,20 @@ async def async_test_rte_credentials(
         "Accept": "application/json",
         "User-Agent": USER_AGENT,
     }
-    async with session.get(API_CALENDAR_URL, headers=headers, timeout=45) as resp:
-        if resp.status >= 400:
-            text = await resp.text()
-            _raise_rte_calendar_http_error(resp.status, text)
+
+    async def _probe_calendar_once() -> None:
+        async with session.get(API_CALENDAR_URL, headers=headers, timeout=45) as resp:
+            if resp.status >= 400:
+                text = await resp.text()
+                if resp.status in RETRYABLE_HTTP_STATUSES:
+                    raise TransientHttpError(resp.status)
+                _raise_rte_calendar_http_error(resp.status, text)
+
+    await async_run_with_transient_retry(
+        _probe_calendar_once,
+        logger=_LOGGER,
+        operation="RTE calendar probe",
+    )
 
 
 async def async_get_calendar_rows(
@@ -627,11 +712,18 @@ async def _get_json(session: ClientSession, path: str) -> dict[str, Any]:
         "User-Agent": USER_AGENT,
         "Accept": "application/json,text/plain,*/*",
     }
-    async with session.get(
-        f"{API_COULEUR_TEMPO_BASE_URL}{path}", headers=headers, timeout=20
-    ) as resp:
-        resp.raise_for_status()
-        payload = await resp.json(content_type=None)
+    url = f"{API_COULEUR_TEMPO_BASE_URL}{path}"
+
+    async def _fetch_once() -> Any:
+        async with session.get(url, headers=headers, timeout=20) as resp:
+            resp.raise_for_status()
+            return await resp.json(content_type=None)
+
+    payload = await async_run_with_transient_retry(
+        _fetch_once,
+        logger=_LOGGER,
+        operation="api-couleur-tempo",
+    )
     if not isinstance(payload, dict):
         raise ValueError(f"Invalid payload for {path}: expected object")
     return payload
