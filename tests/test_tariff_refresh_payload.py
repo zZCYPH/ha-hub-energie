@@ -112,7 +112,7 @@ async def _run_refresh(
     entry_data: dict,
     payload: dict | BaseException | None,
     update_entry: bool = True,
-) -> tuple[bool, Mock, list[str]]:
+) -> tuple[refresh_mod.TariffRefreshOutcome, Mock, list[str]]:
     update_mock = Mock()
     reload_ids: list[str] = []
 
@@ -140,7 +140,7 @@ async def _run_refresh(
 
     with patch.object(refresh_mod, "async_fetch_offer_tariffs", new=async_fetch):
         with patch.object(refresh_mod, "async_get_clientsession", new=sync_get_clientsession):
-            ok = await refresh_mod.refresh_tariffs(
+            outcome = await refresh_mod.refresh_tariffs(
                 hass,
                 entry,
                 update_entry=update_entry,
@@ -148,19 +148,21 @@ async def _run_refresh(
                 tariff_offer=const.TARIFF_OFFER_TEMPO,
                 logger=log,
             )
-    return ok, update_mock, reload_ids
+    return outcome, update_mock, reload_ids
 
 
 def test_refresh_tariffs_complete_persists_options() -> None:
     payload = _complete_api_payload()
 
     async def _t() -> None:
-        ok, update_mock, reload_ids = await _run_refresh(
+        outcome, update_mock, reload_ids = await _run_refresh(
             entry_options={},
             entry_data={const.CONF_CONTRACT_POWER: "9"},
             payload=payload,
         )
-        assert ok is True
+        assert outcome.ok is True
+        assert outcome.complete_payload_accepted is True
+        assert outcome.rejected_incomplete_payload is False
         update_mock.assert_called_once()
         opts = update_mock.call_args.kwargs["options"]
         assert opts[const.OPT_BLEU_HC] == pytest.approx(0.11)
@@ -177,12 +179,14 @@ def test_refresh_tariffs_partial_with_prior_returns_true_no_update(caplog: pytes
     del partial["hp_rouge_ttc"]
 
     async def _t() -> None:
-        ok, update_mock, reload_ids = await _run_refresh(
+        outcome, update_mock, reload_ids = await _run_refresh(
             entry_options=_complete_stored_options(),
             entry_data={const.CONF_CONTRACT_POWER: "9"},
             payload=partial,
         )
-        assert ok is True
+        assert outcome.ok is True
+        assert outcome.rejected_incomplete_payload is True
+        assert outcome.complete_payload_accepted is False
         update_mock.assert_not_called()
         assert reload_ids == []
 
@@ -196,12 +200,13 @@ def test_refresh_tariffs_partial_without_prior_returns_false(caplog: pytest.LogC
     partial["hc_blanc_ttc"] = "x"
 
     async def _t() -> None:
-        ok, update_mock, reload_ids = await _run_refresh(
+        outcome, update_mock, reload_ids = await _run_refresh(
             entry_options={},
             entry_data={const.CONF_CONTRACT_POWER: "9"},
             payload=partial,
         )
-        assert ok is False
+        assert outcome.ok is False
+        assert outcome.rejected_incomplete_payload is True
         update_mock.assert_not_called()
         assert reload_ids == []
 
@@ -211,12 +216,13 @@ def test_refresh_tariffs_partial_without_prior_returns_false(caplog: pytest.LogC
 
 def test_refresh_tariffs_fetch_exception_returns_false() -> None:
     async def _t() -> None:
-        ok, update_mock, reload_ids = await _run_refresh(
+        outcome, update_mock, reload_ids = await _run_refresh(
             entry_options=_complete_stored_options(),
             entry_data={const.CONF_CONTRACT_POWER: "9"},
             payload=ValueError("network"),
         )
-        assert ok is False
+        assert outcome.ok is False
+        assert outcome.rejected_incomplete_payload is False
         update_mock.assert_not_called()
         assert reload_ids == []
 
@@ -225,13 +231,14 @@ def test_refresh_tariffs_fetch_exception_returns_false() -> None:
 
 def test_refresh_tariffs_complete_without_update_entry_skips_persist() -> None:
     async def _t() -> None:
-        ok, update_mock, reload_ids = await _run_refresh(
+        outcome, update_mock, reload_ids = await _run_refresh(
             entry_options={},
             entry_data={const.CONF_CONTRACT_POWER: "9"},
             payload=_complete_api_payload(),
             update_entry=False,
         )
-        assert ok is True
+        assert outcome.ok is True
+        assert outcome.complete_payload_accepted is True
         update_mock.assert_not_called()
         assert reload_ids == []
 

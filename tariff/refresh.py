@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import math
+from dataclasses import dataclass
 from typing import Any, Mapping
 
 from homeassistant.config_entries import ConfigEntry
@@ -25,7 +26,21 @@ from ..const import (
 )
 from ..providers.edf import async_fetch_offer_tariffs, tariff_payload_completeness_issues
 
-__all__ = ("refresh_tariffs",)
+__all__ = ("TariffRefreshOutcome", "refresh_tariffs")
+
+
+@dataclass(frozen=True, slots=True)
+class TariffRefreshOutcome:
+    """Result of ``refresh_tariffs`` for callers and coordinator trust state."""
+
+    ok: bool
+    """Same as the historical boolean return (config update / soft-success semantics)."""
+
+    rejected_incomplete_payload: bool
+    """Fetched data failed completeness validation (payload not applied)."""
+
+    complete_payload_accepted: bool
+    """A full valid tariff payload was received (persisted only if ``update_entry``)."""
 
 _STORED_TARIFF_OPTION_KEYS: tuple[str, ...] = (
     OPT_BLEU_HC,
@@ -60,24 +75,36 @@ async def refresh_tariffs(
     is_edf: bool,
     tariff_offer: str,
     logger: logging.Logger,
-) -> bool:
+) -> TariffRefreshOutcome:
     if not is_edf:
         logger.debug("Tariff refresh skipped: not EDF supplier")
-        return False
+        return TariffRefreshOutcome(
+            ok=False,
+            rejected_incomplete_payload=False,
+            complete_payload_accepted=False,
+        )
     offer = tariff_offer
     power = str(
         entry.options.get(CONF_CONTRACT_POWER, entry.data.get(CONF_CONTRACT_POWER, "")),
     ).strip()
     if not power:
         logger.warning("Tariff refresh skipped: missing contract power")
-        return False
+        return TariffRefreshOutcome(
+            ok=False,
+            rejected_incomplete_payload=False,
+            complete_payload_accepted=False,
+        )
 
     session = async_get_clientsession(hass)
     try:
         tariffs = await async_fetch_offer_tariffs(session, offer, power)
     except Exception as err:  # noqa: BLE001
         logger.warning("Tariff refresh failed (offer=%s, power=%s): %s", offer, power, err)
-        return False
+        return TariffRefreshOutcome(
+            ok=False,
+            rejected_incomplete_payload=False,
+            complete_payload_accepted=False,
+        )
 
     issues = tariff_payload_completeness_issues(tariffs, expected_offer=offer)
     if issues:
@@ -89,14 +116,22 @@ async def refresh_tariffs(
             issues,
         )
         if _stored_tariff_options_complete(entry.options):
-            return True
+            return TariffRefreshOutcome(
+                ok=True,
+                rejected_incomplete_payload=True,
+                complete_payload_accepted=False,
+            )
         # No complete prior tariff row in options: do not invent defaults (e.g. DEFAULT_RATES).
         # Operator must fix the API response or complete setup; state stays unchanged.
         logger.warning(
             "Tariff refresh could not apply new data and no complete prior tariff set exists in "
             "config to retain"
         )
-        return False
+        return TariffRefreshOutcome(
+            ok=False,
+            rejected_incomplete_payload=True,
+            complete_payload_accepted=False,
+        )
 
     new_options = dict(entry.options)
     new_options.update({
@@ -115,4 +150,8 @@ async def refresh_tariffs(
     if update_entry:
         hass.config_entries.async_update_entry(entry, options=new_options)
         await hass.config_entries.async_reload(entry.entry_id)
-    return True
+    return TariffRefreshOutcome(
+        ok=True,
+        rejected_incomplete_payload=False,
+        complete_payload_accepted=True,
+    )

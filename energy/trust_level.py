@@ -31,6 +31,10 @@ _CAUSE_MESSAGES: dict[str, str] = {
     "tempo_rte_calendar_not_ready": (
         "EDF Tempo with RTE mode is selected but the RTE calendar is not ready yet."
     ),
+    "tariff_payload_incomplete": (
+        "Last tariff refresh returned an incomplete or invalid payload; displayed rates were not "
+        "updated and may be stale."
+    ),
     "missing_current_slot": "Current tariff slot is not available; cost slot breakdown may be wrong.",
     "unknown_tariff_bucket": (
         "Some grid energy was booked to the indeterminate tariff bucket (slot could not be resolved)."
@@ -64,6 +68,7 @@ class TrustInputs:
     has_configured_energy_sources: bool = False
     current_slot: str | None = None
     is_edf_tempo_rte_not_ready: bool = False
+    tariff_refresh_rejected_incomplete: bool = False
     battery_data_quality: str = "ok"
     data_quality: str = "good"
 
@@ -123,6 +128,8 @@ def _any_discards(discards: Mapping[str, int] | None) -> bool:
 def _degraded_cause(inputs: TrustInputs, telemetry: Mapping[str, Any]) -> tuple[str, str] | None:
     if inputs.is_edf_tempo_rte_not_ready:
         return "tempo_rte_calendar_not_ready", _CAUSE_MESSAGES["tempo_rte_calendar_not_ready"]
+    if inputs.tariff_refresh_rejected_incomplete:
+        return "tariff_payload_incomplete", _CAUSE_MESSAGES["tariff_payload_incomplete"]
     slot = inputs.current_slot
     if not slot:
         return "missing_current_slot", _CAUSE_MESSAGES["missing_current_slot"]

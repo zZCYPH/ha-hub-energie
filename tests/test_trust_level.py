@@ -83,6 +83,50 @@ def test_degraded_tempo_rte_not_ready_before_slot() -> None:
     assert r.cause_code == "tempo_rte_calendar_not_ready"
 
 
+def test_degraded_tariff_payload_incomplete() -> None:
+    r = compute_trust(
+        TrustInputs(
+            current_slot="bleu_hp",
+            tariff_refresh_rejected_incomplete=True,
+        ),
+    )
+    assert r.level == "degraded"
+    assert r.cause_code == "tariff_payload_incomplete"
+
+
+def test_tempo_rte_not_ready_priority_over_tariff_payload_incomplete() -> None:
+    r = compute_trust(
+        TrustInputs(
+            is_edf_tempo_rte_not_ready=True,
+            current_slot="bleu_hp",
+            tariff_refresh_rejected_incomplete=True,
+        ),
+    )
+    assert r.level == "degraded"
+    assert r.cause_code == "tempo_rte_calendar_not_ready"
+
+
+def test_tariff_payload_incomplete_before_missing_current_slot() -> None:
+    r = compute_trust(
+        TrustInputs(
+            current_slot=None,
+            tariff_refresh_rejected_incomplete=True,
+        ),
+    )
+    assert r.level == "degraded"
+    assert r.cause_code == "tariff_payload_incomplete"
+
+
+def test_ok_when_tariff_rejection_cleared() -> None:
+    r = compute_trust(
+        TrustInputs(
+            current_slot="bleu_hp",
+            tariff_refresh_rejected_incomplete=False,
+        ),
+    )
+    assert r.level == "ok"
+
+
 def test_degraded_missing_slot() -> None:
     r = compute_trust(
         TrustInputs(current_slot=None),

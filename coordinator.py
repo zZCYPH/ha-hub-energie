@@ -176,7 +176,7 @@ from .snapshot.inputs_builder import build_snapshot_inputs
 from .snapshot.pipeline import SnapshotPipeline
 from .storage.statistics import statistic_id as statistic_id_for_domain
 from .storage.store_manager import StoreManager
-from .tariff import EdfRuntimeFields, refresh_tariffs, update_edf_state
+from .tariff import EdfRuntimeFields, TariffRefreshOutcome, refresh_tariffs, update_edf_state
 from .tariff.slot_attribution import resolve_attribution_slot
 from .tariff_manager import TariffResolver
 from .time.paris_time import ParisTime
@@ -363,6 +363,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         )
         self._delta_policy = DeltaPolicy()
         self._trust_rebuilding_after_recorder = False
+        self._tariff_refresh_rejected_incomplete = False
         self._first_input_probe_logged = False
         self._last_input_probe_signature: str | None = None
 
@@ -943,6 +944,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
                     and self.tempo_mode == TEMPO_MODE_RTE
                     and not self.tempo_rte_calendar_ready
                 ),
+                tariff_refresh_rejected_incomplete=self._tariff_refresh_rejected_incomplete,
                 battery_data_quality=str(snap.get("battery_data_quality") or "ok"),
                 data_quality=str(snap[DATA_DATA_QUALITY]),
             ),
@@ -984,7 +986,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         return await self._async_refresh_tariffs(update_entry=True)
 
     async def _async_refresh_tariffs(self, *, update_entry: bool) -> bool:
-        return await refresh_tariffs(
+        outcome: TariffRefreshOutcome = await refresh_tariffs(
             self.hass,
             self.entry,
             update_entry=update_entry,
@@ -992,3 +994,8 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             tariff_offer=self.tariff_offer,
             logger=_LOGGER,
         )
+        if outcome.rejected_incomplete_payload:
+            self._tariff_refresh_rejected_incomplete = True
+        elif outcome.complete_payload_accepted:
+            self._tariff_refresh_rejected_incomplete = False
+        return outcome.ok
