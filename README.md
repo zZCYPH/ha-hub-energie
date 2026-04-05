@@ -14,7 +14,7 @@ It targets generic supplier and tariff setups, multi-battery systems, solar PV e
 - Positive energy deltas from `total_increasing` meter entities → internal slot-day accounting (Paris day) and integration-owned SSOT total sensors.
 - Daily cost estimate (€) from configured rates + subscription split; per-slot breakdown in attributes.
 - EDF Tempo helpers (when applicable): colours, quotas, next change timestamps.
-- Diagnostics: export / réinjection split, data quality, delta telemetry, unknown bucket and staleness sensors; **overall health** sensor with synthetic **trust** states (`ok` / `degraded` / `rebuilding` / `inconsistent`) and a readable **cause**.
+- Diagnostics: export / réinjection split, data quality, delta telemetry, unknown bucket and staleness sensors; **overall health** sensor with synthetic states (`ok` / `degraded` / `rebuilding` / `inconsistent` / `no_input`) and a readable **cause**.
 - Optional clear-sky PV estimation and solar resale revenue line (when configured).
 - Lovelace card served from `/hub_energie/` after build.
 
@@ -48,6 +48,27 @@ Understanding what is authoritative avoids misconfiguring the Energy Dashboard o
 3. **Long-term per-slot kWh (daily)** — After each Paris day, the integration writes **external statistics** (`hub_energie:slot_<source>_<slot>_kwh`) via the recorder. Use these (or the physical meters) for historical analytics—not raw `cost_detail` attribute history, which is sampled and mixed with UI/diagnostic fields.
 
 Optional observability on the **health** and **`cost_detail`** sensors includes synthetic **`trust_level`** / **`trust_cause`**, `data_quality`, `delta_telemetry`, and `delta_discards` (per-source last applied delta, gap, drift vs meter, attribution method).
+
+## Limitations
+
+The integration is designed to be transparent when data is imperfect. The points below match actual behaviour in code—not edge cases invented for the docs.
+
+- **Recorder history and retention** — Anything that reads HA history or **long-term statistics** (per-slot kWh stats, the Lovelace card’s historical views, and **rebuilding internal totals from the recorder** when the integration store is missing or invalid) only sees what the recorder still holds. Shorter **purge / retention** means less past data for charts, analytics, and recovery paths.
+- **Solar estimation (optional)** — When enabled, PV power and energy are **clear-sky model outputs** (simplified irradiance, no real cloud cover). Treat them as **indicative**, not a substitute for a production meter.
+- **Power graph on the Lovelace card** — The card loads past power curves via **`recorder/statistics_during_period`** on the configured power entities. If statistics are missing (e.g. entity without a suitable **`state_class`**, or not enough history yet), the graph can be empty or incomplete; the card reports that case in plain language.
+- **Health / trust states** — The **`…_health`** sensor can read **`ok`**, **`degraded`**, **`rebuilding`**, **`inconsistent`**, or **`no_input`**. They summarise probes, delta telemetry, staleness, optional missing entities, Tempo/RTE readiness, battery data quality, unknown tariff bucket usage, and **store vs recorder rebuild**—not a single physical fault. **`rebuilding`** is expected briefly after a **recorder-based rebuild** of internal kWh state.
+- **When some numbers are withheld** — If the grid import counter is not readable, **`no_input`** applies and cost/grid-derived figures that would be misleading are suppressed. When trust is **`inconsistent`**, input status maps to an error path and similar protections apply for cost/grid-facing outputs.
+- **Partial operation** — Solar, export, batteries, and many sensors are **optional**. Missing or unavailable optional entities contribute to **degraded** diagnostics, but the coordinator can still refresh what it can. A readable **grid import** energy entity remains central to slot/cost logic.
+- **Power vs energy** — **Energy** SSOT totals are accumulated and persisted (store + statistics writes). **Instantaneous power** and power-flow views are derived from the latest coordinator cycle; they are not stored the same way as kWh totals.
+- **Experimental paths** — Items listed under **Experimental / best-effort** in *Supported scope* (e.g. power-flow-based battery split, opportunity-cost style diagnostics) can be noisy or incomplete when inputs are partial.
+
+### Measured, reconstructed, estimated (quick glossary)
+
+| Kind | Meaning |
+|------|--------|
+| **Measured** | Values taken from **your configured Home Assistant entities** (e.g. `total_increasing` kWh meters, power sensors where you wired them). |
+| **Reconstructed** | **Internal** running totals and per-slot kWh built from **positive deltas** on those meters, plus—if needed—**replay from recorder long-term statistics** for past days when the integration store could not be loaded. |
+| **Estimated** | **Model-based** solar (clear-sky PV) and other **best-effort** derivations where no direct meter exists or where experimental logic fills gaps. |
 
 ## Installation
 
