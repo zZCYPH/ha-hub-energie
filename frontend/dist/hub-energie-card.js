@@ -3644,5 +3644,5 @@ window.customCards.push({
   name: "Hub Énergie",
   description: "Daily energy, cost and savings. Config: cost_entity: sensor.hub_energie_cost_detail",
   preview: !1,
-  documentationURL: "https://github.com/"
+  documentationURL: "https://gitlab.com/zzcyph1/home-assistant/hub-energie"
 });

@@ -2,24 +2,12 @@
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-
-def safe_float(value: Any) -> float | None:
-    try:
-        out = float(value)
-    except (TypeError, ValueError):
-        return None
-    if not math.isfinite(out):
-        return None
-    return out
-
-
-def normalize_kwh(value: float, decimals: int) -> float:
-    return round(float(value), decimals)
+from ..utils.energy import normalize_kwh_to_decimals as normalize_kwh
+from ..utils.numbers import safe_float
 
 
 def validate_store_payload(

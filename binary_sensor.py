@@ -10,8 +10,7 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceEntryType
-from homeassistant.helpers.entity import DeviceInfo, EntityCategory
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
@@ -22,12 +21,16 @@ from .const import (
     CONF_SUPPLIER,
     CONF_TARIFF_OFFER,
     DOMAIN,
-    INTEGRATION_TITLE,
     SUPPLIER_EDF,
     TARIFF_OFFER_TEMPO,
-    scoped_device_name,
 )
 from .coordinator import HubEnergieCoordinator
+from .device_info import (
+    _device_battery,
+    _device_diagnostics,
+    _device_offer,
+    _device_solar_config,
+)
 
 
 async def async_setup_entry(
@@ -65,67 +68,6 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-def _device_diagnostics(coordinator: HubEnergieCoordinator) -> DeviceInfo:
-    return DeviceInfo(
-        entry_type=DeviceEntryType.SERVICE,
-        identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_diagnostics")},
-        name=scoped_device_name("Diagnostics"),
-        manufacturer=INTEGRATION_TITLE,
-        model="Diagnostics",
-    )
-
-
-def _device_energy_balance(coordinator: HubEnergieCoordinator) -> DeviceInfo:
-    return DeviceInfo(
-        entry_type=DeviceEntryType.SERVICE,
-        identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_energy_balance")},
-        name=scoped_device_name("Bilan énergétique"),
-        manufacturer=INTEGRATION_TITLE,
-        model="Energy flows (kWh)",
-    )
-
-
-def _device_offer(coordinator: HubEnergieCoordinator) -> DeviceInfo:
-    return DeviceInfo(
-        entry_type=DeviceEntryType.SERVICE,
-        identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_offer")},
-        name=scoped_device_name("Offre"),
-        manufacturer=INTEGRATION_TITLE,
-        model="Tariff & contract",
-    )
-
-
-def _device_solar_config(coordinator: HubEnergieCoordinator) -> DeviceInfo:
-    return DeviceInfo(
-        entry_type=DeviceEntryType.SERVICE,
-        identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_solar_config")},
-        name=scoped_device_name("Solaire"),
-        manufacturer=INTEGRATION_TITLE,
-        model="Solar configuration",
-    )
-
-
-def _battery_device_display_name(batt_id: str, batt_name: str) -> str:
-    label = (batt_name or "").strip()
-    if label:
-        return scoped_device_name(label)
-    if batt_id:
-        return scoped_device_name(str(batt_id))
-    return scoped_device_name("Batterie")
-
-
-def _device_battery(
-    coordinator: HubEnergieCoordinator, batt_id: str, batt_name: str
-) -> DeviceInfo:
-    return DeviceInfo(
-        entry_type=DeviceEntryType.SERVICE,
-        identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_battery_{batt_id}")},
-        name=_battery_device_display_name(batt_id, batt_name),
-        manufacturer=INTEGRATION_TITLE,
-        model="Battery system",
-    )
-
-
 class HubEnergieConnectivitySensor(
     CoordinatorEntity[HubEnergieCoordinator], BinarySensorEntity
 ):
@@ -142,7 +84,7 @@ class HubEnergieConnectivitySensor(
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_connectivity"
         self._attr_name = "Connexion"
-        self._attr_device_info = _device_diagnostics(coordinator)
+        self._attr_device_info = _device_diagnostics(coordinator, model="Diagnostics")
 
     @property
     def is_on(self) -> bool:

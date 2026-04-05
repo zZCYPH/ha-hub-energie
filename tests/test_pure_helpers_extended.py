@@ -32,6 +32,10 @@ def test_normalize_kwh_rounds_like_const() -> None:
     assert v == round(1.23456789, const.ENERGY_ROUND_DECIMALS)
 
 
+def test_normalize_kwh_to_decimals_matches_store_rounding() -> None:
+    assert energy_util.normalize_kwh_to_decimals(1.234567, 6) == round(1.234567, 6)
+
+
 def test_scoped_device_name_strips_and_falls_back() -> None:
     assert const.scoped_device_name("") == const.INTEGRATION_TITLE
     assert const.scoped_device_name("   ") == const.INTEGRATION_TITLE
