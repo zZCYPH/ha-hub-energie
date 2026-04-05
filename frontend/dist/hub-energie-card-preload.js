@@ -1,12 +1,6 @@
 /**
- * Loaded before hub-energie-card.js via extra_module_url (registered first by the integration).
- * Home Assistant starts every extra module with import() in parallel; without a hint the browser
- * may only begin fetching hub-energie-card.js after this file runs, missing the ~2s custom-element
- * grace window (see home-assistant/frontend create-element-base.ts TIMEOUT).
- *
- * modulepreload only prioritizes the network fetch; it does not run the module. Calling import()
- * here starts evaluation as soon as this file runs. The same URL dedupes with HA's import(), so
- * the card's customElements.define still runs exactly once.
+ * Registered before hub-energie-card.js. modulepreload + import() start loading/evaluating the
+ * main bundle early so customElements.define often wins Lovelace’s ~2s window (HA create-element-base).
  */
 (() => {
   const here = new URL(import.meta.url);

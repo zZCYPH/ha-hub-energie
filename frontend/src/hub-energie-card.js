@@ -1519,7 +1519,7 @@ class HubEnergieCard extends LitElement {
 }
 
 /** Bump when deploying so DevTools shows whether this bundle loaded. */
-const HUB_ENERGIE_CARD_VERSION = "2026.04.05-2";
+const HUB_ENERGIE_CARD_VERSION = "2026.04.06-simple";
 console.log("[hub-energie-card]", HUB_ENERGIE_CARD_VERSION);
 
 if (!customElements.get("hub-energie-card")) {

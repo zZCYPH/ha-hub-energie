@@ -3984,7 +3984,7 @@ class Zr extends W {
     `;
   }
 }
-const Jr = "2026.04.05-2";
+const Jr = "2026.04.06-simple";
 console.log("[hub-energie-card]", Jr);
 customElements.get("hub-energie-card") || customElements.define("hub-energie-card", Zr);
 window.customCards ??= [];
