@@ -47,6 +47,7 @@ from .config_flow_selectors import (
     phase_selector,
     price_basis_selector,
     pricing_structure_selector,
+    schedule_day_type_selector,
     solar_performance_selector,
     solar_shading_selector,
     solar_tilt_mode_selector,
@@ -54,6 +55,7 @@ from .config_flow_selectors import (
     tariff_mode_selector,
     tempo_mode_selector,
     text_selector,
+    time_slot_selector,
 )
 from .config_models import BATTERY_ID
 from .config_validation import ERR_RTE_CREDS_REQUIRED, HubEnergieConfigValidator
@@ -99,6 +101,9 @@ from .const import (
     CONF_RTE_CLIENT_ID,
     CONF_RTE_CLIENT_SECRET,
     CONF_SCHEDULE_SLOTS,
+    DAY_TYPE_ALL,
+    DOCUMENTATION_ADVANCED_SCHEDULE_SLOTS_URL,
+    SCHEDULE_FORM_MAX_SLOTS,
     CONF_SOLAR_ENERGY,
     CONF_SOLAR_ESTIMATION_ENABLED,
     CONF_SOLAR_EXPORT_TARIFF,
@@ -248,6 +253,57 @@ def _json_default(value: Any, fallback: str) -> str:
     if isinstance(value, list):
         return json.dumps(value, indent=2)
     return fallback
+
+
+def _schedule_form_defaults_from_slots(slots: Any) -> dict[str, Any]:
+    """Defaults for ``sched_r{i}_*`` keys from stored ``CONF_SCHEDULE_SLOTS`` list."""
+    out: dict[str, Any] = {}
+    data = slots if isinstance(slots, list) else []
+    for i in range(SCHEDULE_FORM_MAX_SLOTS):
+        p = f"sched_r{i}_"
+        if i < len(data) and isinstance(data[i], dict):
+            item = data[i]
+            out[f"{p}start"] = str(item.get("start") or "")
+            out[f"{p}end"] = str(item.get("end") or "")
+            out[f"{p}price"] = float(item.get("price") or 0.0)
+            out[f"{p}day_type"] = str(item.get("day_type") or DAY_TYPE_ALL)
+            out[f"{p}name"] = str(item.get("name") or "")
+        else:
+            out[f"{p}start"] = ""
+            out[f"{p}end"] = ""
+            out[f"{p}price"] = 0.0
+            out[f"{p}day_type"] = DAY_TYPE_ALL
+            out[f"{p}name"] = ""
+    return out
+
+
+def _manual_schedule_form_schema(draft: dict[str, Any], currency: str) -> vol.Schema:
+    dfn = _schedule_form_defaults_from_slots(draft.get(CONF_SCHEDULE_SLOTS))
+    fields: dict[Any, Any] = {}
+    for i in range(SCHEDULE_FORM_MAX_SLOTS):
+        p = f"sched_r{i}_"
+        fields[vol.Optional(f"{p}start", default=dfn[f"{p}start"])] = time_slot_selector()
+        fields[vol.Optional(f"{p}end", default=dfn[f"{p}end"])] = time_slot_selector()
+        fields[vol.Optional(f"{p}price", default=dfn[f"{p}price"])] = NumberSelector(
+            NumberSelectorConfig(
+                min=0,
+                max=5,
+                step=0.01,
+                mode=NumberSelectorMode.BOX,
+                unit_of_measurement=f"{currency}/kWh",
+            )
+        )
+        fields[vol.Optional(f"{p}day_type", default=dfn[f"{p}day_type"])] = schedule_day_type_selector()
+        fields[vol.Optional(f"{p}name", default=dfn[f"{p}name"])] = text_selector()
+    fields[vol.Optional(CONF_SUBSCRIPTION_PRICE, default=draft.get(CONF_SUBSCRIPTION_PRICE, 0.0))] = NumberSelector(
+        NumberSelectorConfig(
+            min=0,
+            max=1000,
+            mode=NumberSelectorMode.BOX,
+            unit_of_measurement=f"{currency}/month",
+        )
+    )
+    return vol.Schema(fields)
 
 
 async def _async_validate_step(
@@ -835,26 +891,56 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_manual_schedule(
+        self, _user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        return self.async_show_menu(
+            step_id="manual_schedule",
+            menu_options=["manual_schedule_form", "manual_schedule_json"],
+            description_placeholders={"doc_url": DOCUMENTATION_ADVANCED_SCHEDULE_SLOTS_URL},
+        )
+
+    async def async_step_manual_schedule_form(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            patch, errors = _validate_step("manual_schedule", self._data, user_input)
+            patch, errors = _validate_step("manual_schedule_form", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 return await self.async_step_grid()
         currency = self._data.get(CONF_CURRENCY, "EUR")
         return self.async_show_form(
-            step_id="manual_schedule",
+            step_id="manual_schedule_form",
+            data_schema=_manual_schedule_form_schema(self._data, currency),
+            errors=errors,
+            description_placeholders={"doc_url": DOCUMENTATION_ADVANCED_SCHEDULE_SLOTS_URL},
+        )
+
+    async def async_step_manual_schedule_json(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            patch, errors = _validate_step("manual_schedule_json", self._data, user_input)
+            if not errors:
+                _apply_patch(self._data, patch)
+                return await self.async_step_grid()
+        currency = self._data.get(CONF_CURRENCY, "EUR")
+        return self.async_show_form(
+            step_id="manual_schedule_json",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_SCHEDULE_SLOTS, default=_json_default(self._data.get(CONF_SCHEDULE_SLOTS), default_schedule_json())): text_selector(multiline=True),
+                    vol.Required(
+                        CONF_SCHEDULE_SLOTS,
+                        default=_json_default(self._data.get(CONF_SCHEDULE_SLOTS), default_schedule_json()),
+                    ): text_selector(multiline=True),
                     vol.Optional(CONF_SUBSCRIPTION_PRICE, default=self._data.get(CONF_SUBSCRIPTION_PRICE, 0.0)): NumberSelector(
                         NumberSelectorConfig(min=0, max=1000, mode=NumberSelectorMode.BOX, unit_of_measurement=f"{currency}/month")
                     ),
                 }
             ),
             errors=errors,
+            description_placeholders={"doc_url": DOCUMENTATION_ADVANCED_SCHEDULE_SLOTS_URL},
         )
 
     async def async_step_grid(

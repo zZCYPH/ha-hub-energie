@@ -356,7 +356,7 @@ def test_manual_schedule_valid_json() -> None:
         f'"day_type": "{const.DAY_TYPE_WEEKDAYS}"}}]'
     )
     patch, errors = HubEnergieConfigValidator.validate_step(
-        "manual_schedule",
+        "manual_schedule_json",
         {},
         {const.CONF_SCHEDULE_SLOTS: raw},
     )
@@ -368,11 +368,45 @@ def test_manual_schedule_valid_json() -> None:
 def test_manual_schedule_invalid_day_type() -> None:
     raw = '[{"start": "06:00", "end": "08:00", "price": 0.1, "day_type": "mars"}]'
     patch, errors = HubEnergieConfigValidator.validate_step(
-        "manual_schedule",
+        "manual_schedule_json",
         {},
         {const.CONF_SCHEDULE_SLOTS: raw},
     )
     assert errors[const.CONF_SCHEDULE_SLOTS] == config_validation.ERR_INVALID_OPTION
+
+
+def test_manual_schedule_form_valid() -> None:
+    ui: dict = {const.CONF_SUBSCRIPTION_PRICE: 0.0}
+    ui["sched_r0_start"] = "06:00"
+    ui["sched_r0_end"] = "22:00"
+    ui["sched_r0_price"] = 0.18
+    ui["sched_r0_day_type"] = const.DAY_TYPE_WEEKDAYS
+    ui["sched_r0_name"] = "HP"
+    patch, errors = HubEnergieConfigValidator.validate_step("manual_schedule_form", {}, ui)
+    assert errors == {}
+    assert patch[const.CONF_SCHEDULE_SLOTS][0]["name"] == "HP"
+
+
+def test_manual_schedule_form_incomplete_row() -> None:
+    ui = {
+        "sched_r0_start": "06:00",
+        "sched_r0_end": "",
+        const.CONF_SUBSCRIPTION_PRICE: 0.0,
+    }
+    patch, errors = HubEnergieConfigValidator.validate_step("manual_schedule_form", {}, ui)
+    assert errors["base"] == config_validation.ERR_SCHEDULE_INCOMPLETE_ROW
+    assert const.CONF_SCHEDULE_SLOTS not in patch
+
+
+def test_manual_schedule_json_accepts_hhmmss_normalized() -> None:
+    raw = '[{"start": "06:00:00", "end": "08:00:00", "price": 0.1, "day_type": "all"}]'
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "manual_schedule_json",
+        {},
+        {const.CONF_SCHEDULE_SLOTS: raw},
+    )
+    assert errors == {}
+    assert patch[const.CONF_SCHEDULE_SLOTS][0]["start"] == "06:00"
 
 
 def test_validate_full_minimal_edf_tempo_api_valid() -> None:

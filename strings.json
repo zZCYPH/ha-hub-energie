@@ -86,9 +86,55 @@
       },
       "manual_schedule": {
         "title": "Advanced schedule",
-        "description": "Define detailed time slots with prices, day types, and optional seasons.",
+        "description": "Choose how to enter your tariff slots. Full JSON format and examples: {doc_url}",
+        "menu_options": {
+          "manual_schedule_form": "Form (up to 6 slots)",
+          "manual_schedule_json": "JSON (advanced)"
+        }
+      },
+      "manual_schedule_form": {
+        "title": "Advanced schedule — form",
+        "description": "Fill one row per slot (up to 6). Leave unused rows empty. See {doc_url} for midnight ranges and day types.",
         "data": {
-          "schedule_slots": "Schedule slots (JSON)"
+          "sched_r0_start": "Slot 1 — start",
+          "sched_r0_end": "Slot 1 — end",
+          "sched_r0_price": "Slot 1 — price (per kWh)",
+          "sched_r0_day_type": "Slot 1 — day type",
+          "sched_r0_name": "Slot 1 — label (optional)",
+          "sched_r1_start": "Slot 2 — start",
+          "sched_r1_end": "Slot 2 — end",
+          "sched_r1_price": "Slot 2 — price (per kWh)",
+          "sched_r1_day_type": "Slot 2 — day type",
+          "sched_r1_name": "Slot 2 — label (optional)",
+          "sched_r2_start": "Slot 3 — start",
+          "sched_r2_end": "Slot 3 — end",
+          "sched_r2_price": "Slot 3 — price (per kWh)",
+          "sched_r2_day_type": "Slot 3 — day type",
+          "sched_r2_name": "Slot 3 — label (optional)",
+          "sched_r3_start": "Slot 4 — start",
+          "sched_r3_end": "Slot 4 — end",
+          "sched_r3_price": "Slot 4 — price (per kWh)",
+          "sched_r3_day_type": "Slot 4 — day type",
+          "sched_r3_name": "Slot 4 — label (optional)",
+          "sched_r4_start": "Slot 5 — start",
+          "sched_r4_end": "Slot 5 — end",
+          "sched_r4_price": "Slot 5 — price (per kWh)",
+          "sched_r4_day_type": "Slot 5 — day type",
+          "sched_r4_name": "Slot 5 — label (optional)",
+          "sched_r5_start": "Slot 6 — start",
+          "sched_r5_end": "Slot 6 — end",
+          "sched_r5_price": "Slot 6 — price (per kWh)",
+          "sched_r5_day_type": "Slot 6 — day type",
+          "sched_r5_name": "Slot 6 — label (optional)",
+          "subscription_price": "Monthly subscription"
+        }
+      },
+      "manual_schedule_json": {
+        "title": "Advanced schedule — JSON",
+        "description": "Paste a JSON array of slots. Specification: {doc_url}",
+        "data": {
+          "schedule_slots": "Schedule slots (JSON)",
+          "subscription_price": "Monthly subscription"
         }
       },
       "grid": {
@@ -262,7 +308,8 @@
       "tariff_fetch_failed": "Failed to fetch tariffs from provider API.",
       "invalid_json": "Invalid JSON format.",
       "schedule_gap": "Schedule does not cover 00:00-24:00 completely.",
-      "no_energy_sensor": "At least one grid energy sensor is required."
+      "no_energy_sensor": "At least one grid energy sensor is required.",
+      "schedule_incomplete_row": "Each slot needs both start and end times, or leave the row empty."
     },
     "abort": {
       "already_configured": "This integration is already configured."

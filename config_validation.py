@@ -74,6 +74,7 @@ from .const import (
     CONF_TEMPO_MODE,
     CONF_TOU_PERIODS,
     CONTRACT_POWER_OPTIONS,
+    DAY_TYPE_ALL,
     DAY_TYPE_OPTIONS,
     GRID_POWER_SIGN_OPTIONS,
     PHASE_OPTIONS,
@@ -82,6 +83,7 @@ from .const import (
     PRICING_FLAT,
     PRICING_OPTIONS,
     PRICING_SCHEDULE,
+    SCHEDULE_FORM_MAX_SLOTS,
     PRICING_TIME_OF_USE,
     SOLAR_PERF_OPTIONS,
     SOLAR_PERF_STANDARD,
@@ -115,6 +117,7 @@ ERR_BATTERY_ADV_MAX_DISCHARGE_NOT_BOTH: Final = "battery_adv_max_discharge_not_b
 ERR_BATTERY_ADV_SOC_MIN_NOT_BOTH: Final = "battery_adv_soc_min_not_both"
 ERR_BATTERY_ADV_SOC_MAX_NOT_BOTH: Final = "battery_adv_soc_max_not_both"
 ERR_NO_ENERGY_SENSOR: Final = "no_energy_sensor"
+ERR_SCHEDULE_INCOMPLETE_ROW: Final = "schedule_incomplete_row"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -285,10 +288,38 @@ def _validate_time(value: Any, errors: dict[str, str], field: str) -> str | None
     if cleaned is None:
         errors[field] = ERR_REQUIRED
         return None
+    if len(cleaned) >= 8 and cleaned[2] == ":" and cleaned[5] == ":":
+        cleaned = cleaned[:5]
     if not _TIME_RE.match(cleaned):
         errors[field] = ERR_INVALID_JSON
         return None
     return cleaned
+
+
+def _schedule_items_from_form_input(
+    user_input: Mapping[str, Any], errors: dict[str, str]
+) -> list[dict[str, Any]] | None:
+    """Build slot dicts from ``sched_r{i}_*`` form keys; skip empty rows."""
+    rows: list[dict[str, Any]] = []
+    for i in range(SCHEDULE_FORM_MAX_SLOTS):
+        p = f"sched_r{i}_"
+        start = _clean_optional_text(user_input.get(f"{p}start"))
+        end = _clean_optional_text(user_input.get(f"{p}end"))
+        if start is None and end is None:
+            continue
+        if start is None or end is None:
+            errors["base"] = ERR_SCHEDULE_INCOMPLETE_ROW
+            return None
+        rows.append(
+            {
+                "start": start,
+                "end": end,
+                "price": user_input.get(f"{p}price"),
+                "day_type": user_input.get(f"{p}day_type") or DAY_TYPE_ALL,
+                "name": user_input.get(f"{p}name"),
+            }
+        )
+    return rows
 
 
 def _clear_patch(keys: tuple[str, ...]) -> dict[str, Any]:
@@ -677,7 +708,23 @@ class HubEnergieConfigValidator:
             patch[CONF_SUBSCRIPTION_PRICE] = subscription or 0.0
             return patch, errors
 
-        if scope == "manual_schedule":
+        if scope == "manual_schedule_form":
+            items = _schedule_items_from_form_input(user_input, errors)
+            if items is not None:
+                normalized = _validate_schedule_items(items, errors, CONF_SCHEDULE_SLOTS)
+                if normalized is not None:
+                    patch[CONF_SCHEDULE_SLOTS] = normalized
+            subscription = _normalize_float(
+                user_input.get(CONF_SUBSCRIPTION_PRICE),
+                errors,
+                CONF_SUBSCRIPTION_PRICE,
+                minimum=0.0,
+                maximum=1000.0,
+            )
+            patch[CONF_SUBSCRIPTION_PRICE] = subscription or 0.0
+            return patch, errors
+
+        if scope == "manual_schedule_json":
             items = _parse_json_list(
                 user_input.get(CONF_SCHEDULE_SLOTS),
                 errors,

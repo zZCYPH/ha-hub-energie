@@ -86,9 +86,55 @@
       },
       "manual_schedule": {
         "title": "Planning avancé",
-        "description": "Définissez des créneaux horaires détaillés avec prix, types de jours et saisons optionnelles.",
+        "description": "Choisissez comment saisir vos créneaux. Format JSON complet et exemples : {doc_url}",
+        "menu_options": {
+          "manual_schedule_form": "Formulaire (jusqu'à 6 créneaux)",
+          "manual_schedule_json": "JSON (avancé)"
+        }
+      },
+      "manual_schedule_form": {
+        "title": "Planning avancé — formulaire",
+        "description": "Une ligne par créneau (6 max). Laissez les lignes inutilisées vides. Voir {doc_url} pour les plages après minuit et les types de jour.",
         "data": {
-          "schedule_slots": "Créneaux horaires (JSON)"
+          "sched_r0_start": "Créneau 1 — début",
+          "sched_r0_end": "Créneau 1 — fin",
+          "sched_r0_price": "Créneau 1 — prix (par kWh)",
+          "sched_r0_day_type": "Créneau 1 — type de jour",
+          "sched_r0_name": "Créneau 1 — libellé (optionnel)",
+          "sched_r1_start": "Créneau 2 — début",
+          "sched_r1_end": "Créneau 2 — fin",
+          "sched_r1_price": "Créneau 2 — prix (par kWh)",
+          "sched_r1_day_type": "Créneau 2 — type de jour",
+          "sched_r1_name": "Créneau 2 — libellé (optionnel)",
+          "sched_r2_start": "Créneau 3 — début",
+          "sched_r2_end": "Créneau 3 — fin",
+          "sched_r2_price": "Créneau 3 — prix (par kWh)",
+          "sched_r2_day_type": "Créneau 3 — type de jour",
+          "sched_r2_name": "Créneau 3 — libellé (optionnel)",
+          "sched_r3_start": "Créneau 4 — début",
+          "sched_r3_end": "Créneau 4 — fin",
+          "sched_r3_price": "Créneau 4 — prix (par kWh)",
+          "sched_r3_day_type": "Créneau 4 — type de jour",
+          "sched_r3_name": "Créneau 4 — libellé (optionnel)",
+          "sched_r4_start": "Créneau 5 — début",
+          "sched_r4_end": "Créneau 5 — fin",
+          "sched_r4_price": "Créneau 5 — prix (par kWh)",
+          "sched_r4_day_type": "Créneau 5 — type de jour",
+          "sched_r4_name": "Créneau 5 — libellé (optionnel)",
+          "sched_r5_start": "Créneau 6 — début",
+          "sched_r5_end": "Créneau 6 — fin",
+          "sched_r5_price": "Créneau 6 — prix (par kWh)",
+          "sched_r5_day_type": "Créneau 6 — type de jour",
+          "sched_r5_name": "Créneau 6 — libellé (optionnel)",
+          "subscription_price": "Abonnement mensuel"
+        }
+      },
+      "manual_schedule_json": {
+        "title": "Planning avancé — JSON",
+        "description": "Collez un tableau JSON de créneaux. Spécification : {doc_url}",
+        "data": {
+          "schedule_slots": "Créneaux horaires (JSON)",
+          "subscription_price": "Abonnement mensuel"
         }
       },
       "grid": {
@@ -249,7 +295,8 @@
       "tariff_fetch_failed": "Échec de la récupération des tarifs depuis l'API.",
       "invalid_json": "Format JSON invalide.",
       "schedule_gap": "Le planning ne couvre pas entièrement 00:00-24:00.",
-      "no_energy_sensor": "Au moins un capteur d'énergie réseau est requis."
+      "no_energy_sensor": "Au moins un capteur d'énergie réseau est requis.",
+      "schedule_incomplete_row": "Chaque créneau doit avoir une heure de début et de fin, ou laissez la ligne vide."
     },
     "abort": {
       "already_configured": "Cette intégration est déjà configurée."

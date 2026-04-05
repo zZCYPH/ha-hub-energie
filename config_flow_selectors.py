@@ -30,6 +30,9 @@ from .const import (
     BATT_SIGN_POSITIVE_CHARGE,
     BATT_SIGN_POSITIVE_DISCHARGE,
     CONTRACT_POWER_OPTIONS,
+    DAY_TYPE_ALL,
+    DAY_TYPE_WEEKDAYS,
+    DAY_TYPE_WEEKENDS,
     GRID_POWER_SIGN_OPTIONS,
     PHASE_OPTIONS,
     PRICE_BASIS_OPTIONS,
@@ -216,6 +219,23 @@ def offer_selector() -> SelectSelector:
             mode=SelectSelectorMode.DROPDOWN,
         )
     )
+
+
+def schedule_day_type_selector() -> SelectSelector:
+    return SelectSelector(
+        SelectSelectorConfig(
+            options=[
+                SelectOptionDict(value=DAY_TYPE_ALL, label="All days"),
+                SelectOptionDict(value=DAY_TYPE_WEEKDAYS, label="Weekdays"),
+                SelectOptionDict(value=DAY_TYPE_WEEKENDS, label="Weekends"),
+            ],
+            mode=SelectSelectorMode.DROPDOWN,
+        )
+    )
+
+
+def time_slot_selector() -> TextSelector:
+    return TextSelector(TextSelectorConfig(type=TextSelectorType.TIME))
 
 
 def pricing_structure_selector() -> SelectSelector:
