@@ -41,6 +41,32 @@ PHASE_MONO: Final = "mono"
 PHASE_TRI: Final = "tri"
 PHASE_OPTIONS: Final[list[str]] = [PHASE_MONO, PHASE_TRI]
 
+# Three-phase grid: one total sensor (JSON) vs per-phase wizard
+CONF_GRID_TRI_SENSOR_LAYOUT: Final = "grid_tri_sensor_layout"
+TRI_GRID_SENSOR_TOTAL: Final = "total"
+TRI_GRID_SENSOR_PER_PHASE: Final = "per_phase"
+TRI_GRID_SENSOR_OPTIONS: Final[list[str]] = [TRI_GRID_SENSOR_TOTAL, TRI_GRID_SENSOR_PER_PHASE]
+# Ephemeral config-flow keys (merged into *_phases lists, not stored as-is)
+CONF_TRI_PHASE_STEP_IMPORT_ENERGY: Final = "tri_phase_step_import_energy"
+CONF_TRI_PHASE_STEP_EXPORT_ENERGY: Final = "tri_phase_step_export_energy"
+CONF_TRI_PHASE_STEP_GRID_POWER: Final = "tri_phase_step_grid_power"
+
+# Three-phase primary import/export: one meter for all phases vs three (summed in runtime)
+CONF_GRID_TRI_ENERGY_MODE: Final = "grid_tri_energy_mode"
+TRI_GRID_ENERGY_SINGLE: Final = "single"
+TRI_GRID_ENERGY_PER_PHASE: Final = "per_phase"
+TRI_GRID_ENERGY_OPTIONS: Final[list[str]] = [TRI_GRID_ENERGY_SINGLE, TRI_GRID_ENERGY_PER_PHASE]
+# Stable pseudo-entity ids for delta bookkeeping when summing phase meters
+SYNTHETIC_ENTITY_GRID_IMPORT_SUM: Final = "hub_energie.__tri_grid_import_sum__"
+SYNTHETIC_ENTITY_GRID_EXPORT_SUM: Final = "hub_energie.__tri_grid_export_sum__"
+# Ephemeral form keys → grid_*_energy_phases (grid_tri_per_phase step)
+CONF_TRI_IMPORT_ENERGY_P1: Final = "tri_import_energy_p1"
+CONF_TRI_IMPORT_ENERGY_P2: Final = "tri_import_energy_p2"
+CONF_TRI_IMPORT_ENERGY_P3: Final = "tri_import_energy_p3"
+CONF_TRI_EXPORT_ENERGY_P1: Final = "tri_export_energy_p1"
+CONF_TRI_EXPORT_ENERGY_P2: Final = "tri_export_energy_p2"
+CONF_TRI_EXPORT_ENERGY_P3: Final = "tri_export_energy_p3"
+
 # ---------------------------------------------------------------------------
 # Tariff mode
 # ---------------------------------------------------------------------------
@@ -114,6 +140,20 @@ CONF_GRID_POWER_SENSOR: Final = "grid_power_sensor"
 CONF_GRID_POWER_SIGN_MODE: Final = "grid_power_sign_mode"
 CONF_GRID_POWER_PHASES: Final = "grid_power_phases"
 CONF_LOAD_POWER_SENSOR: Final = "load_power_sensor"
+
+# Keys written together when saving three-phase grid detail (options flow persist)
+GRID_TRI_DETAIL_KEYS: Final[tuple[str, ...]] = (
+    CONF_GRID_TRI_ENERGY_MODE,
+    CONF_GRID_TRI_SENSOR_LAYOUT,
+    CONF_GRID_IMPORT_ENERGY,
+    CONF_GRID_EXPORT_ENERGY,
+    CONF_GRID_IMPORT_ENERGY_PHASES,
+    CONF_GRID_EXPORT_ENERGY_PHASES,
+    CONF_GRID_POWER_SENSOR,
+    CONF_GRID_POWER_PHASES,
+    CONF_GRID_POWER_SIGN_MODE,
+    CONF_LOAD_POWER_SENSOR,
+)
 
 GRID_POWER_SIGN_EXPORT_NEGATIVE: Final = "export_negative"
 GRID_POWER_SIGN_EXPORT_POSITIVE: Final = "export_positive"

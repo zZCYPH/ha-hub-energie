@@ -8,6 +8,7 @@ import re
 from typing import Any, Final, Mapping
 
 from .config_models import HubEnergieConfigPartial, ValidationScope
+from .utils.grid_phases import ordered_phase_entity_ids
 from .utils.redaction import redact_sensitive_mapping
 from .const import (
     BATT_SIGN_POSITIVE_CHARGE,
@@ -41,6 +42,17 @@ from .const import (
     CONF_GRID_IMPORT_ENERGY,
     CONF_GRID_IMPORT_ENERGY_PHASES,
     CONF_GRID_POWER_PHASES,
+    CONF_GRID_TRI_ENERGY_MODE,
+    CONF_GRID_TRI_SENSOR_LAYOUT,
+    CONF_TRI_EXPORT_ENERGY_P1,
+    CONF_TRI_EXPORT_ENERGY_P2,
+    CONF_TRI_EXPORT_ENERGY_P3,
+    CONF_TRI_IMPORT_ENERGY_P1,
+    CONF_TRI_IMPORT_ENERGY_P2,
+    CONF_TRI_IMPORT_ENERGY_P3,
+    CONF_TRI_PHASE_STEP_EXPORT_ENERGY,
+    CONF_TRI_PHASE_STEP_GRID_POWER,
+    CONF_TRI_PHASE_STEP_IMPORT_ENERGY,
     CONF_GRID_POWER_SENSOR,
     CONF_GRID_POWER_SIGN_MODE,
     CONF_HAS_BATTERIES,
@@ -78,6 +90,7 @@ from .const import (
     DAY_TYPE_OPTIONS,
     GRID_POWER_SIGN_OPTIONS,
     PHASE_OPTIONS,
+    PHASE_TRI,
     PRICE_BASIS_OPTIONS,
     PRICE_BASIS_TTC,
     PRICING_FLAT,
@@ -86,6 +99,12 @@ from .const import (
     SCHEDULE_FORM_MAX_SLOTS,
     PRICING_TIME_OF_USE,
     SOLAR_PERF_OPTIONS,
+    TRI_GRID_ENERGY_OPTIONS,
+    TRI_GRID_ENERGY_PER_PHASE,
+    TRI_GRID_ENERGY_SINGLE,
+    TRI_GRID_SENSOR_OPTIONS,
+    TRI_GRID_SENSOR_PER_PHASE,
+    TRI_GRID_SENSOR_TOTAL,
     SOLAR_PERF_STANDARD,
     SOLAR_SHADING_NONE,
     SOLAR_SHADING_OPTIONS,
@@ -118,8 +137,16 @@ ERR_BATTERY_ADV_SOC_MIN_NOT_BOTH: Final = "battery_adv_soc_min_not_both"
 ERR_BATTERY_ADV_SOC_MAX_NOT_BOTH: Final = "battery_adv_soc_max_not_both"
 ERR_NO_ENERGY_SENSOR: Final = "no_energy_sensor"
 ERR_SCHEDULE_INCOMPLETE_ROW: Final = "schedule_incomplete_row"
+ERR_TRI_EXPORT_ALL_OR_NONE: Final = "tri_export_all_or_none"
+ERR_TRI_IMPORT_PHASES_INCOMPLETE: Final = "tri_import_phases_incomplete"
 
 _LOGGER = logging.getLogger(__name__)
+
+_TRI_GRID_PHASE_SCOPE_TO_NUM: Final[dict[str, int]] = {
+    "tri_grid_phase_1": 1,
+    "tri_grid_phase_2": 2,
+    "tri_grid_phase_3": 3,
+}
 
 _ENTITY_ID_RE: Final = re.compile(r"^[a-z0-9_]+\.[a-z0-9_]+$")
 _TIME_RE: Final = re.compile(r"^(?:[01]\d|2[0-3]):[0-5]\d$")
@@ -346,6 +373,44 @@ def _validate_phase_entries(
             return None
         normalized.append({"phase": phase_number, "entity_id": entity_id})
     return normalized
+
+
+def _phase_list_drop_phase(items: Any, phase: int) -> list[dict[str, Any]]:
+    if not isinstance(items, list):
+        return []
+    out: list[dict[str, Any]] = []
+    for x in items:
+        if not isinstance(x, dict):
+            continue
+        try:
+            p = int(x.get("phase", 0))
+        except (TypeError, ValueError):
+            continue
+        if p != phase:
+            out.append(x)
+    return out
+
+
+def _merge_tri_phase_step_patch(
+    merged: Mapping[str, Any],
+    user_input: Mapping[str, Any],
+    phase: int,
+    errors: dict[str, str],
+) -> dict[str, Any]:
+    """Build patch for import/export/power phase lists for one wizard step."""
+    patch: dict[str, Any] = {}
+    step_fields = (
+        (CONF_GRID_IMPORT_ENERGY_PHASES, CONF_TRI_PHASE_STEP_IMPORT_ENERGY),
+        (CONF_GRID_EXPORT_ENERGY_PHASES, CONF_TRI_PHASE_STEP_EXPORT_ENERGY),
+        (CONF_GRID_POWER_PHASES, CONF_TRI_PHASE_STEP_GRID_POWER),
+    )
+    for field, ukey in step_fields:
+        base = _phase_list_drop_phase(merged.get(field), phase)
+        eid = _optional_entity_id(user_input.get(ukey), errors, ukey)
+        if eid:
+            base = [*base, {"phase": phase, "entity_id": eid}]
+        patch[field] = base if base else None
+    return patch
 
 
 def _validate_tou_items(
@@ -744,6 +809,80 @@ class HubEnergieConfigValidator:
             patch[CONF_SUBSCRIPTION_PRICE] = subscription or 0.0
             return patch, errors
 
+        if scope == "grid_tri_energy_mode":
+            mode = _normalize_enum(
+                user_input.get(CONF_GRID_TRI_ENERGY_MODE),
+                default=TRI_GRID_ENERGY_SINGLE,
+                allowed=set(TRI_GRID_ENERGY_OPTIONS),
+                errors=errors,
+                field=CONF_GRID_TRI_ENERGY_MODE,
+            )
+            if mode is not None:
+                patch[CONF_GRID_TRI_ENERGY_MODE] = mode
+            return patch, errors
+
+        if scope == "grid_tri_per_phase":
+            imp_ids: list[str] = []
+            for key in (
+                CONF_TRI_IMPORT_ENERGY_P1,
+                CONF_TRI_IMPORT_ENERGY_P2,
+                CONF_TRI_IMPORT_ENERGY_P3,
+            ):
+                eid = _optional_entity_id(user_input.get(key), errors, key, required=True)
+                if eid:
+                    imp_ids.append(eid)
+            if len(imp_ids) == 3:
+                patch[CONF_GRID_IMPORT_ENERGY_PHASES] = [
+                    {"phase": i + 1, "entity_id": imp_ids[i]} for i in range(3)
+                ]
+            patch[CONF_GRID_IMPORT_ENERGY] = None
+            raw_ex = (
+                _clean_optional_text(user_input.get(CONF_TRI_EXPORT_ENERGY_P1)),
+                _clean_optional_text(user_input.get(CONF_TRI_EXPORT_ENERGY_P2)),
+                _clean_optional_text(user_input.get(CONF_TRI_EXPORT_ENERGY_P3)),
+            )
+            nf = sum(1 for x in raw_ex if x)
+            if nf not in (0, 3):
+                errors["base"] = ERR_TRI_EXPORT_ALL_OR_NONE
+            elif nf == 3:
+                ex_keys = (
+                    CONF_TRI_EXPORT_ENERGY_P1,
+                    CONF_TRI_EXPORT_ENERGY_P2,
+                    CONF_TRI_EXPORT_ENERGY_P3,
+                )
+                ex_ids: list[str] = []
+                for key, raw in zip(ex_keys, raw_ex):
+                    eid = _optional_entity_id(raw, errors, key, required=True)
+                    if eid:
+                        ex_ids.append(eid)
+                if len(ex_ids) == 3:
+                    patch[CONF_GRID_EXPORT_ENERGY_PHASES] = [
+                        {"phase": i + 1, "entity_id": ex_ids[i]} for i in range(3)
+                    ]
+            else:
+                patch[CONF_GRID_EXPORT_ENERGY_PHASES] = None
+            patch[CONF_GRID_EXPORT_ENERGY] = None
+            patch[CONF_GRID_POWER_SENSOR] = _optional_entity_id(
+                user_input.get(CONF_GRID_POWER_SENSOR),
+                errors,
+                CONF_GRID_POWER_SENSOR,
+            )
+            patch[CONF_LOAD_POWER_SENSOR] = _optional_entity_id(
+                user_input.get(CONF_LOAD_POWER_SENSOR),
+                errors,
+                CONF_LOAD_POWER_SENSOR,
+            )
+            sign_mode = _normalize_enum(
+                user_input.get(CONF_GRID_POWER_SIGN_MODE),
+                default=GRID_POWER_SIGN_OPTIONS[0],
+                allowed=set(GRID_POWER_SIGN_OPTIONS),
+                errors=errors,
+                field=CONF_GRID_POWER_SIGN_MODE,
+            )
+            if sign_mode is not None:
+                patch[CONF_GRID_POWER_SIGN_MODE] = sign_mode
+            return patch, errors
+
         if scope == "grid":
             patch[CONF_GRID_IMPORT_ENERGY] = _optional_entity_id(
                 user_input.get(CONF_GRID_IMPORT_ENERGY),
@@ -775,6 +914,27 @@ class HubEnergieConfigValidator:
             )
             if sign_mode is not None:
                 patch[CONF_GRID_POWER_SIGN_MODE] = sign_mode
+            return patch, errors
+
+        if scope == "grid_tri_layout":
+            layout = _normalize_enum(
+                user_input.get(CONF_GRID_TRI_SENSOR_LAYOUT),
+                default=TRI_GRID_SENSOR_OPTIONS[0],
+                allowed=set(TRI_GRID_SENSOR_OPTIONS),
+                errors=errors,
+                field=CONF_GRID_TRI_SENSOR_LAYOUT,
+            )
+            if layout is not None:
+                patch[CONF_GRID_TRI_SENSOR_LAYOUT] = layout
+            if layout == TRI_GRID_SENSOR_PER_PHASE:
+                patch[CONF_GRID_IMPORT_ENERGY_PHASES] = None
+                patch[CONF_GRID_EXPORT_ENERGY_PHASES] = None
+                patch[CONF_GRID_POWER_PHASES] = None
+            return patch, errors
+
+        if scope in _TRI_GRID_PHASE_SCOPE_TO_NUM:
+            phase_num = _TRI_GRID_PHASE_SCOPE_TO_NUM[scope]
+            patch.update(_merge_tri_phase_step_patch(merged, user_input, phase_num, errors))
             return patch, errors
 
         if scope == "grid_phases":
@@ -1009,7 +1169,18 @@ class HubEnergieConfigValidator:
             if not _clean_optional_text(data.get(field)):
                 errors[field] = ERR_REQUIRED
 
-        if not _clean_optional_text(data.get(CONF_GRID_IMPORT_ENERGY)):
+        phase_type = _clean_optional_text(data.get(CONF_PHASE_TYPE))
+        tri_energy = _clean_optional_text(data.get(CONF_GRID_TRI_ENERGY_MODE))
+        if phase_type == PHASE_TRI and tri_energy == TRI_GRID_ENERGY_PER_PHASE:
+            imp = ordered_phase_entity_ids(data.get(CONF_GRID_IMPORT_ENERGY_PHASES))
+            if len(imp) != 3:
+                errors[CONF_GRID_IMPORT_ENERGY_PHASES] = ERR_TRI_IMPORT_PHASES_INCOMPLETE
+            exp_raw = data.get(CONF_GRID_EXPORT_ENERGY_PHASES)
+            if exp_raw:
+                exp = ordered_phase_entity_ids(exp_raw)
+                if len(exp) != 3:
+                    errors[CONF_GRID_EXPORT_ENERGY_PHASES] = ERR_TRI_EXPORT_ALL_OR_NONE
+        elif not _clean_optional_text(data.get(CONF_GRID_IMPORT_ENERGY)):
             errors[CONF_GRID_IMPORT_ENERGY] = ERR_NO_ENERGY_SENSOR
 
         if data.get(CONF_HAS_SOLAR):

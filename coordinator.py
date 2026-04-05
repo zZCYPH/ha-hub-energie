@@ -17,13 +17,17 @@ from .const import (
     CONF_BATTERY_SYSTEMS,
     CONF_CURRENT_SLOT_SENSOR,
     CONF_GRID_EXPORT_ENERGY,
+    CONF_GRID_EXPORT_ENERGY_PHASES,
     CONF_GRID_IMPORT_ENERGY,
+    CONF_GRID_IMPORT_ENERGY_PHASES,
+    CONF_GRID_TRI_ENERGY_MODE,
     CONF_GRID_POWER_SENSOR,
     CONF_GRID_POWER_SIGN_MODE,
     CONF_HAS_BATTERIES,
     CONF_HAS_SOLAR,
     CONF_LOAD_POWER_SENSOR,
     CONF_PHASE_TYPE,
+    PHASE_TRI,
     CONF_PRICING_STRUCTURE,
     CONF_SOLAR_ENERGY,
     CONF_SOLAR_ESTIMATION_ENABLED,
@@ -137,11 +141,14 @@ from .const import (
     SOURCE_GRID,
     SOURCE_GRID_EXPORT,
     SOURCE_SOLAR,
+    SYNTHETIC_ENTITY_GRID_EXPORT_SUM,
+    SYNTHETIC_ENTITY_GRID_IMPORT_SUM,
     SUPPLIER_EDF,
     TARIFF_OFFER_TEMPO,
     TEMPO_MODE_API,
     TEMPO_MODE_RTE,
     TEMPO_MODE_SENSOR,
+    TRI_GRID_ENERGY_PER_PHASE,
     OPT_TARIFF_AUTO_REFRESH,
     OPT_TARIFF_REFRESH_HOURS,
 )
@@ -164,6 +171,7 @@ from .tariff.slot_attribution import resolve_attribution_slot
 from .tariff_manager import TariffResolver
 from .time.paris_time import ParisTime
 from .utils.energy import normalize_kwh
+from .utils.grid_phases import ordered_phase_entity_ids
 from .utils.numbers import safe_float
 from .providers.edf import is_off_peak, parse_slot_from_sensor_state
 
@@ -345,7 +353,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             store_model_version=STORE_MODEL_VERSION,
             source_map=self.source_map,
             expected_source_keys=self._expected_source_keys,
-            read_energy_kwh=self._reader.read_energy_kwh,
+            read_energy_kwh=self._read_energy_kwh_for_persistence,
             normalize_kwh=normalize_kwh,
             safe_float=safe_float,
             statistic_id=lambda sk, sl: statistic_id_for_domain(DOMAIN, sk, sl),
@@ -423,12 +431,53 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
     def solar_resale_configured(self) -> bool:
         return bool(self.entry.data.get(CONF_SOLAR_RESALE_CONTRACT))
 
+    def _read_energy_kwh_for_persistence(self, entity_id: str | None) -> float | None:
+        if not entity_id:
+            return None
+        if entity_id == SYNTHETIC_ENTITY_GRID_IMPORT_SUM:
+            ids = ordered_phase_entity_ids(self.entry.data.get(CONF_GRID_IMPORT_ENERGY_PHASES))
+            if len(ids) != 3:
+                return None
+            return self._reader.sum_energy_kwh(ids)
+        if entity_id == SYNTHETIC_ENTITY_GRID_EXPORT_SUM:
+            ids = ordered_phase_entity_ids(self.entry.data.get(CONF_GRID_EXPORT_ENERGY_PHASES))
+            if len(ids) != 3:
+                return None
+            return self._reader.sum_energy_kwh(ids)
+        return self._reader.read_energy_kwh(entity_id)
+
+    def tri_grid_aggregate_import_entities(self) -> list[str]:
+        if (
+            self.phase_type != PHASE_TRI
+            or self.entry.data.get(CONF_GRID_TRI_ENERGY_MODE) != TRI_GRID_ENERGY_PER_PHASE
+        ):
+            return []
+        return ordered_phase_entity_ids(self.entry.data.get(CONF_GRID_IMPORT_ENERGY_PHASES))
+
+    def tri_grid_aggregate_export_entities(self) -> list[str]:
+        if (
+            self.phase_type != PHASE_TRI
+            or self.entry.data.get(CONF_GRID_TRI_ENERGY_MODE) != TRI_GRID_ENERGY_PER_PHASE
+        ):
+            return []
+        return ordered_phase_entity_ids(self.entry.data.get(CONF_GRID_EXPORT_ENERGY_PHASES))
+
     def source_map(self) -> dict[str, str | None]:
         d = self.entry.data
+        grid_import = cast(str | None, d.get(CONF_GRID_IMPORT_ENERGY))
+        grid_export = cast(str | None, d.get(CONF_GRID_EXPORT_ENERGY))
+        if (
+            d.get(CONF_PHASE_TYPE) == PHASE_TRI
+            and d.get(CONF_GRID_TRI_ENERGY_MODE) == TRI_GRID_ENERGY_PER_PHASE
+        ):
+            imp_ids = ordered_phase_entity_ids(d.get(CONF_GRID_IMPORT_ENERGY_PHASES))
+            grid_import = SYNTHETIC_ENTITY_GRID_IMPORT_SUM if len(imp_ids) == 3 else None
+            exp_ids = ordered_phase_entity_ids(d.get(CONF_GRID_EXPORT_ENERGY_PHASES))
+            grid_export = SYNTHETIC_ENTITY_GRID_EXPORT_SUM if len(exp_ids) == 3 else None
         m: dict[str, str | None] = {
-            SOURCE_GRID: d.get(CONF_GRID_IMPORT_ENERGY),
+            SOURCE_GRID: grid_import,
             SOURCE_SOLAR: d.get(CONF_SOLAR_ENERGY) if self.has_solar else None,
-            SOURCE_GRID_EXPORT: d.get(CONF_GRID_EXPORT_ENERGY),
+            SOURCE_GRID_EXPORT: grid_export,
         }
         for batt in self.battery_systems:
             bid = batt.get("id", "")

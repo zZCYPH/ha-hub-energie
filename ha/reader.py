@@ -63,6 +63,18 @@ class HAReader:
             return value / 1000.0
         return value
 
+    def sum_energy_kwh(self, entity_ids: list[str]) -> float | None:
+        """Sum kWh from several meters; returns None if any entity is missing or unreadable."""
+        if not entity_ids:
+            return None
+        total = 0.0
+        for eid in entity_ids:
+            part = self.read_energy_kwh(eid)
+            if part is None:
+                return None
+            total += part
+        return self._normalize_kwh(total)
+
     def read_soc_percent(self, entity_id: str | None) -> float | None:
         """Read SOC as 0–100 percent."""
         if not entity_id:

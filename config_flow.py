@@ -45,6 +45,8 @@ from .config_flow_selectors import (
     optional_power_entity,
     optional_soc_entity,
     phase_selector,
+    tri_grid_energy_mode_selector,
+    tri_grid_sensor_layout_selector,
     price_basis_selector,
     pricing_structure_selector,
     schedule_day_type_selector,
@@ -59,6 +61,7 @@ from .config_flow_selectors import (
 )
 from .config_models import BATTERY_ID
 from .config_validation import ERR_RTE_CREDS_REQUIRED, HubEnergieConfigValidator
+from .utils.grid_phases import ordered_phase_entity_ids
 from .const import (
     BATT_SIGN_POSITIVE_DISCHARGE,
     CONF_BATTERY_SYSTEMS,
@@ -92,10 +95,21 @@ from .const import (
     CONF_GRID_POWER_PHASES,
     CONF_GRID_POWER_SENSOR,
     CONF_GRID_POWER_SIGN_MODE,
+    CONF_GRID_TRI_ENERGY_MODE,
+    CONF_GRID_TRI_SENSOR_LAYOUT,
     CONF_HAS_BATTERIES,
     CONF_HAS_SOLAR,
     CONF_LOAD_POWER_SENSOR,
     CONF_PHASE_TYPE,
+    CONF_TRI_EXPORT_ENERGY_P1,
+    CONF_TRI_EXPORT_ENERGY_P2,
+    CONF_TRI_EXPORT_ENERGY_P3,
+    CONF_TRI_IMPORT_ENERGY_P1,
+    CONF_TRI_IMPORT_ENERGY_P2,
+    CONF_TRI_IMPORT_ENERGY_P3,
+    CONF_TRI_PHASE_STEP_EXPORT_ENERGY,
+    CONF_TRI_PHASE_STEP_GRID_POWER,
+    CONF_TRI_PHASE_STEP_IMPORT_ENERGY,
     CONF_PRICE_BASIS,
     CONF_PRICING_STRUCTURE,
     CONF_RTE_CLIENT_ID,
@@ -127,6 +141,7 @@ from .const import (
     CONF_TOU_PERIODS,
     DOMAIN,
     GRID_POWER_SIGN_EXPORT_NEGATIVE,
+    GRID_TRI_DETAIL_KEYS,
     OPT_ABONNEMENT,
     OPT_BLEU_HC,
     OPT_BLEU_HP,
@@ -138,6 +153,10 @@ from .const import (
     OPT_TARIFF_FETCHED_AT,
     PHASE_MONO,
     PHASE_TRI,
+    TRI_GRID_ENERGY_PER_PHASE,
+    TRI_GRID_ENERGY_SINGLE,
+    TRI_GRID_SENSOR_PER_PHASE,
+    TRI_GRID_SENSOR_TOTAL,
     PRICE_BASIS_TTC,
     PRICING_FLAT,
     PRICING_TIME_OF_USE,
@@ -499,6 +518,98 @@ def _grid_phases_schema(data: dict[str, Any]) -> vol.Schema:
     _add_optional(schema, CONF_GRID_EXPORT_ENERGY_PHASES, text_selector(multiline=True), _json_default(data.get(CONF_GRID_EXPORT_ENERGY_PHASES), default_phase_json()))
     _add_optional(schema, CONF_GRID_POWER_PHASES, text_selector(multiline=True), _json_default(data.get(CONF_GRID_POWER_PHASES), default_phase_json()))
     return vol.Schema(schema)
+
+
+def _tri_phase_entity_default(data: dict[str, Any], phase: int, field: str) -> str:
+    for item in data.get(field) or []:
+        if not isinstance(item, dict):
+            continue
+        try:
+            p = int(item.get("phase", 0))
+        except (TypeError, ValueError):
+            continue
+        if p != phase:
+            continue
+        eid = item.get("entity_id")
+        if isinstance(eid, str) and eid.strip():
+            return eid.strip()
+    return ""
+
+
+def _grid_tri_layout_schema(data: dict[str, Any]) -> vol.Schema:
+    return vol.Schema(
+        {
+            vol.Required(
+                CONF_GRID_TRI_SENSOR_LAYOUT,
+                default=data.get(CONF_GRID_TRI_SENSOR_LAYOUT, TRI_GRID_SENSOR_TOTAL),
+            ): tri_grid_sensor_layout_selector()
+        }
+    )
+
+
+def _grid_tri_energy_mode_schema(data: dict[str, Any]) -> vol.Schema:
+    return vol.Schema(
+        {
+            vol.Required(
+                CONF_GRID_TRI_ENERGY_MODE,
+                default=data.get(CONF_GRID_TRI_ENERGY_MODE, TRI_GRID_ENERGY_SINGLE),
+            ): tri_grid_energy_mode_selector(),
+        }
+    )
+
+
+def _tri_per_phase_import_default(data: dict[str, Any], phase: int) -> str:
+    return _tri_phase_entity_default(data, phase, CONF_GRID_IMPORT_ENERGY_PHASES)
+
+
+def _tri_per_phase_export_default(data: dict[str, Any], phase: int) -> str:
+    return _tri_phase_entity_default(data, phase, CONF_GRID_EXPORT_ENERGY_PHASES)
+
+
+def _grid_tri_per_phase_schema(data: dict[str, Any]) -> vol.Schema:
+    schema: dict[Any, Any] = {
+        vol.Required(
+            CONF_GRID_POWER_SIGN_MODE,
+            default=data.get(CONF_GRID_POWER_SIGN_MODE, GRID_POWER_SIGN_EXPORT_NEGATIVE),
+        ): grid_power_sign_selector(),
+    }
+    schema.update(_required_energy_entity(CONF_TRI_IMPORT_ENERGY_P1, _tri_per_phase_import_default(data, 1)))
+    schema.update(_required_energy_entity(CONF_TRI_IMPORT_ENERGY_P2, _tri_per_phase_import_default(data, 2)))
+    schema.update(_required_energy_entity(CONF_TRI_IMPORT_ENERGY_P3, _tri_per_phase_import_default(data, 3)))
+    _add_optional(schema, CONF_TRI_EXPORT_ENERGY_P1, optional_energy_entity(), _tri_per_phase_export_default(data, 1))
+    _add_optional(schema, CONF_TRI_EXPORT_ENERGY_P2, optional_energy_entity(), _tri_per_phase_export_default(data, 2))
+    _add_optional(schema, CONF_TRI_EXPORT_ENERGY_P3, optional_energy_entity(), _tri_per_phase_export_default(data, 3))
+    _add_optional(schema, CONF_GRID_POWER_SENSOR, optional_power_entity(), data.get(CONF_GRID_POWER_SENSOR))
+    _add_optional(schema, CONF_LOAD_POWER_SENSOR, optional_power_entity(), data.get(CONF_LOAD_POWER_SENSOR))
+    return vol.Schema(schema)
+
+
+def _flow_unique_id(data: dict[str, Any]) -> str:
+    supplier = str(data.get(CONF_SUPPLIER, "unknown"))
+    if data.get(CONF_PHASE_TYPE) == PHASE_TRI and data.get(CONF_GRID_TRI_ENERGY_MODE) == TRI_GRID_ENERGY_PER_PHASE:
+        ids = ordered_phase_entity_ids(data.get(CONF_GRID_IMPORT_ENERGY_PHASES))
+        if len(ids) == 3:
+            return f"{supplier}_{'+'.join(ids)}"
+    return f"{supplier}_{data.get(CONF_GRID_IMPORT_ENERGY, 'unknown')}"
+
+
+def _tri_phase_grid_schema(data: dict[str, Any], phase: int) -> vol.Schema:
+    return vol.Schema(
+        {
+            vol.Optional(
+                CONF_TRI_PHASE_STEP_IMPORT_ENERGY,
+                default=_tri_phase_entity_default(data, phase, CONF_GRID_IMPORT_ENERGY_PHASES),
+            ): optional_energy_entity(),
+            vol.Optional(
+                CONF_TRI_PHASE_STEP_EXPORT_ENERGY,
+                default=_tri_phase_entity_default(data, phase, CONF_GRID_EXPORT_ENERGY_PHASES),
+            ): optional_energy_entity(),
+            vol.Optional(
+                CONF_TRI_PHASE_STEP_GRID_POWER,
+                default=_tri_phase_entity_default(data, phase, CONF_GRID_POWER_PHASES),
+            ): optional_power_entity(),
+        }
+    )
 
 
 def _solar_config_schema(data: dict[str, Any]) -> vol.Schema:
@@ -946,15 +1057,76 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     async def async_step_grid(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
+        if self._data.get(CONF_PHASE_TYPE) == PHASE_TRI:
+            if self._data.get(CONF_GRID_TRI_ENERGY_MODE) not in (
+                TRI_GRID_ENERGY_SINGLE,
+                TRI_GRID_ENERGY_PER_PHASE,
+            ):
+                return await self.async_step_grid_tri_energy_mode()
         errors: dict[str, str] = {}
         if user_input is not None:
             patch, errors = await _async_validate_step(self.hass, "grid", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_PHASE_TYPE) == PHASE_TRI:
-                    return await self.async_step_grid_phases()
+                    if self._data.get(CONF_GRID_TRI_ENERGY_MODE) == TRI_GRID_ENERGY_PER_PHASE:
+                        return await self.async_step_solar()
+                    return await self.async_step_grid_tri_layout()
                 return await self.async_step_solar()
         return self.async_show_form(step_id="grid", data_schema=_grid_schema(self._data), errors=errors)
+
+    async def async_step_grid_tri_energy_mode(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            patch, errors = await _async_validate_step(
+                self.hass, "grid_tri_energy_mode", self._data, user_input
+            )
+            if not errors:
+                _apply_patch(self._data, patch)
+                if self._data.get(CONF_GRID_TRI_ENERGY_MODE) == TRI_GRID_ENERGY_PER_PHASE:
+                    return await self.async_step_grid_tri_per_phase()
+                return await self.async_step_grid()
+        return self.async_show_form(
+            step_id="grid_tri_energy_mode",
+            data_schema=_grid_tri_energy_mode_schema(self._data),
+            errors=errors,
+        )
+
+    async def async_step_grid_tri_per_phase(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            patch, errors = await _async_validate_step(
+                self.hass, "grid_tri_per_phase", self._data, user_input
+            )
+            if not errors:
+                _apply_patch(self._data, patch)
+                return await self.async_step_solar()
+        return self.async_show_form(
+            step_id="grid_tri_per_phase",
+            data_schema=_grid_tri_per_phase_schema(self._data),
+            errors=errors,
+        )
+
+    async def async_step_grid_tri_layout(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            patch, errors = await _async_validate_step(self.hass, "grid_tri_layout", self._data, user_input)
+            if not errors:
+                _apply_patch(self._data, patch)
+                if self._data.get(CONF_GRID_TRI_SENSOR_LAYOUT) == TRI_GRID_SENSOR_PER_PHASE:
+                    return await self.async_step_tri_grid_phase_1()
+                return await self.async_step_grid_phases()
+        return self.async_show_form(
+            step_id="grid_tri_layout",
+            data_schema=_grid_tri_layout_schema(self._data),
+            errors=errors,
+        )
 
     async def async_step_grid_phases(
         self, user_input: dict[str, Any] | None = None
@@ -966,6 +1138,41 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
                 _apply_patch(self._data, patch)
                 return await self.async_step_solar()
         return self.async_show_form(step_id="grid_phases", data_schema=_grid_phases_schema(self._data), errors=errors)
+
+    async def async_step_tri_grid_phase_1(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        return await self._async_step_tri_grid_phase_n(1, user_input)
+
+    async def async_step_tri_grid_phase_2(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        return await self._async_step_tri_grid_phase_n(2, user_input)
+
+    async def async_step_tri_grid_phase_3(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        return await self._async_step_tri_grid_phase_n(3, user_input)
+
+    async def _async_step_tri_grid_phase_n(
+        self, phase: int, user_input: dict[str, Any] | None
+    ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
+        scope = f"tri_grid_phase_{phase}"
+        if user_input is not None:
+            patch, errors = await _async_validate_step(self.hass, scope, self._data, user_input)
+            if not errors:
+                _apply_patch(self._data, patch)
+                if phase == 1:
+                    return await self.async_step_tri_grid_phase_2()
+                if phase == 2:
+                    return await self.async_step_tri_grid_phase_3()
+                return await self.async_step_solar()
+        return self.async_show_form(
+            step_id=scope,
+            data_schema=_tri_phase_grid_schema(self._data, phase),
+            errors=errors,
+        )
 
     async def async_step_solar(
         self, user_input: dict[str, Any] | None = None
@@ -1065,7 +1272,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
                 if step_id == "battery_more"
                 else None,
             )
-        await self.async_set_unique_id(f"{self._data.get(CONF_SUPPLIER, 'unknown')}_{self._data.get(CONF_GRID_IMPORT_ENERGY, 'unknown')}")
+        await self.async_set_unique_id(_flow_unique_id(self._data))
         self._abort_if_unique_id_configured()
         supplier_label = self._data.get(CONF_SUPPLIER_CUSTOM_NAME) or str(self._data.get(CONF_SUPPLIER, "")).upper()
         return self.async_create_entry(
@@ -1083,10 +1290,13 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
         self._batteries: list[dict[str, Any]] = []
         self._current_battery: dict[str, Any] = {}
         self._edit_batt_index: int | None = None
+        self._grid_tri_draft: dict[str, Any] | None = None
 
     def _menu_options(self) -> list[str]:
         data = self.config_entry.data
         options = ["offer", "grid", "solar", "battery"]
+        if data.get(CONF_PHASE_TYPE) == PHASE_TRI:
+            options.insert(2, "grid_tri")
         if data.get(CONF_SUPPLIER) == SUPPLIER_EDF:
             options.append("tariff_refresh")
             if data.get(CONF_TARIFF_OFFER) == TARIFF_OFFER_TEMPO:
@@ -1173,6 +1383,147 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
                 except ValueError as err:
                     errors = dict(err.args[0])
         return self.async_show_form(step_id="grid", data_schema=_grid_schema(data), errors=errors)
+
+    async def _persist_grid_tri_draft(self, *, errors_form: tuple[str, vol.Schema]) -> ConfigFlowResult:
+        """Persist ``GRID_TRI_DETAIL_KEYS`` from ``_grid_tri_draft``; on validation error re-show a form."""
+        draft = self._grid_tri_draft
+        assert draft is not None
+        step_id, data_schema = errors_form
+        base = dict(self.config_entry.data)
+        data_patch = {k: draft.get(k) for k in GRID_TRI_DETAIL_KEYS}
+        try:
+            result = await self._persist(data_patch=data_patch, base_data=base)
+        except ValueError as err:
+            return self.async_show_form(
+                step_id=step_id,
+                data_schema=data_schema,
+                errors=dict(err.args[0]),
+            )
+        self._grid_tri_draft = None
+        return result
+
+    async def async_step_grid_tri(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        self._grid_tri_draft = dict(self.config_entry.data)
+        return await self.async_step_grid_tri_energy_mode()
+
+    async def async_step_grid_tri_energy_mode(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        draft = self._grid_tri_draft
+        assert draft is not None
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            patch, errors = await _async_validate_step(
+                self.hass, "grid_tri_energy_mode", draft, user_input
+            )
+            if not errors:
+                _apply_patch(draft, patch)
+                if draft.get(CONF_GRID_TRI_ENERGY_MODE) == TRI_GRID_ENERGY_PER_PHASE:
+                    return await self.async_step_grid_tri_per_phase()
+                return await self.async_step_grid_tri_layout()
+        return self.async_show_form(
+            step_id="grid_tri_energy_mode",
+            data_schema=_grid_tri_energy_mode_schema(draft),
+            errors=errors,
+        )
+
+    async def async_step_grid_tri_per_phase(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        draft = self._grid_tri_draft
+        assert draft is not None
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            patch, errors = await _async_validate_step(
+                self.hass, "grid_tri_per_phase", draft, user_input
+            )
+            if not errors:
+                _apply_patch(draft, patch)
+                return await self._persist_grid_tri_draft(
+                    errors_form=("grid_tri_per_phase", _grid_tri_per_phase_schema(draft)),
+                )
+        return self.async_show_form(
+            step_id="grid_tri_per_phase",
+            data_schema=_grid_tri_per_phase_schema(draft),
+            errors=errors,
+        )
+
+    async def async_step_grid_tri_layout(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        draft = self._grid_tri_draft
+        assert draft is not None
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            patch, errors = await _async_validate_step(self.hass, "grid_tri_layout", draft, user_input)
+            if not errors:
+                _apply_patch(draft, patch)
+                if draft.get(CONF_GRID_TRI_SENSOR_LAYOUT) == TRI_GRID_SENSOR_PER_PHASE:
+                    return await self.async_step_tri_grid_phase_1()
+                return await self.async_step_grid_phases()
+        return self.async_show_form(
+            step_id="grid_tri_layout",
+            data_schema=_grid_tri_layout_schema(draft),
+            errors=errors,
+        )
+
+    async def async_step_grid_phases(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        draft = self._grid_tri_draft
+        if draft is None:
+            draft = dict(self.config_entry.data)
+            self._grid_tri_draft = draft
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            patch, errors = await _async_validate_step(self.hass, "grid_phases", draft, user_input)
+            if not errors:
+                _apply_patch(draft, patch)
+                return await self._persist_grid_tri_draft(
+                    errors_form=("grid_phases", _grid_phases_schema(draft)),
+                )
+        return self.async_show_form(step_id="grid_phases", data_schema=_grid_phases_schema(draft), errors=errors)
+
+    async def async_step_tri_grid_phase_1(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        return await self._options_tri_grid_phase_n(1, user_input)
+
+    async def async_step_tri_grid_phase_2(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        return await self._options_tri_grid_phase_n(2, user_input)
+
+    async def async_step_tri_grid_phase_3(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        return await self._options_tri_grid_phase_n(3, user_input)
+
+    async def _options_tri_grid_phase_n(
+        self, phase: int, user_input: dict[str, Any] | None
+    ) -> ConfigFlowResult:
+        draft = self._grid_tri_draft
+        assert draft is not None
+        scope = f"tri_grid_phase_{phase}"
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            patch, errors = await _async_validate_step(self.hass, scope, draft, user_input)
+            if not errors:
+                _apply_patch(draft, patch)
+                if phase == 1:
+                    return await self.async_step_tri_grid_phase_2()
+                if phase == 2:
+                    return await self.async_step_tri_grid_phase_3()
+                return await self._persist_grid_tri_draft(
+                    errors_form=(scope, _tri_phase_grid_schema(draft, phase)),
+                )
+        return self.async_show_form(
+            step_id=scope,
+            data_schema=_tri_phase_grid_schema(draft, phase),
+            errors=errors,
+        )
 
     def _solar_options_schema(self, data: dict[str, Any]) -> vol.Schema:
         schema: dict[Any, Any] = {

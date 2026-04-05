@@ -137,6 +137,36 @@
           "subscription_price": "Abonnement mensuel"
         }
       },
+      "grid_tri_energy_mode": {
+        "title": "Import réseau triphasé",
+        "description": "Un seul compteur d'import pour tout le tableau, ou un compteur par phase ?",
+        "data": {
+          "grid_tri_energy_mode": "Mesure de l'import réseau"
+        },
+        "data_description": {
+          "grid_tri_energy_mode": "Total unique : vous choisirez un capteur d'import à l'étape suivante. Un par phase : l'intégration additionne L1+L2+L3."
+        }
+      },
+      "grid_tri_per_phase": {
+        "title": "Compteurs d'import par phase",
+        "description": "Un capteur d'import par phase. Export : trois capteurs ou aucun.",
+        "data": {
+          "grid_power_sign_mode": "Convention de signe puissance réseau",
+          "grid_power_sensor": "Puissance réseau (W, optionnel)",
+          "load_power_sensor": "Puissance consommation maison (W, optionnel)",
+          "tri_import_energy_p1": "Phase L1 — import réseau (kWh)",
+          "tri_import_energy_p2": "Phase L2 — import réseau (kWh)",
+          "tri_import_energy_p3": "Phase L3 — import réseau (kWh)",
+          "tri_export_energy_p1": "Phase L1 — export réseau (kWh, optionnel)",
+          "tri_export_energy_p2": "Phase L2 — export réseau (kWh, optionnel)",
+          "tri_export_energy_p3": "Phase L3 — export réseau (kWh, optionnel)"
+        },
+        "data_description": {
+          "grid_power_sign_mode": "L'export est-il négatif ou positif sur le capteur de puissance réseau ?",
+          "grid_power_sensor": "Puissance instantanée pour l'affichage temps réel.",
+          "load_power_sensor": "Consommation maison optionnelle pour le diagnostic."
+        }
+      },
       "grid": {
         "title": "Capteurs réseau électrique",
         "description": "Configurez vos capteurs de mesure du réseau.",
@@ -154,12 +184,50 @@
           "grid_power_sign_mode": "L'export est-il négatif ou positif sur ce capteur ?"
         }
       },
-      "grid_phases": {
-        "title": "Capteurs réseau triphasé",
-        "description": "Fournissez un capteur total unique ou un capteur par phase.",
+      "grid_tri_layout": {
+        "title": "Répartition des capteurs triphasés",
+        "description": "Choisissez comment saisir les capteurs optionnels par phase (import/export énergie et puissance réseau). Les capteurs principaux de l'étape précédente restent les totaux.",
         "data": {
-          "grid_import_energy_phases": "Capteurs énergie importée (par phase)",
-          "grid_export_energy_phases": "Capteurs énergie exportée (par phase)"
+          "grid_tri_sensor_layout": "Mode de saisie"
+        },
+        "data_description": {
+          "grid_tri_sensor_layout": "Un pour toutes les phases : étape JSON (total ou liste par phase). Un par phase : trois étapes pour L1, L2 et L3."
+        }
+      },
+      "grid_phases": {
+        "title": "Capteurs réseau triphasé (JSON)",
+        "description": "Listes JSON optionnelles : une entrée pour un total ou une par phase (voir modèle). Laisser vide pour ignorer.",
+        "data": {
+          "grid_import_energy_phases": "Import énergie (liste JSON)",
+          "grid_export_energy_phases": "Export énergie (liste JSON)",
+          "grid_power_phases": "Puissance réseau (liste JSON)"
+        }
+      },
+      "tri_grid_phase_1": {
+        "title": "Réseau triphasé — phase L1",
+        "description": "Capteurs optionnels pour la phase 1. Laisser vide si absent.",
+        "data": {
+          "tri_phase_step_import_energy": "Import énergie (kWh, optionnel)",
+          "tri_phase_step_export_energy": "Export énergie (kWh, optionnel)",
+          "tri_phase_step_grid_power": "Puissance réseau (W, optionnel)"
+        }
+      },
+      "tri_grid_phase_2": {
+        "title": "Réseau triphasé — phase L2",
+        "description": "Capteurs optionnels pour la phase 2. Laisser vide si absent.",
+        "data": {
+          "tri_phase_step_import_energy": "Import énergie (kWh, optionnel)",
+          "tri_phase_step_export_energy": "Export énergie (kWh, optionnel)",
+          "tri_phase_step_grid_power": "Puissance réseau (W, optionnel)"
+        }
+      },
+      "tri_grid_phase_3": {
+        "title": "Réseau triphasé — phase L3",
+        "description": "Capteurs optionnels pour la phase 3. Laisser vide si absent.",
+        "data": {
+          "tri_phase_step_import_energy": "Import énergie (kWh, optionnel)",
+          "tri_phase_step_export_energy": "Export énergie (kWh, optionnel)",
+          "tri_phase_step_grid_power": "Puissance réseau (W, optionnel)"
         }
       },
       "solar": {
@@ -296,6 +364,8 @@
       "invalid_json": "Format JSON invalide.",
       "schedule_gap": "Le planning ne couvre pas entièrement 00:00-24:00.",
       "no_energy_sensor": "Au moins un capteur d'énergie réseau est requis.",
+      "tri_export_all_or_none": "Laissez les trois capteurs d'export vides ou renseignez les trois.",
+      "tri_import_phases_incomplete": "Configurez un capteur d'import pour chaque phase (L1, L2, L3).",
       "schedule_incomplete_row": "Chaque créneau doit avoir une heure de début et de fin, ou laissez la ligne vide."
     },
     "abort": {
@@ -310,6 +380,7 @@
         "menu_options": {
           "offer": "Offre & tarifs",
           "grid": "Capteurs réseau",
+          "grid_tri": "Réseau triphasé (optionnel)",
           "solar": "Configuration solaire",
           "battery": "Systèmes de batterie",
           "tariff_refresh": "Tarifs EDF : actualiser via l'API",
@@ -362,6 +433,77 @@
           "grid_power_sensor": "Puissance instantanée pour l'affichage temps réel.",
           "grid_power_sign_mode": "L'export est-il négatif ou positif sur ce capteur ?",
           "load_power_sensor": "Consommation maison optionnelle pour le diagnostic."
+        }
+      },
+      "grid_tri_energy_mode": {
+        "title": "Import réseau triphasé",
+        "description": "Un compteur total pour tout le tableau, ou un compteur par phase ?",
+        "data": {
+          "grid_tri_energy_mode": "Mesure de l'import réseau"
+        },
+        "data_description": {
+          "grid_tri_energy_mode": "Total : inchangé par rapport à « Capteurs réseau ». Par phase : sommé par l'intégration."
+        }
+      },
+      "grid_tri_per_phase": {
+        "title": "Compteurs d'import par phase",
+        "description": "Un capteur d'import par phase. Export : trois capteurs ou aucun.",
+        "data": {
+          "grid_power_sign_mode": "Convention de signe puissance réseau",
+          "grid_power_sensor": "Puissance réseau (W, optionnel)",
+          "load_power_sensor": "Puissance maison (W, optionnel)",
+          "tri_import_energy_p1": "L1 — import réseau (kWh)",
+          "tri_import_energy_p2": "L2 — import réseau (kWh)",
+          "tri_import_energy_p3": "L3 — import réseau (kWh)",
+          "tri_export_energy_p1": "L1 — export (kWh, optionnel)",
+          "tri_export_energy_p2": "L2 — export (kWh, optionnel)",
+          "tri_export_energy_p3": "L3 — export (kWh, optionnel)"
+        }
+      },
+      "grid_tri_layout": {
+        "title": "Répartition des capteurs triphasés",
+        "description": "Comment saisir les capteurs optionnels par phase. Les totaux de « Capteurs réseau » ne changent pas.",
+        "data": {
+          "grid_tri_sensor_layout": "Mode de saisie"
+        },
+        "data_description": {
+          "grid_tri_sensor_layout": "Un pour toutes les phases : étape JSON. Un par phase : trois étapes L1, L2, L3."
+        }
+      },
+      "grid_phases": {
+        "title": "Capteurs triphasé (JSON)",
+        "description": "Listes JSON optionnelles : un total ou une entrée par phase. Laisser vide pour ignorer.",
+        "data": {
+          "grid_import_energy_phases": "Import énergie (JSON)",
+          "grid_export_energy_phases": "Export énergie (JSON)",
+          "grid_power_phases": "Puissance réseau (JSON)"
+        }
+      },
+      "tri_grid_phase_1": {
+        "title": "Réseau triphasé — phase L1",
+        "description": "Capteurs optionnels pour la phase 1.",
+        "data": {
+          "tri_phase_step_import_energy": "Import énergie (kWh, optionnel)",
+          "tri_phase_step_export_energy": "Export énergie (kWh, optionnel)",
+          "tri_phase_step_grid_power": "Puissance réseau (W, optionnel)"
+        }
+      },
+      "tri_grid_phase_2": {
+        "title": "Réseau triphasé — phase L2",
+        "description": "Capteurs optionnels pour la phase 2.",
+        "data": {
+          "tri_phase_step_import_energy": "Import énergie (kWh, optionnel)",
+          "tri_phase_step_export_energy": "Export énergie (kWh, optionnel)",
+          "tri_phase_step_grid_power": "Puissance réseau (W, optionnel)"
+        }
+      },
+      "tri_grid_phase_3": {
+        "title": "Réseau triphasé — phase L3",
+        "description": "Capteurs optionnels pour la phase 3.",
+        "data": {
+          "tri_phase_step_import_energy": "Import énergie (kWh, optionnel)",
+          "tri_phase_step_export_energy": "Export énergie (kWh, optionnel)",
+          "tri_phase_step_grid_power": "Puissance réseau (W, optionnel)"
         }
       },
       "solar": {

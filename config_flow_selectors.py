@@ -36,6 +36,11 @@ from .const import (
     GRID_POWER_SIGN_OPTIONS,
     PHASE_OPTIONS,
     PRICE_BASIS_OPTIONS,
+    TRI_GRID_ENERGY_PER_PHASE,
+    TRI_GRID_ENERGY_SINGLE,
+    TRI_GRID_SENSOR_OPTIONS,
+    TRI_GRID_SENSOR_PER_PHASE,
+    TRI_GRID_SENSOR_TOTAL,
     PRICING_FLAT,
     PRICING_SCHEDULE,
     PRICING_TIME_OF_USE,
@@ -168,6 +173,42 @@ def phase_selector() -> SelectSelector:
             options=[
                 SelectOptionDict(value=value, label=value.capitalize())
                 for value in PHASE_OPTIONS
+            ],
+            mode=SelectSelectorMode.DROPDOWN,
+        )
+    )
+
+
+def tri_grid_sensor_layout_selector() -> SelectSelector:
+    return SelectSelector(
+        SelectSelectorConfig(
+            options=[
+                SelectOptionDict(
+                    value=TRI_GRID_SENSOR_TOTAL,
+                    label="One sensor for all phases (JSON)",
+                ),
+                SelectOptionDict(
+                    value=TRI_GRID_SENSOR_PER_PHASE,
+                    label="One sensor per phase (step-by-step)",
+                ),
+            ],
+            mode=SelectSelectorMode.DROPDOWN,
+        )
+    )
+
+
+def tri_grid_energy_mode_selector() -> SelectSelector:
+    return SelectSelector(
+        SelectSelectorConfig(
+            options=[
+                SelectOptionDict(
+                    value=TRI_GRID_ENERGY_SINGLE,
+                    label="One meter for all phases (total import)",
+                ),
+                SelectOptionDict(
+                    value=TRI_GRID_ENERGY_PER_PHASE,
+                    label="One import meter per phase (summed by the integration)",
+                ),
             ],
             mode=SelectSelectorMode.DROPDOWN,
         )

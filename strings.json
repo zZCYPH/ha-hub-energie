@@ -137,6 +137,36 @@
           "subscription_price": "Monthly subscription"
         }
       },
+      "grid_tri_energy_mode": {
+        "title": "Three-phase grid import",
+        "description": "Does your installation expose one total import counter for the whole grid, or one counter per phase?",
+        "data": {
+          "grid_tri_energy_mode": "Grid import metering"
+        },
+        "data_description": {
+          "grid_tri_energy_mode": "One total: you will pick a single import sensor next. One per phase: the integration sums L1+L2+L3 for accounting."
+        }
+      },
+      "grid_tri_per_phase": {
+        "title": "Three-phase import meters",
+        "description": "Select one import energy sensor per phase. Optional: three export sensors (all or none).",
+        "data": {
+          "grid_power_sign_mode": "Grid power sign convention",
+          "grid_power_sensor": "Grid power (W, optional)",
+          "load_power_sensor": "House load power (W, optional)",
+          "tri_import_energy_p1": "Phase L1 — grid import energy (kWh)",
+          "tri_import_energy_p2": "Phase L2 — grid import energy (kWh)",
+          "tri_import_energy_p3": "Phase L3 — grid import energy (kWh)",
+          "tri_export_energy_p1": "Phase L1 — grid export energy (kWh, optional)",
+          "tri_export_energy_p2": "Phase L2 — grid export energy (kWh, optional)",
+          "tri_export_energy_p3": "Phase L3 — grid export energy (kWh, optional)"
+        },
+        "data_description": {
+          "grid_power_sign_mode": "Convention: is export negative or positive on the grid power sensor?",
+          "grid_power_sensor": "Instantaneous grid power for real-time display.",
+          "load_power_sensor": "Optional house consumption for load-side diagnostics."
+        }
+      },
       "grid": {
         "title": "Grid energy sensors",
         "description": "Configure your grid energy measurement sensors.",
@@ -154,12 +184,50 @@
           "grid_power_sign_mode": "Convention: is export negative or positive on this sensor?"
         }
       },
+      "grid_tri_layout": {
+        "title": "Three-phase sensor layout",
+        "description": "Choose how you want to enter optional per-phase sensors (import/export energy and grid power). Your main grid sensors from the previous step stay as the primary totals.",
+        "data": {
+          "grid_tri_sensor_layout": "Sensor layout"
+        },
+        "data_description": {
+          "grid_tri_sensor_layout": "One for all phases: next step uses JSON lists (one total or multiple phases). One per phase: the next three steps ask for phase L1, L2, and L3 separately."
+        }
+      },
       "grid_phases": {
-        "title": "Three-phase grid sensors",
-        "description": "Provide either a single total sensor or one sensor per phase.",
+        "title": "Three-phase grid sensors (JSON)",
+        "description": "Optional JSON lists: either one entry for a total sensor or one entry per phase (see template). Leave fields empty to skip.",
         "data": {
           "grid_import_energy_phases": "Import energy sensors (per-phase, JSON list)",
-          "grid_export_energy_phases": "Export energy sensors (per-phase, JSON list)"
+          "grid_export_energy_phases": "Export energy sensors (per-phase, JSON list)",
+          "grid_power_phases": "Grid power sensors (per-phase, JSON list)"
+        }
+      },
+      "tri_grid_phase_1": {
+        "title": "Three-phase grid — phase L1",
+        "description": "Optional sensors for phase 1. Leave a field empty if you do not have it.",
+        "data": {
+          "tri_phase_step_import_energy": "Import energy (kWh, optional)",
+          "tri_phase_step_export_energy": "Export energy (kWh, optional)",
+          "tri_phase_step_grid_power": "Grid power (W, optional)"
+        }
+      },
+      "tri_grid_phase_2": {
+        "title": "Three-phase grid — phase L2",
+        "description": "Optional sensors for phase 2. Leave a field empty if you do not have it.",
+        "data": {
+          "tri_phase_step_import_energy": "Import energy (kWh, optional)",
+          "tri_phase_step_export_energy": "Export energy (kWh, optional)",
+          "tri_phase_step_grid_power": "Grid power (W, optional)"
+        }
+      },
+      "tri_grid_phase_3": {
+        "title": "Three-phase grid — phase L3",
+        "description": "Optional sensors for phase 3. Leave a field empty if you do not have it.",
+        "data": {
+          "tri_phase_step_import_energy": "Import energy (kWh, optional)",
+          "tri_phase_step_export_energy": "Export energy (kWh, optional)",
+          "tri_phase_step_grid_power": "Grid power (W, optional)"
         }
       },
       "solar": {
@@ -309,6 +377,8 @@
       "invalid_json": "Invalid JSON format.",
       "schedule_gap": "Schedule does not cover 00:00-24:00 completely.",
       "no_energy_sensor": "At least one grid energy sensor is required.",
+      "tri_export_all_or_none": "Either leave all three export phase sensors empty or configure all three.",
+      "tri_import_phases_incomplete": "Configure import energy sensors for all three phases (L1, L2, L3).",
       "schedule_incomplete_row": "Each slot needs both start and end times, or leave the row empty."
     },
     "abort": {
@@ -323,6 +393,7 @@
         "menu_options": {
           "offer": "Offer & tariffs",
           "grid": "Grid sensors",
+          "grid_tri": "Three-phase grid (optional)",
           "solar": "Solar configuration",
           "battery": "Battery systems",
           "tariff_refresh": "EDF tariffs: refresh from API",
@@ -359,6 +430,31 @@
           "contract_name": "Free text to recognize this setup (optional)."
         }
       },
+      "grid_tri_energy_mode": {
+        "title": "Three-phase grid import",
+        "description": "One total import counter for the whole grid, or one counter per phase?",
+        "data": {
+          "grid_tri_energy_mode": "Grid import metering"
+        },
+        "data_description": {
+          "grid_tri_energy_mode": "One total: unchanged vs. “Grid sensors”. Per phase: summed by the integration."
+        }
+      },
+      "grid_tri_per_phase": {
+        "title": "Three-phase import meters",
+        "description": "One import sensor per phase. Export: three sensors or none.",
+        "data": {
+          "grid_power_sign_mode": "Grid power sign convention",
+          "grid_power_sensor": "Grid power (W, optional)",
+          "load_power_sensor": "House load power (W, optional)",
+          "tri_import_energy_p1": "L1 — grid import energy (kWh)",
+          "tri_import_energy_p2": "L2 — grid import energy (kWh)",
+          "tri_import_energy_p3": "L3 — grid import energy (kWh)",
+          "tri_export_energy_p1": "L1 — grid export (kWh, optional)",
+          "tri_export_energy_p2": "L2 — grid export (kWh, optional)",
+          "tri_export_energy_p3": "L3 — grid export (kWh, optional)"
+        }
+      },
       "grid": {
         "title": "Grid sensors",
         "description": "Grid import/export energy and optional power entities.",
@@ -375,6 +471,52 @@
           "grid_power_sensor": "Instantaneous grid power for real-time display.",
           "grid_power_sign_mode": "Convention: is export negative or positive on this sensor?",
           "load_power_sensor": "Optional house consumption for load-side diagnostics."
+        }
+      },
+      "grid_tri_layout": {
+        "title": "Three-phase sensor layout",
+        "description": "Choose how to enter optional per-phase sensors. Main grid totals from “Grid sensors” are unchanged.",
+        "data": {
+          "grid_tri_sensor_layout": "Sensor layout"
+        },
+        "data_description": {
+          "grid_tri_sensor_layout": "One for all phases: JSON step next. One per phase: three steps for L1, L2, L3."
+        }
+      },
+      "grid_phases": {
+        "title": "Three-phase grid sensors (JSON)",
+        "description": "Optional JSON lists: one total sensor or one per phase. Leave empty to skip.",
+        "data": {
+          "grid_import_energy_phases": "Import energy (JSON)",
+          "grid_export_energy_phases": "Export energy (JSON)",
+          "grid_power_phases": "Grid power (JSON)"
+        }
+      },
+      "tri_grid_phase_1": {
+        "title": "Three-phase grid — phase L1",
+        "description": "Optional sensors for phase 1.",
+        "data": {
+          "tri_phase_step_import_energy": "Import energy (kWh, optional)",
+          "tri_phase_step_export_energy": "Export energy (kWh, optional)",
+          "tri_phase_step_grid_power": "Grid power (W, optional)"
+        }
+      },
+      "tri_grid_phase_2": {
+        "title": "Three-phase grid — phase L2",
+        "description": "Optional sensors for phase 2.",
+        "data": {
+          "tri_phase_step_import_energy": "Import energy (kWh, optional)",
+          "tri_phase_step_export_energy": "Export energy (kWh, optional)",
+          "tri_phase_step_grid_power": "Grid power (W, optional)"
+        }
+      },
+      "tri_grid_phase_3": {
+        "title": "Three-phase grid — phase L3",
+        "description": "Optional sensors for phase 3.",
+        "data": {
+          "tri_phase_step_import_energy": "Import energy (kWh, optional)",
+          "tri_phase_step_export_energy": "Export energy (kWh, optional)",
+          "tri_phase_step_grid_power": "Grid power (W, optional)"
         }
       },
       "solar": {

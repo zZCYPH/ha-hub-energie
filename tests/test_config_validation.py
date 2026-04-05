@@ -436,6 +436,83 @@ def test_validate_full_missing_grid_import_energy() -> None:
     assert errors[const.CONF_GRID_IMPORT_ENERGY] == config_validation.ERR_NO_ENERGY_SENSOR
 
 
+def test_validate_full_tri_per_phase_uses_three_import_meters() -> None:
+    errors = HubEnergieConfigValidator.validate_full(
+        {
+            const.CONF_SUPPLIER: const.SUPPLIER_EDF,
+            const.CONF_PHASE_TYPE: const.PHASE_TRI,
+            const.CONF_GRID_TRI_ENERGY_MODE: const.TRI_GRID_ENERGY_PER_PHASE,
+            const.CONF_TARIFF_MODE: const.TARIFF_MODE_AUTO,
+            const.CONF_CONTRACT_POWER: "9",
+            const.CONF_GRID_IMPORT_ENERGY_PHASES: [
+                {"phase": 1, "entity_id": "sensor.g1"},
+                {"phase": 2, "entity_id": "sensor.g2"},
+                {"phase": 3, "entity_id": "sensor.g3"},
+            ],
+            const.CONF_TARIFF_OFFER: const.TARIFF_OFFER_TEMPO,
+            const.CONF_TEMPO_MODE: const.TEMPO_MODE_API,
+        }
+    )
+    assert errors == {}
+
+
+def test_validate_full_tri_per_phase_requires_all_three_phases() -> None:
+    errors = HubEnergieConfigValidator.validate_full(
+        {
+            const.CONF_SUPPLIER: const.SUPPLIER_EDF,
+            const.CONF_PHASE_TYPE: const.PHASE_TRI,
+            const.CONF_GRID_TRI_ENERGY_MODE: const.TRI_GRID_ENERGY_PER_PHASE,
+            const.CONF_TARIFF_MODE: const.TARIFF_MODE_AUTO,
+            const.CONF_CONTRACT_POWER: "9",
+            const.CONF_GRID_IMPORT_ENERGY_PHASES: [
+                {"phase": 1, "entity_id": "sensor.g1"},
+            ],
+            const.CONF_TARIFF_OFFER: const.TARIFF_OFFER_TEMPO,
+            const.CONF_TEMPO_MODE: const.TEMPO_MODE_API,
+        }
+    )
+    assert (
+        errors[const.CONF_GRID_IMPORT_ENERGY_PHASES]
+        == config_validation.ERR_TRI_IMPORT_PHASES_INCOMPLETE
+    )
+
+
+def test_grid_tri_per_phase_step_builds_phase_lists() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "grid_tri_per_phase",
+        {},
+        {
+            const.CONF_TRI_IMPORT_ENERGY_P1: "sensor.i1",
+            const.CONF_TRI_IMPORT_ENERGY_P2: "sensor.i2",
+            const.CONF_TRI_IMPORT_ENERGY_P3: "sensor.i3",
+            const.CONF_GRID_POWER_SIGN_MODE: const.GRID_POWER_SIGN_EXPORT_NEGATIVE,
+        },
+    )
+    assert errors == {}
+    assert patch[const.CONF_GRID_IMPORT_ENERGY] is None
+    assert patch[const.CONF_GRID_IMPORT_ENERGY_PHASES] == [
+        {"phase": 1, "entity_id": "sensor.i1"},
+        {"phase": 2, "entity_id": "sensor.i2"},
+        {"phase": 3, "entity_id": "sensor.i3"},
+    ]
+    assert patch.get(const.CONF_GRID_EXPORT_ENERGY_PHASES) is None
+
+
+def test_grid_tri_per_phase_export_requires_all_three_or_none() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "grid_tri_per_phase",
+        {},
+        {
+            const.CONF_TRI_IMPORT_ENERGY_P1: "sensor.i1",
+            const.CONF_TRI_IMPORT_ENERGY_P2: "sensor.i2",
+            const.CONF_TRI_IMPORT_ENERGY_P3: "sensor.i3",
+            const.CONF_TRI_EXPORT_ENERGY_P1: "sensor.e1",
+            const.CONF_GRID_POWER_SIGN_MODE: const.GRID_POWER_SIGN_EXPORT_NEGATIVE,
+        },
+    )
+    assert errors["base"] == config_validation.ERR_TRI_EXPORT_ALL_OR_NONE
+
+
 def test_redact_mapping_masks_secret_password_token_keys() -> None:
     out = config_validation._redact_mapping(
         {
@@ -462,3 +539,51 @@ def test_manual_tou_invalid_json_error_does_not_echo_secret_value() -> None:
     for _k, v in errors.items():
         assert secret not in str(v)
     assert secret not in patch.values()
+
+
+def test_grid_tri_layout_per_phase_clears_phase_lists() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "grid_tri_layout",
+        {
+            const.CONF_GRID_IMPORT_ENERGY_PHASES: [{"phase": 1, "entity_id": "sensor.old"}],
+        },
+        {const.CONF_GRID_TRI_SENSOR_LAYOUT: const.TRI_GRID_SENSOR_PER_PHASE},
+    )
+    assert errors == {}
+    assert patch[const.CONF_GRID_TRI_SENSOR_LAYOUT] == const.TRI_GRID_SENSOR_PER_PHASE
+    assert patch[const.CONF_GRID_IMPORT_ENERGY_PHASES] is None
+    assert patch[const.CONF_GRID_EXPORT_ENERGY_PHASES] is None
+    assert patch[const.CONF_GRID_POWER_PHASES] is None
+
+
+def test_grid_tri_layout_total_does_not_clear_lists() -> None:
+    existing = [{"phase": 1, "entity_id": "sensor.a"}]
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "grid_tri_layout",
+        {const.CONF_GRID_IMPORT_ENERGY_PHASES: existing},
+        {const.CONF_GRID_TRI_SENSOR_LAYOUT: const.TRI_GRID_SENSOR_TOTAL},
+    )
+    assert errors == {}
+    assert patch[const.CONF_GRID_TRI_SENSOR_LAYOUT] == const.TRI_GRID_SENSOR_TOTAL
+    assert const.CONF_GRID_IMPORT_ENERGY_PHASES not in patch
+
+
+def test_tri_grid_phase_step_merges_one_phase() -> None:
+    draft = {
+        const.CONF_GRID_IMPORT_ENERGY_PHASES: [{"phase": 2, "entity_id": "sensor.l2"}],
+    }
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "tri_grid_phase_1",
+        draft,
+        {
+            const.CONF_TRI_PHASE_STEP_IMPORT_ENERGY: "sensor.l1_imp",
+            const.CONF_TRI_PHASE_STEP_GRID_POWER: "sensor.l1_p",
+        },
+    )
+    assert errors == {}
+    assert patch[const.CONF_GRID_IMPORT_ENERGY_PHASES] == [
+        {"phase": 2, "entity_id": "sensor.l2"},
+        {"phase": 1, "entity_id": "sensor.l1_imp"},
+    ]
+    assert patch[const.CONF_GRID_EXPORT_ENERGY_PHASES] is None
+    assert patch[const.CONF_GRID_POWER_PHASES] == [{"phase": 1, "entity_id": "sensor.l1_p"}]

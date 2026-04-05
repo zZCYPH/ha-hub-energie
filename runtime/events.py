@@ -21,6 +21,10 @@ from ..const import (
     CONF_BATT_POWER_OUT,
     CONF_BATT_SOC,
     CONF_CURRENT_SLOT_SENSOR,
+    SOURCE_GRID,
+    SOURCE_GRID_EXPORT,
+    SYNTHETIC_ENTITY_GRID_EXPORT_SUM,
+    SYNTHETIC_ENTITY_GRID_IMPORT_SUM,
     TARIFF_OFFER_TEMPO,
     TEMPO_MODE_SENSOR,
 )
@@ -52,6 +56,24 @@ def create_state_changed_handler(co: Any):
                     power_ids.add(v)
         if entity_id in power_ids:
             hass.async_create_task(co._async_notify_all())
+            return
+
+        imp_agg = co.tri_grid_aggregate_import_entities()
+        if len(imp_agg) == 3 and entity_id in imp_agg:
+            total = co._reader.sum_energy_kwh(imp_agg)
+            if total is not None:
+                hass.async_create_task(
+                    co._async_apply_delta(SYNTHETIC_ENTITY_GRID_IMPORT_SUM, SOURCE_GRID, total)
+                )
+            return
+
+        exp_agg = co.tri_grid_aggregate_export_entities()
+        if len(exp_agg) == 3 and entity_id in exp_agg:
+            total = co._reader.sum_energy_kwh(exp_agg)
+            if total is not None:
+                hass.async_create_task(
+                    co._async_apply_delta(SYNTHETIC_ENTITY_GRID_EXPORT_SUM, SOURCE_GRID_EXPORT, total)
+                )
             return
 
         if entity_id not in (v for v in sm.values() if v):
