@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import importlib
+
+import pytest
 import sys
 import types
 from pathlib import Path
@@ -122,6 +124,7 @@ def test_runtime_state_export_store_payload_top_level_keys_stable() -> None:
         "totals_kwh_by_source",
         "slot_day_kwh",
         "last_raw_by_source",
+        "drift_anchor_meter_by_source",
         "written_stats_days",
         "source_entity_by_source",
         "diag_export_kwh",
@@ -132,3 +135,19 @@ def test_runtime_state_export_store_payload_top_level_keys_stable() -> None:
         "lts_cumulative_kwh_by_statistic_id",
     }
     assert set(payload.keys()) == expected
+
+
+def test_relative_meter_drift_uses_anchor_not_raw_counter() -> None:
+    """Drift compares internal total to (meter − anchor), not to the raw cumulative meter."""
+    diag = diag_state_module.ReinjectionState(
+        slots=SLOTS,
+        diag_causes=CAUSES,
+        default_cause="unattributed",
+    )
+    state = runtime_state_module.RuntimeState(slots=SLOTS, reinjection_state=diag)
+    state.totals_kwh_by_source["grid"] = _norm(10.0)
+    state.reanchor_drift_meter_for_source("grid", meter_kwh=1000.0, normalize_kwh=_norm)
+    assert state.drift_anchor_meter_by_source["grid"] == _norm(990.0)
+    assert state.relative_meter_drift_kwh("grid", meter_kwh=1005.0, normalize_kwh=_norm) == pytest.approx(-5.0)
+    state.totals_kwh_by_source["grid"] = _norm(15.0)
+    assert state.relative_meter_drift_kwh("grid", meter_kwh=1005.0, normalize_kwh=_norm) == pytest.approx(0.0)

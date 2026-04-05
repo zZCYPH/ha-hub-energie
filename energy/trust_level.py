@@ -26,7 +26,8 @@ _CAUSE_MESSAGES: dict[str, str] = {
         "Internal kWh state was rebuilt from recorder statistics after an invalid store."
     ),
     "internal_total_diverges_from_meter": (
-        "Integration SSOT total differs from the physical meter by more than the drift threshold."
+        "Integration SSOT total diverges from meter increments since the last anchor "
+        "(initialisation, entity change, or meter rebase) by more than the drift threshold."
     ),
     "tempo_rte_calendar_not_ready": (
         "EDF Tempo with RTE mode is selected but the RTE calendar is not ready yet."

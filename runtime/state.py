@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import math
 from dataclasses import dataclass, field
 from typing import Any, Callable, Mapping
 
@@ -23,6 +24,7 @@ class RuntimeState:
     accum: dict[str, dict[str, dict[str, float]]] = field(default_factory=dict)
     last_raw: dict[str, float] = field(default_factory=dict)
     totals_kwh_by_source: dict[str, float] = field(default_factory=dict)
+    drift_anchor_meter_by_source: dict[str, float] = field(default_factory=dict)
     written_stats_days: set[str] = field(default_factory=set)
     source_entity_by_source: dict[str, str] = field(default_factory=dict)
     batt_charge_power_split_kwh: dict[str, dict[str, float]] = field(default_factory=dict)
@@ -42,6 +44,7 @@ class RuntimeState:
         self.accum = {}
         self.last_raw = {}
         self.totals_kwh_by_source = {}
+        self.drift_anchor_meter_by_source = {}
         self.written_stats_days = set()
         self.source_entity_by_source = {}
         self.batt_charge_power_split_kwh = {}
@@ -97,6 +100,46 @@ class RuntimeState:
         }
         if slot in SLOTS:
             self.last_stable_attribution_slot = slot
+
+    def reanchor_drift_meter_for_source(
+        self,
+        source_key: str,
+        *,
+        meter_kwh: float,
+        normalize_kwh: Callable[[float], float],
+    ) -> None:
+        """Set meter reading anchor so drift = internal - (meter - anchor) is ~0 at this instant."""
+        m = normalize_kwh(float(meter_kwh))
+        internal = self.source_total(source_key, normalize_kwh=normalize_kwh)
+        self.drift_anchor_meter_by_source[str(source_key)] = normalize_kwh(m - internal)
+
+    def relative_meter_drift_kwh(
+        self,
+        source_key: str,
+        *,
+        meter_kwh: float | None,
+        normalize_kwh: Callable[[float], float],
+    ) -> float | None:
+        """Drift vs physical meter since anchor (setup / re-anchor); None if meter unreadable."""
+        if meter_kwh is None or not math.isfinite(float(meter_kwh)):
+            return None
+        internal = self.source_total(source_key, normalize_kwh=normalize_kwh)
+        if not math.isfinite(internal):
+            return None
+        m = normalize_kwh(float(meter_kwh))
+        anchor = self.drift_anchor_meter_by_source.get(source_key)
+        if anchor is None:
+            return round(internal - m, 6)
+        return round(internal - normalize_kwh(m - anchor), 6)
+
+    def patch_delta_telemetry_drift(self, source_key: str, drift_kwh: float | None) -> None:
+        """Update drift_kwh only (e.g. after re-anchor or startup refresh)."""
+        tel = self.delta_telemetry.get(source_key)
+        if not isinstance(tel, dict):
+            return
+        payload = dict(tel)
+        payload["drift_kwh"] = drift_kwh
+        self.delta_telemetry[str(source_key)] = payload
 
     def source_total(self, prefix_or_key: str, *, normalize_kwh: Callable[[float], float]) -> float:
         if prefix_or_key.endswith(":"):
@@ -191,12 +234,31 @@ class RuntimeState:
                 lts[str(str_key)] = normalize_kwh(val)
             self.lts_cumulative_kwh_by_statistic_id = lts
 
+        anchors: dict[str, float] = {}
+        raw_anchors = payload.get("drift_anchor_meter_by_source")
+        if isinstance(raw_anchors, dict):
+            for k, v in raw_anchors.items():
+                val = safe_float(v)
+                if val is None or not math.isfinite(val):
+                    continue
+                anchors[str(k)] = normalize_kwh(val)
+        self.drift_anchor_meter_by_source = anchors
+
+        # Stores without anchors: infer meter reading at internal=0 from last_raw − totals.
+        for sk in set(self.last_raw) & set(self.totals_kwh_by_source):
+            if sk in self.drift_anchor_meter_by_source:
+                continue
+            self.drift_anchor_meter_by_source[sk] = normalize_kwh(
+                self.last_raw[sk] - self.totals_kwh_by_source[sk]
+            )
+
     def export_store_payload(self, *, store_manager: Any) -> dict[str, Any]:
         diag_payload = self.reinjection_state.snapshot()
         return store_manager.build_payload(
             totals_kwh_by_source=self.totals_kwh_by_source,
             slot_day_kwh=self.accum,
             last_raw_by_source=self.last_raw,
+            drift_anchor_meter_by_source=self.drift_anchor_meter_by_source,
             written_stats_days=self.written_stats_days,
             source_entity_by_source=self.source_entity_by_source,
             diag_export_kwh=diag_payload["diag_export_kwh"],

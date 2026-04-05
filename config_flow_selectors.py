@@ -104,6 +104,11 @@ def optional_number_entity_or_empty() -> EntitySelector:
     Do not wrap ``EntitySelector`` in ``vol.Any(..., "", ...)``: Home Assistant cannot
     serialize that shape for the config-flow API (voluptuous_serialize raises).
     A cleared picker sends ``""``, which validation treats as unset.
+
+    Do not use ``vol.Optional(..., default=stored_entity)`` for these keys: if the UI
+    omits the key when cleared, Voluptuous would re-apply the default and the XOR
+    check would see both entity and manual values. Use suggested values on the
+    schema instead (see ``config_flow._battery_advanced_data_schema``).
     """
     return optional_number_entity()
 

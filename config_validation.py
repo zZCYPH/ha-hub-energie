@@ -9,6 +9,7 @@ from typing import Any, Final, Mapping
 
 from .config_models import HubEnergieConfigPartial, ValidationScope
 from .utils.grid_phases import ordered_phase_entity_ids
+from .utils.numbers import normalize_user_number_string
 from .utils.redaction import redact_sensitive_mapping
 from .const import (
     BATT_SIGN_POSITIVE_CHARGE,
@@ -258,6 +259,12 @@ def _normalize_float(
         if required:
             errors[field] = ERR_REQUIRED
         return None
+    if isinstance(value, str):
+        value = normalize_user_number_string(value)
+        if value == "":
+            if required:
+                errors[field] = ERR_REQUIRED
+            return None
     try:
         number = float(value)
     except (TypeError, ValueError):

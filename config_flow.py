@@ -192,6 +192,19 @@ _BATTERY_ADV_KEYS: Final[tuple[str, ...]] = (
     CONF_BATT_SOC_MAX,
     CONF_BATT_SOC_MAX_ENTITY,
 )
+# (entity_key, manual_key) — same order as config_validation._BATTERY_ADVANCED_RULES
+_BATTERY_ADV_XOR_PAIRS: Final[
+    tuple[tuple[str, str], ...]
+] = (
+    (CONF_BATT_CAPACITY_KWH_ENTITY, CONF_BATT_CAPACITY_KWH),
+    (CONF_BATT_MAX_CHARGE_W_ENTITY, CONF_BATT_MAX_CHARGE_W),
+    (CONF_BATT_MAX_DISCHARGE_W_ENTITY, CONF_BATT_MAX_DISCHARGE_W),
+    (CONF_BATT_SOC_MIN_ENTITY, CONF_BATT_SOC_MIN),
+    (CONF_BATT_SOC_MAX_ENTITY, CONF_BATT_SOC_MAX),
+)
+_BATTERY_ADV_FORM_KEYS: Final[tuple[str, ...]] = tuple(
+    k for pair in _BATTERY_ADV_XOR_PAIRS for k in pair
+)
 
 
 def _redact_user_input(value: Any) -> Any:
@@ -476,54 +489,51 @@ def _manual_xor_default(battery: dict[str, Any], key: str) -> str:
     return str(v)
 
 
-def _battery_advanced_schema_dict(battery: dict[str, Any]) -> dict[Any, Any]:
-    """Advanced XOR fields for the ``battery_advanced`` step."""
-    return {
-        vol.Optional(
-            CONF_BATT_CAPACITY_KWH_ENTITY,
-            default=battery.get(CONF_BATT_CAPACITY_KWH_ENTITY),
-        ): optional_number_entity_or_empty(),
-        vol.Optional(
-            CONF_BATT_CAPACITY_KWH,
-            default=_manual_xor_default(battery, CONF_BATT_CAPACITY_KWH),
-        ): optional_manual_kwh_selector(),
-        vol.Optional(
-            CONF_BATT_MAX_CHARGE_W_ENTITY,
-            default=battery.get(CONF_BATT_MAX_CHARGE_W_ENTITY),
-        ): optional_number_entity_or_empty(),
-        vol.Optional(
-            CONF_BATT_MAX_CHARGE_W,
-            default=_manual_xor_default(battery, CONF_BATT_MAX_CHARGE_W),
-        ): optional_manual_power_w_selector(),
-        vol.Optional(
-            CONF_BATT_MAX_DISCHARGE_W_ENTITY,
-            default=battery.get(CONF_BATT_MAX_DISCHARGE_W_ENTITY),
-        ): optional_number_entity_or_empty(),
-        vol.Optional(
-            CONF_BATT_MAX_DISCHARGE_W,
-            default=_manual_xor_default(battery, CONF_BATT_MAX_DISCHARGE_W),
-        ): optional_manual_power_w_selector(),
-        vol.Optional(
-            CONF_BATT_SOC_MIN_ENTITY,
-            default=battery.get(CONF_BATT_SOC_MIN_ENTITY),
-        ): optional_percentage_entity_or_empty(),
-        vol.Optional(
-            CONF_BATT_SOC_MIN,
-            default=_manual_xor_default(battery, CONF_BATT_SOC_MIN),
-        ): optional_manual_percent_selector(),
-        vol.Optional(
-            CONF_BATT_SOC_MAX_ENTITY,
-            default=battery.get(CONF_BATT_SOC_MAX_ENTITY),
-        ): optional_percentage_entity_or_empty(),
-        vol.Optional(
-            CONF_BATT_SOC_MAX,
-            default=_manual_xor_default(battery, CONF_BATT_SOC_MAX),
-        ): optional_manual_percent_selector(),
-    }
+def _battery_advanced_base_schema() -> vol.Schema:
+    """XOR fields without ``vol.Optional`` defaults (cleared entity pickers must stay empty)."""
+    return vol.Schema(
+        {
+            vol.Optional(CONF_BATT_CAPACITY_KWH_ENTITY): optional_number_entity_or_empty(),
+            vol.Optional(CONF_BATT_CAPACITY_KWH): optional_manual_kwh_selector(),
+            vol.Optional(CONF_BATT_MAX_CHARGE_W_ENTITY): optional_number_entity_or_empty(),
+            vol.Optional(CONF_BATT_MAX_CHARGE_W): optional_manual_power_w_selector(),
+            vol.Optional(CONF_BATT_MAX_DISCHARGE_W_ENTITY): optional_number_entity_or_empty(),
+            vol.Optional(CONF_BATT_MAX_DISCHARGE_W): optional_manual_power_w_selector(),
+            vol.Optional(CONF_BATT_SOC_MIN_ENTITY): optional_percentage_entity_or_empty(),
+            vol.Optional(CONF_BATT_SOC_MIN): optional_manual_percent_selector(),
+            vol.Optional(CONF_BATT_SOC_MAX_ENTITY): optional_percentage_entity_or_empty(),
+            vol.Optional(CONF_BATT_SOC_MAX): optional_manual_percent_selector(),
+        },
+        extra=vol.ALLOW_EXTRA,
+    )
 
 
-def _battery_advanced_schema(battery: dict[str, Any]) -> vol.Schema:
-    return vol.Schema(_battery_advanced_schema_dict(battery), extra=vol.ALLOW_EXTRA)
+def _battery_advanced_suggested_values(battery: dict[str, Any]) -> dict[str, Any]:
+    """Pre-fill the advanced battery form from in-memory / saved battery dict."""
+    suggested: dict[str, Any] = {}
+    for entity_key, manual_key in _BATTERY_ADV_XOR_PAIRS:
+        raw_e = battery.get(entity_key)
+        if isinstance(raw_e, str) and raw_e.strip():
+            suggested[entity_key] = raw_e.strip()
+        if battery.get(manual_key) not in (None, ""):
+            suggested[manual_key] = _manual_xor_default(battery, manual_key)
+    return suggested
+
+
+def _battery_advanced_data_schema(
+    flow: ConfigFlow | OptionsFlow,
+    battery: dict[str, Any],
+    user_input: dict[str, Any] | None = None,
+) -> vol.Schema:
+    """Schema with suggested values only (no vol defaults) so clearing an entity is not re-filled."""
+    suggested = _battery_advanced_suggested_values(battery)
+    if user_input:
+        for key in _BATTERY_ADV_FORM_KEYS:
+            if key in user_input:
+                suggested[key] = user_input[key]
+    return flow.add_suggested_values_to_schema(
+        _battery_advanced_base_schema(), suggested
+    )
 
 
 def _grid_schema(data: dict[str, Any]) -> vol.Schema:
@@ -731,15 +741,17 @@ class _BatteryWizardMixin(_StepLoggingMixin):
         battery = dict(self._current_battery)
         if not battery.get(CONF_BATT_ADVANCED):
             return await self.async_step_battery_add(user_input)
+        last_input: dict[str, Any] | None = None
         if user_input is not None:
             patch, errors = await _async_validate_step(self.hass, "battery_advanced", battery, user_input)
             if not errors:
                 _apply_patch(self._current_battery, patch)
                 return await self._commit_current_battery()
+            last_input = user_input
         number = (self._edit_batt_index + 1) if self._edit_batt_index is not None else (len(self._batteries) + 1)
         return self.async_show_form(
             step_id="battery_advanced",
-            data_schema=_battery_advanced_schema(battery),
+            data_schema=_battery_advanced_data_schema(self, battery, last_input),
             errors=errors,
             description_placeholders={"battery_number": str(number)},
         )

@@ -67,6 +67,7 @@ def _v1_store_payload(*, yesterday: str, yesterday_bleu_hp: float, last_raw_grid
         totals_kwh_by_source={"grid": _norm(float(yesterday_bleu_hp))},
         slot_day_kwh={yesterday: {"grid": grid_y}},
         last_raw_by_source={"grid": _norm(float(last_raw_grid))},
+        drift_anchor_meter_by_source={},
         written_stats_days=set(),
         source_entity_by_source={"grid": "sensor.grid_import"},
         diag_export_kwh={},

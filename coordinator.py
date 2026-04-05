@@ -573,6 +573,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             self.hass.bus.async_listen("state_changed", create_state_changed_handler(self))
         )
         self._scheduler.start()
+        await self._async_refresh_delta_telemetry_drift_all_sources()
 
     async def _async_rebuild_from_recorder(self) -> None:
         await self._persistence.rebuild_from_recorder()
@@ -675,6 +676,20 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         value = self.get_value(CONF_BATTERY_SYSTEMS)
         return value if isinstance(value, list) else []
 
+    async def _async_refresh_delta_telemetry_drift_all_sources(self) -> None:
+        """Recompute relative meter drift in existing telemetry (e.g. after restart / anchor migration)."""
+        async with self._state_lock:
+            for source_key, ent in self.source_map().items():
+                if not ent:
+                    continue
+                meter_kwh = self._read_energy_kwh_for_persistence(ent)
+                drift = self._runtime_state.relative_meter_drift_kwh(
+                    source_key,
+                    meter_kwh=meter_kwh,
+                    normalize_kwh=normalize_kwh,
+                )
+                self._runtime_state.patch_delta_telemetry_drift(source_key, drift)
+
     async def _async_apply_delta(self, entity_id: str, source_key: str, new_val: float) -> None:
         now_paris = _paris_now()
         day = _paris_today_iso()
@@ -732,6 +747,9 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             )
 
         normalized_new = normalize_kwh(new_val)
+        reanchor_outcomes = frozenset(
+            {"initialized", "source_changed", "reset_rebased", "discarded_unrealistic"}
+        )
         async with self._state_lock:
             result = self._runtime_state.apply_delta(
                 day=day,
@@ -742,6 +760,12 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
                 normalize_kwh=normalize_kwh,
                 delta_policy=self._delta_policy,
             )
+            if result.outcome in reanchor_outcomes:
+                self._runtime_state.reanchor_drift_meter_for_source(
+                    source_key,
+                    meter_kwh=normalized_new,
+                    normalize_kwh=normalize_kwh,
+                )
             if result.outcome == "discarded_negative":
                 self._runtime_state.note_delta_discard("discarded_negative")
                 self._runtime_state.record_last_delta_rejection(
@@ -774,14 +798,11 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
                     result.delta_kwh,
                 )
             elif result.outcome == "applied":
-                meter_kwh = self._reader.read_energy_kwh(entity_id)
-                internal = self._runtime_state.source_total(
-                    source_key, normalize_kwh=normalize_kwh,
-                )
-                drift_kwh = (
-                    round(internal - meter_kwh, 6)
-                    if meter_kwh is not None and math.isfinite(internal)
-                    else None
+                meter_kwh = self._read_energy_kwh_for_persistence(entity_id)
+                drift_kwh = self._runtime_state.relative_meter_drift_kwh(
+                    source_key,
+                    meter_kwh=meter_kwh,
+                    normalize_kwh=normalize_kwh,
                 )
                 self._runtime_state.record_applied_delta_telemetry(
                     source_key,
@@ -792,6 +813,13 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
                     gap_seconds=gap_seconds,
                     drift_kwh=drift_kwh,
                 )
+            if result.outcome in reanchor_outcomes:
+                drift_now = self._runtime_state.relative_meter_drift_kwh(
+                    source_key,
+                    meter_kwh=normalized_new,
+                    normalize_kwh=normalize_kwh,
+                )
+                self._runtime_state.patch_delta_telemetry_drift(source_key, drift_now)
             if result.should_save:
                 self._schedule_store_save_locked()
 

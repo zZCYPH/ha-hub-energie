@@ -164,12 +164,24 @@ class PersistenceManager:
                 self._runtime_state.source_entity_by_source[source_key] = entity_id
                 current_kwh = self._read_energy_kwh(entity_id)
                 if current_kwh is not None and current_kwh >= 0:
-                    self._runtime_state.last_raw[source_key] = self._norm_kwh(current_kwh)
+                    ck = self._norm_kwh(current_kwh)
+                    self._runtime_state.last_raw[source_key] = ck
+                    self._runtime_state.reanchor_drift_meter_for_source(
+                        source_key,
+                        meter_kwh=ck,
+                        normalize_kwh=self._norm_kwh,
+                    )
                 needs_save = True
             elif source_key not in self._runtime_state.last_raw:
                 current_kwh = self._read_energy_kwh(entity_id)
                 if current_kwh is not None and current_kwh >= 0:
-                    self._runtime_state.last_raw[source_key] = self._norm_kwh(current_kwh)
+                    ck = self._norm_kwh(current_kwh)
+                    self._runtime_state.last_raw[source_key] = ck
+                    self._runtime_state.reanchor_drift_meter_for_source(
+                        source_key,
+                        meter_kwh=ck,
+                        normalize_kwh=self._norm_kwh,
+                    )
                     needs_save = True
 
         if loaded_from_store:

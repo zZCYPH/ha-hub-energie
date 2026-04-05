@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -74,6 +75,17 @@ def validate_store_payload(
             lts_f = safe_float(lts_val)
             if lts_f is None or lts_f < 0:
                 return False
+
+    anchors = payload.get("drift_anchor_meter_by_source")
+    if anchors is not None:
+        if not isinstance(anchors, dict):
+            return False
+        for ak, av in anchors.items():
+            if not isinstance(ak, str):
+                return False
+            af = safe_float(av)
+            if af is None or not math.isfinite(af):
+                return False
     return True
 
 
@@ -83,6 +95,7 @@ def build_store_payload(
     totals_kwh_by_source: dict[str, float],
     slot_day_kwh: dict[str, dict[str, dict[str, float]]],
     last_raw_by_source: dict[str, float],
+    drift_anchor_meter_by_source: dict[str, float],
     written_stats_days: set[str],
     source_entity_by_source: dict[str, str],
     diag_export_kwh: dict[str, Any],
@@ -112,6 +125,10 @@ def build_store_payload(
         "last_raw_by_source": {
             k: normalize_kwh(float(v), decimals)
             for k, v in last_raw_by_source.items()
+        },
+        "drift_anchor_meter_by_source": {
+            k: normalize_kwh(float(v), decimals)
+            for k, v in drift_anchor_meter_by_source.items()
         },
         "written_stats_days": sorted(written_stats_days),
         "source_entity_by_source": dict(source_entity_by_source),
@@ -148,6 +165,7 @@ class StoreManager:
         totals_kwh_by_source: dict[str, float],
         slot_day_kwh: dict[str, dict[str, dict[str, float]]],
         last_raw_by_source: dict[str, float],
+        drift_anchor_meter_by_source: dict[str, float],
         written_stats_days: set[str],
         source_entity_by_source: dict[str, str],
         diag_export_kwh: dict[str, Any],
@@ -162,6 +180,7 @@ class StoreManager:
             totals_kwh_by_source=totals_kwh_by_source,
             slot_day_kwh=slot_day_kwh,
             last_raw_by_source=last_raw_by_source,
+            drift_anchor_meter_by_source=drift_anchor_meter_by_source,
             written_stats_days=written_stats_days,
             source_entity_by_source=source_entity_by_source,
             diag_export_kwh=diag_export_kwh,

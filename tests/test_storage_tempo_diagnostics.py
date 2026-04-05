@@ -72,10 +72,17 @@ def test_store_manager_validate_and_build_payload() -> None:
     }
     assert not manager.validate_payload(invalid_lts)
 
+    invalid_anchor = {
+        **valid,
+        "drift_anchor_meter_by_source": {"grid": float("nan")},
+    }
+    assert not manager.validate_payload(invalid_anchor)
+
     built = manager.build_payload(
         totals_kwh_by_source={"grid": 10.12349},
         slot_day_kwh={"2026-04-02": {"grid": {"bleu_hp": 1.23456}}},
         last_raw_by_source={"grid": 100.55555},
+        drift_anchor_meter_by_source={"grid": 90.432},
         written_stats_days={"2026-04-01"},
         source_entity_by_source={"grid": "sensor.grid_energy"},
         diag_export_kwh={},
@@ -88,6 +95,7 @@ def test_store_manager_validate_and_build_payload() -> None:
     assert built["totals_kwh_by_source"]["grid"] == pytest.approx(10.123)
     assert built["slot_day_kwh"]["2026-04-02"]["grid"]["bleu_hp"] == pytest.approx(1.235)
     assert built["last_raw_by_source"]["grid"] == pytest.approx(100.556)
+    assert built["drift_anchor_meter_by_source"]["grid"] == pytest.approx(90.432)
     assert built["lts_cumulative_kwh_by_statistic_id"]["hub_energie:slot_grid_bleu_hp_kwh"] == pytest.approx(
         3.5
     )

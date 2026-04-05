@@ -245,6 +245,7 @@ def _v1_payload(*, day: str, bleu_hp: float, written: list[str] | None = None) -
         totals_kwh_by_source={"grid": _norm(float(bleu_hp))},
         slot_day_kwh={day: {"grid": grid_slots}},
         last_raw_by_source={"grid": _norm(1.0)},
+        drift_anchor_meter_by_source={},
         written_stats_days=set(written or []),
         source_entity_by_source={"grid": "sensor.grid_energy"},
         diag_export_kwh={},

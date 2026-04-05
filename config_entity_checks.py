@@ -7,6 +7,8 @@ from typing import Any, Final, Mapping
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.core import HomeAssistant, split_entity_id
 
+from .utils.numbers import normalize_user_number_string
+
 from .const import (
     CONF_BATT_CAPACITY_KWH_ENTITY,
     CONF_BATT_ENERGY_IN,
@@ -103,12 +105,12 @@ def _check_soc_entity(hass: HomeAssistant, entity_id: str) -> str | None:
         return None
     if split_entity_id(entity_id)[0] == "number":
         try:
-            value = float(state.state)
+            value = float(normalize_user_number_string(str(state.state)))
         except (TypeError, ValueError):
             return ERR_INVALID_PRICE
         return None if 0 <= value <= 100 else ERR_INVALID_SOC_ENTITY
     try:
-        float(state.state)
+        float(normalize_user_number_string(str(state.state)))
     except (TypeError, ValueError):
         return ERR_INVALID_SOC_ENTITY
     return None
@@ -122,7 +124,7 @@ def _check_numeric_entity(hass: HomeAssistant, entity_id: str) -> str | None:
     if domain not in {"sensor", "input_number", "number"}:
         return ERR_INVALID_ENTITY
     try:
-        float(state.state)
+        float(normalize_user_number_string(str(state.state)))
     except (TypeError, ValueError):
         return ERR_INVALID_PRICE
     return None

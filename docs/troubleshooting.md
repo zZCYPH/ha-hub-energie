@@ -55,9 +55,9 @@ Priority order in code: **`no_input`** → **`inconsistent`** → **`rebuilding`
 
 | | |
 |---|---|
-| **Meaning** | Trust level **`inconsistent`**: internal SSOT total **diverges from the physical meter** by at least **1.0 kWh** (per source, as reported in `delta_telemetry` / `trust_cause`). **Or** `input_status` is **`error`** (same root cause: inconsistent trust). |
-| **Typical causes** | Wrong entity, meter reset not handled as expected, duplicate/conflicting counters, or rare desync after manual edits. |
-| **What to check** | **`trust_cause`** (names the source key). Compare the configured grid import entity to Hub Énergie’s grid SSOT / telemetry drift fields. |
+| **Meaning** | Trust level **`inconsistent`**: internal SSOT energy **since the drift anchor** disagrees with **meter increments since that same anchor** by at least **1.0 kWh** (per source, in `delta_telemetry` / `trust_cause`). The anchor is set at first use, after an entity change, or when the meter is rebased without counting energy — **not** the raw cumulative counter if it predates the integration. **Or** `input_status` is **`error`** (same root cause: inconsistent trust). |
+| **Typical causes** | Accounting bugs, discarded deltas piling up, duplicate/conflicting counters, or rare desync after manual store edits — **not** simply “old meter vs young integration”. |
+| **What to check** | **`trust_cause`** (names the source key). Compare recent meter **deltas** to Hub Énergie’s attributed totals; inspect `delta_telemetry` **drift_kwh** (relative to anchor). |
 | **When to worry** | **Yes** for cost and grid-facing interpretation until resolved — see [What the integration hides](#what-the-integration-hides-when-inputs-are-bad). |
 
 ### `no_input`
@@ -78,7 +78,7 @@ These strings come from `trust_cause_code` / `trust_cause` when trust is not `ok
 | Code | Trust level | Plain meaning |
 |------|-------------|----------------|
 | `recorder_rebuild_from_store` | `rebuilding` | Replayed past days from recorder stats after invalid/missing store. |
-| `internal_total_diverges_from_meter` | `inconsistent` | Internal total vs meter beyond **1 kWh** (source named in message). |
+| `internal_total_diverges_from_meter` | `inconsistent` | Internal total vs **meter since drift anchor** beyond **1 kWh** (source named in message). |
 | `tempo_rte_calendar_not_ready` | `degraded` | Tempo + RTE mode but calendar not ready yet. |
 | `missing_current_slot` | `degraded` | Current tariff slot empty — slot/cost breakdown may be wrong. |
 | `unknown_tariff_bucket` | `degraded` | Energy is accumulating in the **unknown** slot bucket today. |

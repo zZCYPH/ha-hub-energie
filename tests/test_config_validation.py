@@ -96,6 +96,23 @@ def test_battery_advanced_manual_zero_allowed_for_power_fields() -> None:
     assert patch[const.CONF_BATT_MAX_CHARGE_W_ENTITY] is None
 
 
+def test_battery_advanced_accepts_comma_as_decimal_separator() -> None:
+    """French-style manual entry (2,76 kWh) must not yield invalid_price."""
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "battery_advanced",
+        {},
+        {
+            const.CONF_BATT_CAPACITY_KWH: "2,76",
+            const.CONF_BATT_SOC_MIN: "10,5",
+            const.CONF_BATT_SOC_MAX: "100",
+        },
+    )
+    assert errors == {}
+    assert patch[const.CONF_BATT_CAPACITY_KWH] == 2.76
+    assert patch[const.CONF_BATT_SOC_MIN] == 10.5
+    assert patch[const.CONF_BATT_SOC_MAX] == 100.0
+
+
 def test_solar_toggle_false_returns_clear_patch() -> None:
     patch, errors = HubEnergieConfigValidator.validate_step(
         "solar_toggle",
