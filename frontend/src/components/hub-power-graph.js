@@ -4,27 +4,19 @@ import {
   COLOR_GRID_SOURCE,
   COLOR_SOLAR,
 } from "../constants/colors.js";
+import {
+  DEFAULT_POWER_GRAPH_ROLLING_HOURS,
+  POWER_GRAPH_ROLLING_HOURS,
+  snapPowerGraphRollingHours,
+} from "../constants/power-graph-window.js";
 import { parisYmdStartUtc } from "../utils/date-utils.js";
 import { fmtPowerCompact } from "../utils/format-utils.js";
-
-/** Rolling window presets for live-day power graph (hours). */
-const POWER_GRAPH_ROLLING_HOURS = [24, 12, 6, 3, 1];
 
 /** Floor for half tooltip width (px); max is derived from visual viewport (see clamp). */
 const POWER_GRAPH_TOOLTIP_HALFWIDTH_MIN = 100;
 const POWER_GRAPH_TOOLTIP_EDGE_PAD = 12;
 /** Cap half-width so laptop layouts are not over-constrained vs 16rem tooltip. */
 const POWER_GRAPH_TOOLTIP_HALFWIDTH_CAP = 168;
-
-function snapPowerGraphRollingHours(raw, fallback) {
-  if (!Number.isFinite(raw)) return fallback;
-  const n = Math.trunc(raw);
-  if (POWER_GRAPH_ROLLING_HOURS.includes(n)) return n;
-  return POWER_GRAPH_ROLLING_HOURS.reduce(
-    (best, h) => (Math.abs(h - n) < Math.abs(best - n) ? h : best),
-    fallback,
-  );
-}
 
 /**
  * Split house load (W) into stacked layers: battery discharge, grid import, solar.
@@ -606,7 +598,10 @@ class HubPowerGraph extends LitElement {
       ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(dayStart)
       : s.dayIso;
     const archiveDayLine = String(i18n.powerHistoryFullDay).replace("{date}", dayLabel);
-    const rollingSnap = snapPowerGraphRollingHours(this.rollingHours, 6);
+    const rollingSnap = snapPowerGraphRollingHours(
+      this.rollingHours,
+      DEFAULT_POWER_GRAPH_ROLLING_HOURS,
+    );
 
     return html`
       <div class="power-graph">

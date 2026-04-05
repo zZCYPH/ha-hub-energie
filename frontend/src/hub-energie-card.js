@@ -2,31 +2,24 @@ import { LitElement, css, html, nothing } from "lit";
 import { I18N } from "./constants/i18n.js";
 import {
   COLOR_BATTERY,
-  COLOR_GRID_TO_BATT,
-  COLOR_GRID_SOURCE,
   COLOR_SOLAR,
   COLOR_SUBSCRIPTION,
 } from "./constants/colors.js";
+import {
+  DEFAULT_POWER_GRAPH_ROLLING_HOURS,
+  snapPowerGraphRollingHours,
+} from "./constants/power-graph-window.js";
 import { SLOTS } from "./constants/slots.js";
 import {
   addCalendarDays,
-  parisDayKeyFromTs,
   parisYmdStartUtc,
   rangeFromPreset,
   rangeLabel,
   todayParisISO,
 } from "./utils/date-utils.js";
-import {
-  fmtEnergy,
-  makeSectionEnergyFormatter,
-  readAttrNum,
-  readAttrOptionalFloat,
-  readNum,
-} from "./utils/format-utils.js";
+import { fmtEnergy, makeSectionEnergyFormatter } from "./utils/format-utils.js";
 import {
   battChargeSlotRowsFromAttrs,
-  COST_AGG_ATTRS,
-  COST_AGG_DICT_ATTRS,
   dayColorClass,
   dayColorLabel,
   isCardReady,
@@ -36,6 +29,10 @@ import {
   slotLabel,
   slotMapFingerprint,
 } from "./utils/energy-utils.js";
+import { extractHubCardViewModel } from "./utils/card-extract.js";
+import { fetchHistoryStates } from "./utils/fetch-history-states.js";
+import { tpl } from "./utils/i18n-template.js";
+import { buildBatteryData, buildPowerNowData } from "./utils/live-widget-data.js";
 import {
   collectPowerGraphStatisticIds,
   fetchStatisticsDuringPeriod,
@@ -51,125 +48,6 @@ import "./components/hub-power-graph.js";
 import "./components/hub-battery-bar.js";
 import "./components/hub-insight-bar.js";
 import "./hub-energie-card-editor.js";
-
-/** Replace `{key}` placeholders in a translation string. */
-function tpl(template, vars) {
-  let out = String(template);
-  for (const [k, v] of Object.entries(vars)) {
-    out = out.split(`{${k}}`).join(String(v));
-  }
-  return out;
-}
-
-/** Preset window lengths (hours) for live power history; must match hub-power-graph.js */
-const POWER_GRAPH_ROLLING_HOURS = [24, 12, 6, 3, 1];
-const DEFAULT_POWER_GRAPH_ROLLING_HOURS = 6;
-
-function snapPowerGraphRollingHours(raw) {
-  if (!Number.isFinite(raw)) return DEFAULT_POWER_GRAPH_ROLLING_HOURS;
-  const n = Math.trunc(raw);
-  if (POWER_GRAPH_ROLLING_HOURS.includes(n)) return n;
-  return POWER_GRAPH_ROLLING_HOURS.reduce(
-    (best, h) => (Math.abs(h - n) < Math.abs(best - n) ? h : best),
-    DEFAULT_POWER_GRAPH_ROLLING_HOURS,
-  );
-}
-
-async function fetchHistoryStates(hass, startIso, endIso, entityIds, costEntityId) {
-  const startIsoN = /^\d{4}-\d{2}-\d{2}$/.test(String(startIso)) ? String(startIso) : todayParisISO();
-  const endIsoN = /^\d{4}-\d{2}-\d{2}$/.test(String(endIso)) ? String(endIso) : todayParisISO();
-  let start = parisYmdStartUtc(startIsoN);
-  let endExclusive = parisYmdStartUtc(addCalendarDays(endIsoN, 1));
-  if (!Number.isFinite(start.getTime())) start = parisYmdStartUtc(todayParisISO());
-  if (!Number.isFinite(endExclusive.getTime())) {
-    endExclusive = parisYmdStartUtc(addCalendarDays(todayParisISO(), 1));
-  }
-  const qs = new URLSearchParams({
-    filter_entity_id: entityIds.join(","),
-    end_time: endExclusive.toISOString(),
-  });
-  const url = `history/period/${encodeURIComponent(start.toISOString())}?${qs}`;
-  const data = await hass.callApi("GET", url);
-  // For history rendering we want the day-end value (latest state that day),
-  // not the max. Some sensors can briefly spike then be corrected/reset.
-  const entityDayLast = new Map(); // id -> day -> {ts, v}
-  const costAttrDayLast = new Map(); // attr -> day -> {ts, v}
-  const costDictAttrDayLast = new Map(); // attr -> day -> {ts, dict}
-  const latestById = new Map();
-  const idSet = new Set(entityIds);
-
-  for (const frame of Array.isArray(data) ? data : []) {
-    if (!Array.isArray(frame)) continue;
-    for (const s of frame) {
-      const id = s?.entity_id;
-      if (!id || !idSet.has(id)) continue;
-      const ts = Date.parse(s?.last_changed ?? s?.last_updated ?? "");
-      if (!Number.isFinite(ts)) continue;
-      const day = parisDayKeyFromTs(ts);
-
-      const n = parseFloat(s?.state);
-      if (Number.isFinite(n)) {
-        if (!entityDayLast.has(id)) entityDayLast.set(id, new Map());
-        const byDay = entityDayLast.get(id);
-        const prev = byDay.get(day);
-        if (!prev || ts >= prev.ts) byDay.set(day, { ts, v: n });
-      }
-
-      if (id === costEntityId && s?.attributes && typeof s.attributes === "object") {
-        for (const k of COST_AGG_ATTRS) {
-          const v = parseFloat(s.attributes?.[k]);
-          if (!Number.isFinite(v)) continue;
-          if (!costAttrDayLast.has(k)) costAttrDayLast.set(k, new Map());
-          const byDay = costAttrDayLast.get(k);
-          const prev = byDay.get(day);
-          if (!prev || ts >= prev.ts) byDay.set(day, { ts, v });
-        }
-        for (const k of COST_AGG_DICT_ATTRS) {
-          const dict = s.attributes?.[k];
-          if (!dict || typeof dict !== "object") continue;
-          if (!costDictAttrDayLast.has(k)) costDictAttrDayLast.set(k, new Map());
-          const byDay = costDictAttrDayLast.get(k);
-          const prev = byDay.get(day);
-          if (!prev || ts >= prev.ts) byDay.set(day, { ts, dict });
-        }
-      }
-
-      const prev = latestById.get(id);
-      if (!prev || ts > prev.ts) latestById.set(id, { ts, state: s });
-    }
-  }
-
-  const sumDayLast = (m) => [...(m?.values() ?? [])].reduce((a, rec) => a + (rec?.v ?? 0), 0);
-
-  const sumDictDayLast = (m) => {
-    if (!m) return {};
-    const merged = {};
-    for (const rec of m.values()) {
-      if (!rec?.dict || typeof rec.dict !== "object") continue;
-      for (const [k, raw] of Object.entries(rec.dict)) {
-        const v = typeof raw === "number" ? raw : parseFloat(raw);
-        if (Number.isFinite(v)) merged[k] = (merged[k] ?? 0) + v;
-      }
-    }
-    return merged;
-  };
-
-  const out = {};
-  for (const id of idSet) {
-    const latest = latestById.get(id)?.state;
-    const attrs = { ...(latest?.attributes ?? {}) };
-    if (id === costEntityId) {
-      for (const k of COST_AGG_ATTRS) attrs[k] = sumDayLast(costAttrDayLast.get(k));
-      for (const k of COST_AGG_DICT_ATTRS) attrs[k] = sumDictDayLast(costDictAttrDayLast.get(k));
-    }
-    out[id] = {
-      entity_id: id,
-      state: String(sumDayLast(entityDayLast.get(id))),
-      attributes: attrs,
-    };
-  }
-  return out;
-}
 
 class HubEnergieCard extends LitElement {
   static get properties() {
@@ -640,7 +518,7 @@ class HubEnergieCard extends LitElement {
   }
 
   _setPowerGraphRollingHours(hours) {
-    const h = snapPowerGraphRollingHours(hours);
+    const h = snapPowerGraphRollingHours(hours, DEFAULT_POWER_GRAPH_ROLLING_HOURS);
     if (this._powerGraphRollingHours === h) return;
     this._powerGraphRollingHours = h;
     this.__lastKey = null;
@@ -697,7 +575,10 @@ class HubEnergieCard extends LitElement {
     this._prefixCache = null;
     this.__lastKey = null;
     const raw = parseFloat(this._config?.power_history_hours);
-    const snapped = snapPowerGraphRollingHours(Number.isFinite(raw) ? raw : NaN);
+    const snapped = snapPowerGraphRollingHours(
+      Number.isFinite(raw) ? raw : NaN,
+      DEFAULT_POWER_GRAPH_ROLLING_HOURS,
+    );
     if (this._powerGraphRollingHours !== snapped) {
       this._powerGraphRollingHours = snapped;
       this.__lastKey = null;
@@ -877,90 +758,7 @@ class HubEnergieCard extends LitElement {
   }
 
   _extract(i18n) {
-    const st = this._states();
-    const E = this._map();
-    const costAttrs = st?.[E.cost]?.attributes ?? {};
-
-    const offer = String(costAttrs.offer ?? "tempo").toLowerCase();
-    const contractPower = String(costAttrs.contract_power ?? "");
-    const currentSlot = String(costAttrs.current_slot ?? "");
-    const tempoDays = costAttrs.tempo_days ?? null;
-    const todayColor = costAttrs.today_color ?? null;
-    const tomorrowColor = costAttrs.tomorrow_color ?? null;
-
-    const reinj = {
-      solarSurplus: readAttrNum(st, E.cost, "export_due_to_solar_surplus_kwh"),
-      batteryFull: readAttrNum(st, E.cost, "export_due_to_battery_full_or_absent_kwh"),
-      switchLatency: readAttrNum(st, E.cost, "export_due_to_switch_latency_kwh"),
-      unattributed: readAttrNum(st, E.cost, "export_unattributed_kwh"),
-      oppTotalEur: readAttrNum(st, E.cost, "export_opportunity_cost_total_eur"),
-      oppSolarEur: readAttrNum(st, E.cost, "export_opportunity_cost_solar_surplus_eur"),
-      oppBatteryEur: readAttrNum(st, E.cost, "export_opportunity_cost_battery_full_or_absent_eur"),
-      oppLatencyEur: readAttrNum(st, E.cost, "export_opportunity_cost_switch_latency_eur"),
-      oppOtherEur: readAttrNum(st, E.cost, "export_opportunity_cost_unattributed_eur"),
-    };
-
-    const gridBySlotKwh = costAttrs.grid_by_slot_kwh;
-    const maisonBySlotKwh = costAttrs.maison_by_slot_kwh;
-
-    const grid = SLOTS.map((s) => ({
-      ...s,
-      label: slotLabel(s.id, offer, i18n),
-      v: readSlotValue(gridBySlotKwh, s.id),
-      isHc: s.id.endsWith("_hc"),
-    }));
-    const maison = SLOTS.map((s) => ({
-      ...s,
-      label: slotLabel(s.id, offer, i18n),
-      v: readSlotValue(maisonBySlotKwh, s.id),
-      isHc: s.id.endsWith("_hc"),
-    }));
-
-    const totalEur = readNum(st, E.cost);
-    const costs = SLOTS.map((s) => ({
-      ...s,
-      label: slotLabel(s.id, offer, i18n),
-      v: readAttrNum(st, E.cost, `${s.id}_eur`),
-      tooltip: `${readSlotValue(gridBySlotKwh, s.id).toFixed(3)} kWh`,
-      isHc: s.id.endsWith("_hc"),
-    }));
-    const abo = readAttrNum(st, E.cost, "abonnement_eur");
-
-    const ecoSolar = readNum(st, E.ecoSolar);
-    const ecoBatt = readNum(st, E.ecoBatt);
-    const og = readNum(st, E.originGrid);
-    const os = readNum(st, E.originSolar);
-
-    const usage = {
-      gridDirect: { label: i18n.usageGridDirect, v: readNum(st, E.usageGridDirect), color: COLOR_GRID_SOURCE },
-      gridBatt: { label: i18n.usageGridBatt, v: readNum(st, E.usageGridBatt), color: COLOR_GRID_TO_BATT },
-      solarDirect: { label: i18n.usageSolarDirect, v: readNum(st, E.usageSolarDirect), color: COLOR_SOLAR },
-      solarBatt: { label: i18n.usageSolarBatt, v: readNum(st, E.usageSolarBatt), color: "#fbc02d" },
-      battHome: { label: i18n.usageBattHome, v: readNum(st, E.usageBattHome), color: COLOR_BATTERY },
-    };
-
-    return {
-      grid,
-      maison,
-      totalEur,
-      costs,
-      abo,
-      ecoSolar,
-      ecoBatt,
-      og,
-      os,
-      usage,
-      costEntityOk: !!st[E.cost],
-      offer,
-      contractPower,
-      currentSlot,
-      tempoDays,
-      todayColor,
-      tomorrowColor,
-      reinj,
-      gridBattBySlot: costAttrs.usage_grid_batt_charge_by_slot_kwh,
-      solarBattBySlot: costAttrs.usage_solar_batt_charge_by_slot_kwh,
-    };
+    return extractHubCardViewModel(this._states(), this._map(), i18n);
   }
 
   _onDateChange(e) {
@@ -1047,7 +845,10 @@ class HubEnergieCard extends LitElement {
     }
 
     const selectedYmd = this._date ?? todayParisISO();
-    const rollingH = snapPowerGraphRollingHours(this._powerGraphRollingHours);
+    const rollingH = snapPowerGraphRollingHours(
+      this._powerGraphRollingHours,
+      DEFAULT_POWER_GRAPH_ROLLING_HOURS,
+    );
     const isTodayParis = selectedYmd === todayParisISO();
     let start;
     let end;
@@ -1110,7 +911,12 @@ class HubEnergieCard extends LitElement {
       if (this._powerGraphLoadId !== myLoadId) return;
       if (!this._powerGraphOpen) return;
       if ((this._date ?? todayParisISO()) !== selectedYmd) return;
-      if (isTodayParis && snapPowerGraphRollingHours(this._powerGraphRollingHours) !== rollingH) return;
+      if (
+        isTodayParis &&
+        snapPowerGraphRollingHours(this._powerGraphRollingHours, DEFAULT_POWER_GRAPH_ROLLING_HOURS) !==
+          rollingH
+      )
+        return;
 
       const merged = mergePowerStatisticsToChartPoints(map, statsResult);
       if (!merged?.filled?.length) {
@@ -1197,55 +1003,6 @@ class HubEnergieCard extends LitElement {
       rollingHours: ser.rollingHours ?? null,
       dayIso: ser.dayIso ?? (this._date ?? todayParisISO()),
       useLiveTail: useLive,
-    };
-  }
-
-  _buildPowerNowData(states, costId, i18n) {
-    if (!states?.[costId]) return null;
-    const gridSigned = readAttrOptionalFloat(states, costId, "grid_power_signed_w");
-    const solar =
-      readAttrOptionalFloat(states, costId, "solar_power_w") ??
-      readAttrOptionalFloat(states, costId, "solar_estimate_power_w");
-    const battDis = readAttrOptionalFloat(states, costId, "batt_discharge_power_w");
-    const battChg = readAttrOptionalFloat(states, costId, "batt_charge_power_w");
-    const load = readAttrOptionalFloat(states, costId, "load_power_w");
-    const exportW = readAttrOptionalFloat(states, costId, "export_power_w");
-
-    const tipParts = [];
-    if (gridSigned != null) {
-      tipParts.push(gridSigned >= 0 ? `${i18n.segImport} ${gridSigned.toFixed(0)} W` : `${i18n.segExport} ${Math.abs(gridSigned).toFixed(0)} W`);
-    } else if (exportW != null && exportW > 0) {
-      tipParts.push(`${i18n.segExport} ${exportW.toFixed(0)} W`);
-    }
-    if (solar != null) tipParts.push(`${i18n.segSolar} ${solar.toFixed(0)} W`);
-    if (battDis != null && battDis > 0) tipParts.push(`${i18n.segBattDis} ${battDis.toFixed(0)} W`);
-    if (battChg != null && battChg > 0) tipParts.push(`${i18n.segBattChg} ${battChg.toFixed(0)} W`);
-
-    return {
-      gridSigned,
-      solar,
-      battDis,
-      battChg,
-      load,
-      exportW,
-      tooltip: [i18n.powerBarTip, tipParts.length ? tipParts.join(" · ") : ""].filter(Boolean).join(" — "),
-    };
-  }
-
-  _buildBatteryData(states, costId) {
-    const cap = readAttrOptionalFloat(states, costId, "battery_capacity_kwh");
-    const soc = readAttrOptionalFloat(states, costId, "battery_soc_percent");
-    if (cap == null || cap <= 0 || soc == null) return null;
-    const sm = readAttrOptionalFloat(states, costId, "battery_soc_min_percent");
-    const sx = readAttrOptionalFloat(states, costId, "battery_soc_max_percent");
-    return {
-      soc,
-      socMin: sm ?? 0,
-      socMax: sx ?? 100,
-      capacity: cap,
-      available: readAttrOptionalFloat(states, costId, "battery_available_kwh"),
-      chargeW: readAttrOptionalFloat(states, costId, "batt_charge_power_w"),
-      dischargeW: readAttrOptionalFloat(states, costId, "batt_discharge_power_w"),
     };
   }
 
@@ -1502,11 +1259,9 @@ class HubEnergieCard extends LitElement {
       : [];
 
     const liveStates = this._states();
-    const powerNowData = isToday && costEntityOk ? this._buildPowerNowData(liveStates, E.cost, i18n) : null;
+    const powerNowData = isToday && costEntityOk ? buildPowerNowData(liveStates, E.cost, i18n) : null;
     const batteryData =
-      costEntityOk && this.hass?.states
-        ? this._buildBatteryData(this.hass.states, E.cost)
-        : null;
+      costEntityOk && this.hass?.states ? buildBatteryData(this.hass.states, E.cost) : null;
 
     const totalReinjRaw = reinj.solarSurplus + reinj.batteryFull + reinj.switchLatency + reinj.unattributed;
 
@@ -1764,7 +1519,7 @@ class HubEnergieCard extends LitElement {
 }
 
 /** Bump when deploying so DevTools shows whether this bundle loaded. */
-const HUB_ENERGIE_CARD_VERSION = "2026.04.05-1";
+const HUB_ENERGIE_CARD_VERSION = "2026.04.05-2";
 console.log("[hub-energie-card]", HUB_ENERGIE_CARD_VERSION);
 
 if (!customElements.get("hub-energie-card")) {
