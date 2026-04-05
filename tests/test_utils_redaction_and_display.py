@@ -61,6 +61,8 @@ def test_config_overview_attributes_excludes_raw_secret() -> None:
         options={},
     )
     attrs = config_display.config_overview_attributes(entry)  # type: ignore[arg-type]
-    inner = attrs["data"]
-    assert inner[const.CONF_RTE_CLIENT_SECRET] == "(stored)"
+    assert "data" not in attrs
+    assert "options" not in attrs
+    assert attrs["supplier"] == const.SUPPLIER_EDF
+    assert attrs["offer"] == const.TARIFF_OFFER_TEMPO
     assert "secret123" not in str(attrs)

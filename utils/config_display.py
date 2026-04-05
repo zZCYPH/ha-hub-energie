@@ -71,6 +71,4 @@ def config_overview_attributes(entry: ConfigEntry) -> dict[str, Any]:
         "current_slot_sensor": data.get(CONF_CURRENT_SLOT_SENSOR),
         "reinjection_overrides": reinj_override or None,
         "options_keys": sorted(options.keys()),
-        "data": data,
-        "options": options,
     }
