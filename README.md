@@ -75,17 +75,17 @@ After copying or cloning:
 
 ## Lovelace Card
 
-The integration registers the card automatically (`dist/hub-energie-card.js`).
+The integration serves only the Vite build output (`frontend/dist/`) at `/hub_energie/` and registers the card automatically at `/hub_energie/hub-energie-card.js`.
 
-If you add the resource manually, **use the `dist` URL** (single bundled file; avoids mobile/WebView issues with a stub that only does `import "./dist/..."`):
+If you add the resource manually, use that same URL (single bundled module):
 
 ```yaml
 resources:
-  - url: /hub_energie/dist/hub-energie-card.js
+  - url: /hub_energie/hub-energie-card.js
     type: module
 ```
 
-After `npm run build`, `/hub_energie/hub-energie-card.js` is also a full copy of the bundle (same as `dist`), for backwards compatibility.
+**Upgrade note:** if you previously used `/hub_energie/dist/hub-energie-card.js`, change it to `/hub_energie/hub-energie-card.js` and remove the old dashboard resource entry (the `/dist/` path no longer exists).
 
 Then add a card:
 

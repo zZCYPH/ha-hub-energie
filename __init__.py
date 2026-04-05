@@ -48,7 +48,7 @@ async def _async_register_card_route(hass: HomeAssistant) -> None:
                 "Run the Vite build before using the card."
             )
             return
-        frontend_resolved = str(frontend_dir.resolve())
+        dist_resolved = str(dist_dir.resolve())
         registered = False
 
         if hasattr(hass, "http") and hass.http is not None:
@@ -60,7 +60,7 @@ async def _async_register_card_route(hass: HomeAssistant) -> None:
                         [
                             StaticPathConfig(
                                 f"/{DOMAIN}",
-                                frontend_resolved,
+                                dist_resolved,
                                 False,
                             )
                         ]
@@ -73,7 +73,7 @@ async def _async_register_card_route(hass: HomeAssistant) -> None:
                 try:
                     hass.http.register_static_path(
                         f"/{DOMAIN}",
-                        frontend_resolved,
+                        dist_resolved,
                         cache_headers=False,
                     )
                     registered = True
@@ -104,8 +104,8 @@ async def _async_register_card_route(hass: HomeAssistant) -> None:
 
     bust = await hass.async_add_executor_job(_dist_cache_bust)
     query = f"v={version}-{bust}"
-    new_main = f"/{DOMAIN}/dist/hub-energie-card.js?{query}"
-    new_preload = f"/{DOMAIN}/dist/hub-energie-card-preload.js?{query}"
+    new_main = f"/{DOMAIN}/hub-energie-card.js?{query}"
+    new_preload = f"/{DOMAIN}/hub-energie-card-preload.js?{query}"
     use_preload = await hass.async_add_executor_job(preload_file.is_file)
     new_pair: tuple[str, str] | str = (
         (new_preload, new_main) if use_preload else new_main
