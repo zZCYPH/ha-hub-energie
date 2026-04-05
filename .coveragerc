@@ -21,6 +21,7 @@ omit =
     config_flow.py
     config_flow_selectors.py
     coordinator.py
+    device_info.py
     migration.py
     scheduler.py
     config_entity_checks.py

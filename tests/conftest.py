@@ -104,7 +104,17 @@ def _ensure_stub_homeassistant() -> None:
     def _utcnow() -> datetime:
         return datetime(2026, 6, 15, 10, 30, 0, tzinfo=timezone.utc)
 
+    def _parse_datetime(dt_str: str) -> datetime | None:
+        if not isinstance(dt_str, str):
+            return None
+        try:
+            normalized = dt_str.replace("Z", "+00:00") if dt_str.endswith("Z") else dt_str
+            return datetime.fromisoformat(normalized)
+        except ValueError:
+            return None
+
     dt_mod.utcnow = _utcnow
+    dt_mod.parse_datetime = _parse_datetime
     dt_mod.UTC = timezone.utc
     util.dt = dt_mod
     sys.modules["homeassistant.util"] = util
