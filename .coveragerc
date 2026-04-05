@@ -17,6 +17,7 @@ omit =
     # elsewhere: energy/trust_level.py, utils/input_availability.py, energy/delta_observability.py,
     # snapshot/pipeline.py, snapshot/snapshot_builder.py. If assembly grows, extract or add tests.
     sensor.py
+    sensors/*
     binary_sensor.py
     config_flow.py
     config_flow_selectors.py
