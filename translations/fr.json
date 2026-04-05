@@ -388,7 +388,21 @@
       "no_energy_sensor": "Au moins un capteur d'énergie réseau est requis.",
       "tri_export_all_or_none": "Laissez les trois capteurs d'export vides ou renseignez les trois.",
       "tri_import_phases_incomplete": "Configurez un capteur d'import pour chaque phase (L1, L2, L3).",
-      "schedule_incomplete_row": "Chaque créneau doit avoir une heure de début et de fin, ou laissez la ligne vide."
+      "schedule_incomplete_row": "Chaque créneau doit avoir une heure de début et de fin, ou laissez la ligne vide.",
+      "required": "Ce champ est obligatoire.",
+      "invalid_option": "Option invalide.",
+      "invalid_price": "Valeur numérique invalide.",
+      "supplier_name_required": "Indiquez un nom de fournisseur.",
+      "battery_name_required": "Indiquez un nom de batterie.",
+      "rte_creds_required": "Le client ID et le secret API RTE sont obligatoires.",
+      "peak_power_required": "La puissance crête doit être strictement positive.",
+      "battery_adv_capacity_not_both": "Choisissez soit une entité de capacité, soit une valeur manuelle — pas les deux.",
+      "battery_adv_max_charge_not_both": "Choisissez soit une entité de puissance max. de charge, soit une valeur manuelle — pas les deux.",
+      "battery_adv_max_discharge_not_both": "Choisissez soit une entité de puissance max. de décharge, soit une valeur manuelle — pas les deux.",
+      "battery_adv_soc_min_not_both": "Choisissez soit une entité de SOC minimum, soit une valeur manuelle — pas les deux.",
+      "battery_adv_soc_max_not_both": "Choisissez soit une entité de SOC maximum, soit une valeur manuelle — pas les deux.",
+      "invalid_battery_choice": "Sélectionnez une batterie valide.",
+      "tariff_payload_incomplete": "Les données tarifaires du fournisseur sont incomplètes ou invalides. Réessayez ou vérifiez l'offre et le kVA."
     },
     "abort": {
       "already_configured": "Cette intégration est déjà configurée."
@@ -656,7 +670,26 @@
       "not_edf_supplier": "Cette action n'est disponible que pour EDF."
     },
     "error": {
-      "tariff_fetch_failed": "Échec de la récupération des tarifs. Vérifiez l'offre, le kVA et le réseau."
+      "required": "Ce champ est obligatoire.",
+      "invalid_entity": "Entité invalide ou indisponible.",
+      "invalid_energy_entity": "L'entité doit être un compteur d'énergie total croissant.",
+      "invalid_power_entity": "L'entité doit être un capteur de puissance (W).",
+      "invalid_soc_entity": "Valeur SOC invalide : utilisez un pourcentage 0–100 % (sensor, input_number ou number).",
+      "invalid_option": "Option invalide.",
+      "invalid_price": "Valeur numérique invalide.",
+      "supplier_name_required": "Indiquez un nom de fournisseur.",
+      "battery_name_required": "Indiquez un nom de batterie.",
+      "rte_creds_required": "Le client ID et le secret API RTE sont obligatoires.",
+      "rte_auth_failed": "Authentification RTE échouée. Vérifiez les identifiants.",
+      "peak_power_required": "La puissance crête doit être strictement positive.",
+      "battery_adv_capacity_not_both": "Choisissez soit une entité de capacité, soit une valeur manuelle — pas les deux.",
+      "battery_adv_max_charge_not_both": "Choisissez soit une entité de puissance max. de charge, soit une valeur manuelle — pas les deux.",
+      "battery_adv_max_discharge_not_both": "Choisissez soit une entité de puissance max. de décharge, soit une valeur manuelle — pas les deux.",
+      "battery_adv_soc_min_not_both": "Choisissez soit une entité de SOC minimum, soit une valeur manuelle — pas les deux.",
+      "battery_adv_soc_max_not_both": "Choisissez soit une entité de SOC maximum, soit une valeur manuelle — pas les deux.",
+      "invalid_battery_choice": "Sélectionnez une batterie valide.",
+      "tariff_fetch_failed": "Échec de la récupération des tarifs. Vérifiez l'offre, le kVA et le réseau.",
+      "tariff_payload_incomplete": "Les données tarifaires du fournisseur sont incomplètes ou invalides. Réessayez ou vérifiez l'offre et le kVA."
     }
   },
   "selector": {

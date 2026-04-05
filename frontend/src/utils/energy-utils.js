@@ -62,21 +62,34 @@ export function offerLabel(offer) {
   return "TEMPO";
 }
 
-export function slotLabel(slotId, offer) {
-  if (!slotId) return "—";
-  if (offer === "base") return "Base";
-  if (offer === "hphc") return slotId.endsWith("_hc") ? "HC" : "HP";
-  const s = slotId.replace("_", " ").toUpperCase();
-  return s.replace("BLEU", "Bleu").replace("BLANC", "Blanc").replace("ROUGE", "Rouge");
+/** @param {Record<string, string> | undefined} i18n Card strings from I18N.fr / I18N.en */
+export function slotLabel(slotId, offer, i18n) {
+  const dash = i18n?.emDash ?? "—";
+  if (!slotId) return dash;
+  if (offer === "base") return i18n?.slotBase ?? "Base";
+  if (offer === "hphc") {
+    return slotId.endsWith("_hc") ? (i18n?.slotHc ?? "HC") : (i18n?.slotHp ?? "HP");
+  }
+  const tempo = {
+    bleu_hc: i18n?.slotBleuHc,
+    bleu_hp: i18n?.slotBleuHp,
+    blanc_hc: i18n?.slotBlancHc,
+    blanc_hp: i18n?.slotBlancHp,
+    rouge_hc: i18n?.slotRougeHc,
+    rouge_hp: i18n?.slotRougeHp,
+    unknown: i18n?.slotUnknown,
+  };
+  return tempo[slotId] ?? slotId;
 }
 
-export function dayColorLabel(v) {
+/** @param {Record<string, string> | undefined} i18n Card strings from I18N.fr / I18N.en */
+export function dayColorLabel(v, i18n) {
   const c = String(v ?? "").toLowerCase();
-  if (c.includes("blue") || c.includes("bleu")) return "Bleu";
-  if (c.includes("white") || c.includes("blanc")) return "Blanc";
-  if (c.includes("red") || c.includes("rouge")) return "Rouge";
-  if (c === "n/a") return "N/A";
-  return c || "—";
+  if (c.includes("blue") || c.includes("bleu")) return i18n?.tempoDayBlue ?? "Blue";
+  if (c.includes("white") || c.includes("blanc")) return i18n?.tempoDayWhite ?? "White";
+  if (c.includes("red") || c.includes("rouge")) return i18n?.tempoDayRed ?? "Red";
+  if (c === "n/a") return i18n?.dayColorNA ?? "N/A";
+  return c || (i18n?.emDash ?? "—");
 }
 
 export function dayColorClass(v) {
@@ -87,14 +100,14 @@ export function dayColorClass(v) {
   return "color-na";
 }
 
-export function battChargeSlotRowsFromAttrs(offer, slotMap) {
+export function battChargeSlotRowsFromAttrs(offer, slotMap, i18n) {
   if (!slotMap || typeof slotMap !== "object") return [];
   return SLOTS.map((s) => {
     const raw = slotMap[s.id];
     const v = typeof raw === "number" ? raw : parseFloat(raw);
     if (!Number.isFinite(v) || v <= 0.0001) return null;
     return {
-      label: slotLabel(s.id, offer),
+      label: slotLabel(s.id, offer, i18n),
       v,
       color: s.color,
       isHc: s.id.endsWith("_hc"),

@@ -51,6 +51,15 @@ import "./components/hub-power-now.js";
 import "./components/hub-battery-bar.js";
 import "./components/hub-insight-bar.js";
 
+/** Replace `{key}` placeholders in a translation string. */
+function tpl(template, vars) {
+  let out = String(template);
+  for (const [k, v] of Object.entries(vars)) {
+    out = out.split(`{${k}}`).join(String(v));
+  }
+  return out;
+}
+
 /** Rolling window presets for live-day power graph (hours). */
 const POWER_GRAPH_ROLLING_HOURS = [24, 12, 6, 3, 1];
 const DEFAULT_POWER_GRAPH_ROLLING_HOURS = 6;
@@ -1126,7 +1135,7 @@ class HubEnergieCard extends LitElement {
     return (this._isLiveMode() ? this.hass?.states : this._hist) ?? {};
   }
 
-  _extract() {
+  _extract(i18n) {
     const st = this._states();
     const E = this._map();
     const costAttrs = st?.[E.cost]?.attributes ?? {};
@@ -1155,13 +1164,13 @@ class HubEnergieCard extends LitElement {
 
     const grid = SLOTS.map((s) => ({
       ...s,
-      label: slotLabel(s.id, offer),
+      label: slotLabel(s.id, offer, i18n),
       v: readSlotValue(gridBySlotKwh, s.id),
       isHc: s.id.endsWith("_hc"),
     }));
     const maison = SLOTS.map((s) => ({
       ...s,
-      label: slotLabel(s.id, offer),
+      label: slotLabel(s.id, offer, i18n),
       v: readSlotValue(maisonBySlotKwh, s.id),
       isHc: s.id.endsWith("_hc"),
     }));
@@ -1169,7 +1178,7 @@ class HubEnergieCard extends LitElement {
     const totalEur = readNum(st, E.cost);
     const costs = SLOTS.map((s) => ({
       ...s,
-      label: slotLabel(s.id, offer),
+      label: slotLabel(s.id, offer, i18n),
       v: readAttrNum(st, E.cost, `${s.id}_eur`),
       tooltip: `${readSlotValue(gridBySlotKwh, s.id).toFixed(3)} kWh`,
       isHc: s.id.endsWith("_hc"),
@@ -1182,11 +1191,11 @@ class HubEnergieCard extends LitElement {
     const os = readNum(st, E.originSolar);
 
     const usage = {
-      gridDirect: { label: "Réseau direct (maison)", v: readNum(st, E.usageGridDirect), color: COLOR_GRID_SOURCE },
-      gridBatt: { label: "Réseau → charge batterie", v: readNum(st, E.usageGridBatt), color: COLOR_GRID_TO_BATT },
-      solarDirect: { label: "Solaire (maison)", v: readNum(st, E.usageSolarDirect), color: COLOR_SOLAR },
-      solarBatt: { label: "Solaire → charge batterie", v: readNum(st, E.usageSolarBatt), color: "#fbc02d" },
-      battHome: { label: "Batterie → maison", v: readNum(st, E.usageBattHome), color: COLOR_BATTERY },
+      gridDirect: { label: i18n.usageGridDirect, v: readNum(st, E.usageGridDirect), color: COLOR_GRID_SOURCE },
+      gridBatt: { label: i18n.usageGridBatt, v: readNum(st, E.usageGridBatt), color: COLOR_GRID_TO_BATT },
+      solarDirect: { label: i18n.usageSolarDirect, v: readNum(st, E.usageSolarDirect), color: COLOR_SOLAR },
+      solarBatt: { label: i18n.usageSolarBatt, v: readNum(st, E.usageSolarBatt), color: "#fbc02d" },
+      battHome: { label: i18n.usageBattHome, v: readNum(st, E.usageBattHome), color: COLOR_BATTERY },
     };
 
     return {
@@ -1759,7 +1768,7 @@ class HubEnergieCard extends LitElement {
                               >${i18n.houseLoad}</span
                             >
                             <span class="power-graph-tooltip-v"
-                              >${hoverPt.load != null ? fmtPowerCompact(hoverPt.load) : "—"}</span
+                              >${hoverPt.load != null ? fmtPowerCompact(hoverPt.load) : i18n.emDash}</span
                             >
                           </div>
                         `
@@ -2014,14 +2023,15 @@ class HubEnergieCard extends LitElement {
     return html`<div class="red-hp-banner">⚠️ ${i18n.redHpWarning}</div>`;
   }
 
-  _renderSlotMapRaw(slotMap, offer) {
-    if (!slotMap || typeof slotMap !== "object") return "—";
+  _renderSlotMapRaw(slotMap, offer, i18n) {
+    const dash = i18n.emDash;
+    if (!slotMap || typeof slotMap !== "object") return dash;
     const rows = SLOTS.map((s) => {
       const raw = slotMap[s.id];
       const v = typeof raw === "number" ? raw : parseFloat(raw);
-      return Number.isFinite(v) && v > 0.00001 ? { label: slotLabel(s.id, offer), v } : null;
+      return Number.isFinite(v) && v > 0.00001 ? { label: slotLabel(s.id, offer, i18n), v } : null;
     }).filter(Boolean);
-    if (!rows.length) return "—";
+    if (!rows.length) return dash;
     return rows.map((r, i) => html`${i > 0 ? html`<br />` : nothing}${r.label}: ${r.v.toFixed(3)} kWh`);
   }
 
@@ -2061,9 +2071,9 @@ class HubEnergieCard extends LitElement {
         <ha-card>
           <div class="header"><h2>Hub Énergie</h2></div>
           <div class="alert">
-            Capteur <code>${E.cost}</code> introuvable.<br />
-            Ajoutez dans la carte : <code>cost_entity: sensor.hub_energie_cost_detail</code><br />
-            (Outils de développement → États, cherchez « hub energie cost detail »).
+            ${i18n.costEntityNotFoundBefore} <code>${E.cost}</code> ${i18n.costEntityNotFoundAfter}<br />
+            ${i18n.costEntityCardHint}<br />
+            ${i18n.costEntityDevHint}
           </div>
         </ha-card>
       `;
@@ -2091,7 +2101,7 @@ class HubEnergieCard extends LitElement {
       reinj,
       gridBattBySlot,
       solarBattBySlot,
-    } = this._extract();
+    } = this._extract(i18n);
 
     const totalGrid = grid.reduce((a, s) => a + s.v, 0);
     const totalMaison = maison.reduce((a, s) => a + s.v, 0);
@@ -2109,10 +2119,10 @@ class HubEnergieCard extends LitElement {
     const homeEnergyFmt = makeSectionEnergyFormatter([homeSupplyTotal, homeGridKwh, homeSolarKwh, homeBattKwh]);
     const battChgTotal = usage.gridBatt.v + usage.solarBatt.v;
     const gridBattSlotRows = costEntityOk
-      ? battChargeSlotRowsFromAttrs(offer, gridBattBySlot)
+      ? battChargeSlotRowsFromAttrs(offer, gridBattBySlot, i18n)
       : [];
     const solarBattSlotRows = costEntityOk
-      ? battChargeSlotRowsFromAttrs(offer, solarBattBySlot)
+      ? battChargeSlotRowsFromAttrs(offer, solarBattBySlot, i18n)
       : [];
     const hasBattChgSlotDetail =
       costEntityOk &&
@@ -2180,7 +2190,7 @@ class HubEnergieCard extends LitElement {
 
     const gridSegments = activeGrid.map((s) => ({ value: s.v, color: s.color, className: s.isHc ? "fill-hc" : "" }));
     const gridBreakdown = activeGrid.map((s) => ({
-      label: slotLabel(s.id, offer),
+      label: slotLabel(s.id, offer, i18n),
       value: gridEnergyFmt(s.v),
       color: s.color,
       rawV: s.v,
@@ -2216,15 +2226,20 @@ class HubEnergieCard extends LitElement {
       ...(abo > 0.0005 ? [{ value: abo, color: COLOR_SUBSCRIPTION }] : []),
     ];
     const costBreakdown = [
-      ...activeCosts.map((s) => ({ label: slotLabel(s.id, offer), value: `${s.v.toFixed(2)} €`, color: s.color, rawV: s.v })),
+      ...activeCosts.map((s) => ({
+        label: slotLabel(s.id, offer, i18n),
+        value: `${s.v.toFixed(2)} €`,
+        color: s.color,
+        rawV: s.v,
+      })),
       ...(abo > 0.0005 ? [{ label: i18n.costSubscription, value: `${abo.toFixed(2)} €`, color: COLOR_SUBSCRIPTION, rawV: abo }] : []),
     ];
 
     const reinjItems = [
-      { label: "Surplus PV", v: reinj.solarSurplus, eur: reinj.oppSolarEur, color: COLOR_SOLAR },
-      { label: "Batt pleine", v: reinj.batteryFull, eur: reinj.oppBatteryEur, color: COLOR_BATTERY },
-      { label: "Latence batt", v: reinj.switchLatency, eur: reinj.oppLatencyEur, color: "#ff7043" },
-      { label: "Autre", v: reinj.unattributed, eur: reinj.oppOtherEur, color: "#90a4ae" },
+      { label: i18n.reinjCauseSolarSurplus, v: reinj.solarSurplus, eur: reinj.oppSolarEur, color: COLOR_SOLAR },
+      { label: i18n.reinjCauseBatteryFull, v: reinj.batteryFull, eur: reinj.oppBatteryEur, color: COLOR_BATTERY },
+      { label: i18n.reinjCauseSwitchLatency, v: reinj.switchLatency, eur: reinj.oppLatencyEur, color: "#ff7043" },
+      { label: i18n.reinjCauseOther, v: reinj.unattributed, eur: reinj.oppOtherEur, color: "#90a4ae" },
     ].filter((x) => x.v > 0.0001);
     const totalReinj = reinjItems.reduce((a, x) => a + x.v, 0);
     const reinjEnergyFmt = makeSectionEnergyFormatter([totalReinj, ...reinjItems.map((x) => x.v)]);
@@ -2287,10 +2302,10 @@ class HubEnergieCard extends LitElement {
         <div class="meta-tempo-wrap">
           <div class="meta-days-stack">
             <div class="day-tile ${offer === "tempo" ? dayColorClass(todayColor) : "color-na"}">
-              <span class="day-tile-line">${i18n.today} : ${slotLabel(currentSlot, offer)}</span>
+              <span class="day-tile-line">${i18n.today} : ${slotLabel(currentSlot, offer, i18n)}</span>
             </div>
             <div class="day-tile ${offer === "tempo" ? dayColorClass(tomorrowColor) : "color-na"}">
-              <span class="day-tile-line">${i18n.tomorrow} : ${offer === "tempo" ? dayColorLabel(tomorrowColor) : "—"}</span>
+              <span class="day-tile-line">${i18n.tomorrow} : ${offer === "tempo" ? dayColorLabel(tomorrowColor, i18n) : i18n.emDash}</span>
             </div>
           </div>
           ${offer === "tempo" && tempoDays && typeof tempoDays === "object"
@@ -2323,7 +2338,7 @@ class HubEnergieCard extends LitElement {
 
         <section>
           <div class="section-head">
-            <h3>Consommation</h3>
+            <h3>${i18n.sectionConsumption}</h3>
             <div class="section-metric">${i18n.totalEnergy} <b>${fmtEnergy(totalMaison)}</b></div>
           </div>
           <div class="bars">
@@ -2332,7 +2347,7 @@ class HubEnergieCard extends LitElement {
               .segments=${gridSegments}
               .total=${totalGrid}
               .formatter=${gridEnergyFmt}
-              .tooltip=${activeGrid.map((s) => `${slotLabel(s.id, offer)}: ${gridEnergyFmt(s.v)}`).join(" · ")}
+              .tooltip=${activeGrid.map((s) => `${slotLabel(s.id, offer, i18n)}: ${gridEnergyFmt(s.v)}`).join(" · ")}
               .breakdown=${gridBreakdown}
               .showBreakdown=${true}
               .displayValue=${gridEnergyFmt(totalGrid)}
@@ -2376,7 +2391,7 @@ class HubEnergieCard extends LitElement {
               .total=${totalEur}
               .formatter=${(v) => `${Number(v).toFixed(2)} €`}
               .tooltip=${[
-                ...activeCosts.map((s) => `${slotLabel(s.id, offer)}: ${s.v.toFixed(2)} €${s.tooltip ? ` (${s.tooltip})` : ""}`),
+                ...activeCosts.map((s) => `${slotLabel(s.id, offer, i18n)}: ${s.v.toFixed(2)} €${s.tooltip ? ` (${s.tooltip})` : ""}`),
                 ...(abo > 0.0005 ? [`${i18n.costSubscription}: ${abo.toFixed(2)} €`] : []),
               ].join(" · ")}
               .breakdown=${costBreakdown}
@@ -2396,7 +2411,7 @@ class HubEnergieCard extends LitElement {
               .total=${totalEcoAbs}
               .formatter=${(v) => `${Number(v).toFixed(2)} €`}
               .tooltip=${ecoParts.map((x) => `${x.label}: ${x.fmt}`).join(" · ")}
-              .breakdown=${ecoBreakdown.length ? ecoBreakdown : [{ label: "—", value: `${ecoTotal >= 0 ? "+" : ""}${ecoTotal.toFixed(2)} €` }]}
+              .breakdown=${ecoBreakdown.length ? ecoBreakdown : [{ label: i18n.emDash, value: `${ecoTotal >= 0 ? "+" : ""}${ecoTotal.toFixed(2)} €` }]}
               .showBreakdown=${true}
               .displayValue=${`${ecoTotal >= 0 ? "+" : ""}${ecoTotal.toFixed(2)} €`}
               .fillPercent=${100}
@@ -2425,64 +2440,69 @@ class HubEnergieCard extends LitElement {
         ${this._showRaw
           ? html`
               <section>
-                <h3>Données brutes</h3>
+                <h3>${i18n.rawDataTitle}</h3>
                 <div class="raw">
                   <div class="raw-grid">
                     <div>
-                      <b>Réseau / Maison</b>
-                      Réseau total : ${totalGrid.toFixed(3)} kWh<br />
-                      Maison total : ${totalMaison.toFixed(3)} kWh
+                      <b>${i18n.rawSectionGridHome}</b>
+                      ${tpl(i18n.rawLineGridTotal, { value: totalGrid.toFixed(3) })}<br />
+                      ${tpl(i18n.rawLineHouseTotal, { value: totalMaison.toFixed(3) })}
                     </div>
                     <div>
-                      <b>Coût</b>
-                      Total : ${totalEur.toFixed(3)} €<br />
-                      Abonnement : ${abo.toFixed(3)} €
+                      <b>${i18n.rawSectionCost}</b>
+                      ${tpl(i18n.rawLineCostTotal, { value: totalEur.toFixed(3) })}<br />
+                      ${tpl(i18n.rawLineSubscription, { value: abo.toFixed(3) })}
                     </div>
                     <div>
-                      <b>Origine</b>
-                      Réseau : ${og.toFixed(3)} kWh<br />
-                      Solaire : ${os.toFixed(3)} kWh
+                      <b>${i18n.rawSectionOrigin}</b>
+                      ${tpl(i18n.rawLineOriginGrid, { value: og.toFixed(3) })}<br />
+                      ${tpl(i18n.rawLineOriginSolar, { value: os.toFixed(3) })}
                     </div>
                     <div>
-                      <b>Économies</b>
-                      Solaire : ${ecoSolar.toFixed(3)} €<br />
-                      Batterie : ${ecoBatt.toFixed(3)} €
+                      <b>${i18n.rawSectionSavings}</b>
+                      ${tpl(i18n.rawLineSavingsSolar, { value: ecoSolar.toFixed(3) })}<br />
+                      ${tpl(i18n.rawLineSavingsBattery, { value: ecoBatt.toFixed(3) })}
                     </div>
                     <div>
-                      <b>Import par créneau</b>
+                      <b>${i18n.rawSectionImportBySlot}</b>
                       ${activeGrid.length > 0
-                        ? activeGrid.map((s, i) => html`${i > 0 ? html`<br />` : nothing}${slotLabel(s.id, offer)}: ${s.v.toFixed(3)} kWh`)
-                        : "—"}
+                        ? activeGrid.map((s, i) => html`${i > 0 ? html`<br />` : nothing}${slotLabel(s.id, offer, i18n)}: ${s.v.toFixed(3)} kWh`)
+                        : i18n.emDash}
                     </div>
                     <div>
-                      <b>Coût par créneau</b>
+                      <b>${i18n.rawSectionCostBySlot}</b>
                       ${activeCosts.length > 0
-                        ? activeCosts.map((s, i) => html`${i > 0 ? html`<br />` : nothing}${slotLabel(s.id, offer)}: ${s.v.toFixed(3)} €`)
-                        : "—"}
+                        ? activeCosts.map((s, i) => html`${i > 0 ? html`<br />` : nothing}${slotLabel(s.id, offer, i18n)}: ${s.v.toFixed(3)} €`)
+                        : i18n.emDash}
                     </div>
                     <div>
-                      <b>Usage détaillé (kWh)</b>
-                      Réseau direct (maison) : ${usage.gridDirect.v.toFixed(3)}<br />
-                      Réseau → charge batterie : ${usage.gridBatt.v.toFixed(3)}<br />
-                      Solaire (maison) : ${usage.solarDirect.v.toFixed(3)}<br />
-                      Solaire → charge batterie : ${usage.solarBatt.v.toFixed(3)}<br />
-                      Batterie → maison : ${usage.battHome.v.toFixed(3)}
+                      <b>${i18n.rawSectionUsageDetail}</b>
+                      ${usage.gridDirect.label} : ${usage.gridDirect.v.toFixed(3)}<br />
+                      ${usage.gridBatt.label} : ${usage.gridBatt.v.toFixed(3)}<br />
+                      ${usage.solarDirect.label} : ${usage.solarDirect.v.toFixed(3)}<br />
+                      ${usage.solarBatt.label} : ${usage.solarBatt.v.toFixed(3)}<br />
+                      ${usage.battHome.label} : ${usage.battHome.v.toFixed(3)}
                     </div>
                     <div>
-                      <b>Charge batt (réseau) par créneau</b>
-                      ${this._renderSlotMapRaw(gridBattBySlot, offer)}
+                      <b>${i18n.rawSectionBattChargeGridSlots}</b>
+                      ${this._renderSlotMapRaw(gridBattBySlot, offer, i18n)}
                     </div>
                     <div>
-                      <b>Charge batt (solaire) par créneau</b>
-                      ${this._renderSlotMapRaw(solarBattBySlot, offer)}
+                      <b>${i18n.rawSectionBattChargeSolarSlots}</b>
+                      ${this._renderSlotMapRaw(solarBattBySlot, offer, i18n)}
                     </div>
                     <div>
-                      <b>Réinjection par cause</b>
-                      Surplus PV : ${reinj.solarSurplus.toFixed(3)} kWh / ${reinj.oppSolarEur.toFixed(3)} €<br />
-                      Batt pleine/absente : ${reinj.batteryFull.toFixed(3)} kWh / ${reinj.oppBatteryEur.toFixed(3)} €<br />
-                      Latence batt : ${reinj.switchLatency.toFixed(3)} kWh / ${reinj.oppLatencyEur.toFixed(3)} €<br />
-                      Autre : ${reinj.unattributed.toFixed(3)} kWh / ${reinj.oppOtherEur.toFixed(3)} €<br />
-                      Total : ${totalReinjRaw.toFixed(3)} kWh / ${reinj.oppTotalEur.toFixed(3)} €
+                      <b>${i18n.rawSectionReinjection}</b>
+                      ${i18n.reinjLabelSolarSurplus}
+                      ${tpl(i18n.reinjLineKwhEur, { kwh: reinj.solarSurplus.toFixed(3), eur: reinj.oppSolarEur.toFixed(3) })}<br />
+                      ${i18n.reinjLabelBatteryFull}
+                      ${tpl(i18n.reinjLineKwhEur, { kwh: reinj.batteryFull.toFixed(3), eur: reinj.oppBatteryEur.toFixed(3) })}<br />
+                      ${i18n.reinjLabelSwitchLatency}
+                      ${tpl(i18n.reinjLineKwhEur, { kwh: reinj.switchLatency.toFixed(3), eur: reinj.oppLatencyEur.toFixed(3) })}<br />
+                      ${i18n.reinjLabelOther}
+                      ${tpl(i18n.reinjLineKwhEur, { kwh: reinj.unattributed.toFixed(3), eur: reinj.oppOtherEur.toFixed(3) })}<br />
+                      ${i18n.reinjLabelTotal}
+                      ${tpl(i18n.reinjLineKwhEur, { kwh: totalReinjRaw.toFixed(3), eur: reinj.oppTotalEur.toFixed(3) })}
                     </div>
                   </div>
                 </div>
