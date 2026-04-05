@@ -57,7 +57,7 @@ The integration is designed to be transparent when data is imperfect. The points
 - **Solar estimation (optional)** — When enabled, PV power and energy are **clear-sky model outputs** (simplified irradiance, no real cloud cover). Treat them as **indicative**, not a substitute for a production meter.
 - **Power graph on the Lovelace card** — The card loads past power curves via **`recorder/statistics_during_period`** on the configured power entities. If statistics are missing (e.g. entity without a suitable **`state_class`**, or not enough history yet), the graph can be empty or incomplete; the card reports that case in plain language.
 - **Health / trust states** — The **`…_health`** sensor can read **`ok`**, **`degraded`**, **`rebuilding`**, **`inconsistent`**, or **`no_input`**. They summarise probes, delta telemetry, staleness, optional missing entities, Tempo/RTE readiness, battery data quality, unknown tariff bucket usage, and **store vs recorder rebuild**—not a single physical fault. **`rebuilding`** is expected briefly after a **recorder-based rebuild** of internal kWh state.
-- **When some numbers are withheld** — If the grid import counter is not readable, **`no_input`** applies and cost/grid-derived figures that would be misleading are suppressed. When trust is **`inconsistent`**, input status maps to an error path and similar protections apply for cost/grid-facing outputs.
+- **When some numbers are withheld** — If the grid import counter is not readable, **`no_input`** applies and **specific** grid/cost-adjacent sensors hide their numeric state (grid SSOT total, grid/home “today” kWh, savings). When trust is **`inconsistent`**, `input_status` is **`error`** and the same **sensor-level** protections apply. The main **“Coût du jour”** entity can still show a value from internal accounting — use **`…_health`** and **`input_status`** before trusting it. Details: [`docs/troubleshooting.md`](docs/troubleshooting.md).
 - **Partial operation** — Solar, export, batteries, and many sensors are **optional**. Missing or unavailable optional entities contribute to **degraded** diagnostics, but the coordinator can still refresh what it can. A readable **grid import** energy entity remains central to slot/cost logic.
 - **Power vs energy** — **Energy** SSOT totals are accumulated and persisted (store + statistics writes). **Instantaneous power** and power-flow views are derived from the latest coordinator cycle; they are not stored the same way as kWh totals.
 - **Experimental paths** — Items listed under **Experimental / best-effort** in *Supported scope* (e.g. power-flow-based battery split, opportunity-cost style diagnostics) can be noisy or incomplete when inputs are partial.
@@ -69,6 +69,10 @@ The integration is designed to be transparent when data is imperfect. The points
 | **Measured** | Values taken from **your configured Home Assistant entities** (e.g. `total_increasing` kWh meters, power sensors where you wired them). |
 | **Reconstructed** | **Internal** running totals and per-slot kWh built from **positive deltas** on those meters, plus—if needed—**replay from recorder long-term statistics** for past days when the integration store could not be loaded. |
 | **Estimated** | **Model-based** solar (clear-sky PV) and other **best-effort** derivations where no direct meter exists or where experimental logic fills gaps. |
+
+### Troubleshooting (trust, recovery, unknown bucket)
+
+For a concrete guide to **`…_health`** states (`ok` / `degraded` / `rebuilding` / `inconsistent` / `no_input`), the tariff **`unknown`** bucket, measured vs reconstructed vs estimated energy, and **store / recorder** recovery paths, see **[`docs/troubleshooting.md`](docs/troubleshooting.md)**.
 
 ## Installation
 
