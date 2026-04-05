@@ -1,0 +1,46 @@
+# Scope: unit-tested logic only (integration / HA glue omitted).
+# providers/edf.py is excluded here: huge I/O client; pure helpers are still tested in test_edf_pure_helpers.py.
+[run]
+branch = true
+source = .
+parallel = false
+omit =
+    tests/*
+    test_standalone.py
+    */__init__.py
+    __init__.py
+    sensor.py
+    binary_sensor.py
+    config_flow.py
+    config_flow_selectors.py
+    coordinator.py
+    migration.py
+    persistence_manager.py
+    runtime_state.py
+    scheduler.py
+    solar_model.py
+    config_entity_checks.py
+    ha/*
+    runtime/persistence.py
+    runtime/events.py
+    runtime/poll_schedule.py
+    snapshot/coordinator_bridge.py
+    snapshot/inputs_builder.py
+    storage/statistics.py
+    tariff/edf_client.py
+    tariff/edf_state.py
+    tariff/refresh.py
+    battery/battery_runtime.py
+    tempo/service.py
+    time/*
+    tariff_manager.py
+    providers/edf.py
+
+[report]
+precision = 2
+skip_covered = false
+fail_under = 70
+exclude_lines =
+    pragma: no cover
+    if TYPE_CHECKING:
+    if typing.TYPE_CHECKING:

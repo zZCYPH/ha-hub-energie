@@ -382,6 +382,63 @@
           "add_new": "Add a new battery system instead?"
         }
       },
+      "battery_add": {
+        "title": "Add battery system",
+        "description": "Configure a battery/inverter system. Only charge and discharge energy sensors are required. If you enable advanced fields, the next step will ask for optional capacity, power limits, and SOC bounds.",
+        "data": {
+          "batt_name": "Battery name",
+          "batt_energy_in": "Charge energy (kWh, total increasing)",
+          "batt_energy_out": "Discharge energy (kWh, total increasing)",
+          "batt_power_in": "Charging power sensor (W, optional)",
+          "batt_power_out": "Discharging power sensor (W, optional)",
+          "batt_power_net": "Net power sensor (W, optional, signed)",
+          "batt_soc": "State of charge (%, optional)",
+          "batt_advanced": "Show advanced battery fields"
+        },
+        "data_description": {
+          "batt_power_in": "Instantaneous power currently going into the battery (not a max value).",
+          "batt_power_out": "Instantaneous power currently drawn from the battery (not a max value).",
+          "batt_power_net": "Use this if you have a single signed sensor instead of separate charge/discharge. If you set charge + discharge sensors, you can leave this empty.",
+          "batt_power_net_sign": "Only needed if you use a net power sensor.",
+          "batt_soc": "Optional percentage sensor (0–100). Used for the SOC bar and ETA.",
+          "batt_advanced": "Opens a separate step for nominal capacity (kWh), charge/discharge limits (W), and SOC min/max."
+        }
+      },
+      "battery_advanced": {
+        "title": "Battery advanced settings",
+        "description": "Battery #{battery_number}: for each setting, two rows share the same title: first a sensor/helper, then a manual value. Only fill one of the two rows (not both).",
+        "data": {
+          "batt_capacity_kwh_entity": "Nominal capacity — sensor or helper",
+          "batt_capacity_kwh": "Nominal capacity — manual entry",
+          "batt_max_charge_w_entity": "Max charge power — sensor or helper",
+          "batt_max_charge_w": "Max charge power — manual entry",
+          "batt_max_discharge_w_entity": "Max discharge power — sensor or helper",
+          "batt_max_discharge_w": "Max discharge power — manual entry",
+          "batt_soc_min_entity": "SOC minimum — sensor or helper",
+          "batt_soc_min": "SOC minimum — manual entry",
+          "batt_soc_max_entity": "SOC maximum — sensor or helper",
+          "batt_soc_max": "SOC maximum — manual entry"
+        },
+        "data_description": {
+          "batt_capacity_kwh_entity": "Nominal capacity at 100% SOC (max storable energy, kWh). Numeric value in kWh (e.g. sensor, input_number). Use when the value comes from an entity.",
+          "batt_capacity_kwh": "Nominal capacity at 100% SOC (max storable energy, kWh). Enter here or use the entity above — only one of the two.",
+          "batt_max_charge_w_entity": "Technical limit in W read from an entity.",
+          "batt_max_charge_w": "Technical limit in W (not your instantaneous measured power).",
+          "batt_max_discharge_w_entity": "Technical limit in W read from an entity.",
+          "batt_max_discharge_w": "Technical limit in W (not your instantaneous measured power).",
+          "batt_soc_min_entity": "Percent 0–100 from an entity.",
+          "batt_soc_min": "Use if the battery never reaches 0%.",
+          "batt_soc_max_entity": "Percent 0–100 from an entity.",
+          "batt_soc_max": "Use if the battery never reaches 100%."
+        }
+      },
+      "battery_more": {
+        "title": "More batteries?",
+        "description": "You can add more battery systems or continue.",
+        "data": {
+          "add_another": "Add another battery system?"
+        }
+      },
       "tariff_refresh": {
         "title": "Refresh EDF tariffs",
         "description": "Fetch current rates from the public EDF data (data.gouv) for the selected offer and kVA.",

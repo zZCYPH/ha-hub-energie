@@ -369,6 +369,63 @@
           "add_new": "Ajouter une nouvelle batterie à la place ?"
         }
       },
+      "battery_add": {
+        "title": "Ajouter un système de batterie",
+        "description": "Configurez un système batterie/onduleur. Seuls les capteurs d'énergie charge et décharge sont requis. Si vous activez les champs avancés, une étape suivante proposera capacité, limites de puissance et bornes SOC.",
+        "data": {
+          "batt_name": "Nom de la batterie",
+          "batt_energy_in": "Capteur énergie de charge (kWh, total croissant)",
+          "batt_energy_out": "Capteur énergie de décharge (kWh, total croissant)",
+          "batt_power_in": "Capteur puissance en charge (W, optionnel)",
+          "batt_power_out": "Capteur puissance en décharge (W, optionnel)",
+          "batt_power_net": "Capteur puissance nette (W, optionnel, signé)",
+          "batt_soc": "État de charge (%, optionnel)",
+          "batt_advanced": "Afficher les champs avancés batterie"
+        },
+        "data_description": {
+          "batt_power_in": "Puissance instantanée qui entre dans la batterie (ce n'est pas une valeur max).",
+          "batt_power_out": "Puissance instantanée qui sort de la batterie (ce n'est pas une valeur max).",
+          "batt_power_net": "À utiliser si vous avez un seul capteur signé au lieu de deux capteurs séparés. Si vous renseignez charge + décharge, vous pouvez laisser ce champ vide.",
+          "batt_power_net_sign": "Nécessaire uniquement si vous utilisez un capteur de puissance nette.",
+          "batt_soc": "Capteur % optionnel (0–100). Utilisé pour la barre SOC et l'estimation.",
+          "batt_advanced": "Ouvre une étape séparée pour la capacité nominale (kWh), les limites charge/décharge (W) et le SOC min/max."
+        }
+      },
+      "battery_advanced": {
+        "title": "Paramètres avancés batterie",
+        "description": "Batterie n°{battery_number} : pour chaque réglage, deux lignes partagent le même titre — d'abord un capteur (ou helper), puis une saisie manuelle. Ne remplissez qu'une des deux (pas les deux).",
+        "data": {
+          "batt_capacity_kwh_entity": "Capacité nominale — capteur ou helper",
+          "batt_capacity_kwh": "Capacité nominale — saisie manuelle",
+          "batt_max_charge_w_entity": "Puissance max. de charge — capteur ou helper",
+          "batt_max_charge_w": "Puissance max. de charge — saisie manuelle",
+          "batt_max_discharge_w_entity": "Puissance max. de décharge — capteur ou helper",
+          "batt_max_discharge_w": "Puissance max. de décharge — saisie manuelle",
+          "batt_soc_min_entity": "SOC minimum — capteur ou helper",
+          "batt_soc_min": "SOC minimum — saisie manuelle",
+          "batt_soc_max_entity": "SOC maximum — capteur ou helper",
+          "batt_soc_max": "SOC maximum — saisie manuelle"
+        },
+        "data_description": {
+          "batt_capacity_kwh_entity": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Nombre en kWh (ex. capteur, input_number). Utile si la valeur est exposée par une entité.",
+          "batt_capacity_kwh": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Saisie directe ou via l'entité ci-dessus — une seule des deux.",
+          "batt_max_charge_w_entity": "Limite technique en W lue depuis une entité.",
+          "batt_max_charge_w": "Limite technique en W (pas la puissance instantanée mesurée).",
+          "batt_max_discharge_w_entity": "Limite technique en W lue depuis une entité.",
+          "batt_max_discharge_w": "Limite technique en W (pas la puissance instantanée mesurée).",
+          "batt_soc_min_entity": "Pourcentage 0–100 depuis une entité.",
+          "batt_soc_min": "Réserve basse si la batterie ne descend jamais à 0 %.",
+          "batt_soc_max_entity": "Pourcentage 0–100 depuis une entité.",
+          "batt_soc_max": "Réserve haute si la batterie ne charge jamais à 100 %."
+        }
+      },
+      "battery_more": {
+        "title": "Autres batteries ?",
+        "description": "Vous pouvez ajouter d'autres systèmes ou continuer.",
+        "data": {
+          "add_another": "Ajouter un autre système de batterie ?"
+        }
+      },
       "tariff_refresh": {
         "title": "Actualiser les tarifs EDF",
         "description": "Récupérer les tarifs publics (data.gouv) pour l'offre et le kVA choisis.",

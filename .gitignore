@@ -5,3 +5,6 @@ frontend/dist-human
 .cursor/plans
 .pytest_cache/
 pytest-cache-files-*/
+.coverage
+coverage.xml
+htmlcov/
