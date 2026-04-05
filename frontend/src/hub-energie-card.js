@@ -50,6 +50,7 @@ import "./components/hub-power-now.js";
 import "./components/hub-power-graph.js";
 import "./components/hub-battery-bar.js";
 import "./components/hub-insight-bar.js";
+import "./hub-energie-card-editor.js";
 
 /** Replace `{key}` placeholders in a translation string. */
 function tpl(template, vars) {
@@ -599,7 +600,6 @@ class HubEnergieCard extends LitElement {
     /** Bumps on each new window load; refresh uses current id without bumping (see _loadPowerGraph). */
     this._powerGraphLoadId = 0;
     this._powerGraphRollingHours = DEFAULT_POWER_GRAPH_ROLLING_HOURS;
-    this._powerGraphRollingInited = false;
   }
 
   connectedCallback() {
@@ -696,10 +696,11 @@ class HubEnergieCard extends LitElement {
     this._config = config ?? {};
     this._prefixCache = null;
     this.__lastKey = null;
-    if (!this._powerGraphRollingInited) {
-      const raw = parseFloat(this._config?.power_history_hours);
-      this._powerGraphRollingHours = snapPowerGraphRollingHours(Number.isFinite(raw) ? raw : NaN);
-      this._powerGraphRollingInited = true;
+    const raw = parseFloat(this._config?.power_history_hours);
+    const snapped = snapPowerGraphRollingHours(Number.isFinite(raw) ? raw : NaN);
+    if (this._powerGraphRollingHours !== snapped) {
+      this._powerGraphRollingHours = snapped;
+      this.__lastKey = null;
     }
   }
 
@@ -717,6 +718,10 @@ class HubEnergieCard extends LitElement {
       rows: 8,
       min_rows: 6,
     };
+  }
+
+  static getConfigElement() {
+    return document.createElement("hub-energie-card-editor");
   }
 
   static getStubConfig() {
@@ -1759,7 +1764,7 @@ class HubEnergieCard extends LitElement {
 }
 
 /** Bump when deploying so DevTools shows whether this bundle loaded. */
-const HUB_ENERGIE_CARD_VERSION = "2026.04.04-2";
+const HUB_ENERGIE_CARD_VERSION = "2026.04.05-1";
 console.log("[hub-energie-card]", HUB_ENERGIE_CARD_VERSION);
 
 if (!customElements.get("hub-energie-card")) {
@@ -1770,7 +1775,8 @@ window.customCards ??= [];
 window.customCards.push({
   type: "hub-energie-card",
   name: "Hub Énergie",
-  description: "Daily energy, cost and savings. Config: cost_entity: sensor.hub_energie_cost_detail",
+  description:
+    "Daily energy, cost and savings. Visual editor for main options; advanced keys stay in YAML.",
   preview: false,
   documentationURL: "https://gitlab.com/zzcyph1/home-assistant/hub-energie",
 });
