@@ -309,6 +309,24 @@ SLOT_RESOLUTION_FALLBACK_SCHEDULE: Final = "fallback_schedule"
 SLOT_RESOLUTION_UNKNOWN: Final = "unknown"
 
 DATA_DATA_QUALITY: Final = "data_quality"
+# Entity readability vs SSOT (distinct from data_quality attribution heuristics).
+DATA_INPUT_STATUS: Final = "input_status"
+DATA_INPUT_STATUS_REASONS: Final = "input_status_reasons"
+DATA_INPUT_MISSING_ENTITY_IDS: Final = "input_missing_entity_ids"
+DATA_INPUT_UNAVAILABLE_ENTITY_IDS: Final = "input_unavailable_entity_ids"
+
+INPUT_STATUS_OK: Final = "ok"
+INPUT_STATUS_DEGRADED: Final = "degraded"
+INPUT_STATUS_NO_INPUT: Final = "no_input"
+INPUT_STATUS_ERROR: Final = "error"
+
+INPUT_REASON_MISSING_ENTITIES: Final = "missing_entities"
+INPUT_REASON_UNAVAILABLE_ENTITIES: Final = "unavailable_entities"
+INPUT_REASON_NO_GRID_IMPORT_READABLE: Final = "no_grid_import_readable"
+INPUT_REASON_TRUST_INCONSISTENT: Final = "trust_inconsistent"
+INPUT_REASON_TRUST_DEGRADED: Final = "trust_degraded"
+INPUT_REASON_DATA_QUALITY_DEGRADED: Final = "data_quality_degraded"
+
 DATA_DELTA_TELEMETRY: Final = "delta_telemetry"
 DATA_DELTA_DISCARDS: Final = "delta_discards"
 DATA_DELTA_LAST_REJECTION: Final = "delta_last_rejection"

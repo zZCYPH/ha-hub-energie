@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import datetime
 import math
 from typing import Any
@@ -138,6 +139,10 @@ from .const import (
     DATA_USAGE_SOLAR_DIRECT,
     ATTRIBUTION_SLOTS,
     DATA_DATA_QUALITY,
+    DATA_INPUT_MISSING_ENTITY_IDS,
+    DATA_INPUT_STATUS,
+    DATA_INPUT_STATUS_REASONS,
+    DATA_INPUT_UNAVAILABLE_ENTITY_IDS,
     DATA_DELTA_DISCARDS,
     DATA_DELTA_LAST_REJECTION,
     DATA_DELTA_TELEMETRY,
@@ -147,6 +152,10 @@ from .const import (
     DATA_TRUST_CAUSE_CODE,
     DATA_TRUST_LEVEL,
     DOMAIN,
+    INPUT_STATUS_DEGRADED,
+    INPUT_STATUS_ERROR,
+    INPUT_STATUS_NO_INPUT,
+    INPUT_STATUS_OK,
     INTEGRATION_TITLE,
     LOGIC_VERSION,
     scoped_device_name,
@@ -173,6 +182,44 @@ from .utils.config_display import (
 )
 
 _MANUFACTURER = INTEGRATION_TITLE
+_MAX_INPUT_ENTITY_ATTRS = 50
+
+
+def _input_status_blocks_cost_and_grid(data: Mapping[str, Any] | None) -> bool:
+    """When grid import is unreadable or trust is inconsistent, hide cost/grid-derived numbers."""
+    if not data:
+        return False
+    st = data.get(DATA_INPUT_STATUS)
+    return st in (INPUT_STATUS_NO_INPUT, INPUT_STATUS_ERROR)
+
+
+def _input_status_sensor_attributes(
+    data: Mapping[str, Any] | None,
+    *,
+    cap_entity_lists: bool = False,
+) -> dict[str, Any]:
+    if not data:
+        return {}
+    missing = data.get(DATA_INPUT_MISSING_ENTITY_IDS)
+    unavail = data.get(DATA_INPUT_UNAVAILABLE_ENTITY_IDS)
+    out: dict[str, Any] = {
+        DATA_INPUT_STATUS: data.get(DATA_INPUT_STATUS),
+        DATA_INPUT_STATUS_REASONS: data.get(DATA_INPUT_STATUS_REASONS),
+    }
+    if isinstance(missing, list) and isinstance(unavail, list):
+        if cap_entity_lists and (
+            len(missing) > _MAX_INPUT_ENTITY_ATTRS
+            or len(unavail) > _MAX_INPUT_ENTITY_ATTRS
+        ):
+            out[DATA_INPUT_MISSING_ENTITY_IDS] = missing[:_MAX_INPUT_ENTITY_ATTRS]
+            out[DATA_INPUT_UNAVAILABLE_ENTITY_IDS] = unavail[:_MAX_INPUT_ENTITY_ATTRS]
+            out["input_entity_ids_truncated"] = True
+            out["input_missing_entity_ids_total"] = len(missing)
+            out["input_unavailable_entity_ids_total"] = len(unavail)
+        else:
+            out[DATA_INPUT_MISSING_ENTITY_IDS] = list(missing)
+            out[DATA_INPUT_UNAVAILABLE_ENTITY_IDS] = list(unavail)
+    return out
 
 
 class HubEnergieSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
@@ -537,7 +584,16 @@ class HubEnergieSsotTotalSensor(HubEnergieSensor):
 
     @property
     def native_value(self) -> float | None:
+        if self._snapshot_key == DATA_ENERGY_GRID_TOTAL_KWH:
+            if _input_status_blocks_cost_and_grid(self._data()):
+                return None
         return self._get_value(self._snapshot_key)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        if self._snapshot_key == DATA_ENERGY_GRID_TOTAL_KWH:
+            return _input_status_sensor_attributes(self._data())
+        return {}
 
 
 class HubEnergieTodayEnergySensor(HubEnergieSensor):
@@ -558,6 +614,7 @@ class HubEnergieTodayEnergySensor(HubEnergieSensor):
         enabled_default: bool = True,
     ) -> None:
         super().__init__(coordinator)
+        self._kind = kind
         cfg = _TODAY_ENERGY_CONFIG[kind]
         self._snapshot_key = cfg["snapshot_key"]
         self._attr_unique_id = f"{entry.unique_id}_{kind}_today_kwh"
@@ -567,7 +624,15 @@ class HubEnergieTodayEnergySensor(HubEnergieSensor):
 
     @property
     def native_value(self) -> float | None:
+        if self._kind in ("grid", "home") and _input_status_blocks_cost_and_grid(self._data()):
+            return None
         return self._get_value(self._snapshot_key)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        if self._kind in ("grid", "home"):
+            return _input_status_sensor_attributes(self._data())
+        return {}
 
 
 class HubEnergiePowerFlowSensor(HubEnergieSensor):
@@ -1157,6 +1222,7 @@ class HubEnergieCostDetailSensor(HubEnergieSensor):
                 slot_cost = _safe_float(cbs.get(slot))
                 if slot_cost is not None:
                     attrs[f"{slot}_eur"] = round(slot_cost, 3)
+        attrs.update(_input_status_sensor_attributes(data))
         return attrs
 
 
@@ -1187,9 +1253,15 @@ class HubEnergieSavingsSensor(HubEnergieSensor):
 
     @property
     def native_value(self) -> float | None:
+        if _input_status_blocks_cost_and_grid(self._data()):
+            return None
         if self._kind == "solar":
             return self._get_value(DATA_ECO_SOLAR)
         return self._get_value(DATA_ECO_BATT)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return _input_status_sensor_attributes(self._data())
 
 
 class HubEnergieInfoSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
@@ -1359,14 +1431,14 @@ class HubEnergieNextHcStartSensor(CoordinatorEntity[HubEnergieCoordinator], Sens
 
 
 class HubEnergieHealthSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
-    """Synthetic trust level from telemetry, drift, tariff readiness, and store rebuild."""
+    """Trust level plus configured-entity readability (input_status)."""
 
     _attr_has_entity_name = True
     _attr_should_poll = False
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_translation_key = "health"
     _attr_device_class = SensorDeviceClass.ENUM
-    _attr_options = ("ok", "degraded", "rebuilding", "inconsistent")
+    _attr_options = ("ok", "degraded", "rebuilding", "inconsistent", "no_input")
 
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
@@ -1379,15 +1451,22 @@ class HubEnergieHealthSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnt
         data = self.coordinator.data
         if not data:
             return "ok"
-        raw = data.get(DATA_TRUST_LEVEL)
-        if raw in self._attr_options:
-            return str(raw)
+        trust = str(data.get(DATA_TRUST_LEVEL) or "ok")
+        inp = str(data.get(DATA_INPUT_STATUS) or INPUT_STATUS_OK)
+        if inp == INPUT_STATUS_NO_INPUT:
+            return "no_input"
+        if trust == "inconsistent" or inp == INPUT_STATUS_ERROR:
+            return "inconsistent"
+        if trust == "rebuilding":
+            return "rebuilding"
+        if inp == INPUT_STATUS_DEGRADED or trust == "degraded":
+            return "degraded"
         return "ok"
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         data = self.coordinator.data or {}
-        return {
+        attrs = {
             "paris_day": data.get(DATA_DAY),
             DATA_CURRENT_SLOT: data.get(DATA_CURRENT_SLOT),
             DATA_LOGIC_VERSION: data.get(DATA_LOGIC_VERSION, LOGIC_VERSION),
@@ -1401,6 +1480,8 @@ class HubEnergieHealthSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnt
             DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY: data.get(DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY),
             DATA_SECONDS_SINCE_LAST_APPLIED_DELTA: data.get(DATA_SECONDS_SINCE_LAST_APPLIED_DELTA),
         }
+        attrs.update(_input_status_sensor_attributes(data, cap_entity_lists=True))
+        return attrs
 
 
 class HubEnergieDiagUnknownBucketSensor(HubEnergieSensor):

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import math
 from datetime import datetime
@@ -124,6 +125,10 @@ from .const import (
     ATTRIBUTION_SLOTS,
     DATA_CONTRACT_POWER,
     DATA_DATA_QUALITY,
+    DATA_INPUT_MISSING_ENTITY_IDS,
+    DATA_INPUT_STATUS,
+    DATA_INPUT_STATUS_REASONS,
+    DATA_INPUT_UNAVAILABLE_ENTITY_IDS,
     DATA_DELTA_DISCARDS,
     DATA_DELTA_LAST_REJECTION,
     DATA_DELTA_TELEMETRY,
@@ -140,6 +145,7 @@ from .const import (
     DOMAIN,
     ENERGY_ROUND_DECIMALS,
     GRID_POWER_SIGN_EXPORT_NEGATIVE,
+    INPUT_STATUS_OK,
     SLOT_UNKNOWN,
     SOURCE_GRID,
     SOURCE_GRID_EXPORT,
@@ -176,6 +182,12 @@ from .tariff_manager import TariffResolver
 from .time.paris_time import ParisTime
 from .utils.energy import normalize_kwh
 from .utils.grid_phases import ordered_phase_entity_ids
+from .utils.input_availability import (
+    compute_input_probe,
+    derive_input_status,
+    format_probe_log_dict,
+    probe_signature,
+)
 from .utils.numbers import safe_float
 from .providers.edf import is_off_peak, parse_slot_from_sensor_state
 
@@ -314,6 +326,10 @@ class EnergyData(TypedDict, total=False):
     trust_level: str
     trust_cause_code: str
     trust_cause: str
+    input_status: str
+    input_status_reasons: list[str]
+    input_missing_entity_ids: list[str]
+    input_unavailable_entity_ids: list[str]
 
 
 class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
@@ -347,6 +363,8 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         )
         self._delta_policy = DeltaPolicy()
         self._trust_rebuilding_after_recorder = False
+        self._first_input_probe_logged = False
+        self._last_input_probe_signature: str | None = None
 
         self._persistence = PersistenceManager(
             hass=self.hass,
@@ -843,7 +861,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         return snapshot
 
     def _compute_data_quality(self) -> str:
-        """Coarse signal for UI / support (gap, fallbacks, unknown bucket)."""
+        """Attribution / delta health (unknown bucket, gaps). Not entity presence — see input_status."""
         day = ParisTime.today()
         day_acc = self._runtime_state.snapshot_data(day)
         grid = day_acc.get(SOURCE_GRID, {})
@@ -932,6 +950,34 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         snap[DATA_TRUST_LEVEL] = trust.level
         snap[DATA_TRUST_CAUSE_CODE] = trust.cause_code
         snap[DATA_TRUST_CAUSE] = trust.cause_message
+
+        probe = compute_input_probe(self.hass, self.entry, self._reader)
+        input_status, input_reasons = derive_input_status(
+            probe,
+            trust_level=str(snap[DATA_TRUST_LEVEL]),
+            data_quality=str(snap[DATA_DATA_QUALITY]),
+        )
+        snap[DATA_INPUT_STATUS] = input_status
+        snap[DATA_INPUT_STATUS_REASONS] = list(input_reasons)
+        snap[DATA_INPUT_MISSING_ENTITY_IDS] = list(probe.missing_entity_ids)
+        snap[DATA_INPUT_UNAVAILABLE_ENTITY_IDS] = list(probe.unavailable_entity_ids)
+
+        sig = probe_signature(input_status, probe)
+        log_payload = format_probe_log_dict(
+            entry_id=self.entry.entry_id,
+            input_status=input_status,
+            reasons=input_reasons,
+            probe=probe,
+        )
+        line = json.dumps(log_payload, ensure_ascii=False)
+        if not self._first_input_probe_logged:
+            self._first_input_probe_logged = True
+            lvl = logging.WARNING if input_status != INPUT_STATUS_OK else logging.INFO
+            _LOGGER.log(lvl, "Hub Énergie input probe (first refresh): %s", line)
+        elif sig != self._last_input_probe_signature:
+            _LOGGER.info("Hub Énergie input probe (status changed): %s", line)
+        self._last_input_probe_signature = sig
+
         return cast(EnergyData, snap)
 
     async def async_manual_tariff_refresh(self) -> bool:

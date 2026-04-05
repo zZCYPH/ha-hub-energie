@@ -645,7 +645,8 @@
           "ok": "OK",
           "degraded": "Degraded",
           "rebuilding": "Rebuilding",
-          "inconsistent": "Inconsistent"
+          "inconsistent": "Inconsistent",
+          "no_input": "No grid meter input"
         }
       }
     }

@@ -645,7 +645,8 @@
           "ok": "OK",
           "degraded": "Dégradé",
           "rebuilding": "Reconstruction",
-          "inconsistent": "Incohérent"
+          "inconsistent": "Incohérent",
+          "no_input": "Pas de compteur réseau"
         }
       }
     }

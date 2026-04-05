@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from pathlib import Path
@@ -13,6 +14,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 
 from .const import DOMAIN
 from .coordinator import HubEnergieCoordinator
+from .utils.startup_failure import log_first_refresh_failure
 from .migration import async_migrate_entry  # noqa: F401 — entry point for HA
 
 _LOGGER = logging.getLogger(__name__)
@@ -179,8 +181,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     try:
         await coordinator.async_config_entry_first_refresh()
-    except Exception as err:  # noqa: BLE001
-        _LOGGER.error("First refresh failed: %s", err)
+    except BaseException as err:
+        if isinstance(err, asyncio.CancelledError):
+            raise
+        log_first_refresh_failure(_LOGGER, entry_id=entry.entry_id, exc=err)
         raise ConfigEntryNotReady from err
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
