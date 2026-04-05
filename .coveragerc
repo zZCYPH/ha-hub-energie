@@ -1,39 +1,41 @@
-# Scope: unit-tested logic only (integration / HA glue omitted).
-# providers/edf.py is excluded here: huge I/O client; pure helpers are still tested in test_edf_pure_helpers.py.
+# Hub Énergie — coverage aligned with energy/financial reliability (not “easy-only” lines).
+# Glue HA and network I/O stay omitted; pure business logic and tariff/battery helpers are measured.
 [run]
 branch = true
 source = .
 parallel = false
 omit =
+    # --- Tests and non-product entrypoints ---
     tests/*
     test_standalone.py
+    # --- Package markers (no logic) ---
     */__init__.py
     __init__.py
+    # --- Home Assistant glue (UI, lifecycle, listeners) ---
     sensor.py
     binary_sensor.py
     config_flow.py
     config_flow_selectors.py
     coordinator.py
     migration.py
-    persistence_manager.py
-    runtime_state.py
     scheduler.py
-    solar_model.py
     config_entity_checks.py
     ha/*
     runtime/events.py
     runtime/poll_schedule.py
     snapshot/coordinator_bridge.py
     snapshot/inputs_builder.py
-    storage/statistics.py
+    tempo/service.py
+    # --- Root shims (re-export to runtime/) ---
+    persistence_manager.py
+    runtime_state.py
+    # --- Heavy network / integration ---
+    providers/edf.py
     tariff/edf_client.py
     tariff/edf_state.py
     tariff/refresh.py
-    battery/battery_runtime.py
-    tempo/service.py
-    time/*
-    tariff_manager.py
-    providers/edf.py
+    # --- Legacy / large standalone ---
+    solar_model.py
 
 [report]
 precision = 2
