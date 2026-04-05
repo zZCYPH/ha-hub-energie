@@ -147,8 +147,6 @@ from .const import (
     INTEGRATION_TITLE,
     LOGIC_VERSION,
     scoped_device_name,
-    OPT_TARIFF_FETCHED_AT,
-    REINJECTION_OPTION_KEYS,
     SLOTS,
     SLOT_UNKNOWN,
     SOURCE_BATT_CHARGE,
@@ -166,6 +164,10 @@ from .const import (
 )
 from .coordinator import EnergyData, HubEnergieCoordinator
 from .time.paris_time import ParisTime
+from .utils.config_display import (
+    config_overview_attributes as _config_overview_attributes,
+    redact_entry_data_for_display as _redact_entry_data_for_display,
+)
 
 _MANUFACTURER = INTEGRATION_TITLE
 
@@ -456,52 +458,6 @@ def _visible_slots_for_offer(entry: ConfigEntry) -> set[str]:
     if offer == TARIFF_OFFER_HPHC:
         return {"bleu_hc", "bleu_hp"}
     return set(SLOTS)
-
-
-def _redact_entry_data_for_display(data: dict[str, Any]) -> dict[str, Any]:
-    out = dict(data)
-    if out.get(CONF_RTE_CLIENT_SECRET):
-        out[CONF_RTE_CLIENT_SECRET] = "(stored)"
-    cid = out.get(CONF_RTE_CLIENT_ID)
-    if cid:
-        s = str(cid)
-        out[CONF_RTE_CLIENT_ID] = f"{s[:4]}…{s[-4:]}" if len(s) > 8 else "(stored)"
-    return out
-
-
-def _config_overview_attributes(entry: ConfigEntry) -> dict[str, Any]:
-    data = _redact_entry_data_for_display(dict(entry.data))
-    options = dict(entry.options)
-    reinj_override = {k: options[k] for k in REINJECTION_OPTION_KEYS if k in options}
-    power_wiring: dict[str, str | None] = {
-        "grid_power_sensor": options.get(CONF_GRID_POWER_SENSOR) or data.get(CONF_GRID_POWER_SENSOR),
-        "solar_power_sensor": options.get(CONF_SOLAR_POWER_SENSOR) or data.get(CONF_SOLAR_POWER_SENSOR),
-        "load_power_sensor": options.get(CONF_LOAD_POWER_SENSOR) or data.get(CONF_LOAD_POWER_SENSOR),
-        "grid_power_sign_mode": options.get(CONF_GRID_POWER_SIGN_MODE) or data.get(CONF_GRID_POWER_SIGN_MODE),
-    }
-    has_power = any(bool(v) for k, v in power_wiring.items() if k != "grid_power_sign_mode") or bool(
-        power_wiring.get("grid_power_sign_mode")
-    )
-    batteries = data.get(CONF_BATTERY_SYSTEMS, [])
-    return {
-        "supplier": data.get(CONF_SUPPLIER),
-        "offer": data.get(CONF_TARIFF_OFFER),
-        "tempo_mode": data.get(CONF_TEMPO_MODE),
-        "contract_power_kva": data.get(CONF_CONTRACT_POWER) or options.get(CONF_CONTRACT_POWER),
-        "tariff_fetched_at": options.get(OPT_TARIFF_FETCHED_AT),
-        "has_solar": bool(data.get(CONF_HAS_SOLAR)),
-        "has_batteries": bool(data.get(CONF_HAS_BATTERIES)),
-        "battery_count": len(batteries) if isinstance(batteries, list) else 0,
-        "solar_estimation_enabled": bool(data.get(CONF_SOLAR_ESTIMATION_ENABLED)),
-        "solar_resale_contract": bool(data.get(CONF_SOLAR_RESALE_CONTRACT)),
-        "power_entities": power_wiring,
-        "power_sensors_configured": has_power,
-        "current_slot_sensor": data.get(CONF_CURRENT_SLOT_SENSOR),
-        "reinjection_overrides": reinj_override or None,
-        "options_keys": sorted(options.keys()),
-        "data": data,
-        "options": options,
-    }
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

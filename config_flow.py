@@ -25,6 +25,7 @@ from homeassistant.helpers.selector import (
 )
 
 from .config_entity_checks import validate_entities
+from .utils.redaction import redact_sensitive_mapping
 from .config_flow_selectors import (
     batt_net_sign_selector,
     contract_power_selector_edf,
@@ -165,10 +166,7 @@ _BATTERY_ADV_KEYS: Final[tuple[str, ...]] = (
 def _redact_user_input(value: Any) -> Any:
     if not isinstance(value, dict):
         return value
-    return {
-        str(key): ("***" if any(token in str(key).lower() for token in ("secret", "password", "token")) else val)
-        for key, val in value.items()
-    }
+    return redact_sensitive_mapping(value)
 
 
 class _StepLoggingMixin:

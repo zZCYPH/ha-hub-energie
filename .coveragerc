@@ -21,7 +21,6 @@ omit =
     solar_model.py
     config_entity_checks.py
     ha/*
-    runtime/persistence.py
     runtime/events.py
     runtime/poll_schedule.py
     snapshot/coordinator_bridge.py

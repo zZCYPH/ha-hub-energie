@@ -8,6 +8,7 @@ import re
 from typing import Any, Final, Mapping
 
 from .config_models import HubEnergieConfigPartial, ValidationScope
+from .utils.redaction import redact_sensitive_mapping
 from .const import (
     BATT_SIGN_POSITIVE_CHARGE,
     BATT_SIGN_POSITIVE_DISCHARGE,
@@ -182,10 +183,7 @@ def _merged(
 
 
 def _redact_mapping(values: Mapping[str, Any]) -> dict[str, Any]:
-    return {
-        str(key): ("***" if any(token in str(key).lower() for token in ("secret", "password", "token")) else value)
-        for key, value in values.items()
-    }
+    return redact_sensitive_mapping(values)
 
 
 def _clean_text(value: Any) -> str:

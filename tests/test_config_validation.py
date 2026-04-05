@@ -243,3 +243,188 @@ def test_battery_advanced_validates_xor() -> None:
     assert errors == {}
     assert patch[const.CONF_BATT_CAPACITY_KWH] is None
     assert patch[const.CONF_BATT_CAPACITY_KWH_ENTITY] == "sensor.batt_capacity"
+
+
+def test_rte_credentials_errors_when_merged_missing_client_id() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "rte_credentials",
+        {const.CONF_RTE_CLIENT_SECRET: "only-secret"},
+        {},
+    )
+    assert errors == {"base": config_validation.ERR_RTE_CREDS_REQUIRED}
+    assert patch == {}
+
+
+def test_rte_credentials_errors_when_merged_missing_secret() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "rte_credentials",
+        {const.CONF_RTE_CLIENT_ID: "only-id"},
+        {},
+    )
+    assert errors == {"base": config_validation.ERR_RTE_CREDS_REQUIRED}
+    assert patch == {}
+
+
+def test_rte_credentials_ok_when_both_in_merged() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "rte_credentials",
+        {
+            const.CONF_RTE_CLIENT_ID: "my-id",
+            const.CONF_RTE_CLIENT_SECRET: "my-secret",
+        },
+        {},
+    )
+    assert errors == {}
+    assert patch == {}
+
+
+def test_manual_flat_invalid_energy_price_out_of_range() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "manual_flat",
+        {},
+        {const.CONF_ENERGY_PRICE: 10.0},
+    )
+    assert errors[const.CONF_ENERGY_PRICE] == config_validation.ERR_INVALID_PRICE
+    assert const.CONF_ENERGY_PRICE not in patch
+
+
+def test_manual_flat_negative_subscription_rejected() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "manual_flat",
+        {},
+        {
+            const.CONF_ENERGY_PRICE: 0.12,
+            const.CONF_SUBSCRIPTION_PRICE: -5.0,
+        },
+    )
+    assert errors[const.CONF_SUBSCRIPTION_PRICE] == config_validation.ERR_INVALID_PRICE
+
+
+def test_manual_flat_valid_patch() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "manual_flat",
+        {},
+        {
+            const.CONF_ENERGY_PRICE: 0.15,
+            const.CONF_SUBSCRIPTION_PRICE: 12.5,
+        },
+    )
+    assert errors == {}
+    assert patch[const.CONF_ENERGY_PRICE] == 0.15
+    assert patch[const.CONF_SUBSCRIPTION_PRICE] == 12.5
+
+
+def test_manual_tou_valid_json_normalizes_periods() -> None:
+    raw = '[{"start": "08:00", "end": "20:00", "price": 0.12, "name": "day"}]'
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "manual_tou",
+        {},
+        {const.CONF_TOU_PERIODS: raw, const.CONF_SUBSCRIPTION_PRICE: 0},
+    )
+    assert errors == {}
+    assert patch[const.CONF_SUBSCRIPTION_PRICE] == 0.0
+    periods = patch[const.CONF_TOU_PERIODS]
+    assert isinstance(periods, list)
+    assert periods[0]["start"] == "08:00"
+    assert periods[0]["end"] == "20:00"
+    assert periods[0]["price"] == 0.12
+
+
+def test_manual_tou_invalid_time_on_period() -> None:
+    raw = '[{"start": "25:00", "end": "20:00", "price": 0.1}]'
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "manual_tou",
+        {},
+        {const.CONF_TOU_PERIODS: raw},
+    )
+    assert errors[const.CONF_TOU_PERIODS] == config_validation.ERR_INVALID_JSON
+    assert const.CONF_TOU_PERIODS not in patch
+
+
+def test_manual_tou_empty_list_after_parse_requires_periods() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "manual_tou",
+        {},
+        {const.CONF_TOU_PERIODS: "[]"},
+    )
+    assert errors[const.CONF_TOU_PERIODS] == config_validation.ERR_REQUIRED
+
+
+def test_manual_schedule_valid_json() -> None:
+    raw = (
+        '[{"start": "06:00", "end": "08:00", "price": 0.1, '
+        f'"day_type": "{const.DAY_TYPE_WEEKDAYS}"}}]'
+    )
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "manual_schedule",
+        {},
+        {const.CONF_SCHEDULE_SLOTS: raw},
+    )
+    assert errors == {}
+    slots = patch[const.CONF_SCHEDULE_SLOTS]
+    assert slots[0]["day_type"] == const.DAY_TYPE_WEEKDAYS
+
+
+def test_manual_schedule_invalid_day_type() -> None:
+    raw = '[{"start": "06:00", "end": "08:00", "price": 0.1, "day_type": "mars"}]'
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "manual_schedule",
+        {},
+        {const.CONF_SCHEDULE_SLOTS: raw},
+    )
+    assert errors[const.CONF_SCHEDULE_SLOTS] == config_validation.ERR_INVALID_OPTION
+
+
+def test_validate_full_minimal_edf_tempo_api_valid() -> None:
+    errors = HubEnergieConfigValidator.validate_full(
+        {
+            const.CONF_SUPPLIER: const.SUPPLIER_EDF,
+            const.CONF_PHASE_TYPE: const.PHASE_MONO,
+            const.CONF_TARIFF_MODE: const.TARIFF_MODE_AUTO,
+            const.CONF_CONTRACT_POWER: "9",
+            const.CONF_GRID_IMPORT_ENERGY: "sensor.grid_import_energy",
+            const.CONF_TARIFF_OFFER: const.TARIFF_OFFER_TEMPO,
+            const.CONF_TEMPO_MODE: const.TEMPO_MODE_API,
+        }
+    )
+    assert errors == {}
+
+
+def test_validate_full_missing_grid_import_energy() -> None:
+    errors = HubEnergieConfigValidator.validate_full(
+        {
+            const.CONF_SUPPLIER: const.SUPPLIER_EDF,
+            const.CONF_PHASE_TYPE: const.PHASE_MONO,
+            const.CONF_TARIFF_MODE: const.TARIFF_MODE_AUTO,
+            const.CONF_CONTRACT_POWER: "9",
+        }
+    )
+    assert errors[const.CONF_GRID_IMPORT_ENERGY] == config_validation.ERR_NO_ENERGY_SENSOR
+
+
+def test_redact_mapping_masks_secret_password_token_keys() -> None:
+    out = config_validation._redact_mapping(
+        {
+            "rte_client_secret": "s3cr3t",
+            "api_password": "x",
+            "user_token": "t",
+            "plain": "visible",
+        }
+    )
+    assert out["rte_client_secret"] == "***"
+    assert out["api_password"] == "***"
+    assert out["user_token"] == "***"
+    assert out["plain"] == "visible"
+
+
+def test_manual_tou_invalid_json_error_does_not_echo_secret_value() -> None:
+    secret = "super-secret-token-12345"
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "manual_tou",
+        {},
+        {const.CONF_TOU_PERIODS: secret},
+    )
+    assert errors[const.CONF_TOU_PERIODS] == config_validation.ERR_INVALID_JSON
+    for _k, v in errors.items():
+        assert secret not in str(v)
+    assert secret not in patch.values()

@@ -15,69 +15,12 @@ from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
+from ..storage.recorder_rebuild import stat_rows_to_dailies_and_lts_floor
 from ..storage.store_manager import StoreManager
-from ..time.paris_time import PARIS_TZ, ParisTime
+from ..time.paris_time import ParisTime
 from .state import RuntimeState
 
 __all__ = ("PersistenceManager",)
-
-
-def _stat_rows_to_dailies_and_lts_floor(
-    rows: list[Any],
-    *,
-    today_iso: str,
-    safe_float: Callable[[Any], float | None],
-    norm_kwh: Callable[[float], float],
-) -> tuple[list[tuple[str, float]], float]:
-    """Split recorder rows into per-day kWh for internal rebuild and LTS cumulative floor.
-
-    Monotonic ``sum`` series → treat as cumulative (delta between rows). Non-monotonic
-    → legacy daily values written as ``sum`` (before v0.2.2).
-    """
-    parsed: list[tuple[datetime, float]] = []
-    for row in rows:
-        start_dt = row.get("start") if isinstance(row, Mapping) else getattr(row, "start", None)
-        sum_val = row.get("sum") if isinstance(row, Mapping) else getattr(row, "sum", None)
-        if not isinstance(start_dt, datetime):
-            continue
-        s = safe_float(sum_val)
-        if s is None:
-            continue
-        parsed.append((start_dt, s))
-
-    parsed.sort(key=lambda t: t[0])
-    done = [
-        (dt, s)
-        for dt, s in parsed
-        if dt.astimezone(PARIS_TZ).date().isoformat() < today_iso
-    ]
-    if not done:
-        return [], 0.0
-
-    sums = [p[1] for p in done]
-    monotonic = len(sums) < 2 or all(
-        sums[i] >= sums[i - 1] - 1e-9 for i in range(1, len(sums))
-    )
-
-    out: list[tuple[str, float]] = []
-    if not monotonic:
-        last_cum = 0.0
-        for dt, s in done:
-            day_iso = dt.astimezone(PARIS_TZ).date().isoformat()
-            daily = norm_kwh(max(0.0, s))
-            if daily > 0:
-                out.append((day_iso, daily))
-                last_cum = norm_kwh(last_cum + daily)
-        return out, last_cum
-
-    prev = 0.0
-    for dt, s in done:
-        day_iso = dt.astimezone(PARIS_TZ).date().isoformat()
-        daily = norm_kwh(max(0.0, s - prev))
-        if daily > 0:
-            out.append((day_iso, daily))
-        prev = s
-    return out, norm_kwh(sums[-1])
 
 
 class PersistenceManager:
@@ -338,7 +281,7 @@ class PersistenceManager:
             for slot in self._slots:
                 sid = self._statistic_id(source_key, slot)
                 rows = stats.get(sid, [])
-                dailies, lts_floor = _stat_rows_to_dailies_and_lts_floor(
+                dailies, lts_floor = stat_rows_to_dailies_and_lts_floor(
                     rows,
                     today_iso=today,
                     safe_float=self._safe_float,

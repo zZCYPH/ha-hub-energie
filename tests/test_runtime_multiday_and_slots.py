@@ -87,6 +87,63 @@ def test_apply_delta_new_day_does_not_merge_into_previous_day() -> None:
     assert state.totals_kwh_by_source["grid"] == _norm(3.0)
 
 
+def test_add_rebuilt_value_twice_doubles_slot_documented_non_idempotent() -> None:
+    """Second rebuild ingest for the same day/slot adds again (no dedupe)."""
+    diag = diag_state_module.ReinjectionState(
+        slots=SLOTS_FULL,
+        diag_causes=CAUSES,
+        default_cause="unattributed",
+    )
+    state = runtime_state_module.RuntimeState(slots=SLOTS_FULL, reinjection_state=diag)
+    state.add_rebuilt_value(
+        day="2026-01-10",
+        source_key="grid",
+        slot="bleu_hp",
+        value=2.0,
+        normalize_kwh=_norm,
+    )
+    state.add_rebuilt_value(
+        day="2026-01-10",
+        source_key="grid",
+        slot="bleu_hp",
+        value=2.0,
+        normalize_kwh=_norm,
+    )
+    assert state.accum["2026-01-10"]["grid"]["bleu_hp"] == _norm(4.0)
+    assert state.totals_kwh_by_source["grid"] == _norm(4.0)
+
+
+def test_positive_delta_with_unknown_slot_accumulates_in_unknown_bucket() -> None:
+    """Energy is not dropped when attribution resolves to SLOT_UNKNOWN."""
+    diag = diag_state_module.ReinjectionState(
+        slots=SLOTS_FULL,
+        diag_causes=CAUSES,
+        default_cause="unattributed",
+    )
+    state = runtime_state_module.RuntimeState(slots=SLOTS_FULL, reinjection_state=diag)
+    policy = delta_policy_module.DeltaPolicy()
+    state.apply_delta(
+        day="2026-06-01",
+        slot="unknown",
+        source_key="grid",
+        entity_id="sensor.grid",
+        normalized_new=5.0,
+        normalize_kwh=_norm,
+        delta_policy=policy,
+    )
+    state.apply_delta(
+        day="2026-06-01",
+        slot="unknown",
+        source_key="grid",
+        entity_id="sensor.grid",
+        normalized_new=8.0,
+        normalize_kwh=_norm,
+        delta_policy=policy,
+    )
+    assert state.accum["2026-06-01"]["grid"]["unknown"] == _norm(3.0)
+    assert state.totals_kwh_by_source["grid"] == _norm(3.0)
+
+
 def test_unrealistic_delta_rebases_last_raw_without_counting_energy() -> None:
     diag = diag_state_module.ReinjectionState(
         slots=SLOTS_FULL,
