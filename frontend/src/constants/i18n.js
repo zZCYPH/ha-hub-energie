@@ -124,6 +124,17 @@ export const I18N = Object.freeze({
     reinjCauseSwitchLatency: "Latence batt",
     reinjCauseOther: "Autre",
     sectionConsumption: "Consommation",
+    editorGridWidth: "Largeur de section (colonnes grille)",
+    editorGridSpanNarrow: "1 × 12 (étroit)",
+    editorGridSpanDefault: "2 × 12 (défaut du sélecteur de carte)",
+    editorGridSpanFull: "3 × 12 (pleine largeur)",
+    editorPowerGraphWindow: "Fenêtre par défaut du graphe de puissance",
+    editorPowerHoursUnit: "{n} heures",
+    editorPowerHoursHint:
+      "Durée d'historique glissant à l'ouverture du graphe de puissance en direct.",
+    editorAdvancedYamlBefore: "Avancé : ",
+    editorAdvancedYamlAfter:
+      " (intervalle de rafraîchissement du graphe en direct, 120 s par défaut) reste réservé au YAML dans cette version.",
   },
   en: {
     date: "Date",
@@ -249,5 +260,15 @@ export const I18N = Object.freeze({
     reinjCauseSwitchLatency: "Switch latency",
     reinjCauseOther: "Other",
     sectionConsumption: "Consumption",
+    editorGridWidth: "Section width (grid columns)",
+    editorGridSpanNarrow: "1 × 12 (narrow)",
+    editorGridSpanDefault: "2 × 12 (default in card picker)",
+    editorGridSpanFull: "3 × 12 (full width)",
+    editorPowerGraphWindow: "Power graph default window",
+    editorPowerHoursUnit: "{n} hours",
+    editorPowerHoursHint: "Rolling history length when opening the live power graph.",
+    editorAdvancedYamlBefore: "Advanced: ",
+    editorAdvancedYamlAfter:
+      " (live graph poll interval, default 120s) remains YAML-only for this version.",
   },
 });

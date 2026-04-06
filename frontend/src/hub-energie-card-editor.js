@@ -1,4 +1,6 @@
 import { LitElement, css, html } from "lit";
+import { I18N } from "./constants/i18n.js";
+import { tpl } from "./utils/i18n-template.js";
 
 const CARD_TYPE = "custom:hub-energie-card";
 
@@ -34,29 +36,14 @@ export class HubEnergieCardEditor extends LitElement {
     if (!this._config.type) this._config.type = CARD_TYPE;
   }
 
-  async firstUpdated() {
-    await this._ensureEntityPicker();
-    this.requestUpdate();
-  }
-
-  async _ensureEntityPicker() {
-    if (customElements.get("ha-entity-picker")) return;
-    try {
-      const load = window.loadCardHelpers;
-      if (typeof load !== "function") return;
-      const helpers = await load();
-      const el = await helpers.createCardElement({ type: "entities", entities: [] });
-      const Card = el.constructor;
-      if (typeof Card.getConfigElement === "function") {
-        Card.getConfigElement();
-      }
-    } catch {
-      /* ha-entity-picker may already be registered by the dashboard editor */
-    }
+  _i18n() {
+    const lang = String(this.hass?.locale?.language ?? "fr").toLowerCase();
+    return lang.startsWith("en") ? I18N.en : I18N.fr;
   }
 
   render() {
     const c = this._config ?? {};
+    const i18n = this._i18n();
     const gridSpan = Number(c.grid_span ?? 1);
     const spanVal = Number.isFinite(gridSpan) ? Math.max(1, Math.min(3, Math.trunc(gridSpan))) : 1;
     const hoursRaw = parseFloat(c.power_history_hours);
@@ -66,65 +53,37 @@ export class HubEnergieCardEditor extends LitElement {
     return html`
       <div class="card-config">
         <div class="field">
-          <ha-entity-picker
-            .hass=${this.hass}
-            .value=${c.cost_entity ?? ""}
-            label="Cost detail entity"
-            .includeDomains=${["sensor"]}
-            .allowCustomEntity=${true}
-            @value-changed=${this._onCostEntity}
-          ></ha-entity-picker>
-          <p class="hint">
-            Hub Énergie <code>…_cost_detail</code> sensor. Leave empty to use the default
-            <code>sensor.hub_energie_</code> prefix.
-          </p>
-        </div>
-
-        <div class="field">
-          <ha-textfield
-            label="Entity prefix (optional)"
-            .value=${c.entity_prefix ?? ""}
-            placeholder="sensor.hub_energie_"
-            @change=${this._onEntityPrefix}
-          ></ha-textfield>
-          <p class="hint">
-            Optional. Overrides automatic prefix for non-default entity namespaces; a trailing
-            <code>_</code> is added if missing.
-          </p>
-        </div>
-
-        <div class="field">
           <ha-select
-            label="Section width (grid columns)"
+            label=${i18n.editorGridWidth}
             .value=${String(spanVal)}
             @closed=${this._onGridSpanClosed}
             .fixedMenuPosition=${true}
             .naturalMenuWidth=${true}
           >
-            <ha-list-item value="1">1 × 12 (narrow)</ha-list-item>
-            <ha-list-item value="2">2 × 12 (default in card picker)</ha-list-item>
-            <ha-list-item value="3">3 × 12 (full width)</ha-list-item>
+            <ha-list-item value="1">${i18n.editorGridSpanNarrow}</ha-list-item>
+            <ha-list-item value="2">${i18n.editorGridSpanDefault}</ha-list-item>
+            <ha-list-item value="3">${i18n.editorGridSpanFull}</ha-list-item>
           </ha-select>
         </div>
 
         <div class="field">
           <ha-select
-            label="Power graph default window"
+            label=${i18n.editorPowerGraphWindow}
             .value=${String(hoursVal)}
             @closed=${this._onPowerHoursClosed}
             .fixedMenuPosition=${true}
             .naturalMenuWidth=${true}
           >
             ${POWER_HISTORY_HOURS_UI.map(
-              (h) => html`<ha-list-item value="${String(h)}">${h} hours</ha-list-item>`,
+              (h) =>
+                html`<ha-list-item value="${String(h)}">${tpl(i18n.editorPowerHoursUnit, { n: h })}</ha-list-item>`,
             )}
           </ha-select>
-          <p class="hint">Rolling history length when opening the live power graph.</p>
+          <p class="hint">${i18n.editorPowerHoursHint}</p>
         </div>
 
         <p class="hint">
-          Advanced: <code>power_history_refresh_seconds</code> (live graph poll interval, default 120s)
-          remains YAML-only for this version.
+          ${i18n.editorAdvancedYamlBefore}<code>power_history_refresh_seconds</code>${i18n.editorAdvancedYamlAfter}
         </p>
       </div>
     `;
@@ -140,23 +99,6 @@ export class HubEnergieCardEditor extends LitElement {
         detail: { config },
       }),
     );
-  }
-
-  _onCostEntity(ev) {
-    const value = ev.detail?.value ?? "";
-    const next = { ...this._config };
-    if (value) next.cost_entity = value;
-    else delete next.cost_entity;
-    this._emit(next);
-  }
-
-  _onEntityPrefix(ev) {
-    const raw = ev.target?.value ?? "";
-    const next = { ...this._config };
-    const trimmed = String(raw).trim();
-    if (trimmed) next.entity_prefix = trimmed;
-    else delete next.entity_prefix;
-    this._emit(next);
   }
 
   _onGridSpanClosed(ev) {

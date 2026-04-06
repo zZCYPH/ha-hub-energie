@@ -608,7 +608,6 @@ class HubEnergieCard extends LitElement {
   static getStubConfig() {
     return {
       type: "custom:hub-energie-card",
-      cost_entity: "sensor.hub_energie_cost_detail",
       grid_span: 2,
     };
   }
