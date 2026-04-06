@@ -463,7 +463,6 @@ class HubEnergieCard extends LitElement {
     this._hist = null;
     this._histLoading = false;
     this._histErr = null;
-    this._prefixCache = null;
     this.__lastKey = null;
     this._powerGraphOpen = false;
     this._powerGraphLoading = false;
@@ -572,8 +571,12 @@ class HubEnergieCard extends LitElement {
 
   setConfig(config) {
     this._config = config ?? {};
-    this._prefixCache = null;
     this.__lastKey = null;
+    if (this._config.show_raw_control === false) this._showRaw = false;
+    if (this._config.show_live_power === false && this._powerGraphOpen) {
+      this._powerGraphOpen = false;
+      this._clearPowerGraphPollTimer();
+    }
     const raw = parseFloat(this._config?.power_history_hours);
     const snapped = snapPowerGraphRollingHours(
       Number.isFinite(raw) ? raw : NaN,
@@ -583,6 +586,7 @@ class HubEnergieCard extends LitElement {
       this._powerGraphRollingHours = snapped;
       this.__lastKey = null;
     }
+    this.requestUpdate();
   }
 
   getCardSize() {
@@ -666,25 +670,14 @@ class HubEnergieCard extends LitElement {
     return lang.startsWith("en") ? I18N.en : I18N.fr;
   }
 
-  _prefix() {
-    if (this._prefixCache) return this._prefixCache;
-    const c = this._config;
-    let p;
-    if (c.entity_prefix) {
-      p = String(c.entity_prefix).trim();
-      if (!p.endsWith("_")) p += "_";
-    } else if (c.cost_entity) {
-      const id = String(c.cost_entity).trim();
-      p = id.endsWith("_cost_detail") ? `${id.slice(0, -"_cost_detail".length)}_` : "sensor.hub_energie_";
-    } else {
-      p = "sensor.hub_energie_";
-    }
-    this._prefixCache = p;
-    return p;
+  /** Section visibility: default on; explicit false hides. */
+  _showSection(key) {
+    const v = this._config?.[key];
+    return v !== false && v !== "false";
   }
 
   _map() {
-    return makeEntityMap(this._prefix());
+    return makeEntityMap();
   }
 
   _getRange() {
@@ -1064,8 +1057,7 @@ class HubEnergieCard extends LitElement {
           <div class="header"><h2>Hub Énergie</h2></div>
           <div class="alert">
             ${i18n.costEntityNotFoundBefore} <code>${E.cost}</code> ${i18n.costEntityNotFoundAfter}<br />
-            ${i18n.costEntityCardHint}<br />
-            ${i18n.costEntityDevHint}
+            ${i18n.costEntityCardHint}
           </div>
         </ha-card>
       `;
@@ -1283,13 +1275,16 @@ class HubEnergieCard extends LitElement {
               `)}
             </div>
             <span class="range-label">${rangeLabel(r.startIso, r.endIso, locale)}</span>
-            <button class="btn" @click=${this._onRawToggle}>${this._showRaw ? i18n.hide : i18n.details}</button>
+            ${this._showSection("show_raw_control")
+              ? html`<button class="btn" @click=${this._onRawToggle}>${this._showRaw ? i18n.hide : i18n.details}</button>`
+              : nothing}
           </div>
         </div>
 
         ${this._histLoading ? html`<div class="loader">${i18n.loading}</div>` : nothing}
 
-        <div class="meta-tempo-wrap">
+        ${this._showSection("show_day_slots")
+          ? html` <div class="meta-tempo-wrap">
           <div class="meta-days-stack">
             <div class="day-tile ${offer === "tempo" ? dayColorClass(todayColor) : "color-na"}">
               <span class="day-tile-line">${i18n.today} : ${slotLabel(currentSlot, offer, i18n)}</span>
@@ -1313,8 +1308,11 @@ class HubEnergieCard extends LitElement {
                 </div>
               `
             : nothing}
-        </div>
+        </div>`
+          : nothing}
 
+        ${this._showSection("show_live_power")
+          ? html`
         <hub-power-now
           .i18n=${i18n}
           .data=${powerNowData}
@@ -1334,12 +1332,20 @@ class HubEnergieCard extends LitElement {
             const h = e.detail?.hours;
             if (h != null) this._setPowerGraphRollingHours(h);
           }}
-        ></hub-power-graph>
-        <hub-energie-battery-bar .i18n=${i18n} .data=${batteryData} .numberLocale=${locale}></hub-energie-battery-bar>
-        <hub-insight-bar .i18n=${i18n} .totalMaison=${totalMaison} .originGrid=${og} .totalEur=${totalEur} .ecoTotal=${ecoTotal}></hub-insight-bar>
-        ${this._renderRedHpWarning(grid, offer, totalMaison, usage, i18n)}
+        ></hub-power-graph>`
+          : nothing}
+        ${this._showSection("show_battery_bar")
+          ? html`<hub-energie-battery-bar .i18n=${i18n} .data=${batteryData} .numberLocale=${locale}></hub-energie-battery-bar>`
+          : nothing}
+        ${this._showSection("show_insights_bar")
+          ? html`<hub-insight-bar .i18n=${i18n} .totalMaison=${totalMaison} .originGrid=${og} .totalEur=${totalEur} .ecoTotal=${ecoTotal}></hub-insight-bar>`
+          : nothing}
+        ${this._showSection("show_red_hp_warning")
+          ? this._renderRedHpWarning(grid, offer, totalMaison, usage, i18n)
+          : nothing}
 
-        <section>
+        ${this._showSection("show_consumption")
+          ? html`<section>
           <div class="section-head">
             <h3>${i18n.sectionConsumption}</h3>
             <div class="section-metric">${i18n.totalEnergy} <b>${fmtEnergy(totalMaison)}</b></div>
@@ -1384,9 +1390,11 @@ class HubEnergieCard extends LitElement {
               .emptyLabel=${i18n.noData}
             ></hub-energy-strip>
           </div>
-        </section>
+        </section>`
+          : nothing}
 
-        <section>
+        ${this._showSection("show_cost")
+          ? html`<section>
           <div class="bars">
             <hub-energy-strip
               .title=${i18n.costStripTitle}
@@ -1404,9 +1412,11 @@ class HubEnergieCard extends LitElement {
               .emptyLabel=${i18n.noData}
             ></hub-energy-strip>
           </div>
-        </section>
+        </section>`
+          : nothing}
 
-        <section>
+        ${this._showSection("show_savings")
+          ? html`<section>
           <div class="bars">
             <hub-energy-strip
               .title=${i18n.ecoStripTitle}
@@ -1421,9 +1431,11 @@ class HubEnergieCard extends LitElement {
               .emptyLabel=${i18n.noData}
             ></hub-energy-strip>
           </div>
-        </section>
+        </section>`
+          : nothing}
 
-        <section>
+        ${this._showSection("show_reinjection")
+          ? html`<section>
           <div class="bars">
             <hub-energy-strip
               .title=${i18n.reinjStripTitle}
@@ -1438,9 +1450,10 @@ class HubEnergieCard extends LitElement {
               .emptyLabel=${i18n.noData}
             ></hub-energy-strip>
           </div>
-        </section>
+        </section>`
+          : nothing}
 
-        ${this._showRaw
+        ${this._showRaw && this._showSection("show_raw_control")
           ? html`
               <section>
                 <h3>${i18n.rawDataTitle}</h3>
@@ -1518,7 +1531,7 @@ class HubEnergieCard extends LitElement {
 }
 
 /** Bump when deploying so DevTools shows whether this bundle loaded. */
-const HUB_ENERGIE_CARD_VERSION = "2026.04.06-simple";
+const HUB_ENERGIE_CARD_VERSION = "2026.04.06-sections";
 console.log("[hub-energie-card]", HUB_ENERGIE_CARD_VERSION);
 
 if (!customElements.get("hub-energie-card")) {
@@ -1530,7 +1543,7 @@ window.customCards.push({
   type: "hub-energie-card",
   name: "Hub Énergie",
   description:
-    "Daily energy, cost and savings. Visual editor for main options; advanced keys stay in YAML.",
+    "Daily energy, cost and savings. Editor: layout, graph window, section visibility; YAML for refresh interval.",
   preview: false,
   documentationURL: "https://gitlab.com/zzcyph1/home-assistant/hub-energie",
 });

@@ -9,6 +9,20 @@ const POWER_HISTORY_HOURS_SET = new Set([24, 12, 6, 3, 1]);
 /** Ascending order for the select UI */
 const POWER_HISTORY_HOURS_UI = [1, 3, 6, 12, 24];
 
+/** [yamlKey, i18n label property on I18N.fr / I18N.en] */
+const SECTION_TOGGLES = [
+  ["show_day_slots", "editorShowDaySlots"],
+  ["show_live_power", "editorShowLivePower"],
+  ["show_battery_bar", "editorShowBatteryBar"],
+  ["show_insights_bar", "editorShowInsightsBar"],
+  ["show_red_hp_warning", "editorShowRedHpWarning"],
+  ["show_consumption", "editorShowConsumption"],
+  ["show_cost", "editorShowCost"],
+  ["show_savings", "editorShowSavings"],
+  ["show_reinjection", "editorShowReinjection"],
+  ["show_raw_control", "editorShowRawControl"],
+];
+
 export class HubEnergieCardEditor extends LitElement {
   static properties = {
     hass: { attribute: false },
@@ -29,6 +43,15 @@ export class HubEnergieCardEditor extends LitElement {
       margin: 6px 0 0;
       line-height: 1.4;
     }
+    .sections-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 20px 0 10px;
+      color: var(--primary-text-color);
+    }
+    ha-formfield {
+      display: block;
+    }
   `;
 
   setConfig(config) {
@@ -39,6 +62,11 @@ export class HubEnergieCardEditor extends LitElement {
   _i18n() {
     const lang = String(this.hass?.locale?.language ?? "fr").toLowerCase();
     return lang.startsWith("en") ? I18N.en : I18N.fr;
+  }
+
+  _sectionOn(key) {
+    const v = this._config?.[key];
+    return v !== false && v !== "false";
   }
 
   render() {
@@ -82,6 +110,20 @@ export class HubEnergieCardEditor extends LitElement {
           <p class="hint">${i18n.editorPowerHoursHint}</p>
         </div>
 
+        <div class="sections-title">${i18n.editorSectionsTitle}</div>
+        ${SECTION_TOGGLES.map(
+          ([key, labelProp]) => html`
+            <div class="field">
+              <ha-formfield .label=${i18n[labelProp]}>
+                <ha-switch
+                  .checked=${this._sectionOn(key)}
+                  @change=${(e) => this._setSectionFlag(key, e.target.checked)}
+                ></ha-switch>
+              </ha-formfield>
+            </div>
+          `,
+        )}
+
         <p class="hint">
           ${i18n.editorAdvancedYamlBefore}<code>power_history_refresh_seconds</code>${i18n.editorAdvancedYamlAfter}
         </p>
@@ -99,6 +141,13 @@ export class HubEnergieCardEditor extends LitElement {
         detail: { config },
       }),
     );
+  }
+
+  _setSectionFlag(key, on) {
+    const next = { ...this._config };
+    if (on) delete next[key];
+    else next[key] = false;
+    this._emit(next);
   }
 
   _onGridSpanClosed(ev) {

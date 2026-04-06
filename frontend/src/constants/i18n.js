@@ -91,9 +91,7 @@ export const I18N = Object.freeze({
     costEntityNotFoundBefore: "Capteur",
     costEntityNotFoundAfter: "introuvable.",
     costEntityCardHint:
-      "Ajoutez dans la carte : <code>cost_entity: sensor.hub_energie_cost_detail</code>",
-    costEntityDevHint:
-      "(Outils de développement → États, cherchez « hub energie cost detail »).",
+      "Vérifiez que l'intégration est chargée et que <code>sensor.hub_energie_cost_detail</code> existe (Outils de développement → États).",
     rawDataTitle: "Données brutes",
     rawSectionGridHome: "Réseau / Maison",
     rawLineGridTotal: "Réseau total : {value} kWh",
@@ -135,6 +133,17 @@ export const I18N = Object.freeze({
     editorAdvancedYamlBefore: "Avancé : ",
     editorAdvancedYamlAfter:
       " (intervalle de rafraîchissement du graphe en direct, 120 s par défaut) reste réservé au YAML dans cette version.",
+    editorSectionsTitle: "Sections affichées",
+    editorShowDaySlots: "Jour / créneau et compteurs Tempo",
+    editorShowLivePower: "Puissance en direct et graphe",
+    editorShowBatteryBar: "Barre batterie (SOC, autonomie)",
+    editorShowInsightsBar: "Barre résumé (énergie, origine, coût, économies)",
+    editorShowRedHpWarning: "Alerte conso jour rouge Tempo",
+    editorShowConsumption: "Consommation (réseau, maison, charge batterie)",
+    editorShowCost: "Coût par tarif",
+    editorShowSavings: "Économies du jour",
+    editorShowReinjection: "Réinjection par cause",
+    editorShowRawControl: "Bouton Détails (données brutes)",
   },
   en: {
     date: "Date",
@@ -227,9 +236,7 @@ export const I18N = Object.freeze({
     costEntityNotFoundBefore: "Sensor",
     costEntityNotFoundAfter: "not found.",
     costEntityCardHint:
-      "Add to the card YAML: <code>cost_entity: sensor.hub_energie_cost_detail</code>",
-    costEntityDevHint:
-      '(Developer tools → States, search for "hub energie cost detail").',
+      "Check the integration is loaded and <code>sensor.hub_energie_cost_detail</code> exists (Developer tools → States).",
     rawDataTitle: "Raw data",
     rawSectionGridHome: "Grid / house",
     rawLineGridTotal: "Grid total: {value} kWh",
@@ -270,5 +277,16 @@ export const I18N = Object.freeze({
     editorAdvancedYamlBefore: "Advanced: ",
     editorAdvancedYamlAfter:
       " (live graph poll interval, default 120s) remains YAML-only for this version.",
+    editorSectionsTitle: "Visible sections",
+    editorShowDaySlots: "Day / slot and Tempo counters",
+    editorShowLivePower: "Live power and graph",
+    editorShowBatteryBar: "Battery bar (SOC, runtime)",
+    editorShowInsightsBar: "Summary bar (energy, origin, cost, savings)",
+    editorShowRedHpWarning: "Red-day high consumption alert (Tempo)",
+    editorShowConsumption: "Consumption (grid, house, battery charging)",
+    editorShowCost: "Cost by tariff",
+    editorShowSavings: "Today's savings",
+    editorShowReinjection: "Reinjection by cause",
+    editorShowRawControl: "Details button (raw data)",
   },
 });

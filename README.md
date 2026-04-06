@@ -116,8 +116,7 @@ Then add a card:
 
 ```yaml
 type: custom:hub-energie-card
-# Optional: override entity prefix (default: sensor.hub_energie_)
-# entity_prefix: sensor.hub_energie_
+# Optional: hide sections (all true by default), e.g. show_reinjection: false
 ```
 
 ## Device Model

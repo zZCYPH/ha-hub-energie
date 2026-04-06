@@ -21,11 +21,13 @@ export const COST_AGG_DICT_ATTRS = Object.freeze([
   "maison_by_slot_kwh",
 ]);
 
+/** Default Hub Énergie sensor namespace (entity object_ids follow this prefix). */
+export const DEFAULT_HUB_ENTITY_PREFIX = "sensor.hub_energie_";
+
 /**
- * Legacy prefix-based entity map. Kept for backward compatibility in history
- * fetching where explicit entity IDs are required by the HA history API.
+ * Entity IDs the card reads via the history API and live state (fixed integration namespace).
  */
-export function makeEntityMap(prefix) {
+export function makeEntityMap(prefix = DEFAULT_HUB_ENTITY_PREFIX) {
   const p = prefix;
   return {
     cost: `${p}cost_detail`,
