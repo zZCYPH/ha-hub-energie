@@ -3,14 +3,20 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 from pathlib import Path
 
+import voluptuous as vol
+from homeassistant.components.lovelace.const import LOVELACE_DATA
+from homeassistant.components.lovelace.resources import (
+    ResourceStorageCollection,
+    ResourceYAMLCollection,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.core import CoreState, HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
+from homeassistant.helpers.start import async_at_started
 
 from .const import DOMAIN
 from .coordinator import HubEnergieCoordinator
@@ -21,139 +27,166 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.BINARY_SENSOR]
 _FRONTEND_STATIC_KEY = f"{DOMAIN}_frontend_static_registered"
-_LOVELACE_MODULE_URL_KEY = f"{DOMAIN}_lovelace_module_url"  # tuple[str, str] | str (legacy)
+_LOVELACE_REGISTER_SCHEDULED_KEY = f"{DOMAIN}_lovelace_register_scheduled"
 _SERVICE_FLAG = f"{DOMAIN}_service_registered"
 
-
-def _read_integration_version(integration_dir: Path) -> str:
-    """Return manifest version for cache-busting the Lovelace module URL."""
-    try:
-        with (integration_dir / "manifest.json").open(encoding="utf-8") as f:
-            data = json.load(f)
-        return str(data.get("version") or "0")
-    except (OSError, TypeError, json.JSONDecodeError):
-        return "0"
+CARD_BOOT_MODULE_PATH = f"/{DOMAIN}/hub-energie-card-boot.js"
 
 
-async def _async_register_card_route(hass: HomeAssistant) -> None:
-    """Register /{domain} static route once; refresh extra Lovelace JS when dist/manifest changes."""
+async def _async_register_card_http_route(hass: HomeAssistant) -> None:
+    """Serve frontend/dist at /{domain} (once). Safe to call anytime http is up."""
     integration_dir = Path(__file__).parent
     frontend_dir = integration_dir / "frontend"
     dist_dir = frontend_dir / "dist"
-    dist_file = dist_dir / "hub-energie-card.js"
-    preload_file = dist_dir / "hub-energie-card-preload.js"
+    boot_file = dist_dir / "hub-energie-card-boot.js"
+    core_file = dist_dir / "hub-energie-card.js"
 
-    if not hass.data.get(_FRONTEND_STATIC_KEY):
-        if not dist_file.is_file():
-            _LOGGER.warning(
-                "dist/hub-energie-card.js missing under frontend/. "
-                "Run the Vite build before using the card."
-            )
-            return
-        dist_resolved = str(dist_dir.resolve())
-        registered = False
-
-        if hasattr(hass, "http") and hass.http is not None:
-            if hasattr(hass.http, "async_register_static_paths"):
-                try:
-                    from homeassistant.components.http import StaticPathConfig
-
-                    await hass.http.async_register_static_paths(
-                        [
-                            StaticPathConfig(
-                                f"/{DOMAIN}",
-                                dist_resolved,
-                                False,
-                            )
-                        ]
-                    )
-                    registered = True
-                except (OSError, TypeError, ValueError) as err:
-                    _LOGGER.debug("async_register_static_paths failed: %s", err)
-
-            if not registered and hasattr(hass.http, "register_static_path"):
-                try:
-                    hass.http.register_static_path(
-                        f"/{DOMAIN}",
-                        dist_resolved,
-                        cache_headers=False,
-                    )
-                    registered = True
-                except (AttributeError, OSError, TypeError) as err:
-                    _LOGGER.debug("register_static_path failed: %s", err)
-
-        if not registered:
-            _LOGGER.warning(
-                "Could not register static path for hub-energie-card.js "
-                "(ensure manifest lists http dependency and HA is up to date)"
-            )
-            return
-
-        hass.data[_FRONTEND_STATIC_KEY] = True
-
-    if not dist_file.is_file():
+    if hass.data.get(_FRONTEND_STATIC_KEY):
         return
 
-    version = await hass.async_add_executor_job(
-        _read_integration_version, integration_dir
-    )
-
-    def _dist_cache_bust() -> str:
-        try:
-            return str(int(dist_file.stat().st_mtime))
-        except OSError:
-            return "0"
-
-    bust = await hass.async_add_executor_job(_dist_cache_bust)
-    query = f"v={version}-{bust}"
-    new_main = f"/{DOMAIN}/hub-energie-card.js?{query}"
-    new_preload = f"/{DOMAIN}/hub-energie-card-preload.js?{query}"
-    use_preload = await hass.async_add_executor_job(preload_file.is_file)
-    new_pair: tuple[str, str] | str = (
-        (new_preload, new_main) if use_preload else new_main
-    )
-    old_registered = hass.data.get(_LOVELACE_MODULE_URL_KEY)
-    if old_registered == new_pair:
-        return
-
-    try:
-        from homeassistant.components.frontend import (
-            add_extra_js_url,
-            remove_extra_js_url,
-        )
-    except ImportError:
-        _LOGGER.warning("frontend component not available for Hub Énergie card module")
-        return
-
-    try:
-        if old_registered:
-            if isinstance(old_registered, tuple):
-                for u in old_registered:
-                    remove_extra_js_url(hass, u)
-            else:
-                remove_extra_js_url(hass, old_registered)
-        if use_preload:
-            add_extra_js_url(hass, new_preload)
-        add_extra_js_url(hass, new_main)
-    except KeyError:
+    if not boot_file.is_file() or not core_file.is_file():
         _LOGGER.warning(
-            "Could not register Hub Énergie card as extra module "
-            "(frontend component not ready; check manifest dependencies)",
+            "dist/hub-energie-card-boot.js and dist/hub-energie-card.js missing under frontend/. "
+            "Run npm run build in frontend/ before using the card."
         )
         return
 
-    hass.data[_LOVELACE_MODULE_URL_KEY] = new_pair
+    dist_resolved = str(dist_dir.resolve())
+    registered = False
+
+    if hasattr(hass, "http") and hass.http is not None:
+        if hasattr(hass.http, "async_register_static_paths"):
+            try:
+                from homeassistant.components.http import StaticPathConfig
+
+                await hass.http.async_register_static_paths(
+                    [
+                        StaticPathConfig(
+                            f"/{DOMAIN}",
+                            dist_resolved,
+                            False,
+                        )
+                    ]
+                )
+                registered = True
+            except (OSError, TypeError, ValueError) as err:
+                _LOGGER.debug("async_register_static_paths failed: %s", err)
+
+        if not registered and hasattr(hass.http, "register_static_path"):
+            try:
+                hass.http.register_static_path(
+                    f"/{DOMAIN}",
+                    dist_resolved,
+                    cache_headers=False,
+                )
+                registered = True
+            except (AttributeError, OSError, TypeError) as err:
+                _LOGGER.debug("register_static_path failed: %s", err)
+
+    if not registered:
+        _LOGGER.warning(
+            "Could not register static path for Hub Énergie frontend "
+            "(ensure manifest lists http dependency and HA is up to date)"
+        )
+        return
+
+    hass.data[_FRONTEND_STATIC_KEY] = True
+
+
+async def _async_cleanup_legacy_extra_js_urls(hass: HomeAssistant) -> None:
+    """Drop Hub Énergie from frontend extra_module_url (replaced by Lovelace resource)."""
+    try:
+        from homeassistant.components.frontend import remove_extra_js_url
+    except ImportError:
+        return
+    for u in (
+        f"/{DOMAIN}/hub-energie-card-boot.js",
+        f"/{DOMAIN}/hub-energie-card.js",
+    ):
+        try:
+            remove_extra_js_url(hass, u)
+        except (KeyError, ValueError):
+            pass
+
+
+def _lovelace_item_url_matches(item_url: str, expected_path: str) -> bool:
+    if not item_url or not expected_path:
+        return False
+    u = item_url.strip()
+    if u == expected_path:
+        return True
+    base = u.split("?", 1)[0].rstrip("/")
+    return base.endswith(expected_path) or base == expected_path.rstrip("/")
+
+
+async def _async_ensure_lovelace_storage_resource(hass: HomeAssistant) -> None:
+    """Add the card boot URL to Lovelace resources (storage mode), same as the UI Resources page."""
+    integration_dir = Path(__file__).parent
+    dist_dir = integration_dir / "frontend" / "dist"
+    if not (dist_dir / "hub-energie-card-boot.js").is_file() or not (
+        dist_dir / "hub-energie-card.js"
+    ).is_file():
+        return
+
+    await _async_cleanup_legacy_extra_js_urls(hass)
+
+    ll_data = hass.data.get(LOVELACE_DATA)
+    if ll_data is None:
+        _LOGGER.debug(
+            "Lovelace not initialized; skip Hub Énergie resource (e.g. recovery mode)"
+        )
+        return
+
+    resources = ll_data.resources
+    if isinstance(resources, ResourceYAMLCollection):
+        _LOGGER.info(
+            "Lovelace resources are in YAML mode; add under lovelace.resources: "
+            "{url: %s, type: module}",
+            CARD_BOOT_MODULE_PATH,
+        )
+        return
+
+    if not isinstance(resources, ResourceStorageCollection):
+        return
+
+    await resources.async_load()
+
+    for item in resources.async_items():
+        if _lovelace_item_url_matches(item.get("url", ""), CARD_BOOT_MODULE_PATH):
+            return
+
+    try:
+        await resources.async_create_item(
+            {"res_type": "module", "url": CARD_BOOT_MODULE_PATH}
+        )
+    except (HomeAssistantError, vol.Invalid, ValueError) as err:
+        _LOGGER.error("Could not add Hub Énergie Lovelace resource: %s", err)
+        return
+
     _LOGGER.info(
-        "Hub Énergie Lovelace module URL(s) updated: preload=%s main=%s "
-        "(remove duplicate Dashboard resources for these paths)",
-        new_preload if use_preload else "(disabled)",
-        new_main,
+        "Added Hub Énergie as a Lovelace resource (%s). "
+        "Remove any duplicate manual entry for the same URL if you added one while testing.",
+        CARD_BOOT_MODULE_PATH,
     )
+
+
+def _schedule_lovelace_resource(hass: HomeAssistant) -> None:
+    """Run after HA start so Lovelace storage is ready."""
+
+    if hass.data.get(_LOVELACE_REGISTER_SCHEDULED_KEY):
+        return
+    hass.data[_LOVELACE_REGISTER_SCHEDULED_KEY] = True
+
+    async def _go(_h: HomeAssistant) -> None:
+        await _async_ensure_lovelace_storage_resource(_h)
+
+    async_at_started(hass, _go)
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Global setup: register card route + domain services."""
-    await _async_register_card_route(hass)
+    await _async_register_card_http_route(hass)
+    _schedule_lovelace_resource(hass)
     if not hass.data.get(_SERVICE_FLAG):
 
         async def _handle_refresh(_call) -> None:
@@ -174,7 +207,11 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Hub Énergie from a config entry."""
-    await _async_register_card_route(hass)
+    await _async_register_card_http_route(hass)
+    if hass.state is CoreState.running:
+        await _async_ensure_lovelace_storage_resource(hass)
+    else:
+        _schedule_lovelace_resource(hass)
     coordinator = HubEnergieCoordinator(hass, entry)
     await coordinator.async_setup()
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator

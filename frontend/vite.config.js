@@ -14,13 +14,23 @@ export default defineConfig({
     minify: humanReadableDist ? false : "esbuild",
     cssCodeSplit: !humanReadableDist,
     lib: {
-      entry: resolve(__dirname, "src/hub-energie-card.js"),
+      entry: {
+        "hub-energie-card-boot": resolve(__dirname, "src/hub-energie-card-boot.js"),
+        "hub-energie-card": resolve(__dirname, "src/hub-energie-card.js"),
+      },
       formats: ["es"],
-      fileName: () => (humanReadableDist ? "hub-energie-card.human.js" : "hub-energie-card.js"),
+      fileName: (format, entryName) => {
+        if (humanReadableDist) {
+          return entryName === "hub-energie-card-boot"
+            ? "hub-energie-card-boot.human.js"
+            : "hub-energie-card.human.js";
+        }
+        return `${entryName}.js`;
+      },
     },
     rollupOptions: {
       output: {
-        inlineDynamicImports: true,
+        inlineDynamicImports: false,
       },
     },
   },

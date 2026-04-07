@@ -3,7 +3,7 @@
   "name": "Hub Énergie",
   "codeowners": ["@zzcyph1"],
   "config_flow": true,
-  "dependencies": ["recorder", "http", "frontend"],
+  "dependencies": ["recorder", "http", "frontend", "lovelace"],
   "documentation": "https://gitlab.com/zzcyph1/home-assistant/hub-energie",
   "homeassistant": "2024.10.0",
   "integration_type": "hub",

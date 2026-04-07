@@ -1530,20 +1530,6 @@ class HubEnergieCard extends LitElement {
   }
 }
 
-/** Bump when deploying so DevTools shows whether this bundle loaded. */
-const HUB_ENERGIE_CARD_VERSION = "2026.04.06-sections";
-console.log("[hub-energie-card]", HUB_ENERGIE_CARD_VERSION);
-
-if (!customElements.get("hub-energie-card")) {
-  customElements.define("hub-energie-card", HubEnergieCard);
+if (!customElements.get("hub-energie-card-core")) {
+  customElements.define("hub-energie-card-core", HubEnergieCard);
 }
-
-window.customCards ??= [];
-window.customCards.push({
-  type: "hub-energie-card",
-  name: "Hub Énergie",
-  description:
-    "Daily energy, cost and savings. Editor: layout, graph window, section visibility; YAML for refresh interval.",
-  preview: false,
-  documentationURL: "https://gitlab.com/zzcyph1/home-assistant/hub-energie",
-});

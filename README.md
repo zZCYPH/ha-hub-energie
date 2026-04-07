@@ -100,17 +100,21 @@ After copying or cloning:
 
 ## Lovelace Card
 
-The Vite bundle is written to `frontend/dist/` on disk, but Home Assistant serves those files at the **`/hub_energie/`** URL root: the static route maps the `dist` directory to `/hub_energie/`, so the public module URL is **`/hub_energie/hub-energie-card.js`**, not `/hub_energie/dist/hub-energie-card.js`. The integration registers this URL automatically.
+The Vite build writes **`hub-energie-card-boot.js`** (small shell, registered as `hub-energie-card`) and **`hub-energie-card.js`** (full card) plus hashed chunks under `frontend/dist/`. Home Assistant serves the whole `dist` folder at **`/hub_energie/`**.
 
-If you add the resource manually, use the same URL (single bundled module):
+**Lovelace resources (storage mode):** On startup the integration adds **`/hub_energie/hub-energie-card-boot.js`** as a **JavaScript module** resource (same as *Settings → Dashboards → Resources*). That path loads reliably on the Android app; legacy `frontend.add_extra_js_url` registration is removed on load.
+
+If Lovelace resources are **YAML-managed**, add the URL yourself under `lovelace.resources`:
+
+If you add the resource manually (optional when using storage mode), use the boot URL:
 
 ```yaml
 resources:
-  - url: /hub_energie/hub-energie-card.js
+  - url: /hub_energie/hub-energie-card-boot.js
     type: module
 ```
 
-**Legacy dashboards:** if an older resource still points at `/hub_energie/dist/hub-energie-card.js`, remove it and add `/hub_energie/hub-energie-card.js` instead; the `/dist/` URL is not served.
+**Legacy dashboards:** replace old URLs such as `/hub_energie/dist/hub-energie-card.js` or a standalone `/hub_energie/hub-energie-card.js` resource with **`/hub_energie/hub-energie-card-boot.js`** so the loader runs first; keep no duplicate module entries for the same card.
 
 Then add a card:
 

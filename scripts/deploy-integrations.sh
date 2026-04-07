@@ -157,6 +157,7 @@ _build_frontend_if_needed() {
   local name="$2"
   local frontend_dir="$integration_path/frontend"
   local package_json="$frontend_dir/package.json"
+  local dist_boot="$frontend_dir/dist/hub-energie-card-boot.js"
   local dist_js="$frontend_dir/dist/hub-energie-card.js"
 
   [[ -d "$frontend_dir" ]] || return 0
@@ -177,8 +178,8 @@ _build_frontend_if_needed() {
   echo "   > Building frontend for $name"
   _run_npm_build_frontend "$frontend_dir"
 
-  if [[ ! -f "$dist_js" ]]; then
-    echo "Build finished for $name but $dist_js is still missing." >&2
+  if [[ ! -f "$dist_boot" || ! -f "$dist_js" ]]; then
+    echo "Build finished for $name but hub-energie-card-boot.js or hub-energie-card.js is missing under dist/." >&2
     exit 1
   fi
 }
