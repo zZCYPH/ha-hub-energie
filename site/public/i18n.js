@@ -448,11 +448,11 @@
       "toc.internals_slots": "Créneaux tarifaires",
       "toc.internals_attribution": "Attribution de créneau",
       "toc.internals_deltas": "Deltas & politique",
-      "toc.internals_day": "Compartiments jour Paris",
+      "toc.internals_day": "Fuseau horaire et journée (Paris)",
       "toc.internals_store": "Fichier Store",
       "toc.internals_lts": "Statistiques long terme",
       "toc.internals_rebuild": "Reconstruction Recorder",
-      "toc.internals_telemetry": "Télémétrie & qualité",
+      "toc.internals_telemetry": "Télémétrie et qualité",
 
       "internals.kicker": "Notes d’implémentation",
       "internals.title": "Fonctionnement détaillé",
@@ -484,7 +484,7 @@
         "Seuls les deltas positifs comptent dans les totaux de consommation. De petits pas négatifs peuvent être du bruit de compteur (re-base sans énergie) ; de plus grands écarts négatifs peuvent déclencher réancrage ou rejet selon les seuils. Des plafonds limitent les spikes aberrants.",
       "internals.s_delta_p2":
         "La dérive entre la lecture compteur externe et la somme interne est suivie par source pour que le modèle de santé signale des états incohérents ou dégradés sans fausser silencieusement les coûts.",
-      "internals.s_day_h": "Passage de jour (Paris)",
+      "internals.s_day_h": "Fuseau horaire (Paris)",
       "internals.s_day_p1":
         "Les journées suivent la date locale Europe/Paris — alignée avec les calendriers Tempo et les plages HC/HP. Lors de la maintenance de minuit, l’intégration finalise les compartiments de la veille, les persiste, écrit les statistiques Recorder pour ce jour ISO, purge d’anciennes lignes d’accumulateur devenues inutiles, et rafraîchit l’instantané public.",
       "internals.s_day_p2":
