@@ -356,14 +356,17 @@ def batt_net_sign_selector() -> SelectSelector:
     )
 
 
-def text_selector(
-    *, multiline: bool = False, password: bool = False, placeholder: str | None = None
-) -> TextSelector:
+def text_selector(*, multiline: bool = False, password: bool = False) -> TextSelector:
+    """Plain text (or password) selector.
+
+    ``TextSelectorConfig`` in recent Home Assistant no longer allows ``placeholder``
+    (``MultipleInvalid: extra keys not allowed @ data['placeholder']``); use
+    ``strings.json`` / ``data_description`` for hints instead.
+    """
     selector_type = TextSelectorType.PASSWORD if password else TextSelectorType.TEXT
-    cfg_kw: dict = {"type": selector_type, "multiline": multiline}
-    if placeholder is not None:
-        cfg_kw["placeholder"] = placeholder
-    return TextSelector(TextSelectorConfig(**cfg_kw))
+    return TextSelector(
+        TextSelectorConfig(type=selector_type, multiline=multiline),
+    )
 
 
 def default_schedule_json() -> str:

@@ -145,6 +145,8 @@ from .const import (
     DOMAIN,
     ENERGY_ROUND_DECIMALS,
     GRID_POWER_SIGN_EXPORT_NEGATIVE,
+    INPUT_STATUS_ERROR,
+    INPUT_STATUS_NO_INPUT,
     INPUT_STATUS_OK,
     SLOT_UNKNOWN,
     SOURCE_GRID,
@@ -1002,7 +1004,12 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         line = json.dumps(log_payload, ensure_ascii=False)
         if not self._first_input_probe_logged:
             self._first_input_probe_logged = True
-            lvl = logging.WARNING if input_status != INPUT_STATUS_OK else logging.INFO
+            # Degraded (e.g. optional entities restarting) is normal; avoid HA "integration error" noise.
+            lvl = (
+                logging.WARNING
+                if input_status in (INPUT_STATUS_NO_INPUT, INPUT_STATUS_ERROR)
+                else logging.INFO
+            )
             _LOGGER.log(lvl, "Hub Énergie input probe (first refresh): %s", line)
         elif sig != self._last_input_probe_signature:
             _LOGGER.info("Hub Énergie input probe (status changed): %s", line)

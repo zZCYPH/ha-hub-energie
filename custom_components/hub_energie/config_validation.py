@@ -233,6 +233,24 @@ def _clean_optional_text(value: Any) -> str | None:
     return cleaned or None
 
 
+def _coerce_edf_kva_option(power_raw: Any) -> str | None:
+    """Return a CONTRACT_POWER_OPTIONS value, or None (int/float e.g. 9.0 → \"9\")."""
+    power = _clean_optional_text(power_raw)
+    if power is None:
+        return None
+    if power in CONTRACT_POWER_OPTIONS:
+        return power
+    try:
+        num = float(str(power_raw).strip().replace(",", "."))
+        if num == int(num):
+            candidate = str(int(num))
+            if candidate in CONTRACT_POWER_OPTIONS:
+                return candidate
+    except (TypeError, ValueError):
+        pass
+    return None
+
+
 def _normalize_bool(value: Any) -> bool:
     return bool(value)
 
@@ -705,11 +723,12 @@ class HubEnergieConfigValidator:
             is_edf = merged.get(CONF_SUPPLIER) == SUPPLIER_EDF
             power_raw = user_input.get(CONF_CONTRACT_POWER)
             if is_edf:
-                power = _clean_optional_text(power_raw)
+                power = _coerce_edf_kva_option(power_raw)
                 if power is None:
-                    errors[CONF_CONTRACT_POWER] = ERR_REQUIRED
-                elif power not in CONTRACT_POWER_OPTIONS:
-                    errors[CONF_CONTRACT_POWER] = ERR_INVALID_OPTION
+                    if power_raw in (None, ""):
+                        errors[CONF_CONTRACT_POWER] = ERR_REQUIRED
+                    else:
+                        errors[CONF_CONTRACT_POWER] = ERR_INVALID_OPTION
                 else:
                     patch[CONF_CONTRACT_POWER] = power
             else:
@@ -1207,11 +1226,13 @@ class HubEnergieConfigValidator:
                 errors=errors,
                 field=CONF_TARIFF_OFFER,
             )
-            power = _clean_optional_text(user_input.get(CONF_CONTRACT_POWER))
+            praw = user_input.get(CONF_CONTRACT_POWER)
+            power = _coerce_edf_kva_option(praw)
             if power is None:
-                errors[CONF_CONTRACT_POWER] = ERR_REQUIRED
-            elif power not in CONTRACT_POWER_OPTIONS:
-                errors[CONF_CONTRACT_POWER] = ERR_INVALID_OPTION
+                if praw in (None, ""):
+                    errors[CONF_CONTRACT_POWER] = ERR_REQUIRED
+                else:
+                    errors[CONF_CONTRACT_POWER] = ERR_INVALID_OPTION
             else:
                 patch[CONF_CONTRACT_POWER] = power
             if offer is not None:

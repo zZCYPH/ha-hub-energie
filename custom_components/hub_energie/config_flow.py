@@ -12,7 +12,7 @@ from aiohttp import ClientError
 
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.data_entry_flow import section
+from homeassistant.data_entry_flow import AbortFlow, section
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
     BooleanSelector,
@@ -218,7 +218,7 @@ def _redact_user_input(value: Any) -> Any:
 
 
 class _StepLoggingMixin:
-    """Log config flow step inputs and outputs."""
+    """Log config flow step inputs, outputs, and uncaught exceptions (ERROR + traceback)."""
 
     def __getattribute__(self, name: str):  # noqa: ANN001
         attr = super().__getattribute__(name)
@@ -236,7 +236,19 @@ class _StepLoggingMixin:
                 name,
                 _redact_user_input(user_input),
             )
-            result = await attr(*args, **kwargs)
+            try:
+                result = await attr(*args, **kwargs)
+            except AbortFlow:
+                raise
+            except Exception:
+                # HA often turns these into HTTP 400 with little detail; this gives a full traceback.
+                _LOGGER.exception(
+                    "◆ HUB_ENERGIE CONFIG_FLOW ◆ uncaught exception in %s.%s (user_input=%s)",
+                    self.__class__.__name__,
+                    name,
+                    _redact_user_input(user_input),
+                )
+                raise
             step_id = result.get("step_id") if isinstance(result, dict) else None
             result_type = result.get("type") if isinstance(result, dict) else type(result).__name__
             _LOGGER.debug(
@@ -869,7 +881,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_SUPPLIER_CUSTOM_NAME,
                         default=self._data.get(CONF_SUPPLIER_CUSTOM_NAME, ""),
-                    ): text_selector(placeholder="ENGIE"),
+                    ): text_selector(),
                 },
                 extra=vol.ALLOW_EXTRA,
             ),

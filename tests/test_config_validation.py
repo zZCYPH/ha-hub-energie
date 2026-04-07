@@ -39,6 +39,38 @@ def test_rte_credentials_validate_against_merged_state() -> None:
     assert patch == {const.CONF_RTE_CLIENT_ID: "new-client"}
 
 
+def test_contract_edf_coerces_float_kva_from_number_selector() -> None:
+    """Options flow may post 9.0 after switching from other supplier (NumberSelector)."""
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "contract",
+        {const.CONF_SUPPLIER: const.SUPPLIER_EDF},
+        {const.CONF_CONTRACT_POWER: 9.0},
+    )
+
+    assert errors == {}
+    assert patch[const.CONF_CONTRACT_POWER] == "9"
+
+
+def test_offer_options_switch_to_edf_accepts_numeric_kva() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "offer_options",
+        {
+            const.CONF_SUPPLIER: const.SUPPLIER_OTHER,
+            const.CONF_CONTRACT_POWER: "12",
+        },
+        {
+            const.CONF_SUPPLIER: const.SUPPLIER_EDF,
+            const.CONF_CONTRACT_POWER: 9.0,
+            const.CONF_CONTRACT_NAME: "Tempo billy",
+        },
+    )
+
+    assert errors == {}
+    assert patch[const.CONF_SUPPLIER] == const.SUPPLIER_EDF
+    assert patch[const.CONF_CONTRACT_POWER] == "9"
+    assert patch[const.CONF_CONTRACT_NAME] == "Tempo billy"
+
+
 def test_manual_tou_invalid_price_on_form() -> None:
     patch, errors = HubEnergieConfigValidator.validate_step(
         "manual_tou",
