@@ -161,6 +161,9 @@ def supplier_selector() -> SelectSelector:
                 SelectOptionDict(value=SUPPLIER_OTHER, label="Other supplier"),
             ],
             mode=SelectSelectorMode.DROPDOWN,
+            # HA validates the POST before async_step_*; some clients send values that
+            # fail vol.In(options). We still enforce SUPPLIER_OPTIONS in config_validation.
+            custom_value=True,
         )
     )
 
@@ -173,6 +176,7 @@ def phase_selector() -> SelectSelector:
                 for value in PHASE_OPTIONS
             ],
             mode=SelectSelectorMode.DROPDOWN,
+            custom_value=True,
         )
     )
 

@@ -861,6 +861,21 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
         return HubEnergieOptionsFlow()
 
+    def _supplier_custom_show_form(self, errors: dict[str, str]) -> ConfigFlowResult:
+        return self.async_show_form(
+            step_id="supplier_custom",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_SUPPLIER_CUSTOM_NAME,
+                        default=self._data.get(CONF_SUPPLIER_CUSTOM_NAME, ""),
+                    ): text_selector(placeholder="ENGIE"),
+                },
+                extra=vol.ALLOW_EXTRA,
+            ),
+            errors=errors,
+        )
+
     async def _after_batteries_finished(self) -> ConfigFlowResult:
         self._data[CONF_BATTERY_SYSTEMS] = list(self._batteries)
         return await self._create_entry()
@@ -874,7 +889,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_SUPPLIER) == SUPPLIER_OTHER:
-                    return await self.async_step_supplier_custom()
+                    return self._supplier_custom_show_form({})
                 return await self.async_step_tariff_mode()
         return self.async_show_form(
             step_id="user",
@@ -882,7 +897,8 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
                 {
                     vol.Required(CONF_SUPPLIER, default=self._data.get(CONF_SUPPLIER, SUPPLIER_EDF)): supplier_selector(),
                     vol.Required(CONF_PHASE_TYPE, default=self._data.get(CONF_PHASE_TYPE, PHASE_MONO)): phase_selector(),
-                }
+                },
+                extra=vol.ALLOW_EXTRA,
             ),
             errors=errors,
         )
@@ -896,18 +912,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
             if not errors:
                 _apply_patch(self._data, patch)
                 return await self.async_step_tariff_mode_manual_only()
-        return self.async_show_form(
-            step_id="supplier_custom",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_SUPPLIER_CUSTOM_NAME,
-                        default=self._data.get(CONF_SUPPLIER_CUSTOM_NAME, ""),
-                    ): text_selector(placeholder="ENGIE"),
-                }
-            ),
-            errors=errors,
-        )
+        return self._supplier_custom_show_form(errors)
 
     async def async_step_tariff_mode(
         self, user_input: dict[str, Any] | None = None
