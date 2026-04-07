@@ -1,7 +1,11 @@
 /**
- * Writes site/public/releases.json (copied into Vite dist/ as /releases.json).
- * GitLab Pages job should run this before `npm run build` in site/.
- * Uses CI_JOB_TOKEN + CI_API_V4_URL + CI_PROJECT_ID in CI.
+ * Writes site/public/releases.json (Vite copies it to dist/ as /releases.json).
+ *
+ * GitLab: the `pages` job runs this before `npm run build` on:
+ *   - pushes to the default branch (master), and
+ *   - semver tags v*.*.* (same pipeline as integration_release, so the new release is listed).
+ * Uses CI_JOB_TOKEN + CI_API_V4_URL + CI_PROJECT_ID when GITLAB_CI is set.
+ *
  * Locally: GITLAB_TOKEN + GITLAB_PROJECT_ID to refresh; otherwise keeps existing public/releases.json.
  */
 import { existsSync, writeFileSync } from "node:fs";

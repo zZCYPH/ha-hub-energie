@@ -124,13 +124,16 @@ integration_release:
           --data @- \
           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases"
 
+# Pages runs on default-branch pushes and on semver tags (after release stage on tags).
+# Both pipelines refresh releases.json so the vitrine lists new releases after a tag *and*
+# stays current when only master changes (e.g. doc fixes).
 pages:
   stage: deploy
   image: node:22-alpine
   script:
     - |
       set -e
-      # List GitLab releases → site/public/releases.json (then Vite copies to dist/)
+      # GitLab Releases API → site/public/releases.json (bundled as /releases.json on the site)
       node site/scripts/fetch-releases.mjs
       (cd site && npm ci && npm run build)
       rm -rf public
