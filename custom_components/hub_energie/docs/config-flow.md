@@ -1,6 +1,6 @@
 # Hub Énergie — configuration flow reference
 
-This document describes the **initial setup** wizard (`HubEnergieConfigFlow`) in code: branch points, `step_id` values, and how they map to UI strings. It also tracks **documentation screenshots** (stored at the **repository root** in `public/img/` for GitLab Pages) and lists **what is still missing**.
+This document describes the **initial setup** wizard (`HubEnergieConfigFlow`) in code: branch points, `step_id` values, and how they map to UI strings. It also tracks **documentation screenshots** (stored at the **repository root** in `site/public/img/` for GitLab Pages) and lists **what is still missing**.
 
 - **Implementation:** `config_flow.py` → class `HubEnergieConfigFlow` (flow `VERSION = 2`).
 - **Dialog titles/descriptions (EN):** `translations/en.json` under `config.step.<step_id>`.
@@ -124,9 +124,9 @@ Post-setup changes use `HubEnergieOptionsFlow` (menu entries depend on config: o
 
 ---
 
-## 4. Screenshot inventory (`public/img/`)
+## 4. Screenshot inventory (`site/public/img/`)
 
-These files live at the **repository root** (`public/img/`), not inside `custom_components/`. They are referenced by the static doc site (`public/doc/index.html`, linked from `public/index.html`).
+These files live at the **repository root** (`site/public/img/`), not inside `custom_components/`. They are referenced by the static doc site (Vue app under `site/`; HTML chunk `site/src/assets/doc-fragment.html`, strings in `site/public/i18n.js`).
 
 ### 4.1 Covered today (initial flow — one path)
 
@@ -134,28 +134,28 @@ The following **six** files document a single happy path: **EDF · mono · autom
 
 | File | Maps to `step_id` | Notes |
 |------|-------------------|--------|
-| `public/img/config-flow-edf-01-user.png` | `user` | Supplier + phase on one form |
-| `public/img/config-flow-edf-02-tariff-mode.png` | `tariff_mode` | Automatic vs manual |
-| `public/img/config-flow-edf-03-contract.png` | `contract` | kVA + optional name |
-| `public/img/config-flow-edf-04-edf-offer.png` | `edf_offer` | BASE / HPHC / TEMPO |
-| `public/img/config-flow-edf-05-tempo-source.png` | `edf_tempo` | RTE vs API Couleur Tempo |
-| `public/img/config-flow-edf-06-rte-credentials.png` | `edf_tempo_rte` | Client ID + secret |
+| `site/public/img/config-flow-edf-01-user.png` | `user` | Supplier + phase on one form |
+| `site/public/img/config-flow-edf-02-tariff-mode.png` | `tariff_mode` | Automatic vs manual |
+| `site/public/img/config-flow-edf-03-contract.png` | `contract` | kVA + optional name |
+| `site/public/img/config-flow-edf-04-edf-offer.png` | `edf_offer` | BASE / HPHC / TEMPO |
+| `site/public/img/config-flow-edf-05-tempo-source.png` | `edf_tempo` | RTE vs API Couleur Tempo |
+| `site/public/img/config-flow-edf-06-rte-credentials.png` | `edf_tempo_rte` | Client ID + secret |
 
 **Not shown as a separate screen (by design):** `_edf_fetch_and_continue` has **no dedicated dialog** on success—it immediately continues to `grid`. A fetch **failure** can re-show `edf_offer` with a form error (optional screenshot for troubleshooting docs).
 
 ### 4.1b Additional captures (other branches)
 
-These supplement §4.1; they are **in repo** under `public/img/`.
+These supplement §4.1; they are **in repo** under `site/public/img/`.
 
 | File | Maps to `step_id` | Notes |
 |------|-------------------|--------|
-| `public/img/config-flow-edf-tempo-api-couleur.png` | `edf_tempo` | **API Couleur Tempo** selected (no RTE credentials step after **Valider**). |
-| `public/img/config-flow-edf-offer-base.png` | `edf_offer` | Offer type **BASE** selected. |
-| `public/img/config-flow-edf-offer-hphc.png` | `edf_offer` | Offer type **HPHC** selected. |
-| `public/img/config-flow-tariff-mode-manual.png` | `tariff_mode` | **Manual** tariff mode (EDF path before `contract` then manual pricing). |
-| `public/img/config-flow-manual-pricing-flat.png` | `manual_pricing` | Structure = **single flat** rate (`PRICING_FLAT`); next step would be `manual_flat` (not captured here). |
-| `public/img/config-flow-manual-pricing-tou.png` | `manual_pricing` | Structure = **peak/off-peak (TOU)** (`PRICING_TIME_OF_USE`); next step would be `manual_tou` (not captured here). |
-| `public/img/config-flow-grid-mono.png` | `grid` | Single-phase **grid** sensors (sign convention, import/export/power/load). Example: entities still “select entity”. |
+| `site/public/img/config-flow-edf-tempo-api-couleur.png` | `edf_tempo` | **API Couleur Tempo** selected (no RTE credentials step after **Valider**). |
+| `site/public/img/config-flow-edf-offer-base.png` | `edf_offer` | Offer type **BASE** selected. |
+| `site/public/img/config-flow-edf-offer-hphc.png` | `edf_offer` | Offer type **HPHC** selected. |
+| `site/public/img/config-flow-tariff-mode-manual.png` | `tariff_mode` | **Manual** tariff mode (EDF path before `contract` then manual pricing). |
+| `site/public/img/config-flow-manual-pricing-flat.png` | `manual_pricing` | Structure = **single flat** rate (`PRICING_FLAT`); next step would be `manual_flat` (not captured here). |
+| `site/public/img/config-flow-manual-pricing-tou.png` | `manual_pricing` | Structure = **peak/off-peak (TOU)** (`PRICING_TIME_OF_USE`); next step would be `manual_tou` (not captured here). |
+| `site/public/img/config-flow-grid-mono.png` | `grid` | Single-phase **grid** sensors (sign convention, import/export/power/load). Example: entities still “select entity”. |
 
 **Still missing for a full “BASE/HPHC” story:** screen **after** successful tariff fetch (either no visible step, or error on `edf_offer`); first kWh price entry (`manual_flat` / `manual_tou` forms) after the two `manual_pricing` shots above.
 
@@ -165,20 +165,20 @@ These are useful for the same documentation site but are **not** config-flow ste
 
 | File | Purpose |
 |------|---------|
-| `public/img/hub-energie-card.png` | Lovelace card on dashboard |
-| `public/img/lovelace-editor-01.png` | Card visual editor |
-| `public/img/integration-devices-overview.png` | Integration entry + device list |
-| `public/img/device-ui-01-offre.png` | Device **Offre** detail (post-setup) |
+| `site/public/img/hub-energie-card.png` | Lovelace card on dashboard |
+| `site/public/img/lovelace-editor-01.png` | Card visual editor |
+| `site/public/img/integration-devices-overview.png` | Integration entry + device list |
+| `site/public/img/device-ui-01-offre.png` | Device **Offre** detail (post-setup) |
 
 ### 4.3 Per-device gallery placeholders (still mostly missing)
 
-The site expects `public/img/device-ui-02-reseau.png` … `device-ui-08-diagnostics.png` for the device carousel; only **Offre** is filled (`device-ui-01-offre.png`). That gap is **device UI**, not config flow—listed here only so you do not confuse it with setup steps.
+The site expects `site/public/img/device-ui-02-reseau.png` … `device-ui-08-diagnostics.png` for the device carousel; only **Offre** is filled (`device-ui-01-offre.png`). That gap is **device UI**, not config flow—listed here only so you do not confuse it with setup steps.
 
 ---
 
 ## 5. Missing screenshots checklist (for you)
 
-Use consistent naming under `public/img/` when you capture them. Grouped by branch.
+Use consistent naming under `site/public/img/` when you capture them. Grouped by branch.
 
 ### A. EDF automatic — alternatives to the documented path
 
@@ -242,8 +242,8 @@ Capture the branches you want to document (users only see one path per install):
 
 ## 6. Suggested next actions
 
-1. **Commit** new PNGs under `public/img/` with the names above (or rename to match what `public/doc/index.html` / future sections expect).
-2. **Extend** `public/doc/index.html` + `public/i18n.js` with extra carousels or accordions per branch (e.g. “Manual pricing”, “Three-phase grid”) so readers are not forced through one linear slideshow.
+1. **Commit** new PNGs under `site/public/img/` with the names above (or rename to match what `site/src/assets/doc-fragment.html` / future sections expect).
+2. **Extend** `site/src/assets/doc-fragment.html` + `site/public/i18n.js` with extra carousels or accordions per branch (e.g. “Manual pricing”, “Three-phase grid”) so readers are not forced through one linear slideshow.
 3. Keep **`config-flow-edf-*.png`** as the **canonical EDF auto TEMPO RTE** story; add parallel filenames for other branches instead of overwriting.
 
 ---

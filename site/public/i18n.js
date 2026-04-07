@@ -238,7 +238,7 @@
 
       "install.copy.s1_title": "Copy the full tree",
       "install.copy.s1_html":
-        "From this repository, copy only the <code class=\"font-mono\">custom_components/hub_energie/</code> tree into your Home Assistant <code class=\"font-mono\">config/custom_components/hub_energie/</code> — all subfolders (<code class=\"font-mono\">battery/</code>, <code class=\"font-mono\">energy/</code>, <code class=\"font-mono\">frontend/</code>, etc.). Do not copy the repo root (<code class=\"font-mono\">public/</code>, <code class=\"font-mono\">tests/</code>, …) into HA.",
+        "From this repository, copy only the <code class=\"font-mono\">custom_components/hub_energie/</code> tree into your Home Assistant <code class=\"font-mono\">config/custom_components/hub_energie/</code> — all subfolders (<code class=\"font-mono\">battery/</code>, <code class=\"font-mono\">energy/</code>, <code class=\"font-mono\">frontend/</code>, etc.). Do not copy the repo root (<code class=\"font-mono\">site/</code>, <code class=\"font-mono\">tests/</code>, …) into HA.",
       "install.copy.s2_title": "Restart & add the integration",
       "install.copy.s2_p_html": "Full restart, then <a href=\"#configure\">Configure in HA</a>.",
 
@@ -266,7 +266,7 @@
       "lovelace.showcase_title": "Dashboard card",
       "lovelace.fig_alt": "Hub Énergie Lovelace card on a dashboard",
       "lovelace.fig_cap_html":
-        "Example of the card in daily mode (Tempo, instant power, consumption, costs, reinjection). File: <code class=\"font-mono\">public/img/hub-energie-card.png</code>.",
+        "Example of the card in daily mode (Tempo, instant power, consumption, costs, reinjection). File: <code class=\"font-mono\">site/public/img/hub-energie-card.png</code>.",
 
       "lovelace.editor_title": "Visual editor",
       "lovelace.editor_intro_html":
@@ -628,7 +628,7 @@
 
       "install.copy.s1_title": "Copier l’arborescence complète",
       "install.copy.s1_html":
-        "Depuis ce dépôt, copiez uniquement l’arborescence <code class=\"font-mono\">custom_components/hub_energie/</code> vers le <code class=\"font-mono\">config/custom_components/hub_energie/</code> de Home Assistant — tous les sous-dossiers (<code class=\"font-mono\">battery/</code>, <code class=\"font-mono\">energy/</code>, <code class=\"font-mono\">frontend/</code>, etc.). Ne copiez pas la racine du dépôt (<code class=\"font-mono\">public/</code>, <code class=\"font-mono\">tests/</code>, …) dans HA.",
+        "Depuis ce dépôt, copiez uniquement l’arborescence <code class=\"font-mono\">custom_components/hub_energie/</code> vers le <code class=\"font-mono\">config/custom_components/hub_energie/</code> de Home Assistant — tous les sous-dossiers (<code class=\"font-mono\">battery/</code>, <code class=\"font-mono\">energy/</code>, <code class=\"font-mono\">frontend/</code>, etc.). Ne copiez pas la racine du dépôt (<code class=\"font-mono\">site/</code>, <code class=\"font-mono\">tests/</code>, …) dans HA.",
       "install.copy.s2_title": "Redémarrer & ajouter l’intégration",
       "install.copy.s2_p_html": "Redémarrage complet, puis <a href=\"#configure\">Configurer dans HA</a>.",
 
@@ -656,7 +656,7 @@
       "lovelace.showcase_title": "Carte tableau de bord",
       "lovelace.fig_alt": "Carte Lovelace Hub Énergie sur un tableau de bord",
       "lovelace.fig_cap_html":
-        "Exemple en mode jour (Tempo, puissance instantanée, consommation, coûts, réinjection). Fichier : <code class=\"font-mono\">public/img/hub-energie-card.png</code>.",
+        "Exemple en mode jour (Tempo, puissance instantanée, consommation, coûts, réinjection). Fichier : <code class=\"font-mono\">site/public/img/hub-energie-card.png</code>.",
 
       "lovelace.editor_title": "Éditeur visuel",
       "lovelace.editor_intro_html":

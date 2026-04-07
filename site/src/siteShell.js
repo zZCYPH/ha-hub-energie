@@ -1,6 +1,8 @@
 /**
  * i18n meta, theme, lang toggles (ported from public/js/app.js).
  */
+import { nextTick } from "vue";
+
 const THEME_KEY = "hub-energie-doc-theme";
 const LANG_KEY = "hub-energie-doc-lang";
 
@@ -127,25 +129,30 @@ export function getLang() {
 
 export function applyStoredShell() {
   const storedLang = readStoredLang();
-  const navLang = (navigator.language || "en").slice(0, 2).toLowerCase();
   const initialLang =
-    storedLang === "en" || storedLang === "fr"
-      ? storedLang
-      : navLang === "fr"
-        ? "fr"
-        : "en";
+    storedLang === "en" || storedLang === "fr" ? storedLang : "fr";
   currentLang = initialLang;
 
   const storedTheme = readStoredTheme();
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const initialTheme =
-    storedTheme === "light" || storedTheme === "dark"
-      ? storedTheme
-      : prefersDark
-        ? "dark"
-        : "light";
+    storedTheme === "light" || storedTheme === "dark" ? storedTheme : "dark";
 
   setTheme(initialTheme);
+}
+
+/**
+ * Apply theme to the document (already set before mount) and sync toggle buttons,
+ * then replace data-i18n / meta from current route. Must run after Vue commits v-html.
+ */
+function resyncShellAfterDom(router) {
+  nextTick(() => {
+    const mode =
+      document.documentElement.getAttribute("data-bs-theme") === "light"
+        ? "light"
+        : "dark";
+    setTheme(mode);
+    applyLang(currentLang, pageFromRouteName(router.currentRoute.value.name));
+  });
 }
 
 export function bindShellControls(router) {
@@ -162,20 +169,23 @@ export function bindShellControls(router) {
 
   const langEn = document.getElementById("langEn");
   const langFr = document.getElementById("langFr");
+  const routeName = () => router.currentRoute.value.name;
   if (langEn)
     langEn.addEventListener("click", () => {
-      applyLang("en", pageFromRouteName(router.currentRoute.value.name));
+      applyLang("en", pageFromRouteName(routeName()));
+      nextTick(() => applyLang(currentLang, pageFromRouteName(routeName())));
     });
   if (langFr)
     langFr.addEventListener("click", () => {
-      applyLang("fr", pageFromRouteName(router.currentRoute.value.name));
+      applyLang("fr", pageFromRouteName(routeName()));
+      nextTick(() => applyLang(currentLang, pageFromRouteName(routeName())));
     });
 
-  router.afterEach((to) => {
-    applyLang(currentLang, pageFromRouteName(to.name));
+  router.afterEach(() => {
+    resyncShellAfterDom(router);
   });
 
-  applyLang(currentLang, pageFromRouteName(router.currentRoute.value.name));
+  resyncShellAfterDom(router);
 }
 
 export function setupScrollSpy(route) {

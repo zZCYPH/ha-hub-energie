@@ -7,6 +7,7 @@
     "prebuild": "node scripts/sync-public.mjs",
     "predev": "node scripts/sync-public.mjs",
     "build": "vite build",
+    "export:pages": "npm run build && node scripts/export-pages.mjs",
     "dev": "vite"
   },
   "dependencies": {

@@ -1,12 +1,16 @@
-# GitLab Pages: publishes everything under public/ to https://<namespace>.gitlab.io/<project>/
-# https://docs.gitlab.com/ee/user/project/pages/
+# GitLab Pages: job artifact must include a `public/` folder at the repo root of the artifact.
+# We build the Vue site under site/, then copy site/dist → public/ (nothing under ./public is committed).
 
 pages:
   stage: deploy
   image: node:22-alpine
   script:
-    - cd site && npm ci && npm run build
-    - echo "Publishing static site from public/"
+    - |
+      set -e
+      (cd site && npm ci && npm run build)
+      rm -rf public
+      mkdir -p public
+      cp -r site/dist/. public/
   artifacts:
     paths:
       - public
