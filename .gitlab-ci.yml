@@ -1,8 +1,9 @@
 # GitLab Pages: artifact must include `public/` at repo root (site/dist → public).
 #
 # Semver tags (e.g. v0.2.3): build zip (integration + pre-built Lovelace frontend/dist),
-# upload via Project Uploads API, create a GitLab Release whose asset link uses /uploads/... URLs.
-# (Generic package URLs often 404 for release links on gitlab.com — see gitlab-org/gitlab#271534.)
+# upload generic package, resolve package_files id via API, set release link to:
+#   {CI_PROJECT_URL}/-/package_files/{id}/download
+# (The pretty URL .../packages/generic/.../file.zip often 404s; package_files/download works.)
 #
 # Permissions: enable API access for the CI job token (Settings → CI/CD → Job token permissions),
 # or set a project access token as CI variable GITLAB_RELEASE_TOKEN (api scope).
@@ -10,6 +11,9 @@
 stages:
   - release
   - deploy
+
+variables:
+  GITLAB_PACKAGE_NAME: hub-energie
 
 integration_release:
   stage: release
@@ -46,21 +50,36 @@ integration_release:
       else
         AUTH_HEADER="JOB-TOKEN: ${CI_JOB_TOKEN}"
       fi
-      echo "Uploading ${ZIP_NAME} via project uploads API..."
-      UPLOAD_JSON="$(curl --fail --silent --show-error \
+      PKG_API="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${GITLAB_PACKAGE_NAME}/${VERSION}/${ZIP_NAME}"
+      echo "Uploading ${ZIP_NAME} to generic package ${GITLAB_PACKAGE_NAME}/${VERSION}..."
+      curl --fail --silent --show-error \
         --header "${AUTH_HEADER}" \
-        --form "file=@${CI_PROJECT_DIR}/${ZIP_NAME}" \
-        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/uploads")"
-      UPLOAD_PATH="$(echo "$UPLOAD_JSON" | jq -r '.url')"
-      if [ -z "$UPLOAD_PATH" ] || [ "$UPLOAD_PATH" = "null" ]; then
-        echo "Upload response missing .url: $UPLOAD_JSON"
+        --upload-file "${CI_PROJECT_DIR}/${ZIP_NAME}" \
+        "$PKG_API"
+      echo "Resolving package_files id for release link..."
+      FILE_ID=""
+      for _try in 1 2 3 4 5 6 7 8 9 10; do
+        PKGS="$(curl -s --header "${AUTH_HEADER}" \
+          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_type=generic&per_page=100")"
+        PKG_ID="$(echo "$PKGS" | jq -r --arg ver "$VERSION" --arg name "${GITLAB_PACKAGE_NAME}" \
+          '[.[]? | select(.name == $name and .version == $ver)] | first | .id // empty')"
+        if [ -n "$PKG_ID" ] && [ "$PKG_ID" != "null" ] && [ "$PKG_ID" != "" ]; then
+          PKG_DETAIL="$(curl -s --header "${AUTH_HEADER}" \
+            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${PKG_ID}")"
+          FILE_ID="$(echo "$PKG_DETAIL" | jq -r --arg zip "$ZIP_NAME" \
+            '[.package_files[]? | select(.file_name == $zip)] | first | .id // empty')"
+        fi
+        if [ -n "$FILE_ID" ] && [ "$FILE_ID" != "null" ]; then
+          break
+        fi
+        sleep 2
+      done
+      if [ -z "$FILE_ID" ] || [ "$FILE_ID" = "null" ]; then
+        echo "Could not resolve package file id. Last packages list (truncated):"
+        echo "$PKGS" | head -c 2000
         exit 1
       fi
-      if [ "${UPLOAD_PATH#http}" != "$UPLOAD_PATH" ]; then
-        ASSET_WEB_URL="$UPLOAD_PATH"
-      else
-        ASSET_WEB_URL="${CI_PROJECT_URL}${UPLOAD_PATH}"
-      fi
+      ASSET_WEB_URL="${CI_PROJECT_URL}/-/package_files/${FILE_ID}/download"
       echo "Release asset URL: ${ASSET_WEB_URL}"
       RELEASE_BODY=$'Archive: unzip at the root of your Home Assistant `config/` folder so you obtain `config/custom_components/hub_energie/`. The Lovelace bundle is pre-built in `frontend/dist/` (served by HA at `/hub_energie/`).'
       RELEASE_API_BASE="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/${TAG}"
@@ -68,7 +87,7 @@ integration_release:
         --header "${AUTH_HEADER}" \
         "${RELEASE_API_BASE}")
       if [ "$EXISTING" = "200" ]; then
-        echo "Release ${TAG} exists — refreshing ZIP asset link (drop old generic /uploads, re-add)."
+        echo "Release ${TAG} exists — refreshing ZIP asset link (drop old link, re-add package_files URL)."
         LINKS_JSON="$(curl -s --header "${AUTH_HEADER}" "${RELEASE_API_BASE}/assets/links")"
         echo "$LINKS_JSON" | jq -r --arg zip "$ZIP_NAME" \
           '.[]? | select(.name == $zip) | .id' \
