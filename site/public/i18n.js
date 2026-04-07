@@ -9,49 +9,49 @@
     en: {
       "meta.title": "Hub Énergie — Documentation",
       "meta.description":
-        "Hub Énergie — Home Assistant custom integration for energy monitoring, cost tracking, and diagnostics.",
+        "Hub Énergie — a Home Assistant custom integration for energy monitoring, cost tracking, and diagnostics.",
       "meta.title.landing": "Hub Énergie — Home energy, centralized",
       "meta.description.landing":
-        "Hub Énergie — one Home Assistant integration for tariffs, energy, costs, solar, batteries, and diagnostics.",
+        "Hub Énergie — a single Home Assistant integration for tariffs, energy, costs, solar, batteries, and diagnostics.",
       "meta.title.internals": "Hub Énergie — Behind the scenes",
       "meta.description.internals":
-        "How Hub Énergie attributes kWh to tariff slots, persists state, and writes Home Assistant long-term statistics.",
+        "How Hub Énergie assigns kWh to tariff slots, persists state, and writes Home Assistant long-term statistics.",
 
       "nav.home": "Home",
       "nav.documentation": "Documentation",
-      "nav.internals": "How it works behind the scenes",
-      "nav.internals_short": "Behind the scenes",
+      "nav.internals": "Implementation details",
+      "nav.internals_short": "Internals",
 
-      "doc.hero_internals_cta": "How it works behind the scenes",
+      "doc.hero_internals_cta": "Implementation details",
       "doc.hero_internals_hint":
-        "Slot attribution, per-day buckets, Store, and long-term statistics — for readers who want the full pipeline.",
+        "Slot attribution, per-day buckets, the Store file, and long-term statistics — for readers who want the full pipeline.",
 
       "landing.kicker": "Home Assistant · Energy intelligence",
-      "landing.headline": "Centralize your site’s energy story",
+      "landing.headline": "Centralize your home’s energy data",
       "landing.lead_html":
-        "One integration ties your tariff, meters, solar, batteries, costs, and diagnostics together — so you configure once and read a coherent picture in Home Assistant.",
+        "One integration ties your tariff, meters, solar, batteries, costs, and diagnostics together — configure once and get a consistent view in Home Assistant.",
       "landing.cta_discover": "Discover",
-      "landing.cta_internals": "How it works",
+      "landing.cta_internals": "How it works internally",
       "landing.cta_discover_footer": "Discover the documentation",
       "landing.version_note": "Documentation snapshot v0.2.3",
       "landing.f1_title": "True centralization",
       "landing.f1_body":
-        "Offer, grid, solar, per-battery devices, energy balance, costs, and diagnostics are grouped under one integration instead of scattered helpers and templates.",
+        "Tariff, grid, solar, per-battery devices, energy balance, costs, and diagnostics live under one integration instead of scattered helpers and templates.",
       "landing.f2_title": "Tariff-aware accounting",
       "landing.f2_body":
-        "Deltas from your kWh meters are split into tariff slots (including EDF Tempo) using explicit resolution rules, with fallbacks and observability when signals are missing.",
+        "Positive deltas from your kWh meters are split across tariff slots (including EDF Tempo) using explicit resolution rules, with fallbacks and visibility when signals are missing.",
       "landing.f3_title": "Costs tied to usage",
       "landing.f3_body":
-        "Daily estimates, subscription split, and per-slot detail stay aligned with the same snapshot the Lovelace card consumes.",
+        "Daily estimates, subscription allocation, and per-slot detail stay aligned with the same snapshot the Lovelace card reads.",
       "landing.f4_title": "Durable history",
       "landing.f4_body":
-        "Internal SSOT sensors reflect running totals; completed Paris days are written to long-term statistics for analytics and graphs.",
+        "Internal SSOT sensors reflect running totals; each completed calendar day (Europe/Paris) is written to long-term statistics for analytics and graphs.",
       "landing.f5_title": "Card included",
       "landing.f5_body":
-        "A maintained Lovelace bundle is served from your Home Assistant host at /hub_energie/ — no separate frontend project to host.",
+        "A maintained Lovelace bundle is served from your Home Assistant instance at /hub_energie/ — no separate frontend to host.",
       "landing.f6_title": "Honest diagnostics",
       "landing.f6_body":
-        "Health, data quality, delta telemetry, and trust hints help you see when inputs are partial or when the integration is rebuilding state.",
+        "Health, data quality, delta telemetry, and trust indicators show when inputs are incomplete or the integration is rebuilding state.",
       "landing.footer_html":
         "Hub Énergie · <a href=\"#/doc\">Documentation</a> · <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab</a>",
 
@@ -61,67 +61,67 @@
       "toc.internals_slots": "Tariff slots",
       "toc.internals_attribution": "Slot attribution",
       "toc.internals_deltas": "Deltas & policy",
-      "toc.internals_day": "Paris day buckets",
+      "toc.internals_day": "Calendar-day buckets (Paris TZ)",
       "toc.internals_store": "Store file",
       "toc.internals_lts": "Long-term statistics",
       "toc.internals_rebuild": "Recorder rebuild",
       "toc.internals_telemetry": "Telemetry & quality",
 
       "internals.kicker": "Implementation notes",
-      "internals.title": "How it works behind the scenes",
+      "internals.title": "Implementation details",
       "internals.subtitle":
-        "Business logic for categorizing energy into tariff slots, persisting running totals, and registering daily kWh in Home Assistant statistics — without replacing your physical meters as ground truth.",
+        "How energy is classified into tariff slots, running totals are persisted, and daily kWh are registered in Home Assistant statistics — while your physical meters remain the source of truth.",
       "internals.back_to_doc": "Back to documentation",
       "internals.s_overview_h": "End-to-end pipeline",
       "internals.s_overview_p1":
-        "At a high level: configured energy entities (total_increasing kWh) are watched by the coordinator. Each positive delta is tagged with the tariff slot active at the time of the delta (in Europe/Paris), then summed into per-source totals and into per-day / per-slot buckets. After a Paris calendar day is complete, those buckets feed Home Assistant external statistics so you get durable graphs per slot and source. A JSON Store keeps the running sums and recent day maps so restarts stay consistent.",
+        "At a high level: the coordinator watches configured energy entities (total_increasing kWh). Each positive delta is tagged with the tariff slot active when the delta occurred (Europe/Paris), then summed into per-source totals and per-day / per-slot buckets. When a calendar day in that timezone is complete, those buckets feed Home Assistant external statistics for durable per-slot and per-source graphs. A JSON Store holds running sums and recent day maps so restarts stay consistent.",
       "internals.s_overview_p2_html":
-        "Physical recorder history for the entities you picked remains the external SSOT for raw meter values; integration SSOT sensors expose the <strong class=\"text-body\">internally accumulated</strong> totals used for slot splits and cost snapshots.",
+        "Recorder history for the entities you selected remains the external SSOT for raw meter values; integration SSOT sensors expose the <strong class=\"text-body\">internally accumulated</strong> totals used for slot splits and cost snapshots.",
       "internals.s_sources_h": "Energy sources (accumulator keys)",
       "internals.s_sources_p1":
-        "Each configured meter maps to a source key (for example grid import, grid export, solar, per-battery charge and discharge). The set of expected keys is derived from your configuration: only sources with a bound entity participate in statistics writes. Three-phase installs can synthesize summed “virtual” entities for bookkeeping while still using your phase meters upstream.",
+        "Each configured meter maps to a source key (for example grid import, grid export, solar, per-battery charge and discharge). The expected key set comes from your configuration: only sources bound to an entity participate in statistics writes. Three-phase setups can use summed “virtual” entities for bookkeeping while still reading phase meters upstream.",
       "internals.s_sources_p2":
-        "Because writes to long-term statistics require a complete matrix of sources for a finished day, a day is skipped if any expected source is missing from the internal day map — protecting you from silently writing partial data.",
+        "Long-term statistics writes require a complete source matrix for a finished day; if any expected source is missing from the internal day map, that day is skipped — avoiding silent partial writes.",
       "internals.s_slots_h": "Tariff slot grid",
       "internals.s_slots_p1_html":
-        "EDF Tempo exposes six physical price bands encoded as slot ids: <code class=\"font-mono\">bleu_hc</code>, <code class=\"font-mono\">bleu_hp</code>, <code class=\"font-mono\">blanc_hc</code>, <code class=\"font-mono\">blanc_hp</code>, <code class=\"font-mono\">rouge_hc</code>, <code class=\"font-mono\">rouge_hp</code>. BASE collapses to HP-only; HP/HC uses two bands mapped onto the same naming pattern; non-EDF manual tariffs still use the HC/HP naming for compatibility while prices come from your manual tables.",
+        "EDF Tempo defines six price bands encoded as slot ids: <code class=\"font-mono\">bleu_hc</code>, <code class=\"font-mono\">bleu_hp</code>, <code class=\"font-mono\">blanc_hc</code>, <code class=\"font-mono\">blanc_hp</code>, <code class=\"font-mono\">rouge_hc</code>, <code class=\"font-mono\">rouge_hp</code>. BASE maps to HP only; HP/HC uses two bands under the same naming scheme; non-EDF manual tariffs keep HC/HP ids for compatibility while prices come from your tables.",
       "internals.s_slots_p2_html":
-        "An additional attribution bucket <code class=\"font-mono\">unknown</code> exists only in live bookkeeping when no definite slot can be resolved. Completed days written to recorder statistics use the six canonical slots; the unknown bucket is surfaced through diagnostics for transparency.",
+        "An additional attribution bucket <code class=\"font-mono\">unknown</code> exists only in live bookkeeping when no definite slot can be resolved. Completed days written to Recorder statistics use the six canonical slots; the unknown bucket appears in diagnostics for transparency.",
       "internals.s_attr_h": "How a delta picks a slot",
       "internals.s_attr_p1":
-        "When a delta is applied, the coordinator resolves the current slot in order: primary resolver (including Tempo calendar or colour, optional user slot sensor, wall-clock off-peak rules), then “last known good” stable slot if the primary result is ambiguous, then a schedule-only fallback from frozen EDF runtime fields and Paris time. If nothing matches a canonical slot, the attribution is classified as unknown — energy is still accumulated so it is not dropped silently.",
+        "When a delta is applied, the coordinator resolves the current slot in this order: primary resolver (Tempo calendar or colour, optional user slot sensor, wall-clock off-peak rules), then a stable “last known good” slot if the primary result is ambiguous, then a schedule-only fallback from frozen EDF runtime fields and Paris time. If nothing maps to a canonical slot, attribution is unknown — energy is still accumulated so nothing is dropped silently.",
       "internals.s_attr_p2_html":
         "The resolution method is recorded alongside the delta (<code class=\"font-mono\">direct</code>, <code class=\"font-mono\">fallback_last_known</code>, <code class=\"font-mono\">fallback_schedule</code>, <code class=\"font-mono\">unknown</code>) so diagnostics can explain why a given bucket grew.",
       "internals.s_delta_h": "Delta policy (noise & rollbacks)",
       "internals.s_delta_p1":
-        "Only forward / positive deltas are counted toward consumption totals. Small negative steps can be treated as meter jitter (re-baselining without consuming energy); larger negative changes may trigger re-anchoring or discards according to integration thresholds. Caps guard against runaway spikes when data glitches.",
+        "Only positive deltas count toward consumption totals. Small negative steps can be treated as meter jitter (re-baselining without consuming energy); larger negative changes may trigger re-anchoring or discards per integration thresholds. Caps limit runaway spikes from bad data.",
       "internals.s_delta_p2":
-        "Drift between the external meter reading and the internal running sum is tracked per source so the health model can report inconsistent or degraded trust states without surprising silently shifted costs.",
-      "internals.s_day_h": "Paris day rollover",
+        "Drift between the external meter reading and the internal running sum is tracked per source so the health model can surface inconsistent or degraded trust without silently skewing costs.",
+      "internals.s_day_h": "End-of-day rollover (Paris TZ)",
       "internals.s_day_p1":
-        "Day boundaries follow Europe/Paris local dates — consistent with Tempo calendars and HP/HC split times. At scheduled midnight maintenance the integration finalizes yesterday’s buckets, persists them, writes recorder statistics for that ISO day, trims old accumulator rows it no longer needs, and refreshes the public snapshot.",
+        "Day boundaries follow Europe/Paris local dates — aligned with Tempo calendars and HP/HC windows. During scheduled midnight maintenance the integration finalizes yesterday’s buckets, persists them, writes Recorder statistics for that ISO day, prunes obsolete accumulator rows, and refreshes the public snapshot.",
       "internals.s_day_p2":
-        "If Home Assistant was offline across a boundary, catch-up writes can still occur after restart: the Store records which days were successfully exported so duplicate statistics inserts are avoided when possible.",
+        "If Home Assistant was offline across a boundary, catch-up writes can run after restart: the Store records which days were exported successfully to avoid duplicate statistics inserts when possible.",
       "internals.s_store_h": "Store file",
       "internals.s_store_p1_html":
-        "The integration persists totals per source, a map of <code class=\"font-mono\">slot_day_kwh[day][source][slot]</code>, last raw meter readings, drift anchors, which statistic days were written, optional reinjection / battery-split diagnostics, and the last known cumulative floors used for long-term statistics metadata. Debounced saves avoid hammering disk on busy systems.",
+        "The integration persists totals per source, a map of <code class=\"font-mono\">slot_day_kwh[day][source][slot]</code>, last raw meter readings, drift anchors, which statistic days were written, optional grid-export / battery-split diagnostics, and the last known cumulative floors used for long-term statistics metadata. Debounced saves reduce disk churn on busy systems.",
       "internals.s_store_p2":
-        "If the Store payload is corrupt or too old to trust, a guarded path can rebuild internal totals from recorder history for completed days before normal operation resumes — surfacing a rebuilding trust state in the meantime.",
+        "If the Store payload is corrupt or no longer trustworthy, a guarded path can rebuild internal totals from Recorder history for completed days before normal operation resumes — exposing a rebuilding trust state in the meantime.",
       "internals.s_lts_h": "Long-term statistics registration",
       "internals.s_lts_p1_html":
-        "For each finished day and for each pair <em>(source, slot)</em> among the six canonical Tempo slots, the integration calls Home Assistant’s external statistics API with a <code class=\"font-mono\">TOTAL_INCREASING</code> sum. Statistic ids look like <code class=\"font-mono\">hub_energie:slot_&lt;source&gt;_&lt;slot&gt;_kwh</code> where the source segment is normalized for id safety. The daily increment for that id is added on top of the previous cumulative sum stored alongside the Store so the recorder sees one continuous monotonic series per series.",
+        "For each finished day and each <em>(source, slot)</em> pair among the six canonical Tempo slots, the integration calls Home Assistant’s external statistics API with a <code class=\"font-mono\">TOTAL_INCREASING</code> sum. Statistic ids look like <code class=\"font-mono\">hub_energie:slot_&lt;source&gt;_&lt;slot&gt;_kwh</code> with the source segment normalized for id safety. The daily increment is added to the previous cumulative sum kept with the Store so the Recorder sees one continuous monotonic series per statistic.",
       "internals.s_lts_p2":
-        "Those series are the preferred basis for historical analytics that need stable per-slot kWh — lighter than mining raw template attributes, and aligned with how the Energy dashboard expects statistics.",
+        "These series are the preferred basis for historical analytics that need stable per-slot kWh — lighter than parsing raw template attributes, and aligned with how the Energy dashboard consumes statistics.",
       "internals.s_rebuild_h": "Recorder-driven rebuild",
       "internals.s_rebuild_p1":
-        "When feasible, the integration replays prior external statistic samples to recover daily slot totals and rebuild the cumulative floor map — then reconciles against current entity readings. This path exists because long-term statistic series live in the recorder database while detailed per-slot day matrices live in the Store; both need to stay aligned after restores or migrations.",
+        "When feasible, the integration replays prior external statistic samples to recover daily slot totals and rebuild the cumulative floor map — then reconciles against current entity readings. Long-term statistic series live in the Recorder database while detailed per-slot day matrices live in the Store; both must stay aligned after restores or migrations.",
       "internals.s_rebuild_p2_html":
-        "If the recorder is temporarily unavailable the rebuild step is skipped with a warning; operation continues, but you should consult <code class=\"font-mono\">docs/troubleshooting.md</code> when trust / health sensors complain after major database operations.",
+        "If the Recorder is temporarily unavailable the rebuild step is skipped with a warning; operation continues, but consult <code class=\"font-mono\">docs/troubleshooting.md</code> if trust / health sensors report issues after major database operations.",
       "internals.s_tel_h": "Telemetry, unknown bucket, health",
       "internals.s_tel_p1":
-        "Per-source delta telemetry exposes timestamps, applied kWh, attributed slot, resolution method, gaps between applies, and drift versus the external meter. Aggregated discard counters and last-rejection payloads help trace policy decisions during support. Separate input status tracks missing or unavailable entities before energy math even runs.",
+        "Per-source delta telemetry includes timestamps, applied kWh, attributed slot, resolution method, gaps between applies, and drift versus the external meter. Aggregated discard counters and last-rejection payloads help trace policy decisions during support. Separate input status flags missing or unavailable entities before energy math runs.",
       "internals.s_tel_p2_html":
-        "The health / trust sensor combines these signals into coarse states such as <code class=\"font-mono\">ok</code>, <code class=\"font-mono\">degraded</code>, <code class=\"font-mono\">rebuilding</code>, or <code class=\"font-mono\">inconsistent</code> with human readable causes — the same signals the Lovelace card can surface in diagnostics views.",
+        "The health / trust sensor rolls these signals into coarse states such as <code class=\"font-mono\">ok</code>, <code class=\"font-mono\">degraded</code>, <code class=\"font-mono\">rebuilding</code>, or <code class=\"font-mono\">inconsistent</code> with human-readable causes — the same signals the Lovelace card can show in diagnostics.",
       "internals.footer_html":
         "For user-facing setup, return to the <a href=\"#/doc\">main documentation</a> or the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab repository</a>.",
 
@@ -168,7 +168,7 @@
       "hero.kicker": "Home Assistant · Custom integration",
       "hero.title": "Energy monitoring, costs & diagnostics",
       "hero.lead_html":
-        "Configure suppliers and tariffs, track kWh and daily cost, optional solar estimation and multi-battery support — with a Lovelace card served from <code class=\"font-mono small\">/hub_energie/</code>.",
+        "Configure suppliers and tariffs, track kWh and daily cost, with optional solar estimation and multi-battery support — plus a Lovelace card served from <code class=\"font-mono small\">/hub_energie/</code>.",
 
       "glance.title": "At a glance",
       "glance.ha": "<strong class=\"text-body\">HA</strong> 2024.10.0 or newer",
@@ -177,49 +177,49 @@
 
       "overview.title": "Overview",
       "overview.intro":
-        "This page is a guided companion to the README. Use the steps below in order when setting up for the first time.",
+        "This page complements the README. Follow the steps below in order for a first-time setup.",
 
       "scope.stable_heading": "Intended stable scope (v0.2.x)",
       "scope.stable_li1_html":
         "<strong class=\"text-body\">Config flow:</strong> supplier (EDF vs custom), tariff (flat, HP–HC, multi-slot, EDF Tempo + RTE/API/sensor), grid and optional solar/battery wiring.",
       "scope.stable_li2_html":
-        "<strong class=\"text-body\">Energy:</strong> positive deltas from <code class=\"font-mono\">total_increasing</code> meters → slot-day accounting (Paris day) and SSOT total sensors owned by the integration.",
+        "<strong class=\"text-body\">Energy:</strong> positive deltas from <code class=\"font-mono\">total_increasing</code> meters → slot-day accounting (calendar day, Europe/Paris) and SSOT total sensors owned by the integration.",
       "scope.stable_li3_html":
         "<strong class=\"text-body\">Costs:</strong> daily estimate (€), subscription split, per-slot detail in attributes.",
       "scope.stable_li4_html":
         "<strong class=\"text-body\">EDF Tempo:</strong> colours, quotas, next-change times.",
       "scope.stable_li5_html":
-        "<strong class=\"text-body\">Diagnostics:</strong> réinjection split, data quality, delta telemetry, unknown bucket, staleness; <strong class=\"text-body\">health</strong> sensor (<code class=\"font-mono\">ok</code> / <code class=\"font-mono\">degraded</code> / <code class=\"font-mono\">rebuilding</code> / <code class=\"font-mono\">inconsistent</code> / <code class=\"font-mono\">no_input</code>) with a readable cause.",
+        "<strong class=\"text-body\">Diagnostics:</strong> grid-export split, data quality, delta telemetry, unknown bucket, staleness; <strong class=\"text-body\">health</strong> sensor (<code class=\"font-mono\">ok</code> / <code class=\"font-mono\">degraded</code> / <code class=\"font-mono\">rebuilding</code> / <code class=\"font-mono\">inconsistent</code> / <code class=\"font-mono\">no_input</code>) with a readable cause.",
       "scope.stable_li6_html": "Optional clear-sky PV and solar resale when configured.",
       "scope.stable_li7_html":
         "Lovelace: pre-built bundles in <code class=\"font-mono\">frontend/dist/</code> are versioned in the repo; Home Assistant serves them at <code class=\"font-mono\">/hub_energie/</code>.",
 
       "scope.exp_heading": "Experimental / best-effort",
-      "scope.exp_li1": "Power-flow battery charge origin split when sensors are partial or noisy.",
+      "scope.exp_li1": "Splitting battery charge origin by power flow when sensors are partial or noisy.",
       "scope.exp_li2": "Solar production estimation (model-based, not a physical meter).",
       "scope.exp_li3": "Opportunity-cost style diagnostics for exported kWh.",
 
       "scope.disclaimer_html":
-        "Behaviour depends on your hardware and entity choices (especially the Energy dashboard). The lists above describe intent, not a warranty for every edge case.",
+        "Behaviour depends on your hardware and entity selection (including the Energy dashboard). The lists above describe intended scope, not a guarantee for every edge case.",
 
       "section.link_aria": "Link to section",
 
       "ssot.title": "Data sources (SSOT)",
       "ssot.intro":
-        "Knowing what is authoritative avoids misconfiguring the Energy panel or the wrong attributes.",
+        "Knowing which data is authoritative helps you configure the Energy dashboard correctly and read the right attributes.",
       "ssot.s1_title": "Physical meters (external SSOT)",
       "ssot.s1_html":
-        "The energy entities you select (<code class=\"font-mono\">grid_import_energy</code>, solar, export, per-battery in/out). <strong class=\"text-body\">Recorder history</strong> is ground truth for total kWh from hardware or upstream integrations.",
+        "The energy entities you select (<code class=\"font-mono\">grid_import_energy</code>, solar, export, per-battery in/out). <strong class=\"text-body\">Recorder history</strong> is the source of truth for total kWh from hardware or upstream integrations.",
       "ssot.s2_title": "Internal accounting",
       "ssot.s2_html":
         "The coordinator accumulates <strong class=\"text-body\">positive deltas</strong> into totals and per-day slot kWh. Integration <code class=\"font-mono\">total_increasing</code> SSOT sensors reflect this <strong class=\"text-body\">internal sum</strong>, not a full re-read of the meter every cycle.",
       "ssot.s3_title": "Long-term per-slot kWh (daily)",
       "ssot.s3_html":
-        "After each Paris day, external statistics <code class=\"font-mono\">hub_energie:slot_&lt;source&gt;_&lt;slot&gt;_kwh</code> are written. Use these (or physical meters) for historical analytics — not raw <code class=\"font-mono\">cost_detail</code> attribute history alone.",
+        "After each calendar day (Europe/Paris), external statistics <code class=\"font-mono\">hub_energie:slot_&lt;source&gt;_&lt;slot&gt;_kwh</code> are written. Use these (or physical meters) for historical analytics — not raw <code class=\"font-mono\">cost_detail</code> attribute history alone.",
 
       "install.title": "Installation",
       "install.intro_html":
-        "Install the repository <strong class=\"text-body\">exactly</strong> as one package under your HA config:",
+        "Install the integration <strong class=\"text-body\">exactly</strong> as a single package under your HA config:",
       "install.note_html":
         "Home Assistant must load <code class=\"font-mono\">custom_components/hub_energie/manifest.json</code>. Avoid a nested folder such as <code class=\"font-mono\">hub_energie/hub_energie/</code>.",
       "install.choose_path": "Choose your path",
@@ -227,14 +227,14 @@
       "tab.git": "Git clone",
       "tab.copy": "Copy files",
 
-      "install.hacs_tba_heading": "HACS default store — to be confirmed",
+      "install.hacs_tba_heading": "HACS default store — status TBA",
       "install.hacs_tba_html":
-        "<p class=\"mb-2\">The public <strong class=\"text-body\">HACS</strong> catalogue is built around <strong class=\"text-body\">GitHub</strong>-hosted repositories (<a href=\"https://hacs.xyz/docs/publish/start/\" target=\"_blank\" rel=\"noopener noreferrer\">publishing rules</a>). This project lives on <strong class=\"text-body\">GitLab</strong>, so a frictionless “search and install” entry in the default store is <strong class=\"text-body\">not available yet</strong>.</p><p class=\"mb-0\">For now use <strong class=\"text-body\">Git clone</strong> or <strong class=\"text-body\">Copy files</strong> (tabs above). If your HACS build allows <strong class=\"text-body\">custom repositories</strong> with a GitLab URL, you can try adding the integration that way — support varies by version. After install, always perform a <strong class=\"text-body\">full restart</strong> of Home Assistant.</p>",
+        "<p class=\"mb-2\">The public <strong class=\"text-body\">HACS</strong> catalogue is oriented toward <strong class=\"text-body\">GitHub</strong>-hosted repositories (<a href=\"https://hacs.xyz/docs/publish/start/\" target=\"_blank\" rel=\"noopener noreferrer\">publishing rules</a>). This project is hosted on <strong class=\"text-body\">GitLab</strong>, so one-click “search and install” from the default store is <strong class=\"text-body\">not available yet</strong>.</p><p class=\"mb-0\">For now use <strong class=\"text-body\">Git clone</strong> or <strong class=\"text-body\">Copy files</strong> (tabs above). If your HACS version supports <strong class=\"text-body\">custom repositories</strong> with a GitLab URL, you can add the integration that way — behaviour varies by release. After installation, always perform a <strong class=\"text-body\">full restart</strong> of Home Assistant.</p>",
 
       "install.git.s1_title": "Clone into the right folder",
       "install.git.s2_title": "Restart & add the integration",
       "install.git.s2_p_html":
-        "Full restart of Home Assistant, then <a href=\"#configure\">Configure in HA</a> (Settings → Devices &amp; services → Add integration).",
+        "Perform a full restart of Home Assistant, then <a href=\"#configure\">Configure in HA</a> (Settings → Devices &amp; services → Add integration).",
 
       "install.copy.s1_title": "Copy the full tree",
       "install.copy.s1_html":
@@ -244,17 +244,17 @@
 
       "install.lovelace_title": "If you use the Lovelace card",
       "install.lovelace_body_html":
-        "The card bundles under <code class=\"font-mono\">frontend/dist/</code> are committed to this repository (rebuilt in CI on each commit). You do <strong class=\"text-body\">not</strong> need <code class=\"font-mono\">npm</code> on your Home Assistant host for a normal install—restart HA after updating the integration. For reproducible installs, match a Git tag to <code class=\"font-mono\">manifest.json</code> → <code class=\"font-mono\">version</code> (e.g. <strong class=\"text-body\">v0.2.3</strong>).",
+        "The card bundles under <code class=\"font-mono\">frontend/dist/</code> are committed to this repository (rebuilt in CI on each commit). You do <strong class=\"text-body\">not</strong> need <code class=\"font-mono\">npm</code> on your Home Assistant host for a normal install — restart HA after updating the integration. For reproducible installs, align a Git tag with <code class=\"font-mono\">manifest.json</code> → <code class=\"font-mono\">version</code> (e.g. <strong class=\"text-body\">v0.2.3</strong>).",
       "install.lovelace_dev_html":
         "<strong class=\"text-body\">Developers:</strong> to rebuild locally, from <code class=\"font-mono\">custom_components/hub_energie/frontend/</code> run <code class=\"font-mono\">npm ci</code> then <code class=\"font-mono\">npm run build</code>.",
 
       "lovelace.title": "Lovelace card",
       "lovelace.intro_html":
-        "Built assets (<code class=\"font-mono\">hub-energie-card-boot.js</code>, <code class=\"font-mono\">hub-energie-card.js</code>, <code class=\"font-mono\">hub-energie-card-editor.js</code>, and shared chunks under <code class=\"font-mono\">frontend/dist/</code>) are shipped in the repo and refreshed by CI each commit. Home Assistant serves the <code class=\"font-mono\">dist</code> tree at <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>. Since <strong class=\"text-body\">v0.2.3</strong>, the optional <strong class=\"text-body\">Solar production (energy)</strong> bar splits kWh (self-use, battery charge, attributed export) for the card’s selected day/range.",
+        "Built assets (<code class=\"font-mono\">hub-energie-card-boot.js</code>, <code class=\"font-mono\">hub-energie-card.js</code>, <code class=\"font-mono\">hub-energie-card-editor.js</code>, and shared chunks under <code class=\"font-mono\">frontend/dist/</code>) ship in the repo and are rebuilt by CI on every commit. Home Assistant serves the <code class=\"font-mono\">dist</code> tree at <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>. Since <strong class=\"text-body\">v0.2.3</strong>, the optional <strong class=\"text-body\">Solar production (energy)</strong> bar breaks out kWh (self-consumption, battery charge, attributed export) for the card’s selected day or range.",
 
       "lovelace.l1_title": "Storage-mode dashboards (default)",
       "lovelace.l1_html":
-        "On startup and when you <strong class=\"text-body\">reload</strong> the integration, it adds or updates that URL with a <strong class=\"text-body\">cache-busting</strong> <code class=\"font-mono\">?v=…</code> query (same as <em>Settings → Dashboards → Resources</em>) so new <code class=\"font-mono\">dist/</code> files load in the browser. Usually nothing to do manually.",
+        "On startup and when you <strong class=\"text-body\">reload</strong> the integration, it adds or updates that URL with a <strong class=\"text-body\">cache-busting</strong> <code class=\"font-mono\">?v=…</code> query (same as <em>Settings → Dashboards → Resources</em>) so the browser loads new <code class=\"font-mono\">dist/</code> files. Usually no manual step is required.",
 
       "lovelace.l2_title": "YAML-managed resources",
       "lovelace.l2_p": "Add the boot URL yourself:",
@@ -266,18 +266,18 @@
       "lovelace.showcase_title": "Dashboard card",
       "lovelace.fig_alt": "Hub Énergie Lovelace card on a dashboard",
       "lovelace.fig_cap_html":
-        "Example of the card in daily mode (Tempo, instant power, consumption, costs, reinjection). File: <code class=\"font-mono\">site/public/img/hub-energie-card.png</code>.",
+        "Example of the card in daily mode (Tempo, instant power, consumption, costs, grid export). File: <code class=\"font-mono\">site/public/img/hub-energie-card.png</code>.",
 
       "lovelace.editor_title": "Visual editor",
       "lovelace.editor_intro_html":
-        "The card exposes a rich editor (<code class=\"font-mono\">hub-energie-card-editor.js</code> in the repo) to tune section visibility, Tempo controls, date period, and optional entity overrides — without YAML.",
+        "The card includes a full editor (<code class=\"font-mono\">hub-energie-card-editor.js</code> in the repo) to adjust section visibility, Tempo controls, date range, and optional entity overrides — without YAML.",
       "lovelace.ed1_alt": "Lovelace card editor — configuration tab with live preview",
       "lovelace.editor_fig_cap_html":
         "<strong class=\"text-body\">Configuration</strong> tab with section toggles and live card preview. Extra captures (e.g. <strong class=\"text-body\">Visibilité</strong> / <strong class=\"text-body\">Mise en page</strong>) can be added later as <code class=\"font-mono\">lovelace-editor-02.png</code> if you want a second slide.",
 
       "configure.title": "Configure in Home Assistant",
       "configure.flow_lead_html":
-        "After a <strong class=\"text-body\">full restart</strong>, add the integration under <strong class=\"text-body\">Settings → Devices &amp; services → Add integration</strong>. The assistant is <strong class=\"text-body\">not linear</strong>: screens depend on supplier, automatic vs manual tariffs, EDF offer (BASE / HPHC / TEMPO), Tempo data source, single- vs three-phase grid wiring, solar, and batteries.",
+        "After a <strong class=\"text-body\">full restart</strong>, add the integration under <strong class=\"text-body\">Settings → Devices &amp; services → Add integration</strong>. The flow is <strong class=\"text-body\">not linear</strong>: screens depend on supplier, automatic vs manual tariffs, EDF offer (BASE / HPHC / TEMPO), Tempo data source, single- vs three-phase grid wiring, solar, and batteries.",
 
       "configure.flow_map_title": "How the config flow branches",
       "configure.flow_map_html":
@@ -307,16 +307,16 @@
       "configure.flow_ex_5_alt": "Hub Énergie config — Tempo signal source",
       "configure.flow_ex_6_alt": "Hub Énergie config — RTE API credentials",
       "configure.flow_after_rte_html":
-        "After valid credentials (or if you pick <strong class=\"text-body\">API Couleur Tempo</strong>), the flow fetches EDF tariffs and continues with <strong class=\"text-body\">grid sensors</strong> (import required; three-phase has extra steps), then <strong class=\"text-body\">solar</strong>, then <strong class=\"text-body\">batteries</strong>. Those steps are not shown here yet — send captures if you want them in the doc.",
+        "After valid credentials (or if you choose <strong class=\"text-body\">API Couleur Tempo</strong>), the flow fetches EDF tariffs and continues with <strong class=\"text-body\">grid sensors</strong> (import required; three-phase adds extra steps), then <strong class=\"text-body\">solar</strong>, then <strong class=\"text-body\">batteries</strong>. Those steps are not illustrated here yet — share screenshots if you want them added to the doc.",
 
       "devices.title": "Device model",
       "devices.intro":
-        "One Home Assistant device per logical scope. Entity placement follows measured or configured domains; see <code class=\"font-mono\">CHANGELOG.md</code> for finer detail.",
+        "One Home Assistant device per logical scope. Entities are grouped by measured or configured domain; see <code class=\"font-mono\">CHANGELOG.md</code> for detail.",
 
       "devices.integration_title": "Integration page",
       "devices.integration_alt": "Hub Énergie integration entry with listed devices",
       "devices.integration_cap_html":
-        "<strong class=\"text-body\">Settings → Devices &amp; services → Hub Énergie</strong> shows one configuration entry (bridge). Under it, HA lists logical devices—for example Offre, Réseau, Solaire, one row per battery, the aggregated battery summary, Bilan énergétique, Coûts, and Diagnostics. Labels (e.g. “Toutes batteries”) and entity counts depend on your install.",
+        "<strong class=\"text-body\">Settings → Devices &amp; services → Hub Énergie</strong> shows one configuration entry (bridge). Under it, Home Assistant lists logical devices — for example Offre, Réseau, Solaire, one row per battery, the aggregated battery summary, Bilan énergétique, Coûts, and Diagnostics. Labels (e.g. “Toutes batteries”) and entity counts depend on your installation.",
 
       "devices.th_device": "Device",
       "devices.th_purpose": "Purpose",
@@ -327,13 +327,13 @@
       "devices.p_battsum": "Aggregated battery summary",
       "devices.p_bilan": "Computed energy flows (kWh)",
       "devices.p_couts": "Monetary values (€)",
-      "devices.p_diag": "Health, reinjection diagnostics",
+      "devices.p_diag": "Health, grid-export diagnostics",
 
       "devices.gallery_title": "Devices in the UI",
       "devices.gallery_intro_html":
         "Each integration device groups related entities. Below, one slide per device so readers can see how the structure looks in <strong class=\"text-body\">Settings → Devices &amp; services</strong>.",
       "devices.gallery_multishot_html":
-        "For dense devices (many entities), you can add extra PNGs later (e.g. <code class=\"font-mono\">device-ui-02-reseau-2.png</code>) — the doc can be extended with a nested carousel when those assets exist.",
+        "For device pages with many entities, you can add extra PNGs later (e.g. <code class=\"font-mono\">device-ui-02-reseau-2.png</code>) — the doc can grow into a nested carousel when those assets exist.",
       "devices.tree_label": "Device",
       "devices.g1_t": "Offre",
       "devices.g1_d": "Tariff, supplier, contract",
@@ -350,7 +350,7 @@
       "devices.g7_t": "Coûts",
       "devices.g7_d": "Monetary sensors",
       "devices.g8_t": "Diagnostics",
-      "devices.g8_d": "Health and reinjection diagnostics",
+      "devices.g8_d": "Health and grid-export diagnostics",
       "devices.g1_alt": "Hub Énergie device — Offre",
       "devices.g2_alt": "Hub Énergie device — Réseau",
       "devices.g3_alt": "Hub Énergie device — Solaire",
@@ -363,17 +363,17 @@
       "services.title": "Services",
       "services.th_service": "Service",
       "services.th_desc": "Description",
-      "services.r1": "Force coordinator refresh",
+      "services.r1": "Force a coordinator refresh",
       "services.r2": "Re-fetch EDF tariffs (auto mode)",
 
       "limitations.title": "Limitations",
-      "limitations.li1": "Recorder retention limits history, charts, and rebuild-from-recorder paths.",
+      "limitations.li1": "Recorder retention bounds history depth, charts, and rebuild-from-Recorder workflows.",
       "limitations.li2":
-        "Optional solar estimation is clear-sky output — indicative, not a production meter.",
+        "Optional solar estimation uses a clear-sky model — indicative only, not a production meter.",
       "limitations.li3_html":
         "The card’s power graph needs statistics; missing <code class=\"font-mono\">state_class</code> or history can leave it empty.",
       "limitations.li4_html":
-        "Health states aggregate many checks; brief <code class=\"font-mono\">rebuilding</code> after a recorder rebuild is expected.",
+        "Health states aggregate many checks; a short <code class=\"font-mono\">rebuilding</code> period after a Recorder rebuild is expected.",
       "limitations.li5_html":
         "Deep dives: <code class=\"font-mono\">docs/troubleshooting.md</code> in the repository (trust, unknown bucket, recovery).",
 
@@ -384,61 +384,61 @@
       "glossary.measured_html":
         "From configured HA entities (<code class=\"font-mono\">total_increasing</code> kWh, power where wired).",
       "glossary.recon": "Reconstructed",
-      "glossary.recon_d": "Internal totals and per-slot kWh from deltas and optional recorder replay.",
+      "glossary.recon_d": "Internal totals and per-slot kWh from deltas and optional Recorder replay.",
       "glossary.est": "Estimated",
-      "glossary.est_d": "Model-based solar and other best-effort paths without a direct meter.",
+      "glossary.est_d": "Model-based solar and other best-effort estimates where no direct meter exists.",
 
       "footer.p1_html":
-        "Hub Énergie — documentation snapshot <strong class=\"text-body\">v0.2.3</strong>. Canonical detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>.",
+        "Hub Énergie — documentation snapshot <strong class=\"text-body\">v0.2.3</strong>. Authoritative detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>.",
       "footer.license": "License: see the repository.",
     },
 
     fr: {
       "meta.title": "Hub Énergie — Documentation",
       "meta.description":
-        "Hub Énergie — Intégration personnalisée Home Assistant pour le suivi énergétique, les coûts et le diagnostic.",
+        "Hub Énergie — intégration personnalisée Home Assistant pour le suivi de l’énergie, des coûts et le diagnostic.",
       "meta.title.landing": "Hub Énergie — L’énergie du foyer, centralisée",
       "meta.description.landing":
-        "Hub Énergie — une intégration Home Assistant pour tarifs, énergie, coûts, solaire, batteries et diagnostics.",
+        "Hub Énergie — une seule intégration Home Assistant pour tarifs, énergie, coûts, solaire, batteries et diagnostics.",
       "meta.title.internals": "Hub Énergie — Coulisses techniques",
       "meta.description.internals":
-        "Comment Hub Énergie attribue les kWh aux créneaux tarifaires, persiste l’état et enregistre les statistiques long terme dans Home Assistant.",
+        "Comment Hub Énergie ventile les kWh par créneau tarifaire, persiste l’état et enregistre les statistiques long terme dans Home Assistant.",
 
       "nav.home": "Accueil",
       "nav.documentation": "Documentation",
-      "nav.internals": "Fonctionnement détaillé",
-      "nav.internals_short": "Coulisses",
+      "nav.internals": "Détails d’implémentation",
+      "nav.internals_short": "Technique",
 
-      "doc.hero_internals_cta": "Fonctionnement détaillé",
+      "doc.hero_internals_cta": "Détails d’implémentation",
       "doc.hero_internals_hint":
-        "Attribution des créneaux, compartiments journaliers, fichier Store et statistiques long terme — pour comprendre toute la chaîne.",
+        "Attribution des créneaux, compartiments par jour civil, fichier Store et statistiques long terme — pour suivre toute la chaîne de traitement.",
 
-      "landing.kicker": "Home Assistant · Intelligence énergétique",
-      "landing.headline": "Centralisez la lecture énergétique de votre site",
+      "landing.kicker": "Home Assistant · Pilotage énergétique",
+      "landing.headline": "Centralisez l’énergie de votre logement",
       "landing.lead_html":
-        "Une seule intégration relie tarif, compteurs, solaire, batteries, coûts et diagnostics — vous configurez une fois et Home Assistant affiche une vision cohérente.",
+        "Une seule intégration relie tarif, compteurs, solaire, batteries, coûts et diagnostics : configurez une fois, puis consultez une vue cohérente dans Home Assistant.",
       "landing.cta_discover": "Découvrir",
-      "landing.cta_internals": "Comment ça marche",
+      "landing.cta_internals": "Fonctionnement interne",
       "landing.cta_discover_footer": "Voir la documentation",
-      "landing.version_note": "Instantané de documentation v0.2.3",
+      "landing.version_note": "Documentation figée v0.2.3",
       "landing.f1_title": "Centralisation réelle",
       "landing.f1_body":
-        "Offre, réseau, solaire, appareils par batterie, bilan énergétique, coûts et diagnostics sont regroupés sous une même intégration, plutôt que dispersés en helpers et gabarits.",
-      "landing.f2_title": "Comptabilité au pas du tarif",
+        "Offre, réseau, solaire, appareils par batterie, bilan énergétique, coûts et diagnostics sont regroupés dans une même intégration, au lieu d’être éclatés entre helpers et modèles.",
+      "landing.f2_title": "Comptabilité alignée sur le tarif",
       "landing.f2_body":
-        "Les deltas de vos compteurs kWh sont répartis dans les créneaux tarifaires (y compris Tempo EDF) selon des règles explicites, avec repli et observabilité si les signaux manquent.",
-      "landing.f3_title": "Coûts calés sur l’usage",
+        "Les deltas positifs de vos compteurs kWh sont ventilés par créneau tarifaire (dont Tempo EDF) selon des règles explicites, avec repli et visibilité lorsque les signaux manquent.",
+      "landing.f3_title": "Coûts calés sur la consommation",
       "landing.f3_body":
-        "Estimations journalières, abonnement et détail par créneau restent alignés sur le même instantané que la carte Lovelace.",
+        "Estimations journalières, part d’abonnement et détail par créneau restent alignés sur le même instantané que celui lu par la carte Lovelace.",
       "landing.f4_title": "Historique durable",
       "landing.f4_body":
-        "Les capteurs SSOT internes reflètent les cumuls ; chaque jour terminé (Paris) alimente les statistiques long terme pour analyses et graphiques.",
+        "Les capteurs SSOT internes reflètent les cumuls en cours ; chaque jour civil terminé (Europe/Paris) est écrit en statistiques long terme pour l’analyse et les graphiques.",
       "landing.f5_title": "Carte intégrée",
       "landing.f5_body":
-        "Un paquet Lovelace maintenu est servi par votre instance sous /hub_energie/ — sans projet front séparé à héberger.",
-      "landing.f6_title": "Diagnostics sans langue de bois",
+        "Un paquet Lovelace maintenu est servi par votre instance Home Assistant sous /hub_energie/, sans frontend distinct à héberger.",
+      "landing.f6_title": "Diagnostics transparents",
       "landing.f6_body":
-        "Santé, qualité des données, télémétrie des deltas et indices de confiance indiquent quand les entrées sont partielles ou lorsque l’intégration reconstruit l’état.",
+        "Santé, qualité des données, télémétrie des deltas et indicateurs de confiance signalent les entrées incomplètes ou une reconstruction d’état en cours.",
       "landing.footer_html":
         "Hub Énergie · <a href=\"#/doc\">Documentation</a> · <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab</a>",
 
@@ -448,69 +448,69 @@
       "toc.internals_slots": "Créneaux tarifaires",
       "toc.internals_attribution": "Attribution de créneau",
       "toc.internals_deltas": "Deltas & politique",
-      "toc.internals_day": "Fuseau horaire et journée (Paris)",
+      "toc.internals_day": "Compartiments par jour civil (TZ Paris)",
       "toc.internals_store": "Fichier Store",
       "toc.internals_lts": "Statistiques long terme",
       "toc.internals_rebuild": "Reconstruction Recorder",
       "toc.internals_telemetry": "Télémétrie et qualité",
 
       "internals.kicker": "Notes d’implémentation",
-      "internals.title": "Fonctionnement détaillé",
+      "internals.title": "Détails d’implémentation",
       "internals.subtitle":
-        "Logique métier pour classer l’énergie par créneaux tarifaires, persister les cumuls et enregistrer chaque jour de kWh dans les statistiques Home Assistant — sans remplacer vos compteurs physiques comme référence.",
+        "Comment l’énergie est classée par créneau tarifaire, comment les cumuls sont persistés et comment les kWh journaliers sont enregistrés dans les statistiques Home Assistant — tout en conservant vos compteurs physiques comme référence.",
       "internals.back_to_doc": "Retour à la documentation",
       "internals.s_overview_h": "Chaîne de bout en bout",
       "internals.s_overview_p1":
-        "D’ensemble : le coordinateur surveille les entités énergie configurées (kWh total_increasing). Chaque delta positif reçoit le créneau tarifaire actif à l’instant du delta (Europe/Paris), puis est cumulé en totaux par source et en compartiments jour / créneau. Une fois le jour calendaire (Paris) terminé, ces compartiments alimentent les statistiques externes de Home Assistant pour des graphiques durables par créneau et par source. Un Store JSON conserve les sommes courantes et les cartes de jours récents pour des redémarrages cohérents.",
+        "Vue d’ensemble : le coordinateur surveille les entités énergie configurées (kWh total_increasing). Chaque delta positif est étiqueté avec le créneau tarifaire actif au moment du delta (Europe/Paris), puis cumulé en totaux par source et en compartiments jour / créneau. Une fois le jour civil terminé dans ce fuseau, ces compartiments alimentent les statistiques externes de Home Assistant pour des graphiques durables par créneau et par source. Un Store JSON conserve les sommes courantes et les cartes des jours récents afin de garder des redémarrages cohérents.",
       "internals.s_overview_p2_html":
-        "L’historique Recorder des entités choisies reste la SSOT externe pour les valeurs brutes de compteur ; les capteurs SSOT de l’intégration exposent les totaux <strong class=\"text-body\">accumulés en interne</strong> utilisés pour le découpage par créneau et les instantanés de coût.",
+        "L’historique Recorder des entités sélectionnées reste la SSOT externe pour les lectures brutes des compteurs ; les capteurs SSOT de l’intégration exposent les totaux <strong class=\"text-body\">accumulés en interne</strong> servant au découpage par créneau et aux instantanés de coût.",
       "internals.s_sources_h": "Sources d’énergie (clés accumulateur)",
       "internals.s_sources_p1":
-        "Chaque compteur configuré est associé à une clé source (ex. import réseau, export, solaire, charge et décharge par batterie). L’ensemble attendu dépend de votre configuration : seules les sources liées à une entité participent aux écritures de statistiques. En triphasé, des entités « virtuelles » sommées peuvent servir à la compta tout en s’appuyant sur vos compteurs par phase en amont.",
+        "Chaque compteur configuré est associé à une clé source (ex. import réseau, export, solaire, charge et décharge par batterie). L’ensemble attendu découle de votre configuration : seules les sources liées à une entité participent aux écritures de statistiques. En triphasé, des entités « virtuelles » sommées peuvent servir à la comptabilité tout en s’appuyant en amont sur vos compteurs par phase.",
       "internals.s_sources_p2":
-        "Comme l’écriture en statistiques long terme exige une matrice complète des sources pour un jour terminé, un jour est ignoré si une source attendue manque dans la carte jour interne — ce qui évite d’écrire silencieusement des données partielles.",
+        "L’écriture en statistiques long terme exige une matrice complète des sources pour un jour terminé ; si une source attendue manque dans la carte jour interne, ce jour est ignoré — ce qui évite d’écrire silencieusement des données partielles.",
       "internals.s_slots_h": "Grille de créneaux tarifaires",
       "internals.s_slots_p1_html":
-        "EDF Tempo définit six bandes de prix encodées en identifiants de créneau : <code class=\"font-mono\">bleu_hc</code>, <code class=\"font-mono\">bleu_hp</code>, <code class=\"font-mono\">blanc_hc</code>, <code class=\"font-mono\">blanc_hp</code>, <code class=\"font-mono\">rouge_hc</code>, <code class=\"font-mono\">rouge_hp</code>. BASE se résume au HP ; HPHC n’en utilise que deux, mappés sur la même convention de noms ; hors EDF, les tarifs manuels réutilisent les noms HC/HP pour rester compatibles alors que les prix viennent de vos tableaux.",
+        "EDF Tempo définit six bandes tarifaires encodées en identifiants de créneau : <code class=\"font-mono\">bleu_hc</code>, <code class=\"font-mono\">bleu_hp</code>, <code class=\"font-mono\">blanc_hc</code>, <code class=\"font-mono\">blanc_hp</code>, <code class=\"font-mono\">rouge_hc</code>, <code class=\"font-mono\">rouge_hp</code>. BASE se ramène au HP seul ; HPHC n’en utilise que deux, selon la même convention de nommage ; hors EDF, les tarifs manuels conservent les identifiants HC/HP pour la compatibilité, les prix provenant de vos grilles.",
       "internals.s_slots_p2_html":
-        "Un compartiment d’attribution <code class=\"font-mono\">unknown</code> n’existe qu’en temps réel lorsqu’aucun créneau canonique n’est résolu. Les jours finalisés écrits dans les statistiques du Recorder utilisent les six créneaux canoniques ; le compartiment inconnu apparaît surtout dans les diagnostics pour transparence.",
+        "Un compartiment d’attribution <code class=\"font-mono\">unknown</code> n’existe qu’en temps réel lorsqu’aucun créneau canonique n’est résolu. Les jours finalisés écrits dans les statistiques du Recorder n’emploient que les six créneaux canoniques ; le compartiment inconnu est surtout visible dans les diagnostics, pour la transparence.",
       "internals.s_attr_h": "Comment un delta choisit un créneau",
       "internals.s_attr_p1":
-        "Lors de l’application d’un delta, le coordinateur résout le créneau courant dans l’ordre : résolveur principal (calendrier ou couleur Tempo, capteur de créneau optionnel, règles horaires HC/HP), puis dernier créneau stable connu si le résultat principal est ambigu, puis repli « horaire seul » à partir des champs EDF figés et de l’heure Paris. Si rien ne correspond à un créneau canonique, l’attribution est « inconnue » — l’énergie est toutefois accumulée pour ne pas être perdue silencieusement.",
+        "Lors de l’application d’un delta, le coordinateur résout le créneau courant dans cet ordre : résolveur principal (calendrier ou couleur Tempo, capteur de créneau optionnel, règles HC/HP sur l’horloge), puis dernier créneau stable connu si le résultat principal est ambigu, puis repli « horaire seul » à partir des champs EDF figés et de l’heure Paris. Si rien ne correspond à un créneau canonique, l’attribution est inconnue — l’énergie est néanmoins accumulée pour éviter toute perte silencieuse.",
       "internals.s_attr_p2_html":
-        "La méthode de résolution est enregistrée avec le delta (<code class=\"font-mono\">direct</code>, <code class=\"font-mono\">fallback_last_known</code>, <code class=\"font-mono\">fallback_schedule</code>, <code class=\"font-mono\">unknown</code>) afin que les diagnostics expliquent pourquoi un compartiment a grossi.",
-      "internals.s_delta_h": "Politique des deltas (bruit & reprises)",
+        "La méthode de résolution est enregistrée avec le delta (<code class=\"font-mono\">direct</code>, <code class=\"font-mono\">fallback_last_known</code>, <code class=\"font-mono\">fallback_schedule</code>, <code class=\"font-mono\">unknown</code>) afin que les diagnostics expliquent l’évolution d’un compartiment.",
+      "internals.s_delta_h": "Politique des deltas (bruit et reprises)",
       "internals.s_delta_p1":
-        "Seuls les deltas positifs comptent dans les totaux de consommation. De petits pas négatifs peuvent être du bruit de compteur (re-base sans énergie) ; de plus grands écarts négatifs peuvent déclencher réancrage ou rejet selon les seuils. Des plafonds limitent les spikes aberrants.",
+        "Seuls les deltas positifs comptent dans les totaux de consommation. De petits pas négatifs peuvent être assimilés au bruit du compteur (re-baselining sans énergie consommée) ; des écarts négatifs plus marqués peuvent déclencher réancrage ou rejet selon les seuils. Des plafonds limitent les pics aberrants.",
       "internals.s_delta_p2":
-        "La dérive entre la lecture compteur externe et la somme interne est suivie par source pour que le modèle de santé signale des états incohérents ou dégradés sans fausser silencieusement les coûts.",
-      "internals.s_day_h": "Fuseau horaire (Paris)",
+        "La dérive entre la lecture du compteur externe et la somme interne est suivie par source afin que le modèle de santé signale des états incohérents ou dégradés sans fausser silencieusement les coûts.",
+      "internals.s_day_h": "Bascule de fin de jour (TZ Paris)",
       "internals.s_day_p1":
-        "Les journées suivent la date locale Europe/Paris — alignée avec les calendriers Tempo et les plages HC/HP. Lors de la maintenance de minuit, l’intégration finalise les compartiments de la veille, les persiste, écrit les statistiques Recorder pour ce jour ISO, purge d’anciennes lignes d’accumulateur devenues inutiles, et rafraîchit l’instantané public.",
+        "Les journées suivent la date locale Europe/Paris — alignée sur les calendriers Tempo et les fenêtres HC/HP. Lors de la maintenance de minuit, l’intégration finalise les compartiments de la veille, les persiste, écrit les statistiques Recorder pour ce jour ISO, purge les lignes d’accumulateur devenues inutiles et rafraîchit l’instantané public.",
       "internals.s_day_p2":
-        "Si Home Assistant était arrêté à la frontière, des écritures de rattrapage peuvent avoir lieu au redémarrage : le Store mémorise les jours déjà exportés pour limiter les doublons statistiques lorsque c’est possible.",
+        "Si Home Assistant était hors ligne à la frontière de jour, des écritures de rattrapage peuvent s’exécuter au redémarrage : le Store mémorise les jours déjà exportés afin de limiter les doublons statistiques lorsque c’est possible.",
       "internals.s_store_h": "Fichier Store",
       "internals.s_store_p1_html":
-        "L’intégration persiste les totaux par source, une carte <code class=\"font-mono\">slot_day_kwh[jour][source][créneau]</code>, les dernières lectures brutes, les ancres de dérive, les jours statistiques déjà écrits, des diagnostics optionnels (réinjection / part charge batterie), et les derniers planchers cumulatifs pour les métadonnées des statistiques long terme. Des sauvegardes différées limitent l’usure disque.",
+        "L’intégration persiste les totaux par source, une carte <code class=\"font-mono\">slot_day_kwh[jour][source][créneau]</code>, les dernières lectures brutes, les ancres de dérive, les jours statistiques déjà écrits, des diagnostics optionnels (export réseau / ventilation charge batterie), et les derniers planchers cumulatifs pour les métadonnées des statistiques long terme. Des sauvegardes différées réduisent la sollicitation du disque.",
       "internals.s_store_p2":
-        "Si le Store est corrompu ou trop peu fiable, un chemin protégé peut reconstruire les totaux internes depuis l’historique Recorder pour les jours terminés avant de reprendre — avec un état de confiance « rebuilding » entre-temps.",
+        "Si le Store est corrompu ou jugé peu fiable, un chemin protégé peut reconstruire les totaux internes depuis l’historique Recorder pour les jours terminés avant de reprendre le fonctionnement normal — avec un état de confiance « rebuilding » entre-temps.",
       "internals.s_lts_h": "Enregistrement en statistiques long terme",
       "internals.s_lts_p1_html":
-        "Pour chaque jour terminé et chaque paire <em>(source, créneau)</em> parmi les six créneaux Tempo canoniques, l’intégration appelle l’API des statistiques externes avec une somme <code class=\"font-mono\">TOTAL_INCREASING</code>. Les identifiants ressemblent à <code class=\"font-mono\">hub_energie:slot_&lt;source&gt;_&lt;créneau&gt;_kwh</code> avec une partie source normalisée pour l’id. L’incrément journalier s’ajoute au cumul précédent stocké avec le Store pour que le Recorder voie une série monotone continue par série.",
+        "Pour chaque jour terminé et chaque paire <em>(source, créneau)</em> parmi les six créneaux Tempo canoniques, l’intégration appelle l’API des statistiques externes avec une somme <code class=\"font-mono\">TOTAL_INCREASING</code>. Les identifiants suivent la forme <code class=\"font-mono\">hub_energie:slot_&lt;source&gt;_&lt;slot&gt;_kwh</code> avec une partie source normalisée pour l’id. L’incrément journalier s’ajoute au cumul précédent stocké avec le Store pour que le Recorder voie une série monotone continue par statistique.",
       "internals.s_lts_p2":
-        "Ces séries sont la base préférée pour l’analyse historique par créneau — plus légère que l’exploitation brute d’attributs, et alignée sur ce qu’attend le tableau Énergie.",
+        "Ces séries sont la base privilégiée pour l’analyse historique par créneau — plus légère que l’extraction d’attributs bruts, et alignée sur la façon dont le tableau Énergie consomme les statistiques.",
       "internals.s_rebuild_h": "Reconstruction pilotée par le Recorder",
       "internals.s_rebuild_p1":
-        "Quand c’est faisable, l’intégration rejoue d’anciens échantillons de statistiques externes pour retrouver les totaux journaliers par créneau et reconstruire la carte des planchers cumulatifs — puis se réconcilie avec les lectures courantes. Ces séries long terme vivent dans le Recorder tandis que les matrices jour / créneau détaillées vivent dans le Store ; les deux doivent rester alignés après restauration ou migration.",
+        "Lorsque c’est possible, l’intégration rejoue d’anciens échantillons de statistiques externes pour retrouver les totaux journaliers par créneau et reconstruire la carte des planchers cumulatifs — puis se réconcilie avec les lectures courantes. Les séries long terme résident dans la base Recorder tandis que les matrices jour / créneau détaillées résident dans le Store ; les deux doivent rester alignées après restauration ou migration.",
       "internals.s_rebuild_p2_html":
-        "Si le Recorder est momentanément indisponible, l’étape est ignorée avec un avertissement ; l’intégration continue, mais consultez <code class=\"font-mono\">docs/troubleshooting.md</code> si les capteurs santé / confiance se plaignent après une opération lourde sur la base.",
+        "Si le Recorder est momentanément indisponible, l’étape est ignorée avec un avertissement ; l’intégration poursuit son fonctionnement, mais consultez <code class=\"font-mono\">docs/troubleshooting.md</code> si les capteurs santé / confiance signalent un problème après une opération lourde sur la base.",
       "internals.s_tel_h": "Télémétrie, compartiment inconnu, santé",
       "internals.s_tel_p1":
-        "La télémétrie par source expose horodatages, kWh appliqués, créneau attribué, méthode de résolution, intervalles entre applications et dérive par rapport au compteur. Des compteurs de rejets et le dernier motif d’échec aident le support. Un statut d’entrée séparé signale entités manquantes ou indisponibles avant tout calcul.",
+        "La télémétrie par source inclut les horodatages, les kWh appliqués, le créneau attribué, la méthode de résolution, les intervalles entre applications et la dérive par rapport au compteur. Des compteurs de rejets et le dernier motif d’échec facilitent le diagnostic. Un statut d’entrée distinct signale les entités manquantes ou indisponibles avant tout calcul énergétique.",
       "internals.s_tel_p2_html":
-        "Le capteur santé / confiance agrège ces signaux en états simples (<code class=\"font-mono\">ok</code>, <code class=\"font-mono\">degraded</code>, <code class=\"font-mono\">rebuilding</code>, <code class=\"font-mono\">inconsistent</code>) avec des causes lisibles — les mêmes que la carte peut montrer en diagnostics.",
+        "Le capteur santé / confiance agrège ces signaux en états simples (<code class=\"font-mono\">ok</code>, <code class=\"font-mono\">degraded</code>, <code class=\"font-mono\">rebuilding</code>, <code class=\"font-mono\">inconsistent</code>) avec des causes lisibles — les mêmes informations que la carte Lovelace peut afficher dans les vues de diagnostic.",
       "internals.footer_html":
-        "Pour l’installation côté utilisateur, revenez à la <a href=\"#/doc\">documentation principale</a> ou au <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">dépôt GitLab</a>.",
+        "Pour la mise en service côté utilisateur, revenez à la <a href=\"#/doc\">documentation principale</a> ou au <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">dépôt GitLab</a>.",
 
       "nav.contents": "Sommaire",
       "theme.group_aria": "Thème d’affichage",
@@ -540,11 +540,11 @@
       "toc.devices_gallery": "Dans Home Assistant",
 
       "common.img_placeholder": "Capture absente — ajoutez le fichier sous",
-      "common.image_open_full": "Cliquer ou Entrée pour agrandir",
+      "common.image_open_full": "Cliquez ou appuyez sur Entrée pour agrandir",
 
       "doc.modal_aria": "Capture en grand",
       "doc.modal_close_aria": "Fermer",
-      "doc.modal_hint": "Image en pleine largeur : faites défiler cette fenêtre si besoin.",
+      "doc.modal_hint": "Image affichée en pleine largeur : faites défiler cette fenêtre si nécessaire.",
 
       "carousel.prev": "Précédent",
       "carousel.next": "Suivant",
@@ -555,37 +555,37 @@
       "hero.kicker": "Home Assistant · Intégration personnalisée",
       "hero.title": "Suivi énergétique, coûts & diagnostic",
       "hero.lead_html":
-        "Configurez fournisseurs et tarifs, suivez les kWh et le coût journalier, avec estimation solaire optionnelle et multi-batteries — et une carte Lovelace servie depuis <code class=\"font-mono small\">/hub_energie/</code>.",
+        "Configurez fournisseurs et tarifs, suivez les kWh et le coût journalier, avec estimation solaire optionnelle et prise en charge multi-batteries — ainsi qu’une carte Lovelace servie depuis <code class=\"font-mono small\">/hub_energie/</code>.",
 
       "glance.title": "En bref",
       "glance.ha": "<strong class=\"text-body\">HA</strong> 2024.10.0 ou plus récent",
-      "glance.snapshot": "Instantané doc <span class=\"badge bg-primary badge-doc\">v0.2.3</span>",
+      "glance.snapshot": "Doc figée <span class=\"badge bg-primary badge-doc\">v0.2.3</span>",
       "glance.issues": "Tickets & retours",
 
       "overview.title": "Vue d’ensemble",
       "overview.intro":
-        "Cette page complète le README. Pour une première installation, suivez les étapes ci-dessous dans l’ordre.",
+        "Cette page prolonge le README. Pour une première installation, suivez les étapes ci-dessous dans l’ordre.",
 
       "scope.stable_heading": "Périmètre stable visé (v0.2.x)",
       "scope.stable_li1_html":
-        "<strong class=\"text-body\">Assistant de config :</strong> fournisseur (EDF ou personnalisé), tarif (prix unique, HP/HC, multi-creuses, Tempo EDF + RTE/API/capteur), réseau et câblage solaire/batteries optionnel.",
+        "<strong class=\"text-body\">Assistant de configuration :</strong> fournisseur (EDF ou personnalisé), tarif (prix unique, HP/HC, multi-creuses, Tempo EDF + RTE/API/capteur), réseau et câblage solaire ou batteries optionnel.",
       "scope.stable_li2_html":
-        "<strong class=\"text-body\">Énergie :</strong> deltas positifs sur compteurs <code class=\"font-mono\">total_increasing</code> → comptabilisation par créneau et jour (jour Paris) et capteurs SSOT totaux gérés par l’intégration.",
+        "<strong class=\"text-body\">Énergie :</strong> deltas positifs sur compteurs <code class=\"font-mono\">total_increasing</code> → ventilation par créneau et par jour civil (Europe/Paris), capteurs SSOT de totaux gérés par l’intégration.",
       "scope.stable_li3_html":
-        "<strong class=\"text-body\">Coûts :</strong> estimation journalière (€), abonnement lissé, détail par créneau dans les attributs.",
+        "<strong class=\"text-body\">Coûts :</strong> estimation journalière (€), répartition de l’abonnement, détail par créneau dans les attributs.",
       "scope.stable_li4_html":
         "<strong class=\"text-body\">EDF Tempo :</strong> couleurs, quotas, prochains changements.",
       "scope.stable_li5_html":
-        "<strong class=\"text-body\">Diagnostics :</strong> export/réinjection, qualité des données, télémétrie des deltas, créneau inconnu, obsolescence ; capteur <strong class=\"text-body\">santé</strong> (<code class=\"font-mono\">ok</code> / <code class=\"font-mono\">degraded</code> / <code class=\"font-mono\">rebuilding</code> / <code class=\"font-mono\">inconsistent</code> / <code class=\"font-mono\">no_input</code>) avec cause lisible.",
-      "scope.stable_li6_html": "PV « ciel clair » optionnel et revente solaire si configurée.",
+        "<strong class=\"text-body\">Diagnostics :</strong> ventilation de l’export réseau, qualité des données, télémétrie des deltas, créneau inconnu, obsolescence ; capteur <strong class=\"text-body\">santé</strong> (<code class=\"font-mono\">ok</code> / <code class=\"font-mono\">degraded</code> / <code class=\"font-mono\">rebuilding</code> / <code class=\"font-mono\">inconsistent</code> / <code class=\"font-mono\">no_input</code>) avec cause lisible.",
+      "scope.stable_li6_html": "Production PV « ciel clair » optionnelle et revente solaire si configurée.",
       "scope.stable_li7_html":
         "Lovelace : les paquets précompilés dans <code class=\"font-mono\">frontend/dist/</code> sont versionnés dans le dépôt ; Home Assistant les sert sous <code class=\"font-mono\">/hub_energie/</code>.",
 
-      "scope.exp_heading": "Expérimental / au mieux",
+      "scope.exp_heading": "Expérimental / meilleur effort",
       "scope.exp_li1":
-        "Répartition de l’origine de la charge batterie par bilans de puissance lorsque les capteurs sont partiels ou bruités.",
+        "Ventilation de l’origine de la charge batterie à partir des bilans de puissance lorsque les capteurs sont partiels ou bruités.",
       "scope.exp_li2": "Estimation de production solaire (modèle, pas un compteur physique).",
-      "scope.exp_li3": "Diagnostics de type coût d’opportunité pour les kWh exportés.",
+      "scope.exp_li3": "Indicateurs de type coût d’opportunité pour les kWh exportés.",
 
       "scope.disclaimer_html":
         "Le comportement dépend de votre matériel et du choix des entités (notamment le tableau Énergie). Les listes ci-dessus décrivent l’objectif, pas une garantie pour tous les cas limites.",
@@ -594,22 +594,22 @@
 
       "ssot.title": "Sources de données (SSOT)",
       "ssot.intro":
-        "Savoir ce qui fait foi évite de mal paramétrer le tableau Énergie ou de lire les mauvais attributs.",
+        "Identifier les données qui font foi limite les erreurs de paramétrage du tableau Énergie et la lecture d’attributs inadaptés.",
       "ssot.s1_title": "Compteurs physiques (SSOT externe)",
       "ssot.s1_html":
-        "Les entités énergie que vous sélectionnez (<code class=\"font-mono\">grid_import_energy</code>, solaire, export, entrées/sorties par batterie). L’<strong class=\"text-body\">historique Recorder</strong> fait foi pour les kWh totaux (matériel ou intégrations amont).",
+        "Les entités énergie que vous sélectionnez (<code class=\"font-mono\">grid_import_energy</code>, solaire, export, entrées/sorties par batterie). L’<strong class=\"text-body\">historique Recorder</strong> fait autorité pour les kWh totaux issus du matériel ou d’intégrations en amont.",
 
       "ssot.s2_title": "Comptabilité interne",
       "ssot.s2_html":
         "Le coordinateur cumule les <strong class=\"text-body\">deltas positifs</strong> en totaux et kWh par créneau et jour. Les capteurs SSOT <code class=\"font-mono\">total_increasing</code> reflètent cette <strong class=\"text-body\">somme interne</strong>, pas une relecture intégrale du compteur à chaque cycle.",
 
-      "ssot.s3_title": "kWh long-terme par créneau (quotidien)",
+      "ssot.s3_title": "kWh long terme par créneau (quotidien)",
       "ssot.s3_html":
-        "Après chaque jour (Paris), écriture des statistiques externes <code class=\"font-mono\">hub_energie:slot_&lt;source&gt;_&lt;slot&gt;_kwh</code>. À utiliser (ou les compteurs physiques) pour l’analyse historique — pas seul l’historique brut d’attribut <code class=\"font-mono\">cost_detail</code>.",
+        "Après chaque jour civil (Europe/Paris), écriture des statistiques externes <code class=\"font-mono\">hub_energie:slot_&lt;source&gt;_&lt;slot&gt;_kwh</code>. À privilégier (avec les compteurs physiques) pour l’analyse historique — pas seul l’historique brut d’attribut <code class=\"font-mono\">cost_detail</code>.",
 
       "install.title": "Installation",
       "install.intro_html":
-        "Installez le dépôt <strong class=\"text-body\">exactement</strong> comme un seul paquet sous la config HA :",
+        "Installez l’intégration <strong class=\"text-body\">exactement</strong> comme un seul paquet sous la configuration HA :",
       "install.note_html":
         "Home Assistant doit charger <code class=\"font-mono\">custom_components/hub_energie/manifest.json</code>. Évitez un dossier imbriqué du type <code class=\"font-mono\">hub_energie/hub_energie/</code>.",
       "install.choose_path": "Choisissez votre méthode",
@@ -617,14 +617,14 @@
       "tab.git": "Clone Git",
       "tab.copy": "Copie des fichiers",
 
-      "install.hacs_tba_heading": "Catalogue HACS public — à confirmer",
+      "install.hacs_tba_heading": "Catalogue HACS public — statut à confirmer",
       "install.hacs_tba_html":
-        "<p class=\"mb-2\">Le catalogue public <strong class=\"text-body\">HACS</strong> repose surtout sur des dépôts <strong class=\"text-body\">GitHub</strong> (<a href=\"https://hacs.xyz/docs/publish/start/\" target=\"_blank\" rel=\"noopener noreferrer\">règles de publication</a>). Ce projet est sur <strong class=\"text-body\">GitLab</strong> : une entrée « rechercher et installer » dans le catalogue par défaut n’est <strong class=\"text-body\">pas encore assurée</strong>.</p><p class=\"mb-0\">Pour l’instant privilégiez <strong class=\"text-body\">Clone Git</strong> ou <strong class=\"text-body\">Copie des fichiers</strong> (onglets ci-dessus). Si votre version de HACS accepte les <strong class=\"text-body\">dépôts personnalisés</strong> avec une URL GitLab, vous pouvez tenter cette voie — le comportement varie selon les versions. Après installation, effectuez toujours un <strong class=\"text-body\">redémarrage complet</strong> de Home Assistant.</p>",
+        "<p class=\"mb-2\">Le catalogue public <strong class=\"text-body\">HACS</strong> est structuré autour de dépôts hébergés sur <strong class=\"text-body\">GitHub</strong> (<a href=\"https://hacs.xyz/docs/publish/start/\" target=\"_blank\" rel=\"noopener noreferrer\">règles de publication</a>). Ce projet est hébergé sur <strong class=\"text-body\">GitLab</strong> : l’installation en un clic depuis le catalogue par défaut n’est <strong class=\"text-body\">pas encore garantie</strong>.</p><p class=\"mb-0\">En attendant, privilégiez <strong class=\"text-body\">Clone Git</strong> ou <strong class=\"text-body\">Copie des fichiers</strong> (onglets ci-dessus). Si votre version de HACS prend en charge les <strong class=\"text-body\">dépôts personnalisés</strong> avec une URL GitLab, vous pouvez tenter cette voie — le comportement varie selon la version. Après installation, effectuez toujours un <strong class=\"text-body\">redémarrage complet</strong> de Home Assistant.</p>",
 
       "install.git.s1_title": "Cloner au bon endroit",
       "install.git.s2_title": "Redémarrer & ajouter l’intégration",
       "install.git.s2_p_html":
-        "Redémarrage <strong>complet</strong> de Home Assistant, puis <a href=\"#configure\">Configurer dans HA</a> (Réglages → Appareils et services → Ajouter une intégration).",
+        "Effectuez un redémarrage <strong>complet</strong> de Home Assistant, puis <a href=\"#configure\">Configurer dans HA</a> (Réglages → Appareils et services → Ajouter une intégration).",
 
       "install.copy.s1_title": "Copier l’arborescence complète",
       "install.copy.s1_html":
@@ -634,17 +634,17 @@
 
       "install.lovelace_title": "Si vous utilisez la carte Lovelace",
       "install.lovelace_body_html":
-        "Les paquets sous <code class=\"font-mono\">frontend/dist/</code> sont inclus dans ce dépôt (recompilés en CI à chaque commit). Vous n’avez <strong class=\"text-body\">pas</strong> besoin de lancer <code class=\"font-mono\">npm</code> sur la machine Home Assistant pour une installation courante — redémarrez HA après mise à jour de l’intégration. Pour des installations reproductibles, alignez un tag Git sur <code class=\"font-mono\">manifest.json</code> → <code class=\"font-mono\">version</code> (ex. <strong class=\"text-body\">v0.2.3</strong>).",
+        "Les paquets sous <code class=\"font-mono\">frontend/dist/</code> sont versionnés dans ce dépôt (recompilés en CI à chaque commit). Vous n’avez <strong class=\"text-body\">pas</strong> besoin d’exécuter <code class=\"font-mono\">npm</code> sur l’hôte Home Assistant pour une installation standard — redémarrez HA après mise à jour de l’intégration. Pour des installations reproductibles, faites correspondre un tag Git avec <code class=\"font-mono\">manifest.json</code> → <code class=\"font-mono\">version</code> (ex. <strong class=\"text-body\">v0.2.3</strong>).",
       "install.lovelace_dev_html":
-        "<strong class=\"text-body\">Développement :</strong> pour recompiler en local, depuis <code class=\"font-mono\">custom_components/hub_energie/frontend/</code> exécutez <code class=\"font-mono\">npm ci</code> puis <code class=\"font-mono\">npm run build</code>.",
+        "<strong class=\"text-body\">Développement :</strong> pour reconstruire en local, depuis <code class=\"font-mono\">custom_components/hub_energie/frontend/</code>, exécutez <code class=\"font-mono\">npm ci</code> puis <code class=\"font-mono\">npm run build</code>.",
 
       "lovelace.title": "Carte Lovelace",
       "lovelace.intro_html":
-        "Les artefacts de build (<code class=\"font-mono\">hub-energie-card-boot.js</code>, <code class=\"font-mono\">hub-energie-card.js</code>, <code class=\"font-mono\">hub-energie-card-editor.js</code> et les morceaux partagés sous <code class=\"font-mono\">frontend/dist/</code>) sont livrés dans le dépôt et régénérés en CI à chaque commit. Home Assistant sert l’arborescence <code class=\"font-mono\">dist</code> sous <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>. Depuis la <strong class=\"text-body\">v0.2.3</strong>, la bande optionnelle <strong class=\"text-body\">Production solaire (énergie)</strong> répartit les kWh (autoconso, charge batterie, export attribué) pour le jour ou la période affichée sur la carte.",
+        "Les artefacts de build (<code class=\"font-mono\">hub-energie-card-boot.js</code>, <code class=\"font-mono\">hub-energie-card.js</code>, <code class=\"font-mono\">hub-energie-card-editor.js</code> et les fragments partagés sous <code class=\"font-mono\">frontend/dist/</code>) sont livrés dans le dépôt et régénérés en CI à chaque commit. Home Assistant expose l’arborescence <code class=\"font-mono\">dist</code> sous <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>. Depuis la <strong class=\"text-body\">v0.2.3</strong>, la bande optionnelle <strong class=\"text-body\">Production solaire (énergie)</strong> ventile les kWh (autoconsommation, charge batterie, export attribué) pour le jour ou la plage affichée sur la carte.",
 
       "lovelace.l1_title": "Tableaux de bord en mode stockage (défaut)",
       "lovelace.l1_html":
-        "Au <strong class=\"text-body\">démarrage</strong> et lorsque vous <strong class=\"text-body\">rechargez</strong> l’intégration, elle ajoute ou met à jour cette URL avec un paramètre d’<strong class=\"text-body\">invalidation de cache</strong> <code class=\"font-mono\">?v=…</code> (comme <em>Réglages → Tableaux de bord → Ressources</em>) pour que le navigateur charge les nouveaux fichiers <code class=\"font-mono\">dist/</code>. En général, rien à faire à la main.",
+        "Au <strong class=\"text-body\">démarrage</strong> et lorsque vous <strong class=\"text-body\">rechargez</strong> l’intégration, elle ajoute ou met à jour cette URL avec un paramètre d’<strong class=\"text-body\">invalidation de cache</strong> <code class=\"font-mono\">?v=…</code> (comme <em>Réglages → Tableaux de bord → Ressources</em>) afin que le navigateur charge les nouveaux fichiers <code class=\"font-mono\">dist/</code>. En général, aucune action manuelle n’est nécessaire.",
 
       "lovelace.l2_title": "Ressources gérées en YAML",
       "lovelace.l2_p": "Ajoutez vous-même l’URL d’amorçage :",
@@ -656,20 +656,20 @@
       "lovelace.showcase_title": "Carte tableau de bord",
       "lovelace.fig_alt": "Carte Lovelace Hub Énergie sur un tableau de bord",
       "lovelace.fig_cap_html":
-        "Exemple en mode jour (Tempo, puissance instantanée, consommation, coûts, réinjection). Fichier : <code class=\"font-mono\">site/public/img/hub-energie-card.png</code>.",
+        "Exemple en mode jour (Tempo, puissance instantanée, consommation, coûts, export réseau). Fichier : <code class=\"font-mono\">site/public/img/hub-energie-card.png</code>.",
 
       "lovelace.editor_title": "Éditeur visuel",
       "lovelace.editor_intro_html":
-        "La carte dispose d’un éditeur complet (<code class=\"font-mono\">hub-energie-card-editor.js</code> dans le dépôt) pour régler la visibilité des sections, Tempo, la période et des entités optionnelles — sans YAML.",
+        "La carte inclut un éditeur complet (<code class=\"font-mono\">hub-energie-card-editor.js</code> dans le dépôt) pour ajuster la visibilité des sections, les contrôles Tempo, la plage de dates et les remplacements d’entités optionnels — sans YAML.",
       "lovelace.ed1_alt": "Éditeur carte Lovelace — onglet configuration et prévisualisation",
       "lovelace.editor_fig_cap_html":
         "Onglet <strong class=\"text-body\">Configuration</strong> avec bascules de sections et aperçu live. D’autres captures (ex. <strong class=\"text-body\">Visibilité</strong> / <strong class=\"text-body\">Mise en page</strong>) pourront compléter sous <code class=\"font-mono\">lovelace-editor-02.png</code>.",
 
       "configure.title": "Configurer dans Home Assistant",
       "configure.flow_lead_html":
-        "Après un <strong class=\"text-body\">redémarrage complet</strong>, ajoutez l’intégration via <strong class=\"text-body\">Réglages → Appareils et services → Ajouter une intégration</strong>. L’assistant n’est <strong class=\"text-body\">pas linéaire</strong> : les écrans dépendent du fournisseur, du mode auto/manuel des tarifs, du type d’offre EDF (BASE / HPHC / TEMPO), de la source Tempo, du câblage réseau mono/tri, du solaire et des batteries.",
+        "Après un <strong class=\"text-body\">redémarrage complet</strong>, ajoutez l’intégration via <strong class=\"text-body\">Réglages → Appareils et services → Ajouter une intégration</strong>. Le parcours n’est <strong class=\"text-body\">pas linéaire</strong> : les écrans dépendent du fournisseur, du mode auto ou manuel des tarifs, du type d’offre EDF (BASE / HPHC / TEMPO), de la source Tempo, du câblage réseau mono ou triphasé, du solaire et des batteries.",
 
-      "configure.flow_map_title": "Structure des embranchements",
+      "configure.flow_map_title": "Arborescence du flux de configuration",
       "configure.flow_map_html":
         "<ul class=\"mb-0 ps-3\"><li><strong class=\"text-body\">Départ</strong> · <em>user</em> — fournisseur (EDF ou autre) et type de phase sur le même formulaire.</li><li><strong class=\"text-body\">Autre fournisseur</strong> · <em>supplier_custom</em> (nom) → tarif forcé en <strong class=\"text-body\">manuel</strong> → <em>contract</em> → assistant prix manuel (prix unique / heures creuses / calendrier) → <strong class=\"text-body\">réseau → solaire → batteries → fin</strong>.</li><li><strong class=\"text-body\">EDF + tarifs automatiques</strong> · <em>tariff_mode</em> (API fournisseur ou manuel) → <em>contract</em> (kVA, nom optionnel) → <em>edf_offer</em> (BASE, HPHC ou TEMPO). Si <strong class=\"text-body\">TEMPO</strong> : <em>edf_tempo</em> — <strong class=\"text-body\">RTE</strong> (API OAuth) ou <strong class=\"text-body\">API Couleur Tempo</strong> (sans identifiants). RTE ajoute <em>edf_tempo_rte</em> (id + secret, validés). Puis récupération des tarifs EDF et enchaînement <strong class=\"text-body\">réseau → solaire → batteries → fin</strong>.</li><li><strong class=\"text-body\">EDF + tarifs manuels</strong> · pas d’écran offre/Tempo ; après <em>contract</em>, même branche prix manuel que « autre fournisseur ».</li><li><strong class=\"text-body\">Après résolution des prix</strong> · <em>grid</em> (import obligatoire ; export / puissance optionnels) ; le <strong class=\"text-body\">triphasé</strong> ajoute des sous-étapes. Puis <em>solar</em> (production, revente, estimation), puis assistant <em>batterie</em> (0..N), puis création de l’entrée.</li></ul>",
 
@@ -697,16 +697,16 @@
       "configure.flow_ex_5_alt": "Hub Énergie — source du signal Tempo",
       "configure.flow_ex_6_alt": "Hub Énergie — identifiants API RTE",
       "configure.flow_after_rte_html":
-        "Après identifiants valides (ou si vous choisissez <strong class=\"text-body\">API Couleur Tempo</strong>), les tarifs EDF sont récupérés puis viennent les <strong class=\"text-body\">capteurs réseau</strong> (import obligatoire ; le triphasé ajoute des écrans), puis le <strong class=\"text-body\">solaire</strong>, puis les <strong class=\"text-body\">batteries</strong>. Ces étapes ne sont pas encore illustrées — envoyez des captures si vous voulez les intégrer.",
+        "Après des identifiants valides (ou si vous choisissez <strong class=\"text-body\">API Couleur Tempo</strong>), les tarifs EDF sont récupérés, puis suivent les <strong class=\"text-body\">capteurs réseau</strong> (import obligatoire ; le triphasé ajoute des écrans), le <strong class=\"text-body\">solaire</strong> et les <strong class=\"text-body\">batteries</strong>. Ces étapes ne sont pas encore illustrées — partagez des captures d’écran si vous souhaitez les ajouter à la doc.",
 
       "devices.title": "Modèle d’appareils",
       "devices.intro":
-        "Un appareil Home Assistant par périmètre logique. Le placement des entités suit les domaines mesurés ou configurés ; voir <code class=\"font-mono\">CHANGELOG.md</code> pour le détail.",
+        "Un appareil Home Assistant par périmètre logique. Les entités sont regroupées selon les domaines mesurés ou configurés ; voir <code class=\"font-mono\">CHANGELOG.md</code> pour le détail.",
 
       "devices.integration_title": "Page de l’intégration",
       "devices.integration_alt": "Entrée Hub Énergie avec la liste des appareils",
       "devices.integration_cap_html":
-        "<strong class=\"text-body\">Réglages → Appareils et services → Hub Énergie</strong> : une entrée de configuration (pont) regroupe les appareils logiques — par ex. Offre, Réseau, Solaire, une ligne par batterie, la synthèse batteries, Bilan énergétique, Coûts, Diagnostics. Les libellés (ex. « Toutes batteries ») et le nombre d’entités varient selon votre installation.",
+        "<strong class=\"text-body\">Réglages → Appareils et services → Hub Énergie</strong> : une entrée de configuration (pont) regroupe les appareils logiques — par exemple Offre, Réseau, Solaire, une ligne par batterie, la synthèse batteries, Bilan énergétique, Coûts, Diagnostics. Les libellés (ex. « Toutes batteries ») et le nombre d’entités varient selon votre installation.",
 
       "devices.th_device": "Appareil",
       "devices.th_purpose": "Rôle",
@@ -717,13 +717,13 @@
       "devices.p_battsum": "Synthèse batteries agrégée",
       "devices.p_bilan": "Flux énergétiques calculés (kWh)",
       "devices.p_couts": "Montants (€)",
-      "devices.p_diag": "Santé, diagnostics réinjection",
+      "devices.p_diag": "Santé, diagnostics d’export réseau",
 
       "devices.gallery_title": "Appareils dans l’interface",
       "devices.gallery_intro_html":
         "Chaque appareil regroupe les entités associées. Ci-dessous, un volet par appareil pour illustrer la structure dans <strong class=\"text-body\">Réglages → Appareils et services</strong>.",
       "devices.gallery_multishot_html":
-        "Pour les appareils très fournis en entités, vous pourrez ajouter d’autres PNG (ex. <code class=\"font-mono\">device-ui-02-reseau-2.png</code>) — la doc pourra intégrer un carrousel imbriqué quand ces fichiers existeront.",
+        "Pour les appareils avec de nombreuses entités, vous pourrez ajouter d’autres PNG (ex. <code class=\"font-mono\">device-ui-02-reseau-2.png</code>) — la documentation pourra intégrer un carrousel imbriqué lorsque ces fichiers seront disponibles.",
       "devices.tree_label": "Appareil",
       "devices.g1_t": "Offre",
       "devices.g1_d": "Tarif, fournisseur, contrat",
@@ -740,7 +740,7 @@
       "devices.g7_t": "Coûts",
       "devices.g7_d": "Capteurs monétaires",
       "devices.g8_t": "Diagnostics",
-      "devices.g8_d": "Santé et réinjection",
+      "devices.g8_d": "Santé et export réseau",
       "devices.g1_alt": "Appareil Hub Énergie — Offre",
       "devices.g2_alt": "Appareil Hub Énergie — Réseau",
       "devices.g3_alt": "Appareil Hub Énergie — Solaire",
@@ -758,13 +758,13 @@
 
       "limitations.title": "Limites",
       "limitations.li1":
-        "La rétention du Recorder borne l’historique, les graphiques et la reconstruction depuis le Recorder.",
+        "La rétention du Recorder limite la profondeur d’historique, les graphiques et les scénarios de reconstruction depuis le Recorder.",
       "limitations.li2":
-        "L’estimation solaire optionnelle est un modèle « ciel clair » — indicative, pas un compteur de production.",
+        "L’estimation solaire optionnelle repose sur un modèle « ciel clair » — valeur indicative, pas un compteur de production.",
       "limitations.li3_html":
         "Le graphe de puissance de la carte repose sur les statistiques ; un <code class=\"font-mono\">state_class</code> manquant ou peu d’historique peut le laisser vide.",
       "limitations.li4_html":
-        "Les états de santé agrègent plusieurs contrôles ; un court <code class=\"font-mono\">rebuilding</code> après reconstruction via le Recorder est normal.",
+        "Les états de santé agrègent plusieurs contrôles ; une courte période <code class=\"font-mono\">rebuilding</code> après reconstruction via le Recorder est attendue.",
       "limitations.li5_html":
         "Détails : <code class=\"font-mono\">docs/troubleshooting.md</code> dans le dépôt (confiance, créneau inconnu, récupération).",
 
@@ -776,13 +776,13 @@
         "Valeurs issues de vos entités HA configurées (kWh <code class=\"font-mono\">total_increasing</code>, puissance si câblée).",
       "glossary.recon": "Reconstruit",
       "glossary.recon_d":
-        "Totaux internes et kWh par créneau à partir des deltas et rejouage Recorder optionnel.",
+        "Totaux internes et kWh par créneau dérivés des deltas et, le cas échéant, du rejouage Recorder.",
       "glossary.est": "Estimé",
       "glossary.est_d":
-        "Solaire modélisé et autres approximations lorsqu’il n’y a pas de compteur direct.",
+        "Solaire modélisé et autres approximations lorsqu’aucun compteur direct n’est disponible.",
 
       "footer.p1_html":
-        "Hub Énergie — instantané de documentation <strong class=\"text-body\">v0.2.3</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>.",
+        "Hub Énergie — documentation figée <strong class=\"text-body\">v0.2.3</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>.",
       "footer.license": "Licence : voir le dépôt.",
     },
   };
