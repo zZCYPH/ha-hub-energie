@@ -47,7 +47,8 @@ async def _async_register_card_http_route(hass: HomeAssistant) -> None:
     if not boot_file.is_file() or not core_file.is_file():
         _LOGGER.warning(
             "dist/hub-energie-card-boot.js and dist/hub-energie-card.js missing under frontend/. "
-            "Run npm run build in frontend/ before using the card."
+            "The repository normally includes these (rebuilt in CI); reinstall or run npm run build "
+            "in frontend/ if you use a trimmed copy without dist/."
         )
         return
 

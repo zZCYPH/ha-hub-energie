@@ -72,28 +72,12 @@ export class HubEnergieCardEditor extends LitElement {
   render() {
     const c = this._config ?? {};
     const i18n = this._i18n();
-    const gridSpan = Number(c.grid_span ?? 1);
-    const spanVal = Number.isFinite(gridSpan) ? Math.max(1, Math.min(3, Math.trunc(gridSpan))) : 1;
     const hoursRaw = parseFloat(c.power_history_hours);
     const hoursTrunc = Math.trunc(hoursRaw);
     const hoursVal = POWER_HISTORY_HOURS_SET.has(hoursTrunc) ? hoursTrunc : 6;
 
     return html`
       <div class="card-config">
-        <div class="field">
-          <ha-select
-            label=${i18n.editorGridWidth}
-            .value=${String(spanVal)}
-            @closed=${this._onGridSpanClosed}
-            .fixedMenuPosition=${true}
-            .naturalMenuWidth=${true}
-          >
-            <ha-list-item value="1">${i18n.editorGridSpanNarrow}</ha-list-item>
-            <ha-list-item value="2">${i18n.editorGridSpanDefault}</ha-list-item>
-            <ha-list-item value="3">${i18n.editorGridSpanFull}</ha-list-item>
-          </ha-select>
-        </div>
-
         <div class="field">
           <ha-select
             label=${i18n.editorPowerGraphWindow}
@@ -150,18 +134,9 @@ export class HubEnergieCardEditor extends LitElement {
     this._emit(next);
   }
 
-  _onGridSpanClosed(ev) {
-    const sel = ev.target;
-    if (!sel?.value) return;
-    const n = Math.max(1, Math.min(3, Math.trunc(Number(sel.value))));
-    if (!Number.isFinite(n)) return;
-    const prev = Math.max(1, Math.min(3, Math.trunc(Number(this._config?.grid_span ?? 1))));
-    if (n === prev) return;
-    const next = { ...this._config, grid_span: n };
-    this._emit(next);
-  }
-
   _onPowerHoursClosed(ev) {
+    /* ha-select fires a bubbling "closed" event; HA card config dialog listens for it too. */
+    ev.stopPropagation();
     const sel = ev.target;
     if (!sel?.value) return;
     const n = Math.trunc(Number(sel.value));

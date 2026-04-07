@@ -1,4 +1,4 @@
-import { i as ht, a as ut, b as m, A as v, w as pt, I as Vt, t as j } from "./hub-energie-card-editor-ERxdS2qW.js";
+import { i as ht, a as ut, b as m, A as v, w as pt, I as Vt, t as j } from "./hub-energie-card-editor.js";
 const Xt = "#9e9e9e", ee = "#8d6e63", $t = "#7e57c2", rt = "#fdd835", ot = "#66bb6a", Wt = [24, 12, 6, 3, 1], tt = 6;
 function vt(i, t = tt) {
   if (!Number.isFinite(i)) return t;
@@ -2421,14 +2421,14 @@ class je extends ht {
   getCardSize() {
     return 8;
   }
+  /** Default size from grid_span; loose min bounds so sections "Layout" can resize / full width. */
   getGridOptions() {
-    const t = Number(this._config?.grid_span ?? 1), e = Number.isFinite(t) ? Math.max(1, Math.min(3, Math.trunc(t))) : 1;
+    const t = Number(this._config?.grid_span ?? 1);
     return {
-      columns: e * 12,
-      min_columns: e * 12,
-      max_columns: e * 12,
+      columns: (Number.isFinite(t) ? Math.max(1, Math.min(3, Math.trunc(t))) : 1) * 12,
+      min_columns: 3,
       rows: 8,
-      min_rows: 6
+      min_rows: 4
     };
   }
   static getConfigElement() {

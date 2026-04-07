@@ -1,6 +1,5 @@
 __pycache__
 custom_components/hub_energie/frontend/node_modules
-custom_components/hub_energie/frontend/dist-human
 .venv-wsl/
 .cursor/plans
 .pytest_cache/

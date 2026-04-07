@@ -593,15 +593,16 @@ class HubEnergieCard extends LitElement {
     return 8;
   }
 
+  /** Default size from grid_span; loose min bounds so sections "Layout" can resize / full width. */
   getGridOptions() {
     const raw = Number(this._config?.grid_span ?? 1);
     const span = Number.isFinite(raw) ? Math.max(1, Math.min(3, Math.trunc(raw))) : 1;
+    const defaultCols = span * 12;
     return {
-      columns: span * 12,
-      min_columns: span * 12,
-      max_columns: span * 12,
+      columns: defaultCols,
+      min_columns: 3,
       rows: 8,
-      min_rows: 6,
+      min_rows: 4,
     };
   }
 

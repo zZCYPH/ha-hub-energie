@@ -1,4 +1,4 @@
-import "./hub-energie-card-editor-ERxdS2qW.js";
+import "./hub-energie-card-editor.js";
 const o = `
   <style>
     :host { display: block; min-height: 96px; }
@@ -46,13 +46,12 @@ class r extends HTMLElement {
   }
   getGridOptions() {
     if (this._core?.getGridOptions) return this._core.getGridOptions();
-    const e = Number(this._config?.grid_span ?? 1), t = Number.isFinite(e) ? Math.max(1, Math.min(3, Math.trunc(e))) : 1;
+    const e = Number(this._config?.grid_span ?? 1);
     return {
-      columns: t * 12,
-      min_columns: t * 12,
-      max_columns: t * 12,
+      columns: (Number.isFinite(e) ? Math.max(1, Math.min(3, Math.trunc(e))) : 1) * 12,
+      min_columns: 3,
       rows: 8,
-      min_rows: 6
+      min_rows: 4
     };
   }
   static getConfigElement() {

@@ -12,7 +12,7 @@
 #   REMOTE_USER, REMOTE_HOST, REMOTE_CUSTOM_COMPONENTS_DIR
 #   SSH_PASSWORD  – used with sshpass if set
 #   SUDO_PASSWORD – passed via sudo -S on the server
-#   SKIP_BUILD=1  – skip npm build (still deploys; use if dist is already built elsewhere)
+#   SKIP_BUILD=1  – skip npm build (frontend/dist is normally committed; use to save time on deploy)
 #   FORCE_WSL_NPM=1 – always run npm install/build through WSL (Linux Rollup lockfile)
 # Best: SSH keys + NOPASSWD sudo for the copy commands.
 #
