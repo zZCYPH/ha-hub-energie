@@ -194,7 +194,7 @@
       "scope.stable_li7_html":
         "Lovelace: pre-built bundles in <code class=\"font-mono\">frontend/dist/</code> are versioned in the repo; Home Assistant serves them at <code class=\"font-mono\">/hub_energie/</code>.",
 
-      "scope.exp_heading": "Experimental / best-effort",
+      "scope.exp_heading": "Experimental / heuristic (power sensors)",
       "scope.exp_li1": "Splitting battery charge origin by power flow when sensors are partial or noisy.",
       "scope.exp_li2": "Solar production estimation (model-based, not a physical meter).",
       "scope.exp_li3": "Opportunity-cost style diagnostics for exported kWh.",
@@ -386,7 +386,7 @@
       "glossary.recon": "Reconstructed",
       "glossary.recon_d": "Internal totals and per-slot kWh from deltas and optional Recorder replay.",
       "glossary.est": "Estimated",
-      "glossary.est_d": "Model-based solar and other best-effort estimates where no direct meter exists.",
+      "glossary.est_d": "Heuristic or model-based values when no direct energy meter exists — e.g. clear-sky PV, splits inferred from power sensors.",
 
       "footer.p1_html":
         "Hub Énergie — documentation snapshot <strong class=\"text-body\">v0.2.3</strong>. Authoritative detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>.",
@@ -581,7 +581,7 @@
       "scope.stable_li7_html":
         "Lovelace : les paquets précompilés dans <code class=\"font-mono\">frontend/dist/</code> sont versionnés dans le dépôt ; Home Assistant les sert sous <code class=\"font-mono\">/hub_energie/</code>.",
 
-      "scope.exp_heading": "Expérimental / meilleur effort",
+      "scope.exp_heading": "Expérimental / heuristique (capteurs de puissance)",
       "scope.exp_li1":
         "Ventilation de l’origine de la charge batterie à partir des bilans de puissance lorsque les capteurs sont partiels ou bruités.",
       "scope.exp_li2": "Estimation de production solaire (modèle, pas un compteur physique).",
@@ -779,7 +779,7 @@
         "Totaux internes et kWh par créneau dérivés des deltas et, le cas échéant, du rejouage Recorder.",
       "glossary.est": "Estimé",
       "glossary.est_d":
-        "Solaire modélisé et autres approximations lorsqu’aucun compteur direct n’est disponible.",
+        "Valeurs heuristiques ou modélisées sans compteur d’énergie direct — ex. PV « ciel clair », ventilations déduites des capteurs de puissance.",
 
       "footer.p1_html":
         "Hub Énergie — documentation figée <strong class=\"text-body\">v0.2.3</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>.",
