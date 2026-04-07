@@ -7,4 +7,6 @@ pytest-cache-files-*/
 .coverage
 coverage.xml
 htmlcov/
+site/node_modules/
+site/src/vendor/hub-energie-i18n.js
 .hacs_build_pillow/

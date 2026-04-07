@@ -1,0 +1,222 @@
+/**
+ * i18n meta, theme, lang toggles (ported from public/js/app.js).
+ */
+const THEME_KEY = "hub-energie-doc-theme";
+const LANG_KEY = "hub-energie-doc-lang";
+
+let currentLang = "en";
+
+function tr(lang, key) {
+  const I = globalThis.HubEnergieI18n;
+  if (!I) return "";
+  const bag = I[lang] || I.en;
+  let s = bag[key];
+  if (s === undefined && lang !== "en") s = I.en[key];
+  return s !== undefined ? s : "";
+}
+
+export function refreshScrollSpy() {
+  if (typeof bootstrap === "undefined" || !bootstrap.ScrollSpy) return;
+  const inst = bootstrap.ScrollSpy.getInstance(document.body);
+  if (inst) inst.refresh();
+}
+
+export function applyLang(lang, page) {
+  if (lang !== "en" && lang !== "fr") lang = "en";
+  currentLang = lang;
+  document.documentElement.setAttribute("lang", lang);
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const v = tr(lang, el.getAttribute("data-i18n"));
+    if (v !== "") el.textContent = v;
+  });
+  document.querySelectorAll("[data-i18n-html]").forEach((el) => {
+    const v = tr(lang, el.getAttribute("data-i18n-html"));
+    if (v !== "") el.innerHTML = v;
+  });
+  document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+    el.setAttribute("aria-label", tr(lang, el.getAttribute("data-i18n-aria")));
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+    const v = tr(lang, el.getAttribute("data-i18n-title"));
+    if (v !== "") el.setAttribute("title", v);
+  });
+  document.querySelectorAll("[data-i18n-alt]").forEach((el) => {
+    const va = tr(lang, el.getAttribute("data-i18n-alt"));
+    if (va !== "") el.setAttribute("alt", va);
+  });
+  document.querySelectorAll("img.doc-zoomable").forEach((el) => {
+    const vt = tr(lang, "common.image_open_full");
+    if (vt !== "") el.setAttribute("title", vt);
+  });
+
+  let titleKey = "meta.title";
+  let descKey = "meta.description";
+  if (page === "landing") {
+    titleKey = "meta.title.landing";
+    descKey = "meta.description.landing";
+  } else if (page === "doc") {
+    titleKey = "meta.title";
+    descKey = "meta.description";
+  } else if (page === "internals") {
+    titleKey = "meta.title.internals";
+    descKey = "meta.description.internals";
+  }
+  document.title = tr(lang, titleKey);
+  const meta = document.querySelector('meta[name="description"]');
+  if (meta) meta.setAttribute("content", tr(lang, descKey));
+  try {
+    localStorage.setItem(LANG_KEY, lang);
+  } catch (e) {
+    /* ignore */
+  }
+  const bEn = document.getElementById("langEn");
+  const bFr = document.getElementById("langFr");
+  if (bEn && bFr) {
+    bEn.classList.toggle("active", lang === "en");
+    bFr.classList.toggle("active", lang === "fr");
+    bEn.setAttribute("aria-pressed", lang === "en" ? "true" : "false");
+    bFr.setAttribute("aria-pressed", lang === "fr" ? "true" : "false");
+  }
+  refreshScrollSpy();
+}
+
+export function setTheme(mode) {
+  if (mode !== "light" && mode !== "dark") mode = "dark";
+  document.documentElement.setAttribute("data-bs-theme", mode);
+  try {
+    localStorage.setItem(THEME_KEY, mode);
+  } catch (e) {
+    /* ignore */
+  }
+  const tl = document.getElementById("themeLight");
+  const td = document.getElementById("themeDark");
+  if (tl && td) {
+    tl.classList.toggle("active", mode === "light");
+    td.classList.toggle("active", mode === "dark");
+    tl.setAttribute("aria-pressed", mode === "light" ? "true" : "false");
+    td.setAttribute("aria-pressed", mode === "dark" ? "true" : "false");
+  }
+}
+
+function readStoredLang() {
+  try {
+    return localStorage.getItem(LANG_KEY);
+  } catch (e) {
+    return null;
+  }
+}
+
+function readStoredTheme() {
+  try {
+    return localStorage.getItem(THEME_KEY);
+  } catch (e) {
+    return null;
+  }
+}
+
+function pageFromRouteName(name) {
+  if (name === "home") return "landing";
+  if (name === "doc") return "doc";
+  if (name === "internals") return "internals";
+  return "landing";
+}
+
+export function getLang() {
+  return currentLang;
+}
+
+export function applyStoredShell() {
+  const storedLang = readStoredLang();
+  const navLang = (navigator.language || "en").slice(0, 2).toLowerCase();
+  const initialLang =
+    storedLang === "en" || storedLang === "fr"
+      ? storedLang
+      : navLang === "fr"
+        ? "fr"
+        : "en";
+  currentLang = initialLang;
+
+  const storedTheme = readStoredTheme();
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const initialTheme =
+    storedTheme === "light" || storedTheme === "dark"
+      ? storedTheme
+      : prefersDark
+        ? "dark"
+        : "light";
+
+  setTheme(initialTheme);
+}
+
+export function bindShellControls(router) {
+  const themeLight = document.getElementById("themeLight");
+  const themeDark = document.getElementById("themeDark");
+  if (themeLight)
+    themeLight.addEventListener("click", () => {
+      setTheme("light");
+    });
+  if (themeDark)
+    themeDark.addEventListener("click", () => {
+      setTheme("dark");
+    });
+
+  const langEn = document.getElementById("langEn");
+  const langFr = document.getElementById("langFr");
+  if (langEn)
+    langEn.addEventListener("click", () => {
+      applyLang("en", pageFromRouteName(router.currentRoute.value.name));
+    });
+  if (langFr)
+    langFr.addEventListener("click", () => {
+      applyLang("fr", pageFromRouteName(router.currentRoute.value.name));
+    });
+
+  router.afterEach((to) => {
+    applyLang(currentLang, pageFromRouteName(to.name));
+  });
+
+  applyLang(currentLang, pageFromRouteName(router.currentRoute.value.name));
+}
+
+export function setupScrollSpy(route) {
+  if (route !== "doc" && route !== "internals") {
+    teardownScrollSpy();
+    return;
+  }
+  if (typeof bootstrap === "undefined" || !bootstrap.ScrollSpy) return;
+  const old = bootstrap.ScrollSpy.getInstance(document.body);
+  if (old) old.dispose();
+  document.body.removeAttribute("data-bs-spy");
+  document.body.removeAttribute("data-bs-target");
+  document.body.removeAttribute("data-bs-smooth-scroll");
+  document.body.removeAttribute("data-bs-offset");
+  if (route === "doc") {
+    document.body.setAttribute("data-bs-spy", "scroll");
+    document.body.setAttribute("data-bs-target", "#toc-nav-doc");
+    document.body.setAttribute("data-bs-smooth-scroll", "true");
+    document.body.setAttribute("data-bs-offset", "80");
+    new bootstrap.ScrollSpy(document.body, {
+      target: "#toc-nav-doc",
+      offset: 80,
+    });
+  } else if (route === "internals") {
+    document.body.setAttribute("data-bs-spy", "scroll");
+    document.body.setAttribute("data-bs-target", "#toc-nav-internals");
+    document.body.setAttribute("data-bs-smooth-scroll", "true");
+    document.body.setAttribute("data-bs-offset", "80");
+    new bootstrap.ScrollSpy(document.body, {
+      target: "#toc-nav-internals",
+      offset: 80,
+    });
+  }
+}
+
+export function teardownScrollSpy() {
+  if (typeof bootstrap === "undefined" || !bootstrap.ScrollSpy) return;
+  const old = bootstrap.ScrollSpy.getInstance(document.body);
+  if (old) old.dispose();
+  document.body.removeAttribute("data-bs-spy");
+  document.body.removeAttribute("data-bs-target");
+  document.body.removeAttribute("data-bs-smooth-scroll");
+  document.body.removeAttribute("data-bs-offset");
+}
