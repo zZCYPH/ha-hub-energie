@@ -1,349 +1,961 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Hub Énergie — Home Assistant custom integration for energy monitoring, cost tracking, and diagnostics." />
+    <meta
+      name="description"
+      content="Hub Énergie — Home Assistant custom integration for energy monitoring, cost tracking, and diagnostics."
+    />
     <title>Hub Énergie — Documentation</title>
-    <style>
-      :root {
-        --bg: #0f1419;
-        --surface: #1a222c;
-        --text: #e8eaed;
-        --muted: #9aa0a6;
-        --accent: #58a6ff;
-        --border: #30363d;
-        --warn: #d29922;
-      }
-      @media (prefers-color-scheme: light) {
-        :root {
-          --bg: #f6f8fa;
-          --surface: #ffffff;
-          --text: #1f2328;
-          --muted: #656d76;
-          --accent: #0969da;
-          --border: #d0d7de;
-          --warn: #9a6700;
-        }
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-        font-size: 1.05rem;
-        line-height: 1.65;
-        color: var(--text);
-        background: var(--bg);
-      }
-      .wrap {
-        max-width: 48rem;
-        margin: 0 auto;
-        padding: 2rem 1.25rem 4rem;
-      }
-      header {
-        border-bottom: 1px solid var(--border);
-        padding-bottom: 1.5rem;
-        margin-bottom: 2rem;
-      }
-      h1 {
-        font-size: 1.85rem;
-        font-weight: 650;
-        letter-spacing: -0.02em;
-        margin: 0 0 0.35rem;
-      }
-      .tagline {
-        color: var(--muted);
-        font-size: 1.05rem;
-        margin: 0;
-      }
-      .meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem 1rem;
-        margin-top: 1rem;
-        font-size: 0.9rem;
-        color: var(--muted);
-      }
-      .meta a {
-        color: var(--accent);
-        text-decoration: none;
-      }
-      .meta a:hover {
-        text-decoration: underline;
-      }
-      h2 {
-        font-size: 1.25rem;
-        margin: 2.25rem 0 0.75rem;
-        padding-top: 0.5rem;
-        border-top: 1px solid var(--border);
-      }
-      h2:first-of-type {
-        border-top: none;
-        padding-top: 0;
-      }
-      h3 {
-        font-size: 1.05rem;
-        margin: 1.5rem 0 0.5rem;
-        color: var(--text);
-      }
-      p {
-        margin: 0.65rem 0;
-      }
-      ul {
-        margin: 0.5rem 0;
-        padding-left: 1.35rem;
-      }
-      li {
-        margin: 0.35rem 0;
-      }
-      a {
-        color: var(--accent);
-      }
-      .note {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 1rem 1.1rem;
-        margin: 1rem 0;
-      }
-      .note strong {
-        color: var(--warn);
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.92rem;
-        margin: 0.75rem 0;
-      }
-      th,
-      td {
-        border: 1px solid var(--border);
-        padding: 0.5rem 0.65rem;
-        text-align: left;
-        vertical-align: top;
-      }
-      th {
-        background: var(--surface);
-      }
-      code,
-      pre {
-        font-family: ui-monospace, "Cascadia Code", "SF Mono", monospace;
-        font-size: 0.86em;
-      }
-      pre {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 1rem;
-        overflow-x: auto;
-        margin: 0.75rem 0;
-      }
-      footer {
-        margin-top: 3rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--border);
-        font-size: 0.88rem;
-        color: var(--muted);
-      }
-    </style>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("hub-energie-doc-theme");
+          if (t === "light" || t === "dark") {
+            document.documentElement.setAttribute("data-bs-theme", t);
+            return;
+          }
+        } catch (e) {}
+        try {
+          if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+            document.documentElement.setAttribute("data-bs-theme", "light");
+          }
+        } catch (e2) {}
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="css/doc.css" />
   </head>
-  <body>
-    <div class="wrap">
-      <header>
-        <h1>Hub Énergie</h1>
-        <p class="tagline">
-          A Home Assistant custom integration for energy monitoring, cost tracking, and diagnostics. It supports generic supplier and tariff setups, multi-battery systems, optional solar PV estimation, and three-phase grids.
-        </p>
-        <div class="meta">
-          <span><strong>Home Assistant</strong> 2024.10.0+</span>
-          <span><strong>Version</strong> 0.2.2</span>
-          <a href="https://gitlab.com/zzcyph1/home-assistant/hub-energie">GitLab repository</a>
-          <a href="https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/issues">Issue tracker</a>
+  <body
+    data-bs-spy="scroll"
+    data-bs-target="#toc-nav"
+    data-bs-smooth-scroll="true"
+    data-bs-offset="80"
+    tabindex="0"
+  >
+    <nav class="navbar navbar-expand-lg doc-navbar fixed-top">
+      <div class="container-xxl px-3">
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm d-lg-none me-2"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#tocOffcanvas"
+          aria-controls="tocOffcanvas"
+        >
+          <i class="bi bi-list-ul"></i>
+          <span class="d-none d-sm-inline ms-1" data-i18n="nav.contents">Contents</span>
+        </button>
+        <a class="navbar-brand fw-semibold d-flex align-items-center gap-2" href="#top">
+          <i class="bi bi-lightning-charge-fill text-primary"></i>
+          Hub Énergie
+        </a>
+        <div class="d-flex align-items-center gap-2 ms-auto flex-wrap justify-content-end">
+          <div
+            class="btn-group btn-group-sm"
+            role="group"
+            id="langSwitch"
+            data-i18n-aria="nav.lang_aria"
+            aria-label="Language"
+          >
+            <button
+              type="button"
+              class="btn btn-outline-secondary px-2"
+              data-lang="en"
+              id="langEn"
+              aria-pressed="true"
+            >
+              <span data-i18n="lang.en">EN</span>
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary px-2"
+              data-lang="fr"
+              id="langFr"
+              aria-pressed="false"
+            >
+              <span data-i18n="lang.fr">FR</span>
+            </button>
+          </div>
+          <div
+            class="btn-group btn-group-sm"
+            role="group"
+            id="themeSwitch"
+            data-i18n-aria="theme.group_aria"
+            aria-label="Display theme"
+          >
+            <button
+              type="button"
+              class="btn btn-outline-secondary px-2"
+              id="themeLight"
+              aria-pressed="false"
+              data-i18n-title="theme.light"
+              title="Light"
+            >
+              <i class="bi bi-sun-fill" aria-hidden="true"></i>
+              <span class="d-none d-md-inline ms-1" data-i18n="theme.light">Light</span>
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary px-2"
+              id="themeDark"
+              aria-pressed="false"
+              data-i18n-title="theme.dark"
+              title="Dark"
+            >
+              <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
+              <span class="d-none d-md-inline ms-1" data-i18n="theme.dark">Dark</span>
+            </button>
+          </div>
+          <a
+            class="btn btn-primary btn-sm rounded-pill px-3"
+            href="https://gitlab.com/zzcyph1/home-assistant/hub-energie"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="bi bi-gitlab me-1"></i><span data-i18n="nav.repository">Repository</span>
+          </a>
         </div>
-      </header>
+      </div>
+    </nav>
 
-      <main>
-        <h2>Supported scope (v0.2.x)</h2>
-        <h3>Intended to be stable</h3>
-        <ul>
-          <li>
-            <strong>Config flow:</strong> supplier (EDF vs custom), tariff model (flat, HP–HC, multi-slot, EDF Tempo with RTE, API, or sensor), grid and optional solar/battery wiring.
-          </li>
-          <li>
-            <strong>Energy accounting:</strong> positive deltas from <code>total_increasing</code> meters → internal slot-day accounting (Paris day) and integration-owned SSOT total sensors.
-          </li>
-          <li><strong>Costs:</strong> daily estimate (€) from rates + subscription split; per-slot breakdown in attributes.</li>
-          <li><strong>EDF Tempo:</strong> colours, quotas, next-change timestamps when applicable.</li>
-          <li>
-            <strong>Diagnostics:</strong> export / réinjection split, data quality, delta telemetry, unknown bucket and staleness; <strong>health</strong> sensor (<code>ok</code> / <code>degraded</code> / <code>rebuilding</code> / <code>inconsistent</code> / <code>no_input</code>) with a readable cause.
-          </li>
-          <li>Optional clear-sky PV estimation and solar resale revenue when configured.</li>
-          <li>Lovelace card served from <code>/hub_energie/</code> after build.</li>
-        </ul>
-        <h3>Experimental / best-effort</h3>
-        <ul>
-          <li>Power-flow–based battery charge origin split when sensors are partial or noisy.</li>
-          <li>Solar production estimation (model-based, not a physical meter).</li>
-          <li>Opportunity-cost diagnostics for exported kWh.</li>
-        </ul>
+    <div
+      class="offcanvas offcanvas-start"
+      tabindex="-1"
+      id="tocOffcanvas"
+      aria-labelledby="tocOffcanvasLabel"
+    >
+      <div class="offcanvas-header border-bottom">
+        <h2 class="offcanvas-title h5 mb-0" id="tocOffcanvasLabel" data-i18n="toc.on_this_page">
+          On this page
+        </h2>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+          data-i18n-aria="nav.close_aria"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <nav
+          id="toc-nav-mobile"
+          class="nav nav-pills flex-column gap-1"
+          data-i18n-aria="nav.toc_aria"
+          aria-label="Page"
+        >
+          <a class="nav-link" href="#overview" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.overview">Overview</span></a
+          >
+          <a class="nav-link" href="#ssot" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.ssot">Data &amp; SSOT</span></a
+          >
+          <a class="nav-link" href="#install" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.install">Install</span></a
+          >
+          <a class="nav-link" href="#lovelace" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.lovelace">Lovelace card</span></a
+          >
+          <a class="nav-link" href="#configure" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.configure">Configure in HA</span></a
+          >
+          <a class="nav-link" href="#devices" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.devices">Devices</span></a
+          >
+          <a class="nav-link" href="#services" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.services">Services</span></a
+          >
+          <a class="nav-link" href="#limitations" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.limitations">Limitations</span></a
+          >
+          <a class="nav-link" href="#glossary" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.glossary">Glossary</span></a
+          >
+        </nav>
+      </div>
+    </div>
 
-        <h2>Data sources (SSOT)</h2>
-        <ol>
-          <li>
-            <strong>Physical meters (external SSOT)</strong> — Energy entities you configure (<code>grid_import_energy</code>, solar, export, per-battery in/out). Recorder history is ground truth for total kWh.
-          </li>
-          <li>
-            <strong>Internal accounting</strong> — The coordinator accumulates <strong>positive deltas</strong> into totals and per-day slot kWh. Integration <code>total_increasing</code> SSOT sensors reflect this internal sum.
-          </li>
-          <li>
-            <strong>Long-term per-slot kWh (daily)</strong> — External statistics (<code>hub_energie:slot_&lt;source&gt;_&lt;slot&gt;_kwh</code>) after each Paris day. Prefer these (or physical meters) for historical analytics—not raw <code>cost_detail</code> attribute history alone.
-          </li>
-        </ol>
-
-        <h2>Installation</h2>
-        <p>Install the repository contents <strong>exactly</strong> under:</p>
-        <pre><code>&lt;config&gt;/custom_components/hub_energie/</code></pre>
-        <p>Home Assistant must load <code>custom_components/hub_energie/manifest.json</code> — avoid a nested folder such as <code>hub_energie/hub_energie/</code>.</p>
-        <h3>Ways to install</h3>
-        <ol>
-          <li>
-            <strong>HACS (custom repository):</strong> add the repo as an Integration, download so files land under <code>custom_components/hub_energie/</code> (root layout via <code>content_in_root</code> in <code>hacs.json</code>). Restart HA, then add the integration under <em>Settings → Devices &amp; services</em>. Build the Lovelace frontend if you use the card (<code>npm ci</code> and <code>npm run build</code> in <code>frontend/</code>).
-          </li>
-          <li><strong>Git:</strong> clone into <code>custom_components/hub_energie</code>.</li>
-          <li><strong>Copy:</strong> copy the full tree (all subfolders), do not cherry-pick files.</li>
-        </ol>
-        <div class="note">
-          <p><strong>After install:</strong> build the card if needed, perform a <strong>full</strong> Home Assistant restart, then add <strong>Hub Énergie</strong> from the integration UI. Match installs to the Git tag that matches <code>manifest.json</code> <code>version</code> for reproducibility.</p>
+    <header class="doc-hero pt-5 mt-5" id="top">
+      <div class="container-xxl px-3 py-5">
+        <div class="row g-4 align-items-center">
+          <div class="col-lg-8">
+            <p class="text-uppercase small fw-semibold text-primary mb-2 tracking-wide" data-i18n="hero.kicker">
+              Home Assistant · Custom integration
+            </p>
+            <h1 class="display-6 fw-bold mb-3" data-i18n="hero.title">Energy monitoring, costs &amp; diagnostics</h1>
+            <p class="lead text-secondary mb-4 mb-lg-0" data-i18n-html="hero.lead_html">
+              Configure suppliers and tariffs, track kWh and daily cost, optional solar estimation and
+              multi-battery support — with a Lovelace card served from
+              <code class="font-mono small">/hub_energie/</code>.
+            </p>
+          </div>
+          <div class="col-lg-4">
+            <div class="card border shadow-sm">
+              <div class="card-body">
+                <h2 class="h6 text-secondary text-uppercase small mb-3" data-i18n="glance.title">At a glance</h2>
+                <ul class="list-unstyled mb-0 small vstack gap-2">
+                  <li class="d-flex align-items-start gap-2">
+                    <i class="bi bi-check-circle-fill text-success mt-1"></i>
+                    <span data-i18n-html="glance.ha"><strong class="text-body">HA</strong> 2024.10.0 or newer</span>
+                  </li>
+                  <li class="d-flex align-items-start gap-2">
+                    <i class="bi bi-tag-fill text-primary mt-1"></i>
+                    <span data-i18n-html="glance.snapshot"
+                      >Doc snapshot <span class="badge bg-primary badge-doc">v0.2.2</span></span
+                    >
+                  </li>
+                  <li class="d-flex align-items-start gap-2">
+                    <i class="bi bi-bug-fill text-warning mt-1"></i>
+                    <a href="https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/issues" data-i18n="glance.issues"
+                      >Issues &amp; feedback</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+    </header>
 
-        <h2>Lovelace card</h2>
-        <p>
-          Vite outputs <code>hub-energie-card-boot.js</code> (shell, element <code>hub-energie-card</code>) and the full bundle under <code>frontend/dist/</code>. HA serves <code>dist</code> at <strong><code>/hub_energie/</code></strong>.
-        </p>
-        <p>On startup the integration registers the boot URL as a JavaScript module. For <strong>YAML-managed</strong> resources, add:</p>
-        <pre><code>resources:
+    <div class="container-xxl px-3 py-4 py-lg-5">
+      <div class="row g-4 g-xl-5">
+        <aside class="col-lg-3 d-none d-lg-block">
+          <div class="doc-sidebar">
+            <div class="small text-uppercase text-secondary fw-semibold mb-2" data-i18n="toc.on_this_page">
+              On this page
+            </div>
+            <nav id="toc-nav" class="nav nav-pills flex-column gap-1" role="navigation" data-i18n-aria="nav.toc_aria" aria-label="Page">
+              <a class="nav-link" href="#overview"><span data-i18n="toc.overview">Overview</span></a>
+              <a class="nav-link" href="#ssot"><span data-i18n="toc.ssot">Data &amp; SSOT</span></a>
+              <a class="nav-link" href="#install"><span data-i18n="toc.install">Install</span></a>
+              <a class="nav-link" href="#lovelace"><span data-i18n="toc.lovelace">Lovelace card</span></a>
+              <a class="nav-link" href="#configure"><span data-i18n="toc.configure">Configure in HA</span></a>
+              <a class="nav-link" href="#devices"><span data-i18n="toc.devices">Devices</span></a>
+              <a class="nav-link" href="#services"><span data-i18n="toc.services">Services</span></a>
+              <a class="nav-link" href="#limitations"><span data-i18n="toc.limitations">Limitations</span></a>
+              <a class="nav-link" href="#glossary"><span data-i18n="toc.glossary">Glossary</span></a>
+            </nav>
+          </div>
+        </aside>
+
+        <main class="col-lg-9">
+          <section id="overview" class="doc-section pb-5">
+            <h2 class="mb-3">
+              <span data-i18n="overview.title">Overview</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#overview"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h2>
+            <p class="text-secondary" data-i18n="overview.intro">
+              This page is a guided companion to the README. Use the steps below in order when setting up for
+              the first time.
+            </p>
+
+            <div class="accordion accordion-flush border rounded-3 overflow-hidden mb-4" id="accScope">
+              <div class="accordion-item border-0 border-bottom">
+                <h3 class="accordion-header">
+                  <button
+                    class="accordion-button fw-semibold"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#scopeStable"
+                  >
+                    <i class="bi bi-shield-check text-success me-2"></i>
+                    <span data-i18n="scope.stable_heading">Intended stable scope (v0.2.x)</span>
+                  </button>
+                </h3>
+                <div id="scopeStable" class="accordion-collapse collapse show" data-bs-parent="#accScope">
+                  <div class="accordion-body text-secondary small">
+                    <ul class="mb-0">
+                      <li data-i18n-html="scope.stable_li1_html">
+                        <strong class="text-body">Config flow:</strong> supplier (EDF vs custom), tariff (flat,
+                        HP–HC, multi-slot, EDF Tempo + RTE/API/sensor), grid and optional solar/battery wiring.
+                      </li>
+                      <li data-i18n-html="scope.stable_li2_html">
+                        <strong class="text-body">Energy:</strong> positive deltas from
+                        <code class="font-mono">total_increasing</code> meters → slot-day accounting (Paris day)
+                        and SSOT total sensors owned by the integration.
+                      </li>
+                      <li data-i18n-html="scope.stable_li3_html">
+                        <strong class="text-body">Costs:</strong> daily estimate (€), subscription split,
+                        per-slot detail in attributes.
+                      </li>
+                      <li data-i18n-html="scope.stable_li4_html">
+                        <strong class="text-body">EDF Tempo:</strong> colours, quotas, next-change times.
+                      </li>
+                      <li data-i18n-html="scope.stable_li5_html">
+                        <strong class="text-body">Diagnostics:</strong> réinjection split, data quality, delta
+                        telemetry, unknown bucket, staleness;
+                        <strong class="text-body">health</strong> sensor
+                        (<code class="font-mono">ok</code> / <code class="font-mono">degraded</code> /
+                        <code class="font-mono">rebuilding</code> / <code class="font-mono">inconsistent</code>
+                        / <code class="font-mono">no_input</code>) with a readable cause.
+                      </li>
+                      <li data-i18n-html="scope.stable_li6_html">Optional clear-sky PV and solar resale when configured.</li>
+                      <li data-i18n-html="scope.stable_li7_html">
+                        Lovelace assets under <code class="font-mono">/hub_energie/</code> after build.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item border-0">
+                <h3 class="accordion-header">
+                  <button
+                    class="accordion-button collapsed fw-semibold"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#scopeExp"
+                  >
+                    <i class="bi bi-flask text-warning me-2"></i>
+                    <span data-i18n="scope.exp_heading">Experimental / best-effort</span>
+                  </button>
+                </h3>
+                <div id="scopeExp" class="accordion-collapse collapse" data-bs-parent="#accScope">
+                  <div class="accordion-body text-secondary small">
+                    <ul class="mb-0">
+                      <li data-i18n="scope.exp_li1">Power-flow battery charge origin split when sensors are partial or noisy.</li>
+                      <li data-i18n="scope.exp_li2">Solar production estimation (model-based, not a physical meter).</li>
+                      <li data-i18n="scope.exp_li3">Opportunity-cost style diagnostics for exported kWh.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-info d-flex gap-2 small mb-0" role="status">
+              <i class="bi bi-info-circle flex-shrink-0"></i>
+              <div data-i18n-html="scope.disclaimer_html">
+                Behaviour depends on your hardware and entity choices (especially the Energy dashboard). The
+                lists above describe intent, not a warranty for every edge case.
+              </div>
+            </div>
+          </section>
+
+          <section id="ssot" class="doc-section pb-5">
+            <h2 class="mb-3">
+              <span data-i18n="ssot.title">Data sources (SSOT)</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#ssot"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h2>
+            <p class="text-secondary" data-i18n="ssot.intro">
+              Knowing what is authoritative avoids misconfiguring the Energy panel or the wrong attributes.
+            </p>
+            <ol class="doc-steps">
+              <li>
+                <div class="doc-step-card shadow-sm">
+                  <span class="step-badge">1</span>
+                  <div class="step-body">
+                    <div class="step-title" data-i18n="ssot.s1_title">Physical meters (external SSOT)</div>
+                    <p class="small text-secondary mb-0" data-i18n-html="ssot.s1_html">
+                      The energy entities you select (<code class="font-mono">grid_import_energy</code>, solar,
+                      export, per-battery in/out). <strong class="text-body">Recorder history</strong> is ground
+                      truth for total kWh from hardware or upstream integrations.
+                    </p>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="doc-step-card shadow-sm">
+                  <span class="step-badge">2</span>
+                  <div class="step-body">
+                    <div class="step-title" data-i18n="ssot.s2_title">Internal accounting</div>
+                    <p class="small text-secondary mb-0" data-i18n-html="ssot.s2_html">
+                      The coordinator accumulates <strong class="text-body">positive deltas</strong> into totals
+                      and per-day slot kWh. Integration
+                      <code class="font-mono">total_increasing</code> SSOT sensors reflect this
+                      <strong class="text-body">internal sum</strong>, not a full re-read of the meter every
+                      cycle.
+                    </p>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="doc-step-card shadow-sm">
+                  <span class="step-badge">3</span>
+                  <div class="step-body">
+                    <div class="step-title" data-i18n="ssot.s3_title">Long-term per-slot kWh (daily)</div>
+                    <p class="small text-secondary mb-0" data-i18n-html="ssot.s3_html">
+                      After each Paris day, external statistics
+                      <code class="font-mono">hub_energie:slot_&lt;source&gt;_&lt;slot&gt;_kwh</code> are
+                      written. Use these (or physical meters) for historical analytics — not raw
+                      <code class="font-mono">cost_detail</code> attribute history alone.
+                    </p>
+                  </div>
+                </div>
+              </li>
+            </ol>
+          </section>
+
+          <section id="install" class="doc-section pb-5">
+            <h2 class="mb-3">
+              <span data-i18n="install.title">Installation</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#install"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h2>
+            <p class="text-secondary" data-i18n-html="install.intro_html">
+              Install the repository <strong class="text-body">exactly</strong> as one package under your HA
+              config:
+            </p>
+            <pre class="doc-code"><code>&lt;config&gt;/custom_components/hub_energie/</code></pre>
+            <p class="text-secondary small" data-i18n-html="install.note_html">
+              Home Assistant must load
+              <code class="font-mono">custom_components/hub_energie/manifest.json</code>. Avoid a nested folder
+              such as <code class="font-mono">hub_energie/hub_energie/</code>.
+            </p>
+
+            <h3 class="h5 mt-4 mb-3">
+              <i class="bi bi-download text-primary me-2"></i><span data-i18n="install.choose_path">Choose your path</span>
+            </h3>
+            <ul class="nav nav-tabs mb-3" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link active"
+                  id="tab-hacs"
+                  data-bs-toggle="tab"
+                  data-bs-target="#pane-hacs"
+                  type="button"
+                  role="tab"
+                >
+                  <span data-i18n="tab.hacs">HACS</span>
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link"
+                  id="tab-git"
+                  data-bs-toggle="tab"
+                  data-bs-target="#pane-git"
+                  type="button"
+                  role="tab"
+                >
+                  <span data-i18n="tab.git">Git clone</span>
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link"
+                  id="tab-copy"
+                  data-bs-toggle="tab"
+                  data-bs-target="#pane-copy"
+                  type="button"
+                  role="tab"
+                >
+                  <span data-i18n="tab.copy">Copy files</span>
+                </button>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane fade show active" id="pane-hacs" role="tabpanel">
+                <ol class="doc-steps">
+                  <li>
+                    <div class="doc-step-card shadow-sm">
+                      <span class="step-badge">1</span>
+                      <div class="step-body">
+                        <div class="step-title" data-i18n="install.h1_title">Add custom repository</div>
+                        <p class="small text-secondary mb-2" data-i18n-html="install.h1_p_html">
+                          In HACS: menu (⋮) → <strong class="text-body">Custom repositories</strong> → paste
+                          the GitLab URL → category <strong class="text-body">Integration</strong> → Add.
+                        </p>
+                        <figure class="doc-figure card mb-0">
+                          <div class="ratio ratio-16x9">
+                            <div
+                              class="d-flex flex-column align-items-center justify-content-center text-secondary small px-3 text-center"
+                            >
+                              <i class="bi bi-image fs-2 mb-2 opacity-50"></i>
+                              <span data-i18n="install.h1_ph1">Screenshot: HACS → Custom repositories</span>
+                              <span class="mt-1 opacity-75" data-i18n-html="install.h1_ph2_html"
+                                >Replace this block with
+                                <code class="font-mono">&lt;img src="img/hacs-custom-repo.png" alt="…" /&gt;</code></span
+                              >
+                            </div>
+                          </div>
+                          <figcaption class="card-body py-2 px-3 small text-secondary mb-0" data-i18n-html="install.h1_caption_html">
+                            Optional — drop your PNG/WebP into <code class="font-mono">public/img/</code> and
+                            reference it here.
+                          </figcaption>
+                        </figure>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="doc-step-card shadow-sm">
+                      <span class="step-badge">2</span>
+                      <div class="step-body">
+                        <div class="step-title" data-i18n="install.h2_title">Download the integration</div>
+                        <p class="small text-secondary mb-0" data-i18n-html="install.h2_p_html">
+                          HACS → <strong class="text-body">Integrations</strong> → find
+                          <strong class="text-body">Hub Énergie</strong> → Download. Files must land under
+                          <code class="font-mono">custom_components/hub_energie/</code> (repo uses
+                          <code class="font-mono">content_in_root</code> in
+                          <code class="font-mono">hacs.json</code>).
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="doc-step-card shadow-sm">
+                      <span class="step-badge">3</span>
+                      <div class="step-body">
+                        <div class="step-title" data-i18n="install.h3_title">Restart Home Assistant</div>
+                        <p class="small text-secondary mb-0" data-i18n-html="install.h3_p_html">
+                          Full restart — not only “Reload YAML”. Then continue with
+                          <a href="#configure">Configure in HA</a> below.
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+              <div class="tab-pane fade" id="pane-git" role="tabpanel">
+                <ol class="doc-steps">
+                  <li>
+                    <div class="doc-step-card shadow-sm">
+                      <span class="step-badge">1</span>
+                      <div class="step-body">
+                        <div class="step-title" data-i18n="install.git.s1_title">Clone into the right folder</div>
+                        <pre class="doc-code mt-2 mb-0"><code>cd /path/to/homeassistant/config/custom_components
+git clone &lt;your-repo-url&gt; hub_energie</code></pre>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="doc-step-card shadow-sm">
+                      <span class="step-badge">2</span>
+                      <div class="step-body">
+                        <div class="step-title" data-i18n="install.git.s2_title">Restart &amp; add the integration</div>
+                        <p class="small text-secondary mb-0" data-i18n-html="install.git.s2_p_html">
+                          Same as HACS: full restart, then
+                          <a href="#configure">Configure in HA</a>.
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+              <div class="tab-pane fade" id="pane-copy" role="tabpanel">
+                <ol class="doc-steps">
+                  <li>
+                    <div class="doc-step-card shadow-sm">
+                      <span class="step-badge">1</span>
+                      <div class="step-body">
+                        <div class="step-title" data-i18n="install.copy.s1_title">Copy the full tree</div>
+                        <p class="small text-secondary mb-0" data-i18n-html="install.copy.s1_html">
+                          Copy the entire repo into
+                          <code class="font-mono">custom_components/hub_energie/</code> — all subfolders
+                          (<code class="font-mono">battery/</code>, <code class="font-mono">energy/</code>,
+                          <code class="font-mono">frontend/</code>, etc.). Do not cherry-pick single files.
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="doc-step-card shadow-sm">
+                      <span class="step-badge">2</span>
+                      <div class="step-body">
+                        <div class="step-title" data-i18n="install.copy.s2_title">Restart &amp; add the integration</div>
+                        <p class="small text-secondary mb-0" data-i18n-html="install.copy.s2_p_html">
+                          Full restart, then <a href="#configure">Configure in HA</a>.
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+            </div>
+
+            <div class="card border-warning border-opacity-50 mt-4">
+              <div class="card-body">
+                <h3 class="h6 card-title d-flex align-items-center gap-2 mb-2">
+                  <i class="bi bi-puzzle text-warning"></i>
+                  <span data-i18n="install.lovelace_title">If you use the Lovelace card</span>
+                </h3>
+                <p class="card-text small text-secondary mb-3" data-i18n="install.lovelace_p1">
+                  Build the frontend bundle once on the host where the files live:
+                </p>
+                <pre class="doc-code mb-3"><code>cd custom_components/hub_energie/frontend
+npm ci
+npm run build</code></pre>
+                <p class="card-text small text-secondary mb-0" data-i18n-html="install.lovelace_p2_html">
+                  Then restart HA again if needed. For reproducible installs, use a Git tag matching
+                  <code class="font-mono">manifest.json</code>
+                  <code class="font-mono">version</code> (e.g. <strong class="text-body">v0.2.2</strong>).
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section id="lovelace" class="doc-section pb-5">
+            <h2 class="mb-3">
+              <span data-i18n="lovelace.title">Lovelace card</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#lovelace"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h2>
+            <p class="text-secondary" data-i18n-html="lovelace.intro_html">
+              Vite builds <code class="font-mono">hub-energie-card-boot.js</code> (registers
+              <code class="font-mono">hub-energie-card</code>) plus chunks under
+              <code class="font-mono">frontend/dist/</code>. HA serves them at
+              <strong class="text-body"><code class="font-mono">/hub_energie/</code></strong>.
+            </p>
+
+            <ol class="doc-steps">
+              <li>
+                <div class="doc-step-card shadow-sm">
+                  <span class="step-badge">1</span>
+                  <div class="step-body">
+                    <div class="step-title" data-i18n="lovelace.l1_title">Storage-mode dashboards (default)</div>
+                    <p class="small text-secondary mb-0" data-i18n-html="lovelace.l1_html">
+                      On startup the integration adds
+                      <code class="font-mono">/hub_energie/hub-energie-card-boot.js</code> as a
+                      <strong class="text-body">JavaScript module</strong> (same as
+                      <em>Settings → Dashboards → Resources</em>). Usually nothing to do manually.
+                    </p>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="doc-step-card shadow-sm">
+                  <span class="step-badge">2</span>
+                  <div class="step-body">
+                    <div class="step-title" data-i18n="lovelace.l2_title">YAML-managed resources</div>
+                    <p class="small text-secondary mb-2" data-i18n="lovelace.l2_p">Add the boot URL yourself:</p>
+                    <pre class="doc-code"><code>resources:
   - url: /hub_energie/hub-energie-card-boot.js
     type: module</code></pre>
-        <p>Replace legacy URLs (<code>/hub_energie/dist/hub-energie-card.js</code>, etc.) with the boot URL; avoid duplicate module entries for the same card.</p>
-        <pre><code>type: custom:hub-energie-card</code></pre>
+                    <p class="small text-secondary mb-0" data-i18n-html="lovelace.l2_note_html">
+                      Replace legacy URLs such as
+                      <code class="font-mono">/hub_energie/dist/hub-energie-card.js</code> with the boot URL. Do
+                      not register duplicate modules for the same card.
+                    </p>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="doc-step-card shadow-sm">
+                  <span class="step-badge">3</span>
+                  <div class="step-body">
+                    <div class="step-title" data-i18n="lovelace.l3_title">Add the card</div>
+                    <pre class="doc-code mb-0"><code>type: custom:hub-energie-card
+# Optional: hide sections via card config</code></pre>
+                  </div>
+                </div>
+              </li>
+            </ol>
 
-        <h2>Device model</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Device</th>
-              <th>Purpose</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Offre</strong></td>
-              <td>Tariff, supplier, contract</td>
-            </tr>
-            <tr>
-              <td><strong>Réseau</strong></td>
-              <td>Grid energy/power sensors</td>
-            </tr>
-            <tr>
-              <td><strong>Solaire</strong></td>
-              <td>Solar measurement / estimation</td>
-            </tr>
-            <tr>
-              <td><strong>Batterie &lt;name&gt;</strong></td>
-              <td>Per-battery system (0..N)</td>
-            </tr>
-            <tr>
-              <td><strong>Batteries (total)</strong></td>
-              <td>Aggregated battery summary</td>
-            </tr>
-            <tr>
-              <td><strong>Bilan énergétique</strong></td>
-              <td>Computed energy flows (kWh)</td>
-            </tr>
-            <tr>
-              <td><strong>Coûts</strong></td>
-              <td>Monetary values (€)</td>
-            </tr>
-            <tr>
-              <td><strong>Diagnostics</strong></td>
-              <td>Health, reinjection diagnostics</td>
-            </tr>
-          </tbody>
-        </table>
+            <figure class="doc-figure card mt-4">
+              <div class="ratio ratio-16x9">
+                <div
+                  class="d-flex flex-column align-items-center justify-content-center text-secondary small px-3 text-center"
+                >
+                  <i class="bi bi-columns-gap fs-2 mb-2 opacity-50"></i>
+                  <span data-i18n="lovelace.fig_ph">Screenshot: Dashboard with Hub Énergie card</span>
+                </div>
+              </div>
+              <figcaption class="card-body py-2 px-3 small text-secondary mb-0" data-i18n-html="lovelace.fig_cap_html">
+                Swap the placeholder for an <code class="font-mono">&lt;img&gt;</code> when you have a capture.
+              </figcaption>
+            </figure>
+          </section>
 
-        <h2>Configuration flow (summary)</h2>
-        <ol>
-          <li>Supplier — EDF or custom</li>
-          <li>Phase type — single or three-phase</li>
-          <li>Tariff — auto (EDF) or manual (flat / TOU / schedule)</li>
-          <li>Contract — power (kVA), name</li>
-          <li>Grid sensors — import energy (required), export, power</li>
-          <li>Solar — energy, power, resale, optional PV estimation</li>
-          <li>Batteries — per-battery energy in/out, optional power / SOC / capacity</li>
-        </ol>
+          <section id="configure" class="doc-section pb-5">
+            <h2 class="mb-3">
+              <span data-i18n="configure.title">Configure in Home Assistant</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#configure"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h2>
+            <p class="text-secondary mb-3" data-i18n="configure.intro">
+              After a full restart, add the integration from the UI and walk through the config flow in this
+              order:
+            </p>
+            <div class="list-group list-group-flush border rounded-3 overflow-hidden shadow-sm">
+              <div class="list-group-item d-flex align-items-start gap-3 py-3">
+                <span class="badge rounded-pill bg-primary align-self-center">1</span>
+                <div>
+                  <div class="fw-semibold" data-i18n="configure.s1_t">Supplier</div>
+                  <div class="small text-secondary" data-i18n="configure.s1_d">EDF or custom provider</div>
+                </div>
+              </div>
+              <div class="list-group-item d-flex align-items-start gap-3 py-3">
+                <span class="badge rounded-pill bg-primary align-self-center">2</span>
+                <div>
+                  <div class="fw-semibold" data-i18n="configure.s2_t">Phase type</div>
+                  <div class="small text-secondary" data-i18n="configure.s2_d">Single-phase or three-phase</div>
+                </div>
+              </div>
+              <div class="list-group-item d-flex align-items-start gap-3 py-3">
+                <span class="badge rounded-pill bg-primary align-self-center">3</span>
+                <div>
+                  <div class="fw-semibold" data-i18n="configure.s3_t">Tariff</div>
+                  <div class="small text-secondary" data-i18n="configure.s3_d">Auto (EDF) or manual: flat, TOU, schedule</div>
+                </div>
+              </div>
+              <div class="list-group-item d-flex align-items-start gap-3 py-3">
+                <span class="badge rounded-pill bg-primary align-self-center">4</span>
+                <div>
+                  <div class="fw-semibold" data-i18n="configure.s4_t">Contract</div>
+                  <div class="small text-secondary" data-i18n="configure.s4_d">Power (kVA), name</div>
+                </div>
+              </div>
+              <div class="list-group-item d-flex align-items-start gap-3 py-3">
+                <span class="badge rounded-pill bg-primary align-self-center">5</span>
+                <div>
+                  <div class="fw-semibold" data-i18n="configure.s5_t">Grid sensors</div>
+                  <div class="small text-secondary" data-i18n="configure.s5_d">Import energy (required), export, power</div>
+                </div>
+              </div>
+              <div class="list-group-item d-flex align-items-start gap-3 py-3">
+                <span class="badge rounded-pill bg-primary align-self-center">6</span>
+                <div>
+                  <div class="fw-semibold" data-i18n="configure.s6_t">Solar</div>
+                  <div class="small text-secondary" data-i18n="configure.s6_d">Energy, power, resale, optional PV estimation</div>
+                </div>
+              </div>
+              <div class="list-group-item d-flex align-items-start gap-3 py-3">
+                <span class="badge rounded-pill bg-primary align-self-center">7</span>
+                <div>
+                  <div class="fw-semibold" data-i18n="configure.s7_t">Batteries</div>
+                  <div class="small text-secondary" data-i18n="configure.s7_d">Per-battery in/out; optional power, SOC, capacity</div>
+                </div>
+              </div>
+            </div>
 
-        <h2>Services</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Service</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>hub_energie.refresh</code></td>
-              <td>Force coordinator refresh</td>
-            </tr>
-            <tr>
-              <td><code>hub_energie.refresh_tariffs</code></td>
-              <td>Re-fetch EDF tariffs (auto mode)</td>
-            </tr>
-          </tbody>
-        </table>
+            <figure class="doc-figure card mt-4">
+              <div class="ratio ratio-16x9">
+                <div
+                  class="d-flex flex-column align-items-center justify-content-center text-secondary small px-3 text-center"
+                >
+                  <i class="bi bi-gear-wide-connected fs-2 mb-2 opacity-50"></i>
+                  <span data-i18n="configure.fig_ph">Screenshot: Integrations → Hub Énergie → config flow</span>
+                </div>
+              </div>
+              <figcaption class="card-body py-2 px-3 small text-secondary mb-0" data-i18n="configure.fig_cap">
+                Helps readers match each step to the UI.
+              </figcaption>
+            </figure>
+          </section>
 
-        <h2>Limitations (high level)</h2>
-        <ul>
-          <li>Recorder retention affects history, charts, and rebuild-from-recorder behaviour.</li>
-          <li>Optional solar estimation is clear-sky model output — indicative, not a production meter.</li>
-          <li>The card’s power graph depends on statistics; missing <code>state_class</code> or history can leave graphs empty.</li>
-          <li>Health states summarise many probes; brief <code>rebuilding</code> after recorder-based rebuild is normal.</li>
-          <li>See the repository’s <code>docs/troubleshooting.md</code> for trust states, unknown bucket, and recovery.</li>
-        </ul>
+          <section id="devices" class="doc-section pb-5">
+            <h2 class="mb-3">
+              <span data-i18n="devices.title">Device model</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#devices"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h2>
+            <p class="text-secondary small" data-i18n-html="devices.intro">
+              One Home Assistant device per logical scope. Entity placement follows measured or configured
+              domains; see <code class="font-mono">CHANGELOG.md</code> for finer detail.
+            </p>
+            <div class="table-responsive rounded-3 border">
+              <table class="table table-doc table-striped table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col" data-i18n="devices.th_device">Device</th>
+                    <th scope="col" data-i18n="devices.th_purpose">Purpose</th>
+                  </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                  <tr>
+                    <td><strong>Offre</strong></td>
+                    <td data-i18n="devices.p_offre">Tariff, supplier, contract</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Réseau</strong></td>
+                    <td data-i18n="devices.p_reseau">Grid energy / power sensors</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Solaire</strong></td>
+                    <td data-i18n="devices.p_solaire">Solar measurement / estimation</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Batterie &lt;name&gt;</strong></td>
+                    <td data-i18n="devices.p_batt">Per-battery system (0..N)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Batteries (total)</strong></td>
+                    <td data-i18n="devices.p_battsum">Aggregated battery summary</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Bilan énergétique</strong></td>
+                    <td data-i18n="devices.p_bilan">Computed energy flows (kWh)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Coûts</strong></td>
+                    <td data-i18n="devices.p_couts">Monetary values (€)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Diagnostics</strong></td>
+                    <td data-i18n="devices.p_diag">Health, reinjection diagnostics</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
 
-        <h2>Measured, reconstructed, estimated</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Kind</th>
-              <th>Meaning</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Measured</strong></td>
-              <td>From your configured HA entities (<code>total_increasing</code> kWh, power where wired).</td>
-            </tr>
-            <tr>
-              <td><strong>Reconstructed</strong></td>
-              <td>Internal totals and per-slot kWh from positive deltas and optional recorder replay.</td>
-            </tr>
-            <tr>
-              <td><strong>Estimated</strong></td>
-              <td>Model-based solar and other best-effort paths without a direct meter.</td>
-            </tr>
-          </tbody>
-        </table>
-      </main>
+          <section id="services" class="doc-section pb-5">
+            <h2 class="mb-3">
+              <span data-i18n="services.title">Services</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#services"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h2>
+            <div class="table-responsive rounded-3 border">
+              <table class="table table-doc table-striped mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col" data-i18n="services.th_service">Service</th>
+                    <th scope="col" data-i18n="services.th_desc">Description</th>
+                  </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                  <tr>
+                    <td><code class="font-mono">hub_energie.refresh</code></td>
+                    <td data-i18n="services.r1">Force coordinator refresh</td>
+                  </tr>
+                  <tr>
+                    <td><code class="font-mono">hub_energie.refresh_tariffs</code></td>
+                    <td data-i18n="services.r2">Re-fetch EDF tariffs (auto mode)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
 
-      <footer>
-        <p>
-          Hub Énergie — documentation snapshot aligned with v0.2.2. Source of truth for evolving detail: README and <code>docs/</code> in the
-          <a href="https://gitlab.com/zzcyph1/home-assistant/hub-energie">GitLab project</a>. License: see the repository.
-        </p>
-      </footer>
+          <section id="limitations" class="doc-section pb-5">
+            <h2 class="mb-3">
+              <span data-i18n="limitations.title">Limitations</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#limitations"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h2>
+            <ul class="text-secondary">
+              <li data-i18n="limitations.li1">Recorder retention limits history, charts, and rebuild-from-recorder paths.</li>
+              <li data-i18n="limitations.li2">Optional solar estimation is clear-sky output — indicative, not a production meter.</li>
+              <li data-i18n-html="limitations.li3_html">
+                The card’s power graph needs statistics; missing <code class="font-mono">state_class</code> or
+                history can leave it empty.
+              </li>
+              <li data-i18n-html="limitations.li4_html">
+                Health states aggregate many checks; brief
+                <code class="font-mono">rebuilding</code> after a recorder rebuild is expected.
+              </li>
+              <li data-i18n-html="limitations.li5_html">
+                Deep dives: <code class="font-mono">docs/troubleshooting.md</code> in the repository (trust,
+                unknown bucket, recovery).
+              </li>
+            </ul>
+          </section>
+
+          <section id="glossary" class="doc-section pb-4">
+            <h2 class="mb-3">
+              <span data-i18n="glossary.title">Measured, reconstructed, estimated</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#glossary"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h2>
+            <div class="table-responsive rounded-3 border">
+              <table class="table table-doc table-striped mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col" data-i18n="glossary.th_kind">Kind</th>
+                    <th scope="col" data-i18n="glossary.th_meaning">Meaning</th>
+                  </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                  <tr>
+                    <td><strong data-i18n="glossary.measured">Measured</strong></td>
+                    <td data-i18n-html="glossary.measured_html">
+                      From configured HA entities (<code class="font-mono">total_increasing</code> kWh, power
+                      where wired).
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong data-i18n="glossary.recon">Reconstructed</strong></td>
+                    <td data-i18n="glossary.recon_d">Internal totals and per-slot kWh from deltas and optional recorder replay.</td>
+                  </tr>
+                  <tr>
+                    <td><strong data-i18n="glossary.est">Estimated</strong></td>
+                    <td data-i18n="glossary.est_d">Model-based solar and other best-effort paths without a direct meter.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <footer class="border-top pt-4 mt-2 small text-secondary">
+            <p class="mb-2" data-i18n-html="footer.p1_html">
+              Hub Énergie — documentation snapshot <strong class="text-body">v0.2.2</strong>. Canonical detail:
+              README and <code class="font-mono">docs/</code> in the
+              <a href="https://gitlab.com/zzcyph1/home-assistant/hub-energie">GitLab project</a>.
+            </p>
+            <p class="mb-0" data-i18n="footer.license">License: see the repository.</p>
+          </footer>
+        </main>
+      </div>
     </div>
+
+    <script src="i18n.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script src="js/app.js"></script>
   </body>
 </html>
