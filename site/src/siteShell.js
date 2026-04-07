@@ -80,6 +80,7 @@ export function applyLang(lang, page) {
     bFr.setAttribute("aria-pressed", lang === "fr" ? "true" : "false");
   }
   refreshScrollSpy();
+  window.dispatchEvent(new CustomEvent("hub-energie-lang", { detail: { lang } }));
 }
 
 export function setTheme(mode) {

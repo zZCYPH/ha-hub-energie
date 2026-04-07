@@ -194,7 +194,7 @@
       "scope.stable_li7_html":
         "Lovelace: pre-built bundles in <code class=\"font-mono\">frontend/dist/</code> are versioned in the repo; Home Assistant serves them at <code class=\"font-mono\">/hub_energie/</code>.",
 
-      "scope.exp_heading": "Experimental / best-effort",
+      "scope.exp_heading": "Experimental / heuristic (power sensors)",
       "scope.exp_li1": "Splitting battery charge origin by power flow when sensors are partial or noisy.",
       "scope.exp_li2": "Solar production estimation (model-based, not a physical meter).",
       "scope.exp_li3": "Opportunity-cost style diagnostics for exported kWh.",
@@ -222,6 +222,15 @@
         "Install the integration <strong class=\"text-body\">exactly</strong> as a single package under your HA config:",
       "install.note_html":
         "Home Assistant must load <code class=\"font-mono\">custom_components/hub_energie/manifest.json</code>. Avoid a nested folder such as <code class=\"font-mono\">hub_energie/hub_energie/</code>.",
+      "install.release_aria": "GitLab release download",
+      "install.release_heading": "GitLab release (ZIP)",
+      "install.release_box_html":
+        "<p class=\"mb-0\">Each <strong class=\"text-body\">semver tag</strong> on GitLab (e.g. <strong class=\"text-body\">v0.2.3</strong>) triggers CI that builds a ZIP with the integration and a <strong class=\"text-body\">pre-built Lovelace</strong> bundle (<code class=\"font-mono\">frontend/dist/</code>). Unzip at the root of your HA <code class=\"font-mono\">config/</code> so you get <code class=\"font-mono\">config/custom_components/hub_energie/</code>. <a class=\"alert-link\" href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/releases\" target=\"_blank\" rel=\"noopener noreferrer\">All releases on GitLab</a>.</p>",
+      "install.release_loading": "Loading releases…",
+      "install.release_fetch_error": "Could not load the release list. Use the GitLab releases page to download a ZIP.",
+      "install.release_none": "No semver releases with a ZIP asset yet. See GitLab releases.",
+      "install.release_download": "Download",
+      "install.release_other_label": "Other versions:",
       "install.choose_path": "Choose your path",
       "tab.hacs_tba": "HACS (TBA)",
       "tab.git": "Git clone",
@@ -229,7 +238,7 @@
 
       "install.hacs_tba_heading": "HACS default store — status TBA",
       "install.hacs_tba_html":
-        "<p class=\"mb-2\">The public <strong class=\"text-body\">HACS</strong> catalogue is oriented toward <strong class=\"text-body\">GitHub</strong>-hosted repositories (<a href=\"https://hacs.xyz/docs/publish/start/\" target=\"_blank\" rel=\"noopener noreferrer\">publishing rules</a>). This project is hosted on <strong class=\"text-body\">GitLab</strong>, so one-click “search and install” from the default store is <strong class=\"text-body\">not available yet</strong>.</p><p class=\"mb-0\">For now use <strong class=\"text-body\">Git clone</strong> or <strong class=\"text-body\">Copy files</strong> (tabs above). If your HACS version supports <strong class=\"text-body\">custom repositories</strong> with a GitLab URL, you can add the integration that way — behaviour varies by release. After installation, always perform a <strong class=\"text-body\">full restart</strong> of Home Assistant.</p>",
+        "<p class=\"mb-2\">The public <strong class=\"text-body\">HACS</strong> catalogue is oriented toward <strong class=\"text-body\">GitHub</strong>-hosted repositories (<a href=\"https://hacs.xyz/docs/publish/start/\" target=\"_blank\" rel=\"noopener noreferrer\">publishing rules</a>). This project is hosted on <strong class=\"text-body\">GitLab</strong>, so one-click “search and install” from the default store is <strong class=\"text-body\">not available yet</strong>.</p><p class=\"mb-0\">Prefer a <strong class=\"text-body\">GitLab release ZIP</strong> (box above), or <strong class=\"text-body\">Git clone</strong> / <strong class=\"text-body\">Copy files</strong> (tabs below). If your HACS version supports <strong class=\"text-body\">custom repositories</strong> with a GitLab URL, you can add the integration that way — behaviour varies by release. After installation, always perform a <strong class=\"text-body\">full restart</strong> of Home Assistant.</p>",
 
       "install.git.s1_title": "Clone into the right folder",
       "install.git.s2_title": "Restart & add the integration",
@@ -386,7 +395,7 @@
       "glossary.recon": "Reconstructed",
       "glossary.recon_d": "Internal totals and per-slot kWh from deltas and optional Recorder replay.",
       "glossary.est": "Estimated",
-      "glossary.est_d": "Model-based solar and other best-effort estimates where no direct meter exists.",
+      "glossary.est_d": "Heuristic or model-based values when no direct energy meter exists — e.g. clear-sky PV, splits inferred from power sensors.",
 
       "footer.p1_html":
         "Hub Énergie — documentation snapshot <strong class=\"text-body\">v0.2.3</strong>. Authoritative detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>.",
@@ -581,7 +590,7 @@
       "scope.stable_li7_html":
         "Lovelace : les paquets précompilés dans <code class=\"font-mono\">frontend/dist/</code> sont versionnés dans le dépôt ; Home Assistant les sert sous <code class=\"font-mono\">/hub_energie/</code>.",
 
-      "scope.exp_heading": "Expérimental / meilleur effort",
+      "scope.exp_heading": "Expérimental / heuristique (capteurs de puissance)",
       "scope.exp_li1":
         "Ventilation de l’origine de la charge batterie à partir des bilans de puissance lorsque les capteurs sont partiels ou bruités.",
       "scope.exp_li2": "Estimation de production solaire (modèle, pas un compteur physique).",
@@ -612,6 +621,15 @@
         "Installez l’intégration <strong class=\"text-body\">exactement</strong> comme un seul paquet sous la configuration HA :",
       "install.note_html":
         "Home Assistant doit charger <code class=\"font-mono\">custom_components/hub_energie/manifest.json</code>. Évitez un dossier imbriqué du type <code class=\"font-mono\">hub_energie/hub_energie/</code>.",
+      "install.release_aria": "Téléchargement release GitLab",
+      "install.release_heading": "Release GitLab (ZIP)",
+      "install.release_box_html":
+        "<p class=\"mb-0\">Chaque <strong class=\"text-body\">tag semver</strong> sur GitLab (ex. <strong class=\"text-body\">v0.2.3</strong>) déclenche une CI qui produit une archive ZIP avec l’intégration et le paquet Lovelace <strong class=\"text-body\">déjà compilé</strong> (<code class=\"font-mono\">frontend/dist/</code>). Décompressez à la racine du <code class=\"font-mono\">config/</code> de HA pour obtenir <code class=\"font-mono\">config/custom_components/hub_energie/</code>. <a class=\"alert-link\" href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/releases\" target=\"_blank\" rel=\"noopener noreferrer\">Toutes les releases sur GitLab</a>.</p>",
+      "install.release_loading": "Chargement des releases…",
+      "install.release_fetch_error": "Impossible de charger la liste des releases. Téléchargez le ZIP depuis la page des releases GitLab.",
+      "install.release_none": "Aucune release semver avec archive ZIP pour l’instant. Voir les releases GitLab.",
+      "install.release_download": "Télécharger",
+      "install.release_other_label": "Autres versions :",
       "install.choose_path": "Choisissez votre méthode",
       "tab.hacs_tba": "HACS (TBA)",
       "tab.git": "Clone Git",
@@ -619,7 +637,7 @@
 
       "install.hacs_tba_heading": "Catalogue HACS public — statut à confirmer",
       "install.hacs_tba_html":
-        "<p class=\"mb-2\">Le catalogue public <strong class=\"text-body\">HACS</strong> est structuré autour de dépôts hébergés sur <strong class=\"text-body\">GitHub</strong> (<a href=\"https://hacs.xyz/docs/publish/start/\" target=\"_blank\" rel=\"noopener noreferrer\">règles de publication</a>). Ce projet est hébergé sur <strong class=\"text-body\">GitLab</strong> : l’installation en un clic depuis le catalogue par défaut n’est <strong class=\"text-body\">pas encore garantie</strong>.</p><p class=\"mb-0\">En attendant, privilégiez <strong class=\"text-body\">Clone Git</strong> ou <strong class=\"text-body\">Copie des fichiers</strong> (onglets ci-dessus). Si votre version de HACS prend en charge les <strong class=\"text-body\">dépôts personnalisés</strong> avec une URL GitLab, vous pouvez tenter cette voie — le comportement varie selon la version. Après installation, effectuez toujours un <strong class=\"text-body\">redémarrage complet</strong> de Home Assistant.</p>",
+        "<p class=\"mb-2\">Le catalogue public <strong class=\"text-body\">HACS</strong> est structuré autour de dépôts hébergés sur <strong class=\"text-body\">GitHub</strong> (<a href=\"https://hacs.xyz/docs/publish/start/\" target=\"_blank\" rel=\"noopener noreferrer\">règles de publication</a>). Ce projet est hébergé sur <strong class=\"text-body\">GitLab</strong> : l’installation en un clic depuis le catalogue par défaut n’est <strong class=\"text-body\">pas encore garantie</strong>.</p><p class=\"mb-0\">Privilégiez le <strong class=\"text-body\">ZIP de release GitLab</strong> (encadré ci-dessus), ou <strong class=\"text-body\">Clone Git</strong> / <strong class=\"text-body\">Copie des fichiers</strong> (onglets ci-dessous). Si votre version de HACS prend en charge les <strong class=\"text-body\">dépôts personnalisés</strong> avec une URL GitLab, vous pouvez tenter cette voie — le comportement varie selon la version. Après installation, effectuez toujours un <strong class=\"text-body\">redémarrage complet</strong> de Home Assistant.</p>",
 
       "install.git.s1_title": "Cloner au bon endroit",
       "install.git.s2_title": "Redémarrer & ajouter l’intégration",
@@ -779,7 +797,7 @@
         "Totaux internes et kWh par créneau dérivés des deltas et, le cas échéant, du rejouage Recorder.",
       "glossary.est": "Estimé",
       "glossary.est_d":
-        "Solaire modélisé et autres approximations lorsqu’aucun compteur direct n’est disponible.",
+        "Valeurs heuristiques ou modélisées sans compteur d’énergie direct — ex. PV « ciel clair », ventilations déduites des capteurs de puissance.",
 
       "footer.p1_html":
         "Hub Énergie — documentation figée <strong class=\"text-body\">v0.2.3</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>.",
