@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 import voluptuous as vol
@@ -36,7 +36,9 @@ CARD_BOOT_MODULE_PATH = f"/{DOMAIN}/hub-energie-card-boot.js"
 
 def _lovelace_boot_resource_url() -> str:
     """Return Lovelace module URL with a fresh cache-busting query param (millisecond)."""
-    bust = time.time_ns() // 1_000_000
+    # Use datetime, not stdlib `time`: a local package `hub_energie.time` can shadow `import time`
+    # when the integration dir is on sys.path (Home Assistant custom component loading).
+    bust = int(datetime.now(timezone.utc).timestamp() * 1000)
     return f"{CARD_BOOT_MODULE_PATH}?v={bust}"
 
 

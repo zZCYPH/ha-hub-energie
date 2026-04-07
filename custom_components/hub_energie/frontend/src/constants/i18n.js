@@ -139,8 +139,7 @@ export const I18N = Object.freeze({
     editorSectionsTitle: "Sections affichées",
     editorShowDaySlots: "Jour / créneau et compteurs Tempo",
     editorShowLivePower: "Puissance en direct et graphe",
-    editorShowSolarProductionBar:
-      "Barre production solaire (kWh) — sous l’import réseau (section Consommation requise)",
+    editorShowSolarProductionBar: "Barre production solaire",
     editorShowBatteryBar: "Barre batterie (SOC, autonomie)",
     editorShowInsightsBar: "Barre résumé (énergie, origine, coût, économies)",
     editorShowRedHpWarning: "Alerte conso jour rouge Tempo",
@@ -288,8 +287,7 @@ export const I18N = Object.freeze({
     editorSectionsTitle: "Visible sections",
     editorShowDaySlots: "Day / slot and Tempo counters",
     editorShowLivePower: "Live power and graph",
-    editorShowSolarProductionBar:
-      "Solar production bar (kWh) — under grid import (Consumption section must be on)",
+    editorShowSolarProductionBar: "Solar production bar",
     editorShowBatteryBar: "Battery bar (SOC, runtime)",
     editorShowInsightsBar: "Summary bar (energy, origin, cost, savings)",
     editorShowRedHpWarning: "Red-day high consumption alert (Tempo)",

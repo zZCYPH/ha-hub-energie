@@ -247,9 +247,9 @@ let w = class extends HTMLElement {
   }
 };
 w.elementStyles = [], w.shadowRootOptions = { mode: "open" }, w[b("elementProperties")] = /* @__PURE__ */ new Map(), w[b("finalized")] = /* @__PURE__ */ new Map(), we?.({ ReactiveElement: w }), (O.reactiveElementVersions ??= []).push("2.1.2");
-const G = globalThis, Y = (i) => i, R = G.trustedTypes, J = R ? R.createPolicy("lit-html", { createHTML: (i) => i }) : void 0, ie = "$lit$", f = `lit$${Math.random().toFixed(9).slice(2)}$`, se = "?" + f, _e = `<${se}>`, y = document, C = () => y.createComment(""), E = (i) => i === null || typeof i != "object" && typeof i != "function", W = Array.isArray, $e = (i) => W(i) || typeof i?.[Symbol.iterator] == "function", x = `[ 	
-\f\r]`, v = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, K = /-->/g, Z = />/g, S = RegExp(`>|${x}(?:([^\\s"'>=/]+)(${x}*=${x}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), Q = /'/g, X = /"/g, ne = /^(?:script|style|textarea|title)$/i, ae = (i) => (e, ...t) => ({ _$litType$: i, strings: e, values: t }), j = ae(1), De = ae(2), _ = /* @__PURE__ */ Symbol.for("lit-noChange"), u = /* @__PURE__ */ Symbol.for("lit-nothing"), ee = /* @__PURE__ */ new WeakMap(), m = y.createTreeWalker(y, 129);
+const G = globalThis, Y = (i) => i, R = G.trustedTypes, J = R ? R.createPolicy("lit-html", { createHTML: (i) => i }) : void 0, ie = "$lit$", f = `lit$${Math.random().toFixed(9).slice(2)}$`, se = "?" + f, _e = `<${se}>`, y = document, C = () => y.createComment(""), E = (i) => i === null || typeof i != "object" && typeof i != "function", W = Array.isArray, $e = (i) => W(i) || typeof i?.[Symbol.iterator] == "function", j = `[ 	
+\f\r]`, v = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, K = /-->/g, Z = />/g, S = RegExp(`>|${j}(?:([^\\s"'>=/]+)(${j}*=${j}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), Q = /'/g, X = /"/g, ne = /^(?:script|style|textarea|title)$/i, ae = (i) => (e, ...t) => ({ _$litType$: i, strings: e, values: t }), k = ae(1), De = ae(2), _ = /* @__PURE__ */ Symbol.for("lit-noChange"), u = /* @__PURE__ */ Symbol.for("lit-nothing"), ee = /* @__PURE__ */ new WeakMap(), m = y.createTreeWalker(y, 129);
 function le(i, e) {
   if (!W(i) || !i.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return J !== void 0 ? J.createHTML(e) : e;
@@ -280,7 +280,7 @@ class B {
       if (r.nodeType === 1) {
         if (r.hasAttributes()) for (const l of r.getAttributeNames()) if (l.endsWith(ie)) {
           const p = d[n++], g = r.getAttribute(l).split(f), T = /([.?@])?(.*)/.exec(p);
-          a.push({ type: 1, index: s, name: T[2], strings: g, ctor: T[1] === "." ? Ae : T[1] === "?" ? Ce : T[1] === "@" ? Ee : k }), r.removeAttribute(l);
+          a.push({ type: 1, index: s, name: T[2], strings: g, ctor: T[1] === "." ? Ae : T[1] === "?" ? Ce : T[1] === "@" ? Ee : x }), r.removeAttribute(l);
         } else l.startsWith(f) && (a.push({ type: 6, index: s }), r.removeAttribute(l));
         if (ne.test(r.tagName)) {
           const l = r.textContent.split(f), p = l.length - 1;
@@ -396,7 +396,7 @@ class H {
     this._$AM === void 0 && (this._$Cv = e, this._$AP?.(e));
   }
 }
-class k {
+class x {
   get tagName() {
     return this.element.tagName;
   }
@@ -421,7 +421,7 @@ class k {
     e === u ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
   }
 }
-class Ae extends k {
+class Ae extends x {
   constructor() {
     super(...arguments), this.type = 3;
   }
@@ -429,7 +429,7 @@ class Ae extends k {
     this.element[this.name] = e === u ? void 0 : e;
   }
 }
-class Ce extends k {
+class Ce extends x {
   constructor() {
     super(...arguments), this.type = 4;
   }
@@ -437,7 +437,7 @@ class Ce extends k {
     this.element.toggleAttribute(this.name, !!e && e !== u);
   }
 }
-class Ee extends k {
+class Ee extends x {
   constructor(e, t, o, r, s) {
     super(e, t, o, r, s), this.type = 5;
   }
@@ -633,7 +633,7 @@ const te = Object.freeze({
     editorSectionsTitle: "Sections affichées",
     editorShowDaySlots: "Jour / créneau et compteurs Tempo",
     editorShowLivePower: "Puissance en direct et graphe",
-    editorShowSolarProductionBar: "Barre production solaire (kWh) — sous l’import réseau (section Consommation requise)",
+    editorShowSolarProductionBar: "Barre production solaire",
     editorShowBatteryBar: "Barre batterie (SOC, autonomie)",
     editorShowInsightsBar: "Barre résumé (énergie, origine, coût, économies)",
     editorShowRedHpWarning: "Alerte conso jour rouge Tempo",
@@ -776,7 +776,7 @@ const te = Object.freeze({
     editorSectionsTitle: "Visible sections",
     editorShowDaySlots: "Day / slot and Tempo counters",
     editorShowLivePower: "Live power and graph",
-    editorShowSolarProductionBar: "Solar production bar (kWh) — under grid import (Consumption section must be on)",
+    editorShowSolarProductionBar: "Solar production bar",
     editorShowBatteryBar: "Battery bar (SOC, runtime)",
     editorShowInsightsBar: "Summary bar (energy, origin, cost, savings)",
     editorShowRedHpWarning: "Red-day high consumption alert (Tempo)",
@@ -793,7 +793,7 @@ function Re(i, e) {
     t = t.split(`{${o}}`).join(String(r));
   return t;
 }
-const L = "custom:hub-energie-card", D = /* @__PURE__ */ new Set([24, 12, 6, 3, 1]), Oe = [1, 3, 6, 12, 24], ke = [
+const L = "custom:hub-energie-card", D = /* @__PURE__ */ new Set([24, 12, 6, 3, 1]), Oe = [1, 3, 6, 12, 24], xe = [
   ["show_day_slots", "editorShowDaySlots"],
   ["show_live_power", "editorShowLivePower"],
   ["show_solar_production_bar", "editorShowSolarProductionBar"],
@@ -806,7 +806,7 @@ const L = "custom:hub-energie-card", D = /* @__PURE__ */ new Set([24, 12, 6, 3, 
   ["show_reinjection", "editorShowReinjection"],
   ["show_raw_control", "editorShowRawControl"]
 ];
-class xe extends A {
+class je extends A {
   static properties = {
     hass: { attribute: !1 },
     _config: { state: !0 }
@@ -847,7 +847,7 @@ class xe extends A {
   }
   render() {
     const e = this._config ?? {}, t = this._i18n(), o = parseFloat(e.power_history_hours), r = Math.trunc(o), s = D.has(r) ? r : 6;
-    return j`
+    return k`
       <div class="card-config">
         <div class="field">
           <ha-select
@@ -858,15 +858,15 @@ class xe extends A {
             .naturalMenuWidth=${!0}
           >
             ${Oe.map(
-      (n) => j`<ha-list-item value="${String(n)}">${Re(t.editorPowerHoursUnit, { n })}</ha-list-item>`
+      (n) => k`<ha-list-item value="${String(n)}">${Re(t.editorPowerHoursUnit, { n })}</ha-list-item>`
     )}
           </ha-select>
           <p class="hint">${t.editorPowerHoursHint}</p>
         </div>
 
         <div class="sections-title">${t.editorSectionsTitle}</div>
-        ${ke.map(
-      ([n, h]) => j`
+        ${xe.map(
+      ([n, h]) => k`
             <div class="field">
               <ha-formfield .label=${t[h]}>
                 <ha-switch
@@ -910,12 +910,12 @@ class xe extends A {
     this._emit(n);
   }
 }
-customElements.get("hub-energie-card-editor") || customElements.define("hub-energie-card-editor", xe);
+customElements.get("hub-energie-card-editor") || customElements.define("hub-energie-card-editor", je);
 export {
   u as A,
   te as I,
   ce as a,
-  j as b,
+  k as b,
   A as i,
   Re as t,
   De as w

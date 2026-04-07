@@ -10,6 +10,14 @@ All notable changes to **Hub Énergie** are documented in this file.
 - Trust is computed from existing signals (data quality, delta telemetry and discards, unknown tariff bucket, staleness, Tempo RTE readiness, current slot, battery data quality, internal-vs-meter drift, and recorder store rebuild). Attributes **`trust_cause_code`** and **`trust_cause`** give a short primary reason; raw telemetry remains in the same entity attributes.
 - Coordinator snapshot includes **`trust_level`**, **`trust_cause_code`**, and **`trust_cause`** for reuse (e.g. Lovelace card).
 
+## [0.2.3] — 2026-04-07
+
+### Lovelace card
+
+- **Solar production bar (kWh):** optional strip (toggle **Barre production solaire** in the card editor) showing the same period as the card: self-consumed solar, solar used to charge the battery, and PV surplus attributed to grid export (diagnostic share — see reinjection; tooltip explains). Placed in the **Consumption** block under the grid-import strip. **`show_solar_production_bar`** in YAML (default on).
+- **Grid import strip title:** the word **“couleur”** / **“day colour”** only appears for **Tempo**; Base and HP/HC use a shorter title (**Import Enedis par créneau** / **Grid import by slot**).
+- **Cache busting:** in **storage** Lovelace mode, the integration **refreshes** the boot module resource URL with a new **`?v=<timestamp>`** on startup and when a config entry is set up or reloaded, so browsers pick up new `frontend/dist` bundles without a stale module cache. The boot loader passes the same `v` to the dynamic import of **`hub-energie-card.js`**. (**YAML** resources: append or bump `?v=` manually after deploying new JS.)
+
 ## [0.2.2] — 2026-04-04
 
 ### Long-term statistics (recorder)
@@ -72,6 +80,7 @@ All notable changes to **Hub Énergie** are documented in this file.
 
 - Initial public baseline (fork architecture, coordinator, snapshot pipeline, multi-battery, solar estimation, EDF Tempo paths).
 
+[0.2.3]: https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/compare/0.2.2...0.2.3
 [0.2.2]: https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/compare/0.2.0...0.2.2
 [0.2.0]: https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/compare/0.1.0...0.2.0
 [0.1.0]: https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/tree/0.1.0

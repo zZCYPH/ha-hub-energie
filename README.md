@@ -97,13 +97,15 @@ After copying or cloning:
 
 **Card frontend:** `frontend/dist/` is included in the repository. You only need `npm ci` / `npm run build` under `custom_components/hub_energie/frontend/` if you change the card source locally.
 
-**Version:** see `custom_components/hub_energie/manifest.json` (`version` field). For reproducible installs, use the Git tag matching that version (e.g. **v0.2.2**).
+**Version:** see `custom_components/hub_energie/manifest.json` (`version` field). For reproducible installs, use the Git tag matching that version (e.g. **v0.2.3**).
 
 ## Lovelace Card
 
-CI rebuilds the Vite bundle on each commit; **`hub-energie-card-boot.js`** (shell, registered as `hub-energie-card`), **`hub-energie-card.js`**, and hashed chunks under `frontend/dist/` are **checked in**. Home Assistant serves the whole `dist` folder at **`/hub_energie/`**.
+CI rebuilds the Vite bundle on each commit; **`hub-energie-card-boot.js`** (shell, registered as `hub-energie-card`), **`hub-energie-card.js`**, **`hub-energie-card-editor.js`**, and any shared chunks under `frontend/dist/` are **checked in**. Home Assistant serves the whole `dist` folder at **`/hub_energie/`**.
 
-**Lovelace resources (storage mode):** On startup the integration adds **`/hub_energie/hub-energie-card-boot.js`** as a **JavaScript module** resource (same as *Settings → Dashboards → Resources*). That path loads reliably on the Android app; legacy `frontend.add_extra_js_url` registration is removed on load.
+**Solar production (kWh)** — Since **v0.2.3**, the card can show an optional **“Production solaire (énergie)”** bar (editor: **Barre production solaire**; YAML: `show_solar_production_bar`, default on). It appears in the **Consumption** section, under the grid-import strip, and splits the selected day/range into self-use, solar-to-battery charging, and attributed PV export (see `CHANGELOG.md`).
+
+**Lovelace resources (storage mode):** On startup (and when you **reload** the integration) the integration adds or **updates** **`/hub_energie/hub-energie-card-boot.js?v=…`** as a **JavaScript module** resource (same as *Settings → Dashboards → Resources*). The query string **cache-busts** the boot script and the main card chunk after you deploy new `dist/` files. Legacy `frontend.add_extra_js_url` registration is removed on load.
 
 If Lovelace resources are **YAML-managed**, add the URL yourself under `lovelace.resources`:
 
@@ -111,7 +113,8 @@ If you add the resource manually (optional when using storage mode), use the boo
 
 ```yaml
 resources:
-  - url: /hub_energie/hub-energie-card-boot.js
+  # Optional ?v=… query avoids stale browser cache after upgrading dist/ (storage mode does this automatically).
+  - url: /hub_energie/hub-energie-card-boot.js?v=1
     type: module
 ```
 
@@ -121,7 +124,7 @@ Then add a card:
 
 ```yaml
 type: custom:hub-energie-card
-# Optional: hide sections (all true by default), e.g. show_reinjection: false
+# Optional: hide sections (all true by default), e.g. show_reinjection: false, show_solar_production_bar: false
 ```
 
 ## Device Model
@@ -139,7 +142,7 @@ The integration creates one HA device per logical scope:
 | **Coûts** | Computed monetary values (€) |
 | **Diagnostics** | Health, reinjection diagnostics |
 
-Entity placement follows the measured or configured domain where possible (per-slot kWh, SSOT/today, power-flow, and split export lines on **Réseau** / **Solaire** / **Batteries (total)** / **Offre**); see the [0.2.2](https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/compare/0.2.0...0.2.2) notes in `CHANGELOG.md`.
+Entity placement follows the measured or configured domain where possible (per-slot kWh, SSOT/today, power-flow, and split export lines on **Réseau** / **Solaire** / **Batteries (total)** / **Offre**); see [0.2.3](https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/compare/0.2.2...0.2.3) and [0.2.2](https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/compare/0.2.0...0.2.2) in `CHANGELOG.md`.
 
 ## Configuration Flow
 

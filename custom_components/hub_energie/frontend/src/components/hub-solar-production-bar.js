@@ -16,13 +16,11 @@ class HubSolarProductionBar extends LitElement {
         width: 100%;
         min-width: 0;
       }
-      .solar-prod-wrap {
-        margin: 0 0 6px;
-        padding: 4px 6px;
-        border-radius: 6px;
-        background: var(--secondary-background-color);
-        font-size: 0.68rem;
-        min-width: 0;
+      .cons-strip {
+        margin-bottom: 7px;
+      }
+      .cons-strip:last-child {
+        margin-bottom: 0;
       }
       .cons-strip-cap {
         text-align: center;
@@ -34,41 +32,71 @@ class HubSolarProductionBar extends LitElement {
         margin: 0 0 3px;
         line-height: 1.2;
       }
-      .pnl-wrap {
+      .bar-wrap {
         position: relative;
+        margin-bottom: 2px;
       }
-      .pnl-bar {
-        width: 100%;
-        height: 20px;
-        display: flex;
-        border-radius: 6px;
-        overflow: hidden;
+      .track {
+        border-radius: 8px;
+        min-width: 48px;
+        height: 24px;
+        background: var(--divider-color);
         box-shadow: 0 0 0 1px color-mix(in srgb, var(--divider-color) 55%, transparent) inset;
+        overflow: hidden;
       }
-      .pnl-seg {
+      .fill-stack {
+        position: relative;
         height: 100%;
+        display: flex;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .fill-seg {
+        height: 100%;
+        display: inline-block;
         min-width: 2px;
         transition: width 0.2s ease;
       }
-      .pnl-center {
+      .bar-total {
         position: absolute;
-        left: 50%;
+        left: 4px;
+        right: 4px;
         top: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 0.73rem;
-        font-weight: 800;
-        white-space: nowrap;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        gap: 6px;
         pointer-events: none;
         z-index: 2;
+      }
+      .bar-total::before,
+      .bar-total::after {
+        content: "";
+        flex: 1 1 0;
+        height: 1px;
+        min-width: 4px;
+        background: #fff;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.8), 0 1px 0 rgba(0, 0, 0, 0.6);
+      }
+      .bar-total-text {
+        font-size: 0.66rem;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        flex-shrink: 0;
         color: #fff;
-        text-shadow: 0 0 10px rgba(0, 0, 0, 0.95), 0 0 4px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.9);
+        text-shadow:
+          0 0 14px rgba(0, 0, 0, 1),
+          0 0 6px rgba(0, 0, 0, 0.9),
+          0 1px 2px rgba(0, 0, 0, 0.9);
       }
       .icon-brk {
         display: flex;
         flex-wrap: wrap;
         gap: 3px 5px;
         justify-content: center;
-        margin-top: 4px;
+        margin-top: 1px;
         padding: 0;
         font-size: 0.62rem;
         line-height: 1.25;
@@ -119,21 +147,25 @@ class HubSolarProductionBar extends LitElement {
       const segs = k.segments.filter((s) => Number(s.value) > 0.0005);
       if (!segs.length) return nothing;
       return html`
-        <div class="solar-prod-wrap">
+        <div class="cons-strip">
           <div class="cons-strip-cap">${this.i18n.solarProdTitle}</div>
-          <div class="pnl-wrap">
-            <div class="pnl-bar" title=${k.tooltip ?? nothing}>
-              ${segs.map(
-                (s) => html`
-                  <span
-                    class="pnl-seg"
-                    style="width:${((Number(s.value) / k.total) * 100).toFixed(1)}%;background:${s.color}"
-                    title=${`${s.label}: ${fmt(s.value)}`}
-                  ></span>
-                `,
-              )}
+          <div class="bar-wrap" title=${k.tooltip ?? nothing}>
+            <div class="track">
+              <div class="fill-stack" style="width:100%">
+                ${segs.map(
+                  (s) => html`
+                    <span
+                      class="fill-seg"
+                      style="width:${((Number(s.value) / k.total) * 100).toFixed(1)}%;background-color:${s.color}"
+                      title=${`${s.label}: ${fmt(s.value)}`}
+                    ></span>
+                  `,
+                )}
+              </div>
             </div>
-            <div class="pnl-center">${fmt(k.total)}</div>
+            <div class="bar-total">
+              <span class="bar-total-text">${fmt(k.total)}</span>
+            </div>
           </div>
           <div class="icon-brk">
             ${segs.map(

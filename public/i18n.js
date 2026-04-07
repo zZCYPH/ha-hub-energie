@@ -30,6 +30,7 @@
       "toc.lovelace": "Lovelace card",
       "toc.configure": "Configure in HA",
       "toc.devices": "Devices",
+      "toc.devices_integration": "Integration device list",
       "toc.services": "Services",
       "toc.limitations": "Limitations",
       "toc.glossary": "Glossary",
@@ -52,7 +53,7 @@
 
       "glance.title": "At a glance",
       "glance.ha": "<strong class=\"text-body\">HA</strong> 2024.10.0 or newer",
-      "glance.snapshot": "Doc snapshot <span class=\"badge bg-primary badge-doc\">v0.2.2</span>",
+      "glance.snapshot": "Doc snapshot <span class=\"badge bg-primary badge-doc\">v0.2.3</span>",
       "glance.issues": "Issues & feedback",
 
       "overview.title": "Overview",
@@ -124,22 +125,22 @@
 
       "install.lovelace_title": "If you use the Lovelace card",
       "install.lovelace_body_html":
-        "The card bundles under <code class=\"font-mono\">frontend/dist/</code> are committed to this repository (rebuilt in CI on each commit). You do <strong class=\"text-body\">not</strong> need <code class=\"font-mono\">npm</code> on your Home Assistant host for a normal install—restart HA after updating the integration. For reproducible installs, match a Git tag to <code class=\"font-mono\">manifest.json</code> → <code class=\"font-mono\">version</code> (e.g. <strong class=\"text-body\">v0.2.2</strong>).",
+        "The card bundles under <code class=\"font-mono\">frontend/dist/</code> are committed to this repository (rebuilt in CI on each commit). You do <strong class=\"text-body\">not</strong> need <code class=\"font-mono\">npm</code> on your Home Assistant host for a normal install—restart HA after updating the integration. For reproducible installs, match a Git tag to <code class=\"font-mono\">manifest.json</code> → <code class=\"font-mono\">version</code> (e.g. <strong class=\"text-body\">v0.2.3</strong>).",
       "install.lovelace_dev_html":
         "<strong class=\"text-body\">Developers:</strong> to rebuild locally, from <code class=\"font-mono\">custom_components/hub_energie/frontend/</code> run <code class=\"font-mono\">npm ci</code> then <code class=\"font-mono\">npm run build</code>.",
 
       "lovelace.title": "Lovelace card",
       "lovelace.intro_html":
-        "Built assets (<code class=\"font-mono\">hub-energie-card-boot.js</code>, <code class=\"font-mono\">hub-energie-card.js</code>, and chunks under <code class=\"font-mono\">frontend/dist/</code>) are shipped in the repo and refreshed by CI each commit. Home Assistant serves the <code class=\"font-mono\">dist</code> tree at <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>.",
+        "Built assets (<code class=\"font-mono\">hub-energie-card-boot.js</code>, <code class=\"font-mono\">hub-energie-card.js</code>, <code class=\"font-mono\">hub-energie-card-editor.js</code>, and shared chunks under <code class=\"font-mono\">frontend/dist/</code>) are shipped in the repo and refreshed by CI each commit. Home Assistant serves the <code class=\"font-mono\">dist</code> tree at <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>. Since <strong class=\"text-body\">v0.2.3</strong>, the optional <strong class=\"text-body\">Solar production (energy)</strong> bar splits kWh (self-use, battery charge, attributed export) for the card’s selected day/range.",
 
       "lovelace.l1_title": "Storage-mode dashboards (default)",
       "lovelace.l1_html":
-        "On startup the integration adds <code class=\"font-mono\">/hub_energie/hub-energie-card-boot.js</code> as a <strong class=\"text-body\">JavaScript module</strong> (same as <em>Settings → Dashboards → Resources</em>). Usually nothing to do manually.",
+        "On startup and when you <strong class=\"text-body\">reload</strong> the integration, it adds or updates that URL with a <strong class=\"text-body\">cache-busting</strong> <code class=\"font-mono\">?v=…</code> query (same as <em>Settings → Dashboards → Resources</em>) so new <code class=\"font-mono\">dist/</code> files load in the browser. Usually nothing to do manually.",
 
       "lovelace.l2_title": "YAML-managed resources",
       "lovelace.l2_p": "Add the boot URL yourself:",
       "lovelace.l2_note_html":
-        "Replace legacy URLs such as <code class=\"font-mono\">/hub_energie/dist/hub-energie-card.js</code> with the boot URL. Do not register duplicate modules for the same card.",
+        "Replace legacy URLs such as <code class=\"font-mono\">/hub_energie/dist/hub-energie-card.js</code> with the boot URL. Append <code class=\"font-mono\">?v=&lt;timestamp&gt;</code> if the browser keeps an old bundle. Do not register duplicate modules for the same card.",
 
       "lovelace.l3_title": "Add the card",
 
@@ -151,47 +152,52 @@
       "lovelace.editor_title": "Visual editor",
       "lovelace.editor_intro_html":
         "The card exposes a rich editor (<code class=\"font-mono\">hub-energie-card-editor.js</code> in the repo) to tune section visibility, Tempo controls, date period, and optional entity overrides — without YAML.",
-      "lovelace.editor_tree": "Screens",
-      "lovelace.ed1_t": "Layout & options",
-      "lovelace.ed1_d": "Sections, date range, Tempo and display toggles",
-      "lovelace.ed2_t": "Entities",
-      "lovelace.ed2_d": "Optional diagnostic / override pickers",
-      "lovelace.ed1_alt": "Lovelace card editor — general options",
-      "lovelace.ed2_alt": "Lovelace card editor — entity pickers",
+      "lovelace.ed1_alt": "Lovelace card editor — configuration tab with live preview",
+      "lovelace.editor_fig_cap_html":
+        "<strong class=\"text-body\">Configuration</strong> tab with section toggles and live card preview. Extra captures (e.g. <strong class=\"text-body\">Visibilité</strong> / <strong class=\"text-body\">Mise en page</strong>) can be added later as <code class=\"font-mono\">lovelace-editor-02.png</code> if you want a second slide.",
 
       "configure.title": "Configure in Home Assistant",
-      "configure.intro":
-        "After a full restart, add the integration from the UI and walk through the config flow in this order:",
+      "configure.flow_lead_html":
+        "After a <strong class=\"text-body\">full restart</strong>, add the integration under <strong class=\"text-body\">Settings → Devices &amp; services → Add integration</strong>. The assistant is <strong class=\"text-body\">not linear</strong>: screens depend on supplier, automatic vs manual tariffs, EDF offer (BASE / HPHC / TEMPO), Tempo data source, single- vs three-phase grid wiring, solar, and batteries.",
 
-      "configure.s1_t": "Supplier",
-      "configure.s1_d": "EDF or custom provider",
-      "configure.s2_t": "Phase type",
-      "configure.s2_d": "Single-phase or three-phase",
-      "configure.s3_t": "Tariff",
-      "configure.s3_d": "Auto (EDF) or manual: flat, TOU, schedule",
-      "configure.s4_t": "Contract",
-      "configure.s4_d": "Power (kVA), name",
-      "configure.s5_t": "Grid sensors",
-      "configure.s5_d": "Import energy (required), export, power",
-      "configure.s6_t": "Solar",
-      "configure.s6_d": "Energy, power, resale, optional PV estimation",
-      "configure.s7_t": "Batteries",
-      "configure.s7_d": "Per-battery in/out; optional power, SOC, capacity",
+      "configure.flow_map_title": "How the config flow branches",
+      "configure.flow_map_html":
+        "<ul class=\"mb-0 ps-3\"><li><strong class=\"text-body\">Start</strong> · <em>user</em> — supplier (EDF or other) and phase type on the same form.</li><li><strong class=\"text-body\">Other supplier</strong> · <em>supplier_custom</em> (name) → tariff mode is forced to <strong class=\"text-body\">manual</strong> → <em>contract</em> → manual pricing wizard (flat / time-of-use / schedule) → <strong class=\"text-body\">grid → solar → batteries → finish</strong>.</li><li><strong class=\"text-body\">EDF + automatic tariffs</strong> · <em>tariff_mode</em> (provider API vs manual) → <em>contract</em> (kVA, optional name) → <em>edf_offer</em> (BASE, HPHC, or TEMPO). If <strong class=\"text-body\">TEMPO</strong>: <em>edf_tempo</em> choose <strong class=\"text-body\">RTE</strong> (OAuth API) or <strong class=\"text-body\">API Couleur Tempo</strong> (no credentials). RTE adds <em>edf_tempo_rte</em> (client id + secret, validated against the API). Then EDF prices are fetched and you continue to <strong class=\"text-body\">grid → solar → batteries → finish</strong>.</li><li><strong class=\"text-body\">EDF + manual tariffs</strong> · skips EDF offer/Tempo; after <em>contract</em> you enter the same manual pricing branch as “other supplier”.</li><li><strong class=\"text-body\">After pricing is resolved</strong> · <em>grid</em> picks import (and optional export / power); <strong class=\"text-body\">three-phase</strong> adds sub-steps (per-phase vs combined sensors). Then <em>solar</em> (optional production / resale / estimation), then <em>battery</em> wizard (0..N systems), then create entry.</li></ul>",
 
-      "configure.tree_label": "Assistant steps",
-      "configure.carousel_hint_html":
-        "Screenshots are named <code class=\"font-mono\">config-flow-01.png</code> … <code class=\"font-mono\">07.png</code> in <code class=\"font-mono\">public/img/</code>. Use the outline on the left or the arrows to move between steps.",
-      "configure.slide1_alt": "Hub Énergie config flow — step 1 supplier",
-      "configure.slide2_alt": "Hub Énergie config flow — step 2 phase",
-      "configure.slide3_alt": "Hub Énergie config flow — step 3 tariff",
-      "configure.slide4_alt": "Hub Énergie config flow — step 4 contract",
-      "configure.slide5_alt": "Hub Énergie config flow — step 5 grid sensors",
-      "configure.slide6_alt": "Hub Énergie config flow — step 6 solar",
-      "configure.slide7_alt": "Hub Énergie config flow — step 7 batteries",
+      "configure.flow_example_path_html":
+        "The carousel below follows one <strong class=\"text-body\">documented path</strong>: <strong class=\"text-body\">EDF · mono · automatic tariffs · TEMPO · RTE</strong> (screens <code class=\"font-mono\">config-flow-edf-01-user.png</code> … <code class=\"font-mono\">06-rte-credentials.png</code>).",
+
+      "configure.flow_carousel_tree": "This path (6 steps)",
+
+      "configure.flow_ex_1_t": "User",
+      "configure.flow_ex_1_d": "Supplier & phase",
+      "configure.flow_ex_2_t": "Tariff mode",
+      "configure.flow_ex_2_d": "Automatic (API) vs manual",
+      "configure.flow_ex_3_t": "Contract",
+      "configure.flow_ex_3_d": "Subscribed power & optional name",
+      "configure.flow_ex_4_t": "EDF offer",
+      "configure.flow_ex_4_d": "BASE, HPHC, or TEMPO",
+      "configure.flow_ex_5_t": "Tempo source",
+      "configure.flow_ex_5_d": "RTE or API Couleur Tempo",
+      "configure.flow_ex_6_t": "RTE credentials",
+      "configure.flow_ex_6_d": "Only if RTE is selected",
+      "configure.flow_ex_1_alt": "Hub Énergie config — user: supplier and phase",
+      "configure.flow_ex_2_alt": "Hub Énergie config — tariff recovery mode",
+      "configure.flow_ex_3_alt": "Hub Énergie config — contract details",
+      "configure.flow_ex_4_alt": "Hub Énergie config — EDF offer type",
+      "configure.flow_ex_5_alt": "Hub Énergie config — Tempo signal source",
+      "configure.flow_ex_6_alt": "Hub Énergie config — RTE API credentials",
+      "configure.flow_after_rte_html":
+        "After valid credentials (or if you pick <strong class=\"text-body\">API Couleur Tempo</strong>), the flow fetches EDF tariffs and continues with <strong class=\"text-body\">grid sensors</strong> (import required; three-phase has extra steps), then <strong class=\"text-body\">solar</strong>, then <strong class=\"text-body\">batteries</strong>. Those steps are not shown here yet — send captures if you want them in the doc.",
 
       "devices.title": "Device model",
       "devices.intro":
         "One Home Assistant device per logical scope. Entity placement follows measured or configured domains; see <code class=\"font-mono\">CHANGELOG.md</code> for finer detail.",
+
+      "devices.integration_title": "Integration page",
+      "devices.integration_alt": "Hub Énergie integration entry with listed devices",
+      "devices.integration_cap_html":
+        "<strong class=\"text-body\">Settings → Devices &amp; services → Hub Énergie</strong> shows one configuration entry (bridge). Under it, HA lists logical devices—for example Offre, Réseau, Solaire, one row per battery, the aggregated battery summary, Bilan énergétique, Coûts, and Diagnostics. Labels (e.g. “Toutes batteries”) and entity counts depend on your install.",
 
       "devices.th_device": "Device",
       "devices.th_purpose": "Purpose",
@@ -264,7 +270,7 @@
       "glossary.est_d": "Model-based solar and other best-effort paths without a direct meter.",
 
       "footer.p1_html":
-        "Hub Énergie — documentation snapshot <strong class=\"text-body\">v0.2.2</strong>. Canonical detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>.",
+        "Hub Énergie — documentation snapshot <strong class=\"text-body\">v0.2.3</strong>. Canonical detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>.",
       "footer.license": "License: see the repository.",
     },
 
@@ -292,6 +298,7 @@
       "toc.lovelace": "Carte Lovelace",
       "toc.configure": "Configurer dans HA",
       "toc.devices": "Appareils",
+      "toc.devices_integration": "Liste sous l’intégration",
       "toc.services": "Services",
       "toc.limitations": "Limites",
       "toc.glossary": "Glossaire",
@@ -314,7 +321,7 @@
 
       "glance.title": "En bref",
       "glance.ha": "<strong class=\"text-body\">HA</strong> 2024.10.0 ou plus récent",
-      "glance.snapshot": "Instantané doc <span class=\"badge bg-primary badge-doc\">v0.2.2</span>",
+      "glance.snapshot": "Instantané doc <span class=\"badge bg-primary badge-doc\">v0.2.3</span>",
       "glance.issues": "Tickets & retours",
 
       "overview.title": "Vue d’ensemble",
@@ -389,22 +396,22 @@
 
       "install.lovelace_title": "Si vous utilisez la carte Lovelace",
       "install.lovelace_body_html":
-        "Les paquets sous <code class=\"font-mono\">frontend/dist/</code> sont inclus dans ce dépôt (recompilés en CI à chaque commit). Vous n’avez <strong class=\"text-body\">pas</strong> besoin de lancer <code class=\"font-mono\">npm</code> sur la machine Home Assistant pour une installation courante — redémarrez HA après mise à jour de l’intégration. Pour des installations reproductibles, alignez un tag Git sur <code class=\"font-mono\">manifest.json</code> → <code class=\"font-mono\">version</code> (ex. <strong class=\"text-body\">v0.2.2</strong>).",
+        "Les paquets sous <code class=\"font-mono\">frontend/dist/</code> sont inclus dans ce dépôt (recompilés en CI à chaque commit). Vous n’avez <strong class=\"text-body\">pas</strong> besoin de lancer <code class=\"font-mono\">npm</code> sur la machine Home Assistant pour une installation courante — redémarrez HA après mise à jour de l’intégration. Pour des installations reproductibles, alignez un tag Git sur <code class=\"font-mono\">manifest.json</code> → <code class=\"font-mono\">version</code> (ex. <strong class=\"text-body\">v0.2.3</strong>).",
       "install.lovelace_dev_html":
         "<strong class=\"text-body\">Développement :</strong> pour recompiler en local, depuis <code class=\"font-mono\">custom_components/hub_energie/frontend/</code> exécutez <code class=\"font-mono\">npm ci</code> puis <code class=\"font-mono\">npm run build</code>.",
 
       "lovelace.title": "Carte Lovelace",
       "lovelace.intro_html":
-        "Les artefacts de build (<code class=\"font-mono\">hub-energie-card-boot.js</code>, <code class=\"font-mono\">hub-energie-card.js</code> et les morceaux sous <code class=\"font-mono\">frontend/dist/</code>) sont livrés dans le dépôt et régénérés en CI à chaque commit. Home Assistant sert l’arborescence <code class=\"font-mono\">dist</code> sous <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>.",
+        "Les artefacts de build (<code class=\"font-mono\">hub-energie-card-boot.js</code>, <code class=\"font-mono\">hub-energie-card.js</code>, <code class=\"font-mono\">hub-energie-card-editor.js</code> et les morceaux partagés sous <code class=\"font-mono\">frontend/dist/</code>) sont livrés dans le dépôt et régénérés en CI à chaque commit. Home Assistant sert l’arborescence <code class=\"font-mono\">dist</code> sous <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>. Depuis la <strong class=\"text-body\">v0.2.3</strong>, la bande optionnelle <strong class=\"text-body\">Production solaire (énergie)</strong> répartit les kWh (autoconso, charge batterie, export attribué) pour le jour ou la période affichée sur la carte.",
 
       "lovelace.l1_title": "Tableaux de bord en mode stockage (défaut)",
       "lovelace.l1_html":
-        "Au démarrage, l’intégration enregistre <code class=\"font-mono\">/hub_energie/hub-energie-card-boot.js</code> en <strong class=\"text-body\">module JavaScript</strong> (comme <em>Réglages → Tableaux de bord → Ressources</em>). En général, rien à faire à la main.",
+        "Au <strong class=\"text-body\">démarrage</strong> et lorsque vous <strong class=\"text-body\">rechargez</strong> l’intégration, elle ajoute ou met à jour cette URL avec un paramètre d’<strong class=\"text-body\">invalidation de cache</strong> <code class=\"font-mono\">?v=…</code> (comme <em>Réglages → Tableaux de bord → Ressources</em>) pour que le navigateur charge les nouveaux fichiers <code class=\"font-mono\">dist/</code>. En général, rien à faire à la main.",
 
       "lovelace.l2_title": "Ressources gérées en YAML",
       "lovelace.l2_p": "Ajoutez vous-même l’URL d’amorçage :",
       "lovelace.l2_note_html":
-        "Remplacez les anciennes URL du type <code class=\"font-mono\">/hub_energie/dist/hub-energie-card.js</code> par l’URL d’amorçage. N’enregistrez pas deux modules pour la même carte.",
+        "Remplacez les anciennes URL du type <code class=\"font-mono\">/hub_energie/dist/hub-energie-card.js</code> par l’URL d’amorçage. Ajoutez <code class=\"font-mono\">?v=&lt;horodatage&gt;</code> si le navigateur conserve un ancien paquet. N’enregistrez pas deux modules pour la même carte.",
 
       "lovelace.l3_title": "Ajouter la carte",
 
@@ -416,47 +423,52 @@
       "lovelace.editor_title": "Éditeur visuel",
       "lovelace.editor_intro_html":
         "La carte dispose d’un éditeur complet (<code class=\"font-mono\">hub-energie-card-editor.js</code> dans le dépôt) pour régler la visibilité des sections, Tempo, la période et des entités optionnelles — sans YAML.",
-      "lovelace.editor_tree": "Captures",
-      "lovelace.ed1_t": "Mise en page & options",
-      "lovelace.ed1_d": "Sections, période, Tempo et affichage",
-      "lovelace.ed2_t": "Entités",
-      "lovelace.ed2_d": "Sélecteurs optionnels / diagnostic",
-      "lovelace.ed1_alt": "Éditeur de carte Lovelace — options générales",
-      "lovelace.ed2_alt": "Éditeur de carte Lovelace — choix d’entités",
+      "lovelace.ed1_alt": "Éditeur carte Lovelace — onglet configuration et prévisualisation",
+      "lovelace.editor_fig_cap_html":
+        "Onglet <strong class=\"text-body\">Configuration</strong> avec bascules de sections et aperçu live. D’autres captures (ex. <strong class=\"text-body\">Visibilité</strong> / <strong class=\"text-body\">Mise en page</strong>) pourront compléter sous <code class=\"font-mono\">lovelace-editor-02.png</code>.",
 
       "configure.title": "Configurer dans Home Assistant",
-      "configure.intro":
-        "Après un redémarrage complet, ajoutez l’intégration depuis l’interface et suivez l’assistant dans cet ordre :",
+      "configure.flow_lead_html":
+        "Après un <strong class=\"text-body\">redémarrage complet</strong>, ajoutez l’intégration via <strong class=\"text-body\">Réglages → Appareils et services → Ajouter une intégration</strong>. L’assistant n’est <strong class=\"text-body\">pas linéaire</strong> : les écrans dépendent du fournisseur, du mode auto/manuel des tarifs, du type d’offre EDF (BASE / HPHC / TEMPO), de la source Tempo, du câblage réseau mono/tri, du solaire et des batteries.",
 
-      "configure.s1_t": "Fournisseur",
-      "configure.s1_d": "EDF ou autre",
-      "configure.s2_t": "Type de phase",
-      "configure.s2_d": "Monophasé ou triphasé",
-      "configure.s3_t": "Tarif",
-      "configure.s3_d": "Automatique (EDF) ou manuel : prix unique, heures creuses, calendrier",
-      "configure.s4_t": "Contrat",
-      "configure.s4_d": "Puissance (kVA), nom",
-      "configure.s5_t": "Capteurs réseau",
-      "configure.s5_d": "Énergie importée (obligatoire), export, puissance",
-      "configure.s6_t": "Solaire",
-      "configure.s6_d": "Énergie, puissance, revente, estimation PV optionnelle",
-      "configure.s7_t": "Batteries",
-      "configure.s7_d": "Entrées/sorties par batterie ; puissance, SOC, capacité optionnels",
+      "configure.flow_map_title": "Structure des embranchements",
+      "configure.flow_map_html":
+        "<ul class=\"mb-0 ps-3\"><li><strong class=\"text-body\">Départ</strong> · <em>user</em> — fournisseur (EDF ou autre) et type de phase sur le même formulaire.</li><li><strong class=\"text-body\">Autre fournisseur</strong> · <em>supplier_custom</em> (nom) → tarif forcé en <strong class=\"text-body\">manuel</strong> → <em>contract</em> → assistant prix manuel (prix unique / heures creuses / calendrier) → <strong class=\"text-body\">réseau → solaire → batteries → fin</strong>.</li><li><strong class=\"text-body\">EDF + tarifs automatiques</strong> · <em>tariff_mode</em> (API fournisseur ou manuel) → <em>contract</em> (kVA, nom optionnel) → <em>edf_offer</em> (BASE, HPHC ou TEMPO). Si <strong class=\"text-body\">TEMPO</strong> : <em>edf_tempo</em> — <strong class=\"text-body\">RTE</strong> (API OAuth) ou <strong class=\"text-body\">API Couleur Tempo</strong> (sans identifiants). RTE ajoute <em>edf_tempo_rte</em> (id + secret, validés). Puis récupération des tarifs EDF et enchaînement <strong class=\"text-body\">réseau → solaire → batteries → fin</strong>.</li><li><strong class=\"text-body\">EDF + tarifs manuels</strong> · pas d’écran offre/Tempo ; après <em>contract</em>, même branche prix manuel que « autre fournisseur ».</li><li><strong class=\"text-body\">Après résolution des prix</strong> · <em>grid</em> (import obligatoire ; export / puissance optionnels) ; le <strong class=\"text-body\">triphasé</strong> ajoute des sous-étapes. Puis <em>solar</em> (production, revente, estimation), puis assistant <em>batterie</em> (0..N), puis création de l’entrée.</li></ul>",
 
-      "configure.tree_label": "Étapes de l’assistant",
-      "configure.carousel_hint_html":
-        "Nommez les captures <code class=\"font-mono\">config-flow-01.png</code> … <code class=\"font-mono\">07.png</code> dans <code class=\"font-mono\">public/img/</code>. Utilisez l’arborescence à gauche ou les flèches pour passer d’une étape à l’autre.",
-      "configure.slide1_alt": "Hub Énergie — assistant étape 1 fournisseur",
-      "configure.slide2_alt": "Hub Énergie — assistant étape 2 phase",
-      "configure.slide3_alt": "Hub Énergie — assistant étape 3 tarif",
-      "configure.slide4_alt": "Hub Énergie — assistant étape 4 contrat",
-      "configure.slide5_alt": "Hub Énergie — assistant étape 5 capteurs réseau",
-      "configure.slide6_alt": "Hub Énergie — assistant étape 6 solaire",
-      "configure.slide7_alt": "Hub Énergie — assistant étape 7 batteries",
+      "configure.flow_example_path_html":
+        "Le carrousel ci-dessous suit un <strong class=\"text-body\">chemin documenté</strong> : <strong class=\"text-body\">EDF · mono · tarifs auto · TEMPO · RTE</strong> (fichiers <code class=\"font-mono\">config-flow-edf-01-user.png</code> … <code class=\"font-mono\">06-rte-credentials.png</code>).",
+
+      "configure.flow_carousel_tree": "Ce parcours (6 étapes)",
+
+      "configure.flow_ex_1_t": "Utilisateur",
+      "configure.flow_ex_1_d": "Fournisseur & phase",
+      "configure.flow_ex_2_t": "Mode tarifaire",
+      "configure.flow_ex_2_d": "Automatique (API) ou manuel",
+      "configure.flow_ex_3_t": "Contrat",
+      "configure.flow_ex_3_d": "Puissance souscrite & nom optionnel",
+      "configure.flow_ex_4_t": "Offre EDF",
+      "configure.flow_ex_4_d": "BASE, HPHC ou TEMPO",
+      "configure.flow_ex_5_t": "Source Tempo",
+      "configure.flow_ex_5_d": "RTE ou API Couleur Tempo",
+      "configure.flow_ex_6_t": "Identifiants RTE",
+      "configure.flow_ex_6_d": "Si vous choisissez RTE",
+      "configure.flow_ex_1_alt": "Hub Énergie — utilisateur : fournisseur et phase",
+      "configure.flow_ex_2_alt": "Hub Énergie — mode de récupération tarifaire",
+      "configure.flow_ex_3_alt": "Hub Énergie — détails du contrat",
+      "configure.flow_ex_4_alt": "Hub Énergie — sélection de l’offre EDF",
+      "configure.flow_ex_5_alt": "Hub Énergie — source du signal Tempo",
+      "configure.flow_ex_6_alt": "Hub Énergie — identifiants API RTE",
+      "configure.flow_after_rte_html":
+        "Après identifiants valides (ou si vous choisissez <strong class=\"text-body\">API Couleur Tempo</strong>), les tarifs EDF sont récupérés puis viennent les <strong class=\"text-body\">capteurs réseau</strong> (import obligatoire ; le triphasé ajoute des écrans), puis le <strong class=\"text-body\">solaire</strong>, puis les <strong class=\"text-body\">batteries</strong>. Ces étapes ne sont pas encore illustrées — envoyez des captures si vous voulez les intégrer.",
 
       "devices.title": "Modèle d’appareils",
       "devices.intro":
         "Un appareil Home Assistant par périmètre logique. Le placement des entités suit les domaines mesurés ou configurés ; voir <code class=\"font-mono\">CHANGELOG.md</code> pour le détail.",
+
+      "devices.integration_title": "Page de l’intégration",
+      "devices.integration_alt": "Entrée Hub Énergie avec la liste des appareils",
+      "devices.integration_cap_html":
+        "<strong class=\"text-body\">Réglages → Appareils et services → Hub Énergie</strong> : une entrée de configuration (pont) regroupe les appareils logiques — par ex. Offre, Réseau, Solaire, une ligne par batterie, la synthèse batteries, Bilan énergétique, Coûts, Diagnostics. Les libellés (ex. « Toutes batteries ») et le nombre d’entités varient selon votre installation.",
 
       "devices.th_device": "Appareil",
       "devices.th_purpose": "Rôle",
@@ -532,7 +544,7 @@
         "Solaire modélisé et autres approximations lorsqu’il n’y a pas de compteur direct.",
 
       "footer.p1_html":
-        "Hub Énergie — instantané de documentation <strong class=\"text-body\">v0.2.2</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>.",
+        "Hub Énergie — instantané de documentation <strong class=\"text-body\">v0.2.3</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>.",
       "footer.license": "Licence : voir le dépôt.",
     },
   };

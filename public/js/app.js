@@ -175,7 +175,6 @@
 
   wireDocCarouselImages();
   wireCarouselPair("configFlowCarousel", "configFlowTree");
-  wireCarouselPair("cardEditorCarousel", "cardEditorTree");
   wireCarouselPair("devicesGalleryCarousel", "devicesGalleryTree");
 
   document.querySelectorAll('#toc-nav-mobile a[href^="#"]').forEach(function (a) {
