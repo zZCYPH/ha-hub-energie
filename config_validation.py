@@ -48,6 +48,9 @@ from .const import (
     CONF_TRI_EXPORT_ENERGY_P1,
     CONF_TRI_EXPORT_ENERGY_P2,
     CONF_TRI_EXPORT_ENERGY_P3,
+    CONF_TRI_GRID_POWER_P1,
+    CONF_TRI_GRID_POWER_P2,
+    CONF_TRI_GRID_POWER_P3,
     CONF_TRI_IMPORT_ENERGY_P1,
     CONF_TRI_IMPORT_ENERGY_P2,
     CONF_TRI_IMPORT_ENERGY_P3,
@@ -889,11 +892,24 @@ class HubEnergieConfigValidator:
             else:
                 patch[CONF_GRID_EXPORT_ENERGY_PHASES] = None
             patch[CONF_GRID_EXPORT_ENERGY] = None
-            patch[CONF_GRID_POWER_SENSOR] = _optional_entity_id(
-                user_input.get(CONF_GRID_POWER_SENSOR),
-                errors,
-                CONF_GRID_POWER_SENSOR,
-            )
+            power_phases: list[dict[str, Any]] = []
+            for phase_num, pkey in (
+                (1, CONF_TRI_GRID_POWER_P1),
+                (2, CONF_TRI_GRID_POWER_P2),
+                (3, CONF_TRI_GRID_POWER_P3),
+            ):
+                peid = _optional_entity_id(
+                    user_input.get(pkey), errors, pkey
+                )
+                if peid:
+                    power_phases.append(
+                        {"phase": phase_num, "entity_id": peid}
+                    )
+            if power_phases:
+                patch[CONF_GRID_POWER_PHASES] = power_phases
+                patch[CONF_GRID_POWER_SENSOR] = None
+            else:
+                patch[CONF_GRID_POWER_PHASES] = None
             patch[CONF_LOAD_POWER_SENSOR] = _optional_entity_id(
                 user_input.get(CONF_LOAD_POWER_SENSOR),
                 errors,

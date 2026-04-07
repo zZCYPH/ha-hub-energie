@@ -174,19 +174,23 @@
         "description": "Select one import energy sensor per phase. Optional: three export sensors (all or none).",
         "data": {
           "grid_power_sign_mode": "Grid power sign convention",
-          "grid_power_sensor": "Grid power (W, optional)",
           "load_power_sensor": "House load power (W, optional)",
           "tri_import_energy_p1": "Phase L1 — grid import energy (kWh)",
           "tri_import_energy_p2": "Phase L2 — grid import energy (kWh)",
           "tri_import_energy_p3": "Phase L3 — grid import energy (kWh)",
           "tri_export_energy_p1": "Phase L1 — grid export energy (kWh, optional)",
           "tri_export_energy_p2": "Phase L2 — grid export energy (kWh, optional)",
-          "tri_export_energy_p3": "Phase L3 — grid export energy (kWh, optional)"
+          "tri_export_energy_p3": "Phase L3 — grid export energy (kWh, optional)",
+          "tri_grid_power_p1": "Phase L1 — grid power (W, optional)",
+          "tri_grid_power_p2": "Phase L2 — grid power (W, optional)",
+          "tri_grid_power_p3": "Phase L3 — grid power (W, optional)"
         },
         "data_description": {
-          "grid_power_sign_mode": "Convention: is export negative or positive on the grid power sensor?",
-          "grid_power_sensor": "Instantaneous grid power for real-time display.",
-          "load_power_sensor": "Optional house consumption for load-side diagnostics."
+          "grid_power_sign_mode": "Convention: is export negative or positive on your per-phase grid power sensors?",
+          "load_power_sensor": "Optional house consumption for load-side diagnostics.",
+          "tri_grid_power_p1": "Instantaneous power on L1; the integration sums whichever phases you set for real-time display. For a single total sensor, fill only one phase.",
+          "tri_grid_power_p2": "Instantaneous power on L2.",
+          "tri_grid_power_p3": "Instantaneous power on L3."
         }
       },
       "grid": {
@@ -468,14 +472,16 @@
         "description": "One import sensor per phase. Export: three sensors or none.",
         "data": {
           "grid_power_sign_mode": "Grid power sign convention",
-          "grid_power_sensor": "Grid power (W, optional)",
           "load_power_sensor": "House load power (W, optional)",
           "tri_import_energy_p1": "L1 — grid import energy (kWh)",
           "tri_import_energy_p2": "L2 — grid import energy (kWh)",
           "tri_import_energy_p3": "L3 — grid import energy (kWh)",
           "tri_export_energy_p1": "L1 — grid export (kWh, optional)",
           "tri_export_energy_p2": "L2 — grid export (kWh, optional)",
-          "tri_export_energy_p3": "L3 — grid export (kWh, optional)"
+          "tri_export_energy_p3": "L3 — grid export (kWh, optional)",
+          "tri_grid_power_p1": "L1 — grid power (W, optional)",
+          "tri_grid_power_p2": "L2 — grid power (W, optional)",
+          "tri_grid_power_p3": "L3 — grid power (W, optional)"
         }
       },
       "grid": {

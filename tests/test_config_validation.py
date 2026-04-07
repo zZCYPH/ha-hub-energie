@@ -530,6 +530,47 @@ def test_grid_tri_per_phase_step_builds_phase_lists() -> None:
         {"phase": 3, "entity_id": "sensor.i3"},
     ]
     assert patch.get(const.CONF_GRID_EXPORT_ENERGY_PHASES) is None
+    assert patch.get(const.CONF_GRID_POWER_PHASES) is None
+    assert const.CONF_GRID_POWER_SENSOR not in patch
+
+
+def test_grid_tri_per_phase_instantaneous_power_per_phase() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "grid_tri_per_phase",
+        {const.CONF_GRID_POWER_SENSOR: "sensor.grid_total_w"},
+        {
+            const.CONF_TRI_IMPORT_ENERGY_P1: "sensor.i1",
+            const.CONF_TRI_IMPORT_ENERGY_P2: "sensor.i2",
+            const.CONF_TRI_IMPORT_ENERGY_P3: "sensor.i3",
+            const.CONF_GRID_POWER_SIGN_MODE: const.GRID_POWER_SIGN_EXPORT_NEGATIVE,
+            const.CONF_TRI_GRID_POWER_P1: "sensor.p1_w",
+            const.CONF_TRI_GRID_POWER_P2: "sensor.p2_w",
+            const.CONF_TRI_GRID_POWER_P3: "sensor.p3_w",
+        },
+    )
+    assert errors == {}
+    assert patch[const.CONF_GRID_POWER_PHASES] == [
+        {"phase": 1, "entity_id": "sensor.p1_w"},
+        {"phase": 2, "entity_id": "sensor.p2_w"},
+        {"phase": 3, "entity_id": "sensor.p3_w"},
+    ]
+    assert patch[const.CONF_GRID_POWER_SENSOR] is None
+
+
+def test_grid_tri_per_phase_without_power_keeps_prior_total_sensor() -> None:
+    patch, errors = HubEnergieConfigValidator.validate_step(
+        "grid_tri_per_phase",
+        {const.CONF_GRID_POWER_SENSOR: "sensor.grid_total_w"},
+        {
+            const.CONF_TRI_IMPORT_ENERGY_P1: "sensor.i1",
+            const.CONF_TRI_IMPORT_ENERGY_P2: "sensor.i2",
+            const.CONF_TRI_IMPORT_ENERGY_P3: "sensor.i3",
+            const.CONF_GRID_POWER_SIGN_MODE: const.GRID_POWER_SIGN_EXPORT_NEGATIVE,
+        },
+    )
+    assert errors == {}
+    assert patch.get(const.CONF_GRID_POWER_PHASES) is None
+    assert const.CONF_GRID_POWER_SENSOR not in patch
 
 
 def test_grid_tri_per_phase_export_requires_all_three_or_none() -> None:

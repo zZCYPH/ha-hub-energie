@@ -66,6 +66,9 @@ CONF_TRI_IMPORT_ENERGY_P3: Final = "tri_import_energy_p3"
 CONF_TRI_EXPORT_ENERGY_P1: Final = "tri_export_energy_p1"
 CONF_TRI_EXPORT_ENERGY_P2: Final = "tri_export_energy_p2"
 CONF_TRI_EXPORT_ENERGY_P3: Final = "tri_export_energy_p3"
+CONF_TRI_GRID_POWER_P1: Final = "tri_grid_power_p1"
+CONF_TRI_GRID_POWER_P2: Final = "tri_grid_power_p2"
+CONF_TRI_GRID_POWER_P3: Final = "tri_grid_power_p3"
 
 # ---------------------------------------------------------------------------
 # Tariff mode

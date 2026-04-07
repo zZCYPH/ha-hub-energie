@@ -174,19 +174,23 @@
         "description": "Un capteur d'import par phase. Export : trois capteurs ou aucun.",
         "data": {
           "grid_power_sign_mode": "Convention de signe puissance réseau",
-          "grid_power_sensor": "Puissance réseau (W, optionnel)",
           "load_power_sensor": "Puissance consommation maison (W, optionnel)",
           "tri_import_energy_p1": "Phase L1 — import réseau (kWh)",
           "tri_import_energy_p2": "Phase L2 — import réseau (kWh)",
           "tri_import_energy_p3": "Phase L3 — import réseau (kWh)",
           "tri_export_energy_p1": "Phase L1 — export réseau (kWh, optionnel)",
           "tri_export_energy_p2": "Phase L2 — export réseau (kWh, optionnel)",
-          "tri_export_energy_p3": "Phase L3 — export réseau (kWh, optionnel)"
+          "tri_export_energy_p3": "Phase L3 — export réseau (kWh, optionnel)",
+          "tri_grid_power_p1": "Phase L1 — puissance réseau (W, optionnel)",
+          "tri_grid_power_p2": "Phase L2 — puissance réseau (W, optionnel)",
+          "tri_grid_power_p3": "Phase L3 — puissance réseau (W, optionnel)"
         },
         "data_description": {
-          "grid_power_sign_mode": "L'export est-il négatif ou positif sur le capteur de puissance réseau ?",
-          "grid_power_sensor": "Puissance instantanée pour l'affichage temps réel.",
-          "load_power_sensor": "Consommation maison optionnelle pour le diagnostic."
+          "grid_power_sign_mode": "L'export est-il négatif ou positif sur vos capteurs de puissance réseau (par phase) ?",
+          "load_power_sensor": "Consommation maison optionnelle pour le diagnostic.",
+          "tri_grid_power_p1": "Puissance instantanée L1 ; l'intégration additionne les phases renseignées pour le temps réel. Un seul capteur « total » : ne renseignez qu'une phase.",
+          "tri_grid_power_p2": "Puissance instantanée L2.",
+          "tri_grid_power_p3": "Puissance instantanée L3."
         }
       },
       "grid": {
@@ -486,14 +490,16 @@
         "description": "Un capteur d'import par phase. Export : trois capteurs ou aucun.",
         "data": {
           "grid_power_sign_mode": "Convention de signe puissance réseau",
-          "grid_power_sensor": "Puissance réseau (W, optionnel)",
           "load_power_sensor": "Puissance maison (W, optionnel)",
           "tri_import_energy_p1": "L1 — import réseau (kWh)",
           "tri_import_energy_p2": "L2 — import réseau (kWh)",
           "tri_import_energy_p3": "L3 — import réseau (kWh)",
           "tri_export_energy_p1": "L1 — export (kWh, optionnel)",
           "tri_export_energy_p2": "L2 — export (kWh, optionnel)",
-          "tri_export_energy_p3": "L3 — export (kWh, optionnel)"
+          "tri_export_energy_p3": "L3 — export (kWh, optionnel)",
+          "tri_grid_power_p1": "L1 — puissance réseau (W, optionnel)",
+          "tri_grid_power_p2": "L2 — puissance réseau (W, optionnel)",
+          "tri_grid_power_p3": "L3 — puissance réseau (W, optionnel)"
         }
       },
       "grid_tri_layout": {

@@ -110,6 +110,9 @@ from .const import (
     CONF_TRI_EXPORT_ENERGY_P1,
     CONF_TRI_EXPORT_ENERGY_P2,
     CONF_TRI_EXPORT_ENERGY_P3,
+    CONF_TRI_GRID_POWER_P1,
+    CONF_TRI_GRID_POWER_P2,
+    CONF_TRI_GRID_POWER_P3,
     CONF_TRI_IMPORT_ENERGY_P1,
     CONF_TRI_IMPORT_ENERGY_P2,
     CONF_TRI_IMPORT_ENERGY_P3,
@@ -601,6 +604,10 @@ def _tri_per_phase_export_default(data: dict[str, Any], phase: int) -> str:
     return _tri_phase_entity_default(data, phase, CONF_GRID_EXPORT_ENERGY_PHASES)
 
 
+def _tri_per_phase_grid_power_default(data: dict[str, Any], phase: int) -> str:
+    return _tri_phase_entity_default(data, phase, CONF_GRID_POWER_PHASES)
+
+
 def _grid_tri_per_phase_schema(data: dict[str, Any]) -> vol.Schema:
     schema: dict[Any, Any] = {
         vol.Required(
@@ -614,7 +621,9 @@ def _grid_tri_per_phase_schema(data: dict[str, Any]) -> vol.Schema:
     _add_optional(schema, CONF_TRI_EXPORT_ENERGY_P1, optional_energy_entity(), _tri_per_phase_export_default(data, 1))
     _add_optional(schema, CONF_TRI_EXPORT_ENERGY_P2, optional_energy_entity(), _tri_per_phase_export_default(data, 2))
     _add_optional(schema, CONF_TRI_EXPORT_ENERGY_P3, optional_energy_entity(), _tri_per_phase_export_default(data, 3))
-    _add_optional(schema, CONF_GRID_POWER_SENSOR, optional_power_entity(), data.get(CONF_GRID_POWER_SENSOR))
+    _add_optional(schema, CONF_TRI_GRID_POWER_P1, optional_power_entity(), _tri_per_phase_grid_power_default(data, 1))
+    _add_optional(schema, CONF_TRI_GRID_POWER_P2, optional_power_entity(), _tri_per_phase_grid_power_default(data, 2))
+    _add_optional(schema, CONF_TRI_GRID_POWER_P3, optional_power_entity(), _tri_per_phase_grid_power_default(data, 3))
     _add_optional(schema, CONF_LOAD_POWER_SENSOR, optional_power_entity(), data.get(CONF_LOAD_POWER_SENSOR))
     return vol.Schema(schema)
 
