@@ -1,47 +1,47 @@
 # Hub Énergie — coverage aligned with energy/financial reliability (not “easy-only” lines).
 # Glue HA and network I/O stay omitted; pure business logic and tariff/battery helpers are measured.
+# Omit patterns use **/ so they match paths under custom_components/hub_energie/ (see [run] source).
 [run]
 branch = true
-source = .
+source = custom_components/hub_energie
 parallel = false
 omit =
     # --- Tests and non-product entrypoints ---
-    tests/*
-    test_standalone.py
+    **/tests/*
+    **/test_standalone.py
     # --- Package markers (no logic) ---
-    */__init__.py
-    __init__.py
+    **/__init__.py
     # --- Home Assistant glue (UI, lifecycle, listeners) ---
     # coordinator.py: still where enriched snapshot trust/input is *wired* (_build_snapshot:
     # TrustInputs assembly, probe + derive_input_status, delta fields). Core rules are measured
     # elsewhere: energy/trust_level.py, utils/input_availability.py, energy/delta_observability.py,
     # snapshot/pipeline.py, snapshot/snapshot_builder.py. If assembly grows, extract or add tests.
-    sensor.py
-    sensors/*
-    binary_sensor.py
-    config_flow.py
-    config_flow_selectors.py
-    coordinator.py
-    device_info.py
-    migration.py
-    scheduler.py
-    config_entity_checks.py
-    ha/*
-    runtime/events.py
-    runtime/poll_schedule.py
-    snapshot/coordinator_bridge.py
-    snapshot/inputs_builder.py
-    tempo/service.py
+    **/sensor.py
+    **/sensors/*
+    **/binary_sensor.py
+    **/config_flow.py
+    **/config_flow_selectors.py
+    **/coordinator.py
+    **/device_info.py
+    **/migration.py
+    **/scheduler.py
+    **/config_entity_checks.py
+    **/ha/*
+    **/runtime/events.py
+    **/runtime/poll_schedule.py
+    **/snapshot/coordinator_bridge.py
+    **/snapshot/inputs_builder.py
+    **/tempo/service.py
     # --- Root shims (re-export to runtime/) ---
-    persistence_manager.py
-    runtime_state.py
+    **/persistence_manager.py
+    **/runtime_state.py
     # --- Heavy network / integration ---
-    providers/edf.py
-    tariff/edf_client.py
-    tariff/edf_state.py
-    tariff/refresh.py
+    **/providers/edf.py
+    **/tariff/edf_client.py
+    **/tariff/edf_state.py
+    **/tariff/refresh.py
     # --- Legacy / large standalone ---
-    solar_model.py
+    **/solar_model.py
 
 [report]
 precision = 2

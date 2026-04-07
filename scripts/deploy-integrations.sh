@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy this integration (repo root = custom_components package) to Home Assistant.
+# Deploy this integration (package under custom_components/hub_energie/) to Home Assistant.
 # Same pattern as before: rsync to /tmp, then sudo install (no write perms needed on config/).
 #
 # Run from the integration root, for example:
@@ -22,8 +22,9 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MODULE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-INTEGRATION_NAME="$(basename "$MODULE_ROOT")"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+MODULE_ROOT="$(cd "$REPO_ROOT/custom_components/hub_energie" && pwd)"
+INTEGRATION_NAME="hub_energie"
 
 REMOTE_USER="${REMOTE_USER:-cyph}"
 REMOTE_HOST="${REMOTE_HOST:-192.168.5.190}"
@@ -71,8 +72,8 @@ cleanup_excludes() { rm -f "$RSYNC_EXCLUDES_FILE"; }
 trap cleanup_excludes EXIT
 
 {
-  _append_exclude_file "$MODULE_ROOT" ".gitignore"
-  _append_exclude_file "$MODULE_ROOT" ".deployignore"
+  _append_exclude_file "$REPO_ROOT" ".gitignore"
+  _append_exclude_file "$REPO_ROOT" ".deployignore"
 } > "$RSYNC_EXCLUDES_FILE"
 
 echo "=== Deploy $INTEGRATION_NAME -> $REMOTE_TARGET:$REMOTE_CUSTOM_COMPONENTS_DIR ==="

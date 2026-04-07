@@ -8,7 +8,7 @@ import types
 from datetime import datetime
 from pathlib import Path
 
-HUB_DIR = Path(__file__).resolve().parents[1]
+HUB_DIR = Path(__file__).resolve().parents[1] / "custom_components" / "hub_energie"
 
 
 def _ensure_pkg(name: str, path: Path) -> None:

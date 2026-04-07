@@ -262,7 +262,8 @@ _skipped_nodeids: set[str] = set()
 def pytest_configure(config: object) -> None:
     """Map ``hub_energie`` to the integration root so tests can import submodules."""
     _skipped_nodeids.clear()
-    hub_dir = Path(__file__).resolve().parents[1]
+    repo_root = Path(__file__).resolve().parents[1]
+    hub_dir = repo_root / "custom_components" / "hub_energie"
     if "hub_energie" in sys.modules:
         return
     pkg = types.ModuleType("hub_energie")

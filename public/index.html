@@ -516,10 +516,9 @@
                         <div class="step-title" data-i18n="install.h2_title">Download the integration</div>
                         <p class="small text-secondary mb-0" data-i18n-html="install.h2_p_html">
                           HACS → <strong class="text-body">Integrations</strong> → find
-                          <strong class="text-body">Hub Énergie</strong> → Download. Files must land under
-                          <code class="font-mono">custom_components/hub_energie/</code> (repo uses
-                          <code class="font-mono">content_in_root</code> in
-                          <code class="font-mono">hacs.json</code>).
+                          <strong class="text-body">Hub Énergie</strong> → Download. HACS installs from the
+                          <code class="font-mono">custom_components/hub_energie/</code> folder in the repository
+                          (standard layout).
                         </p>
                       </div>
                     </div>
@@ -545,8 +544,8 @@
                       <span class="step-badge">1</span>
                       <div class="step-body">
                         <div class="step-title" data-i18n="install.git.s1_title">Clone into the right folder</div>
-                        <pre class="doc-code mt-2 mb-0"><code>cd /path/to/homeassistant/config/custom_components
-git clone &lt;your-repo-url&gt; hub_energie</code></pre>
+                        <pre class="doc-code mt-2 mb-0"><code>git clone &lt;your-repo-url&gt; hub-energie-src
+cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/config/custom_components/hub_energie</code></pre>
                       </div>
                     </div>
                   </li>
@@ -572,10 +571,12 @@ git clone &lt;your-repo-url&gt; hub_energie</code></pre>
                       <div class="step-body">
                         <div class="step-title" data-i18n="install.copy.s1_title">Copy the full tree</div>
                         <p class="small text-secondary mb-0" data-i18n-html="install.copy.s1_html">
-                          Copy the entire repo into
-                          <code class="font-mono">custom_components/hub_energie/</code> — all subfolders
-                          (<code class="font-mono">battery/</code>, <code class="font-mono">energy/</code>,
-                          <code class="font-mono">frontend/</code>, etc.). Do not cherry-pick single files.
+                          From this repository, copy only the
+                          <code class="font-mono">custom_components/hub_energie/</code> tree into your Home
+                          Assistant <code class="font-mono">config/custom_components/hub_energie/</code> — all
+                          subfolders (<code class="font-mono">battery/</code>,
+                          <code class="font-mono">energy/</code>, <code class="font-mono">frontend/</code>,
+                          etc.). Do not copy the repo root into HA.
                         </p>
                       </div>
                     </div>

@@ -4,7 +4,7 @@ A Home Assistant custom integration for energy monitoring, cost tracking, and di
 
 It targets generic supplier and tariff setups, multi-battery systems, solar PV estimation (optional), and three-phase grid support.
 
-**Home Assistant:** 2024.10.0 or newer (see `manifest.json`). **HACS:** the repo is structured for HACS (`hacs.json` with `content_in_root`, `brand/icon.png` per [HACS integration requirements](https://hacs.xyz/docs/publish/integration/)).
+**Home Assistant:** 2024.10.0 or newer (see `custom_components/hub_energie/manifest.json`). **HACS:** standard layout with the integration under `custom_components/hub_energie/` in this repository (`hacs.json`, `brand/icon.png` per [HACS integration requirements](https://hacs.xyz/docs/publish/integration/)). The `public/` folder is only for **GitLab Pages** documentation, not loaded by Home Assistant.
 
 ## Supported scope (v0.2.x)
 
@@ -57,7 +57,7 @@ The integration is designed to be transparent when data is imperfect. The points
 - **Solar estimation (optional)** — When enabled, PV power and energy are **clear-sky model outputs** (simplified irradiance, no real cloud cover). Treat them as **indicative**, not a substitute for a production meter.
 - **Power graph on the Lovelace card** — The card loads past power curves via **`recorder/statistics_during_period`** on the configured power entities. If statistics are missing (e.g. entity without a suitable **`state_class`**, or not enough history yet), the graph can be empty or incomplete; the card reports that case in plain language.
 - **Health / trust states** — The **`…_health`** sensor can read **`ok`**, **`degraded`**, **`rebuilding`**, **`inconsistent`**, or **`no_input`**. They summarise probes, delta telemetry, staleness, optional missing entities, Tempo/RTE readiness, battery data quality, unknown tariff bucket usage, and **store vs recorder rebuild**—not a single physical fault. **`rebuilding`** is expected briefly after a **recorder-based rebuild** of internal kWh state.
-- **When some numbers are withheld** — If the grid import counter is not readable, **`no_input`** applies and **specific** grid/cost-adjacent sensors hide their numeric state (grid SSOT total, grid/home “today” kWh, savings). When trust is **`inconsistent`**, `input_status` is **`error`** and the same **sensor-level** protections apply. The main **“Coût du jour”** entity can still show a value from internal accounting — use **`…_health`** and **`input_status`** before trusting it. Details: [`docs/troubleshooting.md`](docs/troubleshooting.md).
+- **When some numbers are withheld** — If the grid import counter is not readable, **`no_input`** applies and **specific** grid/cost-adjacent sensors hide their numeric state (grid SSOT total, grid/home “today” kWh, savings). When trust is **`inconsistent`**, `input_status` is **`error`** and the same **sensor-level** protections apply. The main **“Coût du jour”** entity can still show a value from internal accounting — use **`…_health`** and **`input_status`** before trusting it. Details: [`custom_components/hub_energie/docs/troubleshooting.md`](custom_components/hub_energie/docs/troubleshooting.md).
 - **Partial operation** — Solar, export, batteries, and many sensors are **optional**. Missing or unavailable optional entities contribute to **degraded** diagnostics, but the coordinator can still refresh what it can. A readable **grid import** energy entity remains central to slot/cost logic.
 - **Power vs energy** — **Energy** SSOT totals are accumulated and persisted (store + statistics writes). **Instantaneous power** and power-flow views are derived from the latest coordinator cycle; they are not stored the same way as kWh totals.
 - **Experimental paths** — Items listed under **Experimental / best-effort** in *Supported scope* (e.g. power-flow-based battery split, opportunity-cost style diagnostics) can be noisy or incomplete when inputs are partial.
@@ -72,21 +72,21 @@ The integration is designed to be transparent when data is imperfect. The points
 
 ### Troubleshooting (trust, recovery, unknown bucket)
 
-For a concrete guide to **`…_health`** states (`ok` / `degraded` / `rebuilding` / `inconsistent` / `no_input`), the tariff **`unknown`** bucket, measured vs reconstructed vs estimated energy, and **store / recorder** recovery paths, see **[`docs/troubleshooting.md`](docs/troubleshooting.md)**.
+For a concrete guide to **`…_health`** states (`ok` / `degraded` / `rebuilding` / `inconsistent` / `no_input`), the tariff **`unknown`** bucket, measured vs reconstructed vs estimated energy, and **store / recorder** recovery paths, see **[`custom_components/hub_energie/docs/troubleshooting.md`](custom_components/hub_energie/docs/troubleshooting.md)**.
 
 ## Installation
 
-This repository **is** the contents of the `hub_energie` integration package. You must install it **exactly** under:
+The integration package in this repository lives under **`custom_components/hub_energie/`**. You must install **that folder’s contents** **exactly** under:
 
 `<config directory>/custom_components/hub_energie/`
 
-So that Home Assistant loads `custom_components/hub_energie/manifest.json` (not a nested copy such as `custom_components/hub_energie/hub_energie/`).
+So that Home Assistant loads `custom_components/hub_energie/manifest.json` (not a nested copy such as `custom_components/hub_energie/hub_energie/`). Ignore `public/`, `tests/`, `scripts/`, and other repo-only paths when copying to Home Assistant.
 
 **Ways to install**
 
-1. **HACS (custom repository)** — In HACS: open the menu (⋮) → **Custom repositories** → add your repository URL → category **Integration** → **Add**. Then open **HACS → Integrations**, find **Hub Énergie**, and **Download**. HACS installs the package under `custom_components/hub_energie/` (root-of-repo layout is enabled via `content_in_root` in `hacs.json`). After install, restart Home Assistant, then add the integration under **Settings → Devices & services**. If you use the Lovelace card, run `npm ci` and `npm run build` inside `custom_components/hub_energie/frontend/` on the host (same as a manual install). Listing in the default HACS store requires a public **GitHub** repo per [HACS publishing rules](https://hacs.xyz/docs/publish/start/); GitLab or other hosts still work for **manual** install or if your HACS version accepts them as custom repositories.
-2. **Clone** this repo **into** `custom_components/hub_energie` (git clone URL `custom_components/hub_energie`), **or**
-3. **Copy** the full tree from the repo root into `custom_components/hub_energie`, preserving all subfolders (`battery/`, `energy/`, `frontend/`, `runtime/`, `snapshot/`, `translations/`, etc.).
+1. **HACS (custom repository)** — In HACS: open the menu (⋮) → **Custom repositories** → add your repository URL → category **Integration** → **Add**. Then open **HACS → Integrations**, find **Hub Énergie**, and **Download**. HACS installs from the `custom_components/hub_energie/` path in the repo (default HACS layout; no `content_in_root`). After install, restart Home Assistant, then add the integration under **Settings → Devices & services**. If you use the Lovelace card, run `npm ci` and `npm run build` inside `custom_components/hub_energie/frontend/` on the host (same as a manual install). Listing in the default HACS store requires a public **GitHub** repo per [HACS publishing rules](https://hacs.xyz/docs/publish/start/); GitLab or other hosts still work for **manual** install or if your HACS version accepts them as custom repositories.
+2. **Clone** this repository, then copy **`custom_components/hub_energie/`** from the clone into your Home Assistant `config/custom_components/hub_energie/` (replace or merge as needed), **or**
+3. **Copy** only the tree under `custom_components/hub_energie/` from this repository into `custom_components/hub_energie/` on your host, preserving all subfolders (`battery/`, `energy/`, `frontend/`, `runtime/`, `snapshot/`, `translations/`, etc.).
 
 Do **not** cherry-pick only a few files: the integration is a single Python package split across many modules.
 
@@ -96,7 +96,7 @@ After copying or cloning:
 2. **Restart Home Assistant** (full restart, not only “Reload YAML”).
 3. Add the integration: **Settings → Devices & services → Add integration → Hub Énergie**.
 
-**Version:** see `manifest.json` (`version` field). For reproducible installs, use the Git tag matching that version (e.g. **v0.2.2**).
+**Version:** see `custom_components/hub_energie/manifest.json` (`version` field). For reproducible installs, use the Git tag matching that version (e.g. **v0.2.2**).
 
 ## Lovelace Card
 

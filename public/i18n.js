@@ -107,7 +107,7 @@
 
       "install.h2_title": "Download the integration",
       "install.h2_p_html":
-        "HACS → <strong class=\"text-body\">Integrations</strong> → find <strong class=\"text-body\">Hub Énergie</strong> → Download. Files must land under <code class=\"font-mono\">custom_components/hub_energie/</code> (repo uses <code class=\"font-mono\">content_in_root</code> in <code class=\"font-mono\">hacs.json</code>).",
+        "HACS → <strong class=\"text-body\">Integrations</strong> → find <strong class=\"text-body\">Hub Énergie</strong> → Download. HACS installs from the <code class=\"font-mono\">custom_components/hub_energie/</code> folder in the repository (standard layout).",
 
       "install.h3_title": "Restart Home Assistant",
       "install.h3_p_html":
@@ -120,7 +120,7 @@
 
       "install.copy.s1_title": "Copy the full tree",
       "install.copy.s1_html":
-        "Copy the entire repo into <code class=\"font-mono\">custom_components/hub_energie/</code> — all subfolders (<code class=\"font-mono\">battery/</code>, <code class=\"font-mono\">energy/</code>, <code class=\"font-mono\">frontend/</code>, etc.). Do not cherry-pick single files.",
+        "From this repository, copy only the <code class=\"font-mono\">custom_components/hub_energie/</code> tree into your Home Assistant <code class=\"font-mono\">config/custom_components/hub_energie/</code> — all subfolders (<code class=\"font-mono\">battery/</code>, <code class=\"font-mono\">energy/</code>, <code class=\"font-mono\">frontend/</code>, etc.). Do not copy the repo root (<code class=\"font-mono\">public/</code>, <code class=\"font-mono\">tests/</code>, …) into HA.",
       "install.copy.s2_title": "Restart & add the integration",
       "install.copy.s2_p_html": "Full restart, then <a href=\"#configure\">Configure in HA</a>.",
 
@@ -322,7 +322,7 @@
 
       "install.h2_title": "Télécharger l’intégration",
       "install.h2_p_html":
-        "HACS → <strong class=\"text-body\">Intégrations</strong> → trouvez <strong class=\"text-body\">Hub Énergie</strong> → Télécharger. Les fichiers doivent arriver sous <code class=\"font-mono\">custom_components/hub_energie/</code> (dépôt avec <code class=\"font-mono\">content_in_root</code> dans <code class=\"font-mono\">hacs.json</code>).",
+        "HACS → <strong class=\"text-body\">Intégrations</strong> → trouvez <strong class=\"text-body\">Hub Énergie</strong> → Télécharger. HACS installe à partir du dossier <code class=\"font-mono\">custom_components/hub_energie/</code> du dépôt (mise en page standard).",
 
       "install.h3_title": "Redémarrer Home Assistant",
       "install.h3_p_html":
@@ -335,7 +335,7 @@
 
       "install.copy.s1_title": "Copier l’arborescence complète",
       "install.copy.s1_html":
-        "Copiez tout le dépôt dans <code class=\"font-mono\">custom_components/hub_energie/</code> — tous les sous-dossiers (<code class=\"font-mono\">battery/</code>, <code class=\"font-mono\">energy/</code>, <code class=\"font-mono\">frontend/</code>, etc.). Ne copiez pas fichier par fichier.",
+        "Depuis ce dépôt, copiez uniquement l’arborescence <code class=\"font-mono\">custom_components/hub_energie/</code> vers le <code class=\"font-mono\">config/custom_components/hub_energie/</code> de Home Assistant — tous les sous-dossiers (<code class=\"font-mono\">battery/</code>, <code class=\"font-mono\">energy/</code>, <code class=\"font-mono\">frontend/</code>, etc.). Ne copiez pas la racine du dépôt (<code class=\"font-mono\">public/</code>, <code class=\"font-mono\">tests/</code>, …) dans HA.",
       "install.copy.s2_title": "Redémarrer & ajouter l’intégration",
       "install.copy.s2_p_html": "Redémarrage complet, puis <a href=\"#configure\">Configurer dans HA</a>.",
 
