@@ -17,7 +17,7 @@ integration_release:
   stage: release
   image: node:22-alpine
   rules:
-    - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+/
+    - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/
   before_script:
     - apk add --no-cache zip rsync curl jq
   script:
@@ -83,7 +83,8 @@ pages:
   script:
     - |
       set -e
-      # prebuild runs fetch-releases.mjs (CI_JOB_TOKEN lists GitLab releases → public/releases.json)
+      # List GitLab releases → site/public/releases.json (then Vite copies to dist/)
+      node site/scripts/fetch-releases.mjs
       (cd site && npm ci && npm run build)
       rm -rf public
       mkdir -p public
@@ -93,3 +94,4 @@ pages:
       - public
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/

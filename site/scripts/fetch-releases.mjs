@@ -1,7 +1,8 @@
 /**
- * Writes site/public/releases.json for the doc build.
- * In GitLab CI (CI_JOB_TOKEN + CI_API_V4_URL + CI_PROJECT_ID): fetches releases from the API.
- * Locally: set GITLAB_TOKEN + GITLAB_PROJECT_ID (numeric) to refresh; otherwise leaves an existing file unchanged.
+ * Writes site/public/releases.json (copied into Vite dist/ as /releases.json).
+ * GitLab Pages job should run this before `npm run build` in site/.
+ * Uses CI_JOB_TOKEN + CI_API_V4_URL + CI_PROJECT_ID in CI.
+ * Locally: GITLAB_TOKEN + GITLAB_PROJECT_ID to refresh; otherwise keeps existing public/releases.json.
  */
 import { existsSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";

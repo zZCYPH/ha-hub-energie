@@ -222,23 +222,25 @@
         "Install the integration <strong class=\"text-body\">exactly</strong> as a single package under your HA config:",
       "install.note_html":
         "Home Assistant must load <code class=\"font-mono\">custom_components/hub_energie/manifest.json</code>. Avoid a nested folder such as <code class=\"font-mono\">hub_energie/hub_energie/</code>.",
-      "install.release_aria": "GitLab release download",
-      "install.release_heading": "GitLab release (ZIP)",
-      "install.release_box_html":
-        "<p class=\"mb-0\">Each <strong class=\"text-body\">semver tag</strong> on GitLab (e.g. <strong class=\"text-body\">v0.2.3</strong>) triggers CI that builds a ZIP with the integration and a <strong class=\"text-body\">pre-built Lovelace</strong> bundle (<code class=\"font-mono\">frontend/dist/</code>). Unzip at the root of your HA <code class=\"font-mono\">config/</code> so you get <code class=\"font-mono\">config/custom_components/hub_energie/</code>. <a class=\"alert-link\" href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/releases\" target=\"_blank\" rel=\"noopener noreferrer\">All releases on GitLab</a>.</p>",
-      "install.release_loading": "Loading releases…",
-      "install.release_fetch_error": "Could not load the release list. Use the GitLab releases page to download a ZIP.",
-      "install.release_none": "No semver releases with a ZIP asset yet. See GitLab releases.",
+      "install.release_aria": "ZIP download",
+      "install.zip_intro_html":
+        "Download the archive for the version you want. Unzip it at the <strong class=\"text-body\">root</strong> of your Home Assistant configuration folder (the one that contains <code class=\"font-mono\">configuration.yaml</code>) so you end up with <code class=\"font-mono\">config/custom_components/hub_energie/</code>. The integration and dashboard card are included — no extra build step on your server.",
+      "install.zip_after_html":
+        "Then do a <strong class=\"text-body\">full restart</strong> of Home Assistant and add the integration under <strong class=\"text-body\">Settings → Devices &amp; services → Add integration</strong>. <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/releases\" target=\"_blank\" rel=\"noopener noreferrer\">Browse all versions on GitLab</a> if you need another build.",
+      "install.release_loading": "Loading versions…",
+      "install.release_fetch_error": "The version list could not be loaded. Open the link below to download a ZIP from GitLab.",
+      "install.release_none": "No downloadable archive is listed yet. Use the link below to check GitLab.",
       "install.release_download": "Download",
       "install.release_other_label": "Other versions:",
       "install.choose_path": "Choose your path",
-      "tab.hacs_tba": "HACS (TBA)",
+      "tab.zip": "ZIP download",
+      "tab.hacs_store": "HACS store",
       "tab.git": "Git clone",
       "tab.copy": "Copy files",
 
-      "install.hacs_tba_heading": "HACS default store — status TBA",
+      "install.hacs_tba_heading": "HACS store",
       "install.hacs_tba_html":
-        "<p class=\"mb-2\">The public <strong class=\"text-body\">HACS</strong> catalogue is oriented toward <strong class=\"text-body\">GitHub</strong>-hosted repositories (<a href=\"https://hacs.xyz/docs/publish/start/\" target=\"_blank\" rel=\"noopener noreferrer\">publishing rules</a>). This project is hosted on <strong class=\"text-body\">GitLab</strong>, so one-click “search and install” from the default store is <strong class=\"text-body\">not available yet</strong>.</p><p class=\"mb-0\">Prefer a <strong class=\"text-body\">GitLab release ZIP</strong> (box above), or <strong class=\"text-body\">Git clone</strong> / <strong class=\"text-body\">Copy files</strong> (tabs below). If your HACS version supports <strong class=\"text-body\">custom repositories</strong> with a GitLab URL, you can add the integration that way — behaviour varies by release. After installation, always perform a <strong class=\"text-body\">full restart</strong> of Home Assistant.</p>",
+        "<p class=\"mb-2\">Hub Énergie is not in the default HACS catalogue yet. The HACS ecosystem is built mainly around <strong class=\"text-body\">GitHub</strong> repositories; this project lives on <strong class=\"text-body\">GitLab</strong>, so you cannot install it like a mainstream HACS integration today.</p><p class=\"mb-0\">Use the <strong class=\"text-body\">ZIP download</strong> tab for the simplest install, or <strong class=\"text-body\">Git clone</strong> / <strong class=\"text-body\">Copy files</strong>. If your HACS version allows adding a <strong class=\"text-body\">custom repository</strong> with a GitLab URL, you can try that — results depend on your HACS version. After any install, perform a <strong class=\"text-body\">full restart</strong> of Home Assistant.</p>",
 
       "install.git.s1_title": "Clone into the right folder",
       "install.git.s2_title": "Restart & add the integration",
@@ -253,7 +255,7 @@
 
       "install.lovelace_title": "If you use the Lovelace card",
       "install.lovelace_body_html":
-        "The card bundles under <code class=\"font-mono\">frontend/dist/</code> are committed to this repository (rebuilt in CI on each commit). You do <strong class=\"text-body\">not</strong> need <code class=\"font-mono\">npm</code> on your Home Assistant host for a normal install — restart HA after updating the integration. For reproducible installs, align a Git tag with <code class=\"font-mono\">manifest.json</code> → <code class=\"font-mono\">version</code> (e.g. <strong class=\"text-body\">v0.2.3</strong>).",
+        "The dashboard card is included with the integration. After an update, <strong class=\"text-body\">restart Home Assistant</strong> so the interface loads the latest files. To match a specific release, use the same version for your download or Git tag (see <code class=\"font-mono\">manifest.json</code> → <code class=\"font-mono\">version</code>).",
       "install.lovelace_dev_html":
         "<strong class=\"text-body\">Developers:</strong> to rebuild locally, from <code class=\"font-mono\">custom_components/hub_energie/frontend/</code> run <code class=\"font-mono\">npm ci</code> then <code class=\"font-mono\">npm run build</code>.",
 
@@ -621,23 +623,25 @@
         "Installez l’intégration <strong class=\"text-body\">exactement</strong> comme un seul paquet sous la configuration HA :",
       "install.note_html":
         "Home Assistant doit charger <code class=\"font-mono\">custom_components/hub_energie/manifest.json</code>. Évitez un dossier imbriqué du type <code class=\"font-mono\">hub_energie/hub_energie/</code>.",
-      "install.release_aria": "Téléchargement release GitLab",
-      "install.release_heading": "Release GitLab (ZIP)",
-      "install.release_box_html":
-        "<p class=\"mb-0\">Chaque <strong class=\"text-body\">tag semver</strong> sur GitLab (ex. <strong class=\"text-body\">v0.2.3</strong>) déclenche une CI qui produit une archive ZIP avec l’intégration et le paquet Lovelace <strong class=\"text-body\">déjà compilé</strong> (<code class=\"font-mono\">frontend/dist/</code>). Décompressez à la racine du <code class=\"font-mono\">config/</code> de HA pour obtenir <code class=\"font-mono\">config/custom_components/hub_energie/</code>. <a class=\"alert-link\" href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/releases\" target=\"_blank\" rel=\"noopener noreferrer\">Toutes les releases sur GitLab</a>.</p>",
-      "install.release_loading": "Chargement des releases…",
-      "install.release_fetch_error": "Impossible de charger la liste des releases. Téléchargez le ZIP depuis la page des releases GitLab.",
-      "install.release_none": "Aucune release semver avec archive ZIP pour l’instant. Voir les releases GitLab.",
+      "install.release_aria": "Téléchargement ZIP",
+      "install.zip_intro_html":
+        "Téléchargez l’archive de la version souhaitée. Décompressez-la à la <strong class=\"text-body\">racine</strong> du dossier de configuration de Home Assistant (celui qui contient <code class=\"font-mono\">configuration.yaml</code>) pour obtenir <code class=\"font-mono\">config/custom_components/hub_energie/</code>. L’intégration et la carte tableau de bord sont incluses — rien à compiler sur votre serveur.",
+      "install.zip_after_html":
+        "Ensuite, faites un <strong class=\"text-body\">redémarrage complet</strong> de Home Assistant et ajoutez l’intégration via <strong class=\"text-body\">Réglages → Appareils et services → Ajouter une intégration</strong>. <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/releases\" target=\"_blank\" rel=\"noopener noreferrer\">Voir toutes les versions sur GitLab</a> si besoin.",
+      "install.release_loading": "Chargement des versions…",
+      "install.release_fetch_error": "La liste des versions n’a pas pu être chargée. Utilisez le lien ci-dessous pour télécharger un ZIP sur GitLab.",
+      "install.release_none": "Aucune archive n’est encore proposée ici. Consultez le lien ci-dessous sur GitLab.",
       "install.release_download": "Télécharger",
       "install.release_other_label": "Autres versions :",
       "install.choose_path": "Choisissez votre méthode",
-      "tab.hacs_tba": "HACS (TBA)",
+      "tab.zip": "Téléchargement ZIP",
+      "tab.hacs_store": "Boutique HACS",
       "tab.git": "Clone Git",
       "tab.copy": "Copie des fichiers",
 
-      "install.hacs_tba_heading": "Catalogue HACS public — statut à confirmer",
+      "install.hacs_tba_heading": "Boutique HACS",
       "install.hacs_tba_html":
-        "<p class=\"mb-2\">Le catalogue public <strong class=\"text-body\">HACS</strong> est structuré autour de dépôts hébergés sur <strong class=\"text-body\">GitHub</strong> (<a href=\"https://hacs.xyz/docs/publish/start/\" target=\"_blank\" rel=\"noopener noreferrer\">règles de publication</a>). Ce projet est hébergé sur <strong class=\"text-body\">GitLab</strong> : l’installation en un clic depuis le catalogue par défaut n’est <strong class=\"text-body\">pas encore garantie</strong>.</p><p class=\"mb-0\">Privilégiez le <strong class=\"text-body\">ZIP de release GitLab</strong> (encadré ci-dessus), ou <strong class=\"text-body\">Clone Git</strong> / <strong class=\"text-body\">Copie des fichiers</strong> (onglets ci-dessous). Si votre version de HACS prend en charge les <strong class=\"text-body\">dépôts personnalisés</strong> avec une URL GitLab, vous pouvez tenter cette voie — le comportement varie selon la version. Après installation, effectuez toujours un <strong class=\"text-body\">redémarrage complet</strong> de Home Assistant.</p>",
+        "<p class=\"mb-2\">Hub Énergie n’est pas encore dans le catalogue HACS par défaut. L’écosystème HACS repose surtout sur des dépôts <strong class=\"text-body\">GitHub</strong> ; ce projet est sur <strong class=\"text-body\">GitLab</strong>, vous ne pouvez donc pas l’installer comme une intégration « classique » HACS pour l’instant.</p><p class=\"mb-0\">Privilégiez l’onglet <strong class=\"text-body\">Téléchargement ZIP</strong>, ou <strong class=\"text-body\">Clone Git</strong> / <strong class=\"text-body\">Copie des fichiers</strong>. Si votre version de HACS autorise un <strong class=\"text-body\">dépôt personnalisé</strong> avec une URL GitLab, vous pouvez essayer — le résultat dépend de votre version. Après toute installation, effectuez un <strong class=\"text-body\">redémarrage complet</strong> de Home Assistant.</p>",
 
       "install.git.s1_title": "Cloner au bon endroit",
       "install.git.s2_title": "Redémarrer & ajouter l’intégration",
@@ -652,7 +656,7 @@
 
       "install.lovelace_title": "Si vous utilisez la carte Lovelace",
       "install.lovelace_body_html":
-        "Les paquets sous <code class=\"font-mono\">frontend/dist/</code> sont versionnés dans ce dépôt (recompilés en CI à chaque commit). Vous n’avez <strong class=\"text-body\">pas</strong> besoin d’exécuter <code class=\"font-mono\">npm</code> sur l’hôte Home Assistant pour une installation standard — redémarrez HA après mise à jour de l’intégration. Pour des installations reproductibles, faites correspondre un tag Git avec <code class=\"font-mono\">manifest.json</code> → <code class=\"font-mono\">version</code> (ex. <strong class=\"text-body\">v0.2.3</strong>).",
+        "La carte tableau de bord est fournie avec l’intégration. Après une mise à jour, <strong class=\"text-body\">redémarrez Home Assistant</strong> pour que l’interface charge les derniers fichiers. Pour viser une version précise, utilisez la même version pour votre téléchargement ou votre tag Git (voir <code class=\"font-mono\">manifest.json</code> → <code class=\"font-mono\">version</code>).",
       "install.lovelace_dev_html":
         "<strong class=\"text-body\">Développement :</strong> pour reconstruire en local, depuis <code class=\"font-mono\">custom_components/hub_energie/frontend/</code>, exécutez <code class=\"font-mono\">npm ci</code> puis <code class=\"font-mono\">npm run build</code>.",
 

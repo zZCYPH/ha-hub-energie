@@ -344,22 +344,25 @@
               such as <code class="font-mono">hub_energie/hub_energie/</code>.
             </p>
 
-            <div class="alert alert-info border-0 shadow-sm mb-4" role="region" data-i18n-aria="install.release_aria">
-              <h3 class="h6 alert-heading d-flex align-items-center gap-2 mb-2">
-                <i class="bi bi-box-seam" aria-hidden="true"></i>
-                <span data-i18n="install.release_heading">GitLab release (ZIP)</span>
-              </h3>
-              <div class="small mb-3" data-i18n-html="install.release_box_html"></div>
-              <div id="hub-energie-install-release-mount"></div>
-            </div>
-
             <h3 class="h5 mt-4 mb-3">
               <i class="bi bi-download text-primary me-2"></i><span data-i18n="install.choose_path">Choose your path</span>
             </h3>
-            <ul class="nav nav-tabs mb-3" role="tablist">
+            <ul class="nav nav-tabs mb-3 flex-nowrap overflow-auto" role="tablist">
               <li class="nav-item" role="presentation">
                 <button
-                  class="nav-link active"
+                  class="nav-link active text-nowrap"
+                  id="tab-zip"
+                  data-bs-toggle="tab"
+                  data-bs-target="#pane-zip"
+                  type="button"
+                  role="tab"
+                >
+                  <span data-i18n="tab.zip">ZIP download</span>
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link text-nowrap"
                   id="tab-git"
                   data-bs-toggle="tab"
                   data-bs-target="#pane-git"
@@ -371,7 +374,7 @@
               </li>
               <li class="nav-item" role="presentation">
                 <button
-                  class="nav-link"
+                  class="nav-link text-nowrap"
                   id="tab-copy"
                   data-bs-toggle="tab"
                   data-bs-target="#pane-copy"
@@ -383,28 +386,42 @@
               </li>
               <li class="nav-item" role="presentation">
                 <button
-                  class="nav-link"
+                  class="nav-link text-nowrap"
                   id="tab-hacs"
                   data-bs-toggle="tab"
                   data-bs-target="#pane-hacs"
                   type="button"
                   role="tab"
                 >
-                  <span data-i18n="tab.hacs_tba">HACS (TBA)</span>
+                  <span data-i18n="tab.hacs_store">HACS</span>
                 </button>
               </li>
             </ul>
             <div class="tab-content">
+              <div
+                class="tab-pane fade show active"
+                id="pane-zip"
+                role="tabpanel"
+                data-i18n-aria="install.release_aria"
+              >
+                <div class="doc-step-card shadow-sm mb-3">
+                  <div class="step-body">
+                    <p class="small text-secondary mb-3" data-i18n-html="install.zip_intro_html"></p>
+                    <div id="hub-energie-install-release-mount"></div>
+                    <p class="small text-secondary mt-3 mb-0" data-i18n-html="install.zip_after_html"></p>
+                  </div>
+                </div>
+              </div>
               <div class="tab-pane fade" id="pane-hacs" role="tabpanel">
                 <div class="alert alert-secondary mb-0" role="status">
                   <h3 class="h6 alert-heading d-flex align-items-center gap-2 mb-2">
-                    <i class="bi bi-hourglass-split" aria-hidden="true"></i>
-                    <span data-i18n="install.hacs_tba_heading">HACS default store (TBA)</span>
+                    <i class="bi bi-puzzle" aria-hidden="true"></i>
+                    <span data-i18n="install.hacs_tba_heading">HACS</span>
                   </h3>
                   <div class="small mb-0" data-i18n-html="install.hacs_tba_html"></div>
                 </div>
               </div>
-              <div class="tab-pane fade show active" id="pane-git" role="tabpanel">
+              <div class="tab-pane fade" id="pane-git" role="tabpanel">
                 <ol class="doc-steps">
                   <li>
                     <div class="doc-step-card shadow-sm">
