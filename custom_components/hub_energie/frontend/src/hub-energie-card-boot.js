@@ -1,8 +1,22 @@
 /**
  * Thin shell registered as hub-energie-card so Lovelace always finds the custom element.
  * Loads the real card module asynchronously and swaps the loader for hub-energie-card-core.
+ *
+ * Lovelace resource URL should include ?v=<ms> (refreshed on integration reload) so this
+ * boot module refetches. The core bundle is loaded via import() with the same ?v= so it
+ * is not stuck in the module cache after a deploy/reload.
  */
 import "./hub-energie-card-editor.js";
+
+function cacheBustedSibling(relativeHref) {
+  const base = new URL(import.meta.url);
+  const v = base.searchParams.get("v");
+  const resolved = new URL(relativeHref, base);
+  if (v) {
+    resolved.searchParams.set("v", v);
+  }
+  return resolved.href;
+}
 
 const LOADER_HTML = `
   <style>
@@ -33,7 +47,7 @@ class HubEnergieCardBoot extends HTMLElement {
     if (this._loadPromise) return this._loadPromise;
     this._loadPromise = (async () => {
       try {
-        await import("./hub-energie-card.js");
+        await import(cacheBustedSibling("./hub-energie-card.js"));
       } catch (err) {
         console.error("[hub-energie-card-boot] core module failed to load", err);
         this.shadowRoot.innerHTML =

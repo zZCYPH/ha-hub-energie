@@ -1,24 +1,28 @@
 import "./hub-energie-card-editor.js";
-const o = `
+function r(i) {
+  const e = new URL(import.meta.url), t = e.searchParams.get("v"), s = new URL(i, e);
+  return t && s.searchParams.set("v", t), s.href;
+}
+const n = `
   <style>
     :host { display: block; min-height: 96px; }
     .wrap { padding: 16px; font: 14px/1.4 var(--paper-font-body1_-_font-family, Roboto, sans-serif); color: var(--primary-text-color, #212121); }
   </style>
   <ha-card><div class="wrap">Hub Énergie…</div></ha-card>
 `;
-class r extends HTMLElement {
+class a extends HTMLElement {
   constructor() {
     super(), this.attachShadow({ mode: "open" }), this._core = null, this._hass = void 0, this._config = void 0, this._loadPromise = null;
   }
   connectedCallback() {
-    this._loadPromise || (this.shadowRoot.innerHTML = o), this._ensureCore();
+    this._loadPromise || (this.shadowRoot.innerHTML = n), this._ensureCore();
   }
   _ensureCore() {
     return this._loadPromise ? this._loadPromise : (this._loadPromise = (async () => {
       try {
-        await import("./hub-energie-card.js");
-      } catch (i) {
-        console.error("[hub-energie-card-boot] core module failed to load", i), this.shadowRoot.innerHTML = '<style>:host{display:block}</style><ha-card><div style="padding:16px">Hub Énergie (load error)</div></ha-card>';
+        await import(r("./hub-energie-card.js"));
+      } catch (o) {
+        console.error("[hub-energie-card-boot] core module failed to load", o), this.shadowRoot.innerHTML = '<style>:host{display:block}</style><ha-card><div style="padding:16px">Hub Énergie (load error)</div></ha-card>';
         return;
       }
       if (!customElements.get("hub-energie-card-core") || this._core) return;
@@ -64,7 +68,7 @@ class r extends HTMLElement {
     };
   }
 }
-customElements.get("hub-energie-card") || customElements.define("hub-energie-card", r);
+customElements.get("hub-energie-card") || customElements.define("hub-energie-card", a);
 window.customCards ??= [];
 window.customCards.push({
   type: "hub-energie-card",

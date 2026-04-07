@@ -13,6 +13,7 @@ const POWER_HISTORY_HOURS_UI = [1, 3, 6, 12, 24];
 const SECTION_TOGGLES = [
   ["show_day_slots", "editorShowDaySlots"],
   ["show_live_power", "editorShowLivePower"],
+  ["show_solar_production_bar", "editorShowSolarProductionBar"],
   ["show_battery_bar", "editorShowBatteryBar"],
   ["show_insights_bar", "editorShowInsightsBar"],
   ["show_red_hp_warning", "editorShowRedHpWarning"],

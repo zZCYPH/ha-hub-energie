@@ -3,6 +3,7 @@ import { I18N } from "./constants/i18n.js";
 import {
   COLOR_BATTERY,
   COLOR_SOLAR,
+  COLOR_SOLAR_EXPORT,
   COLOR_SUBSCRIPTION,
 } from "./constants/colors.js";
 import {
@@ -44,6 +45,7 @@ import {
 
 import "./components/hub-energy-strip.js";
 import "./components/hub-power-now.js";
+import "./components/hub-solar-production-bar.js";
 import "./components/hub-power-graph.js";
 import "./components/hub-battery-bar.js";
 import "./components/hub-insight-bar.js";
@@ -1252,6 +1254,41 @@ class HubEnergieCard extends LitElement {
 
     const liveStates = this._states();
     const powerNowData = isToday && costEntityOk ? buildPowerNowData(liveStates, E.cost, i18n) : null;
+    const solarKwhTotal = homeSolarKwh + usage.solarBatt.v + reinj.solarSurplus;
+    const solarKwhFmt = makeSectionEnergyFormatter([
+      solarKwhTotal,
+      homeSolarKwh,
+      usage.solarBatt.v,
+      reinj.solarSurplus,
+    ]);
+    const solarKwhData =
+      costEntityOk && solarKwhTotal > 0.001
+        ? {
+            segments: [
+              {
+                label: i18n.solarProdSegHome,
+                value: homeSolarKwh,
+                color: COLOR_SOLAR,
+                icon: "mdi:home-lightning-bolt-outline",
+              },
+              {
+                label: i18n.solarProdSegBattery,
+                value: usage.solarBatt.v,
+                color: COLOR_BATTERY,
+                icon: "mdi:battery-plus-variant",
+              },
+              {
+                label: i18n.solarProdSegExport,
+                value: reinj.solarSurplus,
+                color: COLOR_SOLAR_EXPORT,
+                icon: "mdi:transmission-tower-export",
+              },
+            ],
+            total: solarKwhTotal,
+            formatter: (v) => solarKwhFmt(v),
+            tooltip: i18n.solarProdKwhTip,
+          }
+        : null;
     const batteryData =
       costEntityOk && this.hass?.states ? buildBatteryData(this.hass.states, E.cost) : null;
 
@@ -1353,7 +1390,7 @@ class HubEnergieCard extends LitElement {
           </div>
           <div class="bars">
             <hub-energy-strip
-              .title=${i18n.consStripGridTitle}
+              .title=${offer === "tempo" ? i18n.consStripGridTitleTempo : i18n.consStripGridTitle}
               .segments=${gridSegments}
               .total=${totalGrid}
               .formatter=${gridEnergyFmt}
@@ -1364,6 +1401,10 @@ class HubEnergieCard extends LitElement {
               .fillPercent=${100}
               .emptyLabel=${i18n.noData}
             ></hub-energy-strip>
+
+            ${this._showSection("show_solar_production_bar") && solarKwhData
+              ? html`<hub-solar-production-bar .i18n=${i18n} .kwhData=${solarKwhData}></hub-solar-production-bar>`
+              : nothing}
 
             <hub-energy-strip
               .title=${i18n.consStripHomeTitle}

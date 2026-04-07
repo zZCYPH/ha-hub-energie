@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 from pathlib import Path
 
 import voluptuous as vol
@@ -31,6 +32,12 @@ _LOVELACE_REGISTER_SCHEDULED_KEY = f"{DOMAIN}_lovelace_register_scheduled"
 _SERVICE_FLAG = f"{DOMAIN}_service_registered"
 
 CARD_BOOT_MODULE_PATH = f"/{DOMAIN}/hub-energie-card-boot.js"
+
+
+def _lovelace_boot_resource_url() -> str:
+    """Return Lovelace module URL with a fresh cache-busting query param (millisecond)."""
+    bust = time.time_ns() // 1_000_000
+    return f"{CARD_BOOT_MODULE_PATH}?v={bust}"
 
 
 async def _async_register_card_http_route(hass: HomeAssistant) -> None:
@@ -131,6 +138,8 @@ async def _async_ensure_lovelace_storage_resource(hass: HomeAssistant) -> None:
 
     await _async_cleanup_legacy_extra_js_urls(hass)
 
+    resource_url = _lovelace_boot_resource_url()
+
     ll_data = hass.data.get(LOVELACE_DATA)
     if ll_data is None:
         _LOGGER.debug(
@@ -142,7 +151,7 @@ async def _async_ensure_lovelace_storage_resource(hass: HomeAssistant) -> None:
     if isinstance(resources, ResourceYAMLCollection):
         _LOGGER.info(
             "Lovelace resources are in YAML mode; add under lovelace.resources: "
-            "{url: %s, type: module}",
+            "{url: %s?v=<timestamp>, type: module} — change ?v= after frontend updates to bypass cache",
             CARD_BOOT_MODULE_PATH,
         )
         return
@@ -153,12 +162,28 @@ async def _async_ensure_lovelace_storage_resource(hass: HomeAssistant) -> None:
     await resources.async_load()
 
     for item in resources.async_items():
-        if _lovelace_item_url_matches(item.get("url", ""), CARD_BOOT_MODULE_PATH):
+        if not _lovelace_item_url_matches(item.get("url", ""), CARD_BOOT_MODULE_PATH):
+            continue
+        item_id = item.get("id")
+        if not item_id:
+            continue
+        try:
+            await resources.async_update_item(item_id, {"url": resource_url})
+        except (HomeAssistantError, TypeError, vol.Invalid, ValueError, KeyError) as err:
+            _LOGGER.warning(
+                "Could not refresh Hub Énergie Lovelace resource URL (cache bust): %s",
+                err,
+            )
             return
+        _LOGGER.info(
+            "Refreshed Hub Énergie Lovelace resource for frontend cache bust (%s)",
+            resource_url,
+        )
+        return
 
     try:
         await resources.async_create_item(
-            {"res_type": "module", "url": CARD_BOOT_MODULE_PATH}
+            {"res_type": "module", "url": resource_url}
         )
     except (HomeAssistantError, vol.Invalid, ValueError) as err:
         _LOGGER.error("Could not add Hub Énergie Lovelace resource: %s", err)
@@ -167,7 +192,7 @@ async def _async_ensure_lovelace_storage_resource(hass: HomeAssistant) -> None:
     _LOGGER.info(
         "Added Hub Énergie as a Lovelace resource (%s). "
         "Remove any duplicate manual entry for the same URL if you added one while testing.",
-        CARD_BOOT_MODULE_PATH,
+        resource_url,
     )
 
 
