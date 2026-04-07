@@ -1,7 +1,8 @@
 # GitLab Pages: artifact must include `public/` at repo root (site/dist → public).
 #
 # Semver tags (e.g. v0.2.3): build zip (integration + pre-built Lovelace frontend/dist),
-# publish to the generic package registry, create a GitLab Release with a download link.
+# upload via Project Uploads API, create a GitLab Release whose asset link uses /uploads/... URLs.
+# (Generic package URLs often 404 for release links on gitlab.com — see gitlab-org/gitlab#271534.)
 #
 # Permissions: enable API access for the CI job token (Settings → CI/CD → Job token permissions),
 # or set a project access token as CI variable GITLAB_RELEASE_TOKEN (api scope).
@@ -9,9 +10,6 @@
 stages:
   - release
   - deploy
-
-variables:
-  GITLAB_PACKAGE_NAME: hub-energie
 
 integration_release:
   stage: release
@@ -43,23 +41,33 @@ integration_release:
         "$STAGE/custom_components/hub_energie/"
       ZIP_NAME="hub-energie-${VERSION}.zip"
       (cd "$STAGE" && zip -qr "${CI_PROJECT_DIR}/${ZIP_NAME}" custom_components)
-      echo "Uploading ${ZIP_NAME} to generic package ${GITLAB_PACKAGE_NAME}/${VERSION}..."
-      curl --fail --silent --show-error \
-        --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-        --upload-file "${CI_PROJECT_DIR}/${ZIP_NAME}" \
-        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${GITLAB_PACKAGE_NAME}/${VERSION}/${ZIP_NAME}"
-      PACKAGE_WEB_URL="${CI_PROJECT_URL}/-/packages/generic/${GITLAB_PACKAGE_NAME}/${VERSION}/${ZIP_NAME}"
-      RELEASE_BODY=$'Archive: unzip at the root of your Home Assistant `config/` folder so you obtain `config/custom_components/hub_energie/`. The Lovelace bundle is pre-built in `frontend/dist/` (served by HA at `/hub_energie/`).'
       if [ -n "${GITLAB_RELEASE_TOKEN:-}" ]; then
         AUTH_HEADER="PRIVATE-TOKEN: ${GITLAB_RELEASE_TOKEN}"
       else
         AUTH_HEADER="JOB-TOKEN: ${CI_JOB_TOKEN}"
       fi
+      echo "Uploading ${ZIP_NAME} via project uploads API..."
+      UPLOAD_JSON="$(curl --fail --silent --show-error \
+        --header "${AUTH_HEADER}" \
+        --form "file=@${CI_PROJECT_DIR}/${ZIP_NAME}" \
+        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/uploads")"
+      UPLOAD_PATH="$(echo "$UPLOAD_JSON" | jq -r '.url')"
+      if [ -z "$UPLOAD_PATH" ] || [ "$UPLOAD_PATH" = "null" ]; then
+        echo "Upload response missing .url: $UPLOAD_JSON"
+        exit 1
+      fi
+      if [ "${UPLOAD_PATH#http}" != "$UPLOAD_PATH" ]; then
+        ASSET_WEB_URL="$UPLOAD_PATH"
+      else
+        ASSET_WEB_URL="${CI_PROJECT_URL}${UPLOAD_PATH}"
+      fi
+      echo "Release asset URL: ${ASSET_WEB_URL}"
+      RELEASE_BODY=$'Archive: unzip at the root of your Home Assistant `config/` folder so you obtain `config/custom_components/hub_energie/`. The Lovelace bundle is pre-built in `frontend/dist/` (served by HA at `/hub_energie/`).'
       EXISTING=$(curl -s -o /dev/null -w "%{http_code}" \
         --header "${AUTH_HEADER}" \
         "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/${TAG}")
       if [ "$EXISTING" = "200" ]; then
-        echo "Release ${TAG} already exists (package upload done). Skipping release create."
+        echo "Release ${TAG} already exists (upload skipped). Delete the release on GitLab to recreate with a new asset URL."
         exit 0
       fi
       echo "Creating GitLab release ${TAG}..."
@@ -67,7 +75,7 @@ integration_release:
         --arg name "$TAG" \
         --arg tag "$TAG" \
         --arg desc "$RELEASE_BODY" \
-        --arg url "$PACKAGE_WEB_URL" \
+        --arg url "$ASSET_WEB_URL" \
         --arg linkname "$ZIP_NAME" \
         '{name:$name,tag_name:$tag,description:$desc,assets:{links:[{name:$linkname,url:$url}]}}' \
       | curl --fail --silent --show-error \
