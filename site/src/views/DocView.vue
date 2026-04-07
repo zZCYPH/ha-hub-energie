@@ -1,7 +1,8 @@
 <script setup>
-import { nextTick, onMounted, onUnmounted, ref } from "vue";
+import { createApp, nextTick, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import docHtml from "../assets/doc-fragment.html?raw";
+import InstallReleasePicker from "../components/InstallReleasePicker.vue";
 import {
   wireCarouselPair,
   wireDocCarouselImages,
@@ -14,6 +15,7 @@ import { setupScrollSpy, teardownScrollSpy } from "../siteShell";
 const root = ref(null);
 const router = useRouter();
 let detachNav = () => {};
+let pickerApp = null;
 
 onMounted(() => {
   setupScrollSpy("doc");
@@ -24,12 +26,21 @@ onMounted(() => {
     wireImageLightbox();
     wireTocMobile();
     if (root.value) detachNav = attachInPageNav(root.value, router, "/doc");
+    const mountEl = document.getElementById("hub-energie-install-release-mount");
+    if (mountEl && !pickerApp) {
+      pickerApp = createApp(InstallReleasePicker);
+      pickerApp.mount(mountEl);
+    }
   });
 });
 
 onUnmounted(() => {
   detachNav();
   teardownScrollSpy();
+  if (pickerApp) {
+    pickerApp.unmount();
+    pickerApp = null;
+  }
 });
 </script>
 

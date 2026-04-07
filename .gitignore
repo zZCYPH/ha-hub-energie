@@ -12,4 +12,5 @@ site/dist/
 site/src/vendor/hub-energie-i18n.js
 # Optional local mirror of Pages output (`npm run export:pages` in site/)
 /public/
+.zip-stage/
 .hacs_build_pillow/

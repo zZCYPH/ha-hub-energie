@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "postinstall": "node scripts/sync-public.mjs",
-    "prebuild": "node scripts/sync-public.mjs",
+    "fetch-releases": "node scripts/fetch-releases.mjs",
+    "prebuild": "node scripts/fetch-releases.mjs && node scripts/sync-public.mjs",
     "predev": "node scripts/sync-public.mjs",
     "build": "vite build",
     "export:pages": "npm run build && node scripts/export-pages.mjs",
