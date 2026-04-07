@@ -63,7 +63,7 @@ integration_release:
           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_type=generic&per_page=100")"
         PKG_ID="$(echo "$PKGS" | jq -r --arg ver "$VERSION" --arg name "${GITLAB_PACKAGE_NAME}" \
           '[.[]? | select(.name == $name and .version == $ver)] | first | .id // empty')"
-        if [ -n "$PKG_ID" ] && [ "$PKG_ID" != "null" ]; then
+        if [ -n "$PKG_ID" ] && [ "$PKG_ID" != "null" ] && [ "$PKG_ID" != "" ]; then
           PKG_DETAIL="$(curl -s --header "${AUTH_HEADER}" \
             "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${PKG_ID}")"
           FILE_ID="$(echo "$PKG_DETAIL" | jq -r --arg zip "$ZIP_NAME" \
