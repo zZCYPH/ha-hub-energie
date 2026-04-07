@@ -93,9 +93,19 @@
       },
       "manual_tou": {
         "title": "Tarif heures pleines/creuses",
-        "description": "Définissez les périodes et leurs prix.",
+        "description": "Définissez les créneaux heures creuses (HC) et heures pleines (HP) et leurs prix au kWh. Utilisez le planning avancé pour plus de deux tranches.",
+        "sections": {
+          "tou_slot_0": {"name": "Heures creuses (HC)"},
+          "tou_slot_1": {"name": "Heures pleines (HP)"}
+        },
         "data": {
-          "tou_periods": "Périodes HP/HC (JSON)"
+          "tou_r0_start": "Début",
+          "tou_r0_end": "Fin",
+          "tou_r0_price": "Prix de l'énergie (par kWh)",
+          "tou_r1_start": "Début",
+          "tou_r1_end": "Fin",
+          "tou_r1_price": "Prix de l'énergie (par kWh)",
+          "subscription_price": "Abonnement mensuel"
         }
       },
       "manual_schedule": {

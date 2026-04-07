@@ -39,15 +39,23 @@ def test_rte_credentials_validate_against_merged_state() -> None:
     assert patch == {const.CONF_RTE_CLIENT_ID: "new-client"}
 
 
-def test_manual_tou_returns_field_error_for_invalid_json() -> None:
+def test_manual_tou_invalid_price_on_form() -> None:
     patch, errors = HubEnergieConfigValidator.validate_step(
         "manual_tou",
         {},
-        {const.CONF_TOU_PERIODS: "{bad json}", const.CONF_SUBSCRIPTION_PRICE: 5},
+        {
+            "tou_r0_start": "08:00",
+            "tou_r0_end": "20:00",
+            "tou_r0_price": "not-a-number",
+            "tou_r1_start": "20:00",
+            "tou_r1_end": "08:00",
+            "tou_r1_price": 0.1,
+            const.CONF_SUBSCRIPTION_PRICE: 5,
+        },
     )
 
     assert patch[const.CONF_SUBSCRIPTION_PRICE] == 5.0
-    assert errors == {const.CONF_TOU_PERIODS: config_validation.ERR_INVALID_JSON}
+    assert errors.get("tou_r0_price") == config_validation.ERR_INVALID_PRICE
 
 
 def test_battery_advanced_rejects_manual_and_entity_pair() -> None:
@@ -331,40 +339,78 @@ def test_manual_flat_valid_patch() -> None:
     assert patch[const.CONF_SUBSCRIPTION_PRICE] == 12.5
 
 
-def test_manual_tou_valid_json_normalizes_periods() -> None:
-    raw = '[{"start": "08:00", "end": "20:00", "price": 0.12, "name": "day"}]'
+def test_manual_tou_valid_form_normalizes_periods() -> None:
     patch, errors = HubEnergieConfigValidator.validate_step(
         "manual_tou",
         {},
-        {const.CONF_TOU_PERIODS: raw, const.CONF_SUBSCRIPTION_PRICE: 0},
+        {
+            "tou_r0_start": "08:00:00",
+            "tou_r0_end": "20:00",
+            "tou_r0_price": 0.12,
+            "tou_r1_start": "20:00",
+            "tou_r1_end": "08:00",
+            "tou_r1_price": 0.08,
+            const.CONF_SUBSCRIPTION_PRICE: 0,
+        },
     )
     assert errors == {}
     assert patch[const.CONF_SUBSCRIPTION_PRICE] == 0.0
     periods = patch[const.CONF_TOU_PERIODS]
     assert isinstance(periods, list)
+    assert len(periods) == 2
+    assert periods[0]["name"] == "HC"
     assert periods[0]["start"] == "08:00"
     assert periods[0]["end"] == "20:00"
     assert periods[0]["price"] == 0.12
+    assert periods[1]["name"] == "HP"
 
 
-def test_manual_tou_invalid_time_on_period() -> None:
-    raw = '[{"start": "25:00", "end": "20:00", "price": 0.1}]'
+def test_manual_tou_invalid_time_on_form() -> None:
     patch, errors = HubEnergieConfigValidator.validate_step(
         "manual_tou",
         {},
-        {const.CONF_TOU_PERIODS: raw},
+        {
+            "tou_r0_start": "25:00",
+            "tou_r0_end": "20:00",
+            "tou_r0_price": 0.1,
+            "tou_r1_start": "20:00",
+            "tou_r1_end": "25:00",
+            "tou_r1_price": 0.1,
+        },
     )
-    assert errors[const.CONF_TOU_PERIODS] == config_validation.ERR_INVALID_JSON
+    assert errors.get("tou_r0_start") == config_validation.ERR_INVALID_JSON
     assert const.CONF_TOU_PERIODS not in patch
 
 
-def test_manual_tou_empty_list_after_parse_requires_periods() -> None:
+def test_manual_tou_missing_slots_require_fields() -> None:
     patch, errors = HubEnergieConfigValidator.validate_step(
         "manual_tou",
         {},
-        {const.CONF_TOU_PERIODS: "[]"},
+        {const.CONF_SUBSCRIPTION_PRICE: 0.0},
     )
-    assert errors[const.CONF_TOU_PERIODS] == config_validation.ERR_REQUIRED
+    assert errors.get("tou_r0_start") == config_validation.ERR_REQUIRED
+    assert const.CONF_TOU_PERIODS not in patch
+
+
+def test_manual_tou_valid_nested_sections() -> None:
+    """``section()`` payloads (tou_slot_N) flatten to the same validation as flat keys."""
+    ui = {
+        f"{const.TOU_FORM_SECTION_PREFIX}0": {
+            "tou_r0_start": "22:00",
+            "tou_r0_end": "06:00",
+            "tou_r0_price": 0.11,
+        },
+        f"{const.TOU_FORM_SECTION_PREFIX}1": {
+            "tou_r1_start": "06:00",
+            "tou_r1_end": "22:00",
+            "tou_r1_price": 0.19,
+        },
+        const.CONF_SUBSCRIPTION_PRICE: 0.0,
+    }
+    patch, errors = HubEnergieConfigValidator.validate_step("manual_tou", {}, ui)
+    assert errors == {}
+    assert patch[const.CONF_TOU_PERIODS][0]["name"] == "HC"
+    assert patch[const.CONF_TOU_PERIODS][1]["name"] == "HP"
 
 
 def test_manual_schedule_valid_json() -> None:
@@ -603,14 +649,21 @@ def test_redact_mapping_masks_secret_password_token_keys() -> None:
     assert out["plain"] == "visible"
 
 
-def test_manual_tou_invalid_json_error_does_not_echo_secret_value() -> None:
+def test_manual_tou_invalid_price_error_does_not_echo_secret_value() -> None:
     secret = "super-secret-token-12345"
     patch, errors = HubEnergieConfigValidator.validate_step(
         "manual_tou",
         {},
-        {const.CONF_TOU_PERIODS: secret},
+        {
+            "tou_r0_start": "22:00",
+            "tou_r0_end": "06:00",
+            "tou_r0_price": 0.1,
+            "tou_r1_start": "06:00",
+            "tou_r1_end": "22:00",
+            "tou_r1_price": secret,
+        },
     )
-    assert errors[const.CONF_TOU_PERIODS] == config_validation.ERR_INVALID_JSON
+    assert errors.get("tou_r1_price") == config_validation.ERR_INVALID_PRICE
     for _k, v in errors.items():
         assert secret not in str(v)
     assert secret not in patch.values()

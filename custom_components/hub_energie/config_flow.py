@@ -33,7 +33,6 @@ from .config_flow_selectors import (
     contract_power_selector_other,
     default_phase_json,
     default_schedule_json,
-    default_tou_json,
     energy_entity_selector,
     grid_power_sign_selector,
     offer_selector,
@@ -149,6 +148,8 @@ from .const import (
     CONF_TARIFF_SOURCE,
     CONF_TEMPO_MODE,
     CONF_TOU_PERIODS,
+    TOU_FORM_MAX_SLOTS,
+    TOU_FORM_SECTION_PREFIX,
     DOMAIN,
     GRID_POWER_SIGN_EXPORT_NEGATIVE,
     GRID_TRI_DETAIL_KEYS,
@@ -317,6 +318,65 @@ def _schedule_form_defaults_from_slots(slots: Any) -> dict[str, Any]:
             out[f"{p}day_type"] = DAY_TYPE_ALL
             out[f"{p}name"] = ""
     return out
+
+
+def _tou_form_defaults_from_periods(periods: Any) -> dict[str, Any]:
+    """Defaults for ``tou_r{i}_*`` from ``CONF_TOU_PERIODS`` or built-in HP/HC example."""
+    fallback_rows = (
+        {"start": "22:00", "end": "06:00", "price": 0.1296},
+        {"start": "06:00", "end": "22:00", "price": 0.1609},
+    )
+    data = periods if isinstance(periods, list) else []
+    out: dict[str, Any] = {}
+    for i in range(TOU_FORM_MAX_SLOTS):
+        p = f"tou_r{i}_"
+        fb = fallback_rows[i]
+        if i < len(data) and isinstance(data[i], dict):
+            item = data[i]
+            out[f"{p}start"] = str(item.get("start") or fb["start"])
+            out[f"{p}end"] = str(item.get("end") or fb["end"])
+            try:
+                out[f"{p}price"] = float(item.get("price", fb["price"]))
+            except (TypeError, ValueError):
+                out[f"{p}price"] = fb["price"]
+        else:
+            out[f"{p}start"] = fb["start"]
+            out[f"{p}end"] = fb["end"]
+            out[f"{p}price"] = fb["price"]
+    return out
+
+
+def _manual_tou_form_schema(draft: dict[str, Any], currency: str) -> vol.Schema:
+    dfn = _tou_form_defaults_from_periods(draft.get(CONF_TOU_PERIODS))
+    fields: dict[Any, Any] = {}
+    for i in range(TOU_FORM_MAX_SLOTS):
+        p = f"tou_r{i}_"
+        inner: dict[Any, Any] = {
+            vol.Optional(f"{p}start", default=dfn[f"{p}start"]): time_slot_selector(),
+            vol.Optional(f"{p}end", default=dfn[f"{p}end"]): time_slot_selector(),
+            vol.Optional(f"{p}price", default=dfn[f"{p}price"]): NumberSelector(
+                NumberSelectorConfig(
+                    min=0,
+                    max=5,
+                    step=0.01,
+                    mode=NumberSelectorMode.BOX,
+                    unit_of_measurement=f"{currency}/kWh",
+                )
+            ),
+        }
+        fields[vol.Required(f"{TOU_FORM_SECTION_PREFIX}{i}")] = section(
+            vol.Schema(inner),
+            {"collapsed": False},
+        )
+    fields[vol.Optional(CONF_SUBSCRIPTION_PRICE, default=draft.get(CONF_SUBSCRIPTION_PRICE, 0.0))] = NumberSelector(
+        NumberSelectorConfig(
+            min=0,
+            max=1000,
+            mode=NumberSelectorMode.BOX,
+            unit_of_measurement=f"{currency}/month",
+        )
+    )
+    return vol.Schema(fields)
 
 
 def _manual_schedule_form_schema(draft: dict[str, Any], currency: str) -> vol.Schema:
@@ -1051,14 +1111,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
         currency = self._data.get(CONF_CURRENCY, "EUR")
         return self.async_show_form(
             step_id="manual_tou",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_TOU_PERIODS, default=_json_default(self._data.get(CONF_TOU_PERIODS), default_tou_json())): text_selector(multiline=True),
-                    vol.Optional(CONF_SUBSCRIPTION_PRICE, default=self._data.get(CONF_SUBSCRIPTION_PRICE, 0.0)): NumberSelector(
-                        NumberSelectorConfig(min=0, max=1000, mode=NumberSelectorMode.BOX, unit_of_measurement=f"{currency}/month")
-                    ),
-                }
-            ),
+            data_schema=_manual_tou_form_schema(self._data, currency),
             errors=errors,
         )
 

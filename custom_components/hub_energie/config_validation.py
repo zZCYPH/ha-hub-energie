@@ -103,6 +103,8 @@ from .const import (
     SCHEDULE_FORM_MAX_SLOTS,
     SCHEDULE_FORM_SECTION_PREFIX,
     PRICING_TIME_OF_USE,
+    TOU_FORM_MAX_SLOTS,
+    TOU_FORM_SECTION_PREFIX,
     SOLAR_PERF_OPTIONS,
     TRI_GRID_ENERGY_OPTIONS,
     TRI_GRID_ENERGY_PER_PHASE,
@@ -352,6 +354,52 @@ def _flatten_schedule_form_input(user_input: Mapping[str, Any]) -> dict[str, Any
     return flat
 
 
+def _flatten_tou_form_input(user_input: Mapping[str, Any]) -> dict[str, Any]:
+    """Expand ``tou_slot_N`` section payloads to flat ``tou_r*`` keys."""
+    if not any(f"{TOU_FORM_SECTION_PREFIX}{i}" in user_input for i in range(TOU_FORM_MAX_SLOTS)):
+        return dict(user_input)
+    flat: dict[str, Any] = {}
+    for i in range(TOU_FORM_MAX_SLOTS):
+        key = f"{TOU_FORM_SECTION_PREFIX}{i}"
+        block = user_input.get(key)
+        if isinstance(block, dict):
+            flat.update(block)
+    for k, v in user_input.items():
+        if isinstance(k, str) and k.startswith(TOU_FORM_SECTION_PREFIX):
+            continue
+        flat[k] = v
+    return flat
+
+
+def _tou_periods_from_form(
+    user_input: Mapping[str, Any], errors: dict[str, str]
+) -> list[dict[str, Any]] | None:
+    """Build ``CONF_TOU_PERIODS`` from two slot rows (HC then HP)."""
+    flat = _flatten_tou_form_input(user_input)
+    names = ("HC", "HP")
+    out: list[dict[str, Any]] = []
+    ok = True
+    for i in range(TOU_FORM_MAX_SLOTS):
+        p = f"tou_r{i}_"
+        start = _validate_time(flat.get(f"{p}start"), errors, f"{p}start")
+        end = _validate_time(flat.get(f"{p}end"), errors, f"{p}end")
+        price = _normalize_float(
+            flat.get(f"{p}price"),
+            errors,
+            f"{p}price",
+            required=True,
+            minimum=0.0,
+            maximum=5.0,
+        )
+        if start is None or end is None or price is None:
+            ok = False
+            continue
+        out.append({"name": names[i], "start": start, "end": end, "price": price})
+    if not ok:
+        return None
+    return out
+
+
 def _schedule_items_from_form_input(
     user_input: Mapping[str, Any], errors: dict[str, str]
 ) -> list[dict[str, Any]] | None:
@@ -441,30 +489,6 @@ def _merge_tri_phase_step_patch(
             base = [*base, {"phase": phase, "entity_id": eid}]
         patch[field] = base if base else None
     return patch
-
-
-def _validate_tou_items(
-    items: list[dict[str, Any]], errors: dict[str, str], field: str
-) -> list[dict[str, Any]] | None:
-    if not items:
-        errors[field] = ERR_REQUIRED
-        return None
-    normalized: list[dict[str, Any]] = []
-    for item in items:
-        price = _normalize_float(item.get("price"), errors, field, minimum=0.0)
-        start = _validate_time(item.get("start"), errors, field)
-        end = _validate_time(item.get("end"), errors, field)
-        if field in errors or price is None or start is None or end is None:
-            return None
-        normalized_item = dict(item)
-        normalized_item["price"] = price
-        normalized_item["start"] = start
-        normalized_item["end"] = end
-        name = _clean_optional_text(item.get("name"))
-        if name is not None:
-            normalized_item["name"] = name
-        normalized.append(normalized_item)
-    return normalized
 
 
 def _validate_schedule_items(
@@ -788,11 +812,9 @@ class HubEnergieConfigValidator:
             return patch, errors
 
         if scope == "manual_tou":
-            items = _parse_json_list(user_input.get(CONF_TOU_PERIODS), errors, CONF_TOU_PERIODS)
-            if items is not None:
-                normalized = _validate_tou_items(items, errors, CONF_TOU_PERIODS)
-                if normalized is not None:
-                    patch[CONF_TOU_PERIODS] = normalized
+            periods = _tou_periods_from_form(user_input, errors)
+            if periods is not None:
+                patch[CONF_TOU_PERIODS] = periods
             subscription = _normalize_float(
                 user_input.get(CONF_SUBSCRIPTION_PRICE),
                 errors,

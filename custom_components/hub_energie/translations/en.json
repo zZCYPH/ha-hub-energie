@@ -93,9 +93,19 @@
       },
       "manual_tou": {
         "title": "Time-of-use tariff",
-        "description": "Define peak/off-peak periods and their prices.",
+        "description": "Define off-peak (HC) and peak (HP) windows and their kWh prices. Use advanced schedule for more than two bands.",
+        "sections": {
+          "tou_slot_0": {"name": "Off-peak (HC)"},
+          "tou_slot_1": {"name": "Peak (HP)"}
+        },
         "data": {
-          "tou_periods": "Time-of-use periods (JSON)"
+          "tou_r0_start": "Start",
+          "tou_r0_end": "End",
+          "tou_r0_price": "Energy price (per kWh)",
+          "tou_r1_start": "Start",
+          "tou_r1_end": "End",
+          "tou_r1_price": "Energy price (per kWh)",
+          "subscription_price": "Monthly subscription"
         }
       },
       "manual_schedule": {

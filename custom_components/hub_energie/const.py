@@ -118,6 +118,9 @@ CONF_SUBSCRIPTION_PRICE: Final = "subscription_price"
 
 # Time-of-use tariff
 CONF_TOU_PERIODS: Final = "tou_periods"
+# Fixed rows in ``manual_tou`` (HP/HC — two slots).
+TOU_FORM_MAX_SLOTS: Final = 2
+TOU_FORM_SECTION_PREFIX: Final = "tou_slot_"
 
 # Advanced schedule
 CONF_SCHEDULE_SLOTS: Final = "schedule_slots"

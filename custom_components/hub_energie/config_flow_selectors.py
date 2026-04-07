@@ -362,16 +362,6 @@ def text_selector(
     return TextSelector(TextSelectorConfig(**cfg_kw))
 
 
-def default_tou_json() -> str:
-    return json.dumps(
-        [
-            {"name": "HC", "price": 0.1296, "start": "22:00", "end": "06:00"},
-            {"name": "HP", "price": 0.1609, "start": "06:00", "end": "22:00"},
-        ],
-        indent=2,
-    )
-
-
 def default_schedule_json() -> str:
     return json.dumps(
         [
