@@ -63,11 +63,30 @@ integration_release:
       fi
       echo "Release asset URL: ${ASSET_WEB_URL}"
       RELEASE_BODY=$'Archive: unzip at the root of your Home Assistant `config/` folder so you obtain `config/custom_components/hub_energie/`. The Lovelace bundle is pre-built in `frontend/dist/` (served by HA at `/hub_energie/`).'
+      RELEASE_API_BASE="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/${TAG}"
       EXISTING=$(curl -s -o /dev/null -w "%{http_code}" \
         --header "${AUTH_HEADER}" \
-        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/${TAG}")
+        "${RELEASE_API_BASE}")
       if [ "$EXISTING" = "200" ]; then
-        echo "Release ${TAG} already exists (upload skipped). Delete the release on GitLab to recreate with a new asset URL."
+        echo "Release ${TAG} exists — refreshing ZIP asset link (drop old generic /uploads, re-add)."
+        LINKS_JSON="$(curl -s --header "${AUTH_HEADER}" "${RELEASE_API_BASE}/assets/links")"
+        echo "$LINKS_JSON" | jq -r --arg zip "$ZIP_NAME" \
+          '.[]? | select(.name == $zip) | .id' \
+        | while read -r LID; do
+            [ -n "$LID" ] || continue
+            echo "Deleting release link id=${LID} (${ZIP_NAME})"
+            curl -s -o /dev/null -w "DELETE link %{http_code}\n" \
+              --request DELETE \
+              --header "${AUTH_HEADER}" \
+              "${RELEASE_API_BASE}/assets/links/${LID}"
+          done
+        curl --fail --silent --show-error \
+          --request POST \
+          --header "${AUTH_HEADER}" \
+          --data-urlencode "name=${ZIP_NAME}" \
+          --data-urlencode "url=${ASSET_WEB_URL}" \
+          "${RELEASE_API_BASE}/assets/links"
+        echo "Release ${TAG} asset link updated."
         exit 0
       fi
       echo "Creating GitLab release ${TAG}..."
