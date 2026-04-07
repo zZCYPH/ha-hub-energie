@@ -41,6 +41,10 @@
       var v = tr(lang, el.getAttribute("data-i18n-title"));
       if (v !== "") el.setAttribute("title", v);
     });
+    document.querySelectorAll("[data-i18n-alt]").forEach(function (el) {
+      var va = tr(lang, el.getAttribute("data-i18n-alt"));
+      if (va !== "") el.setAttribute("alt", va);
+    });
     document.title = tr(lang, "meta.title");
     var meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute("content", tr(lang, "meta.description"));
@@ -125,6 +129,54 @@
   });
 
   applyLang(initialLang);
+
+  function wireDocCarouselImages() {
+    document.querySelectorAll("img.doc-carousel-img").forEach(function (img) {
+      function showFallback() {
+        img.classList.add("d-none");
+        var wrap = img.parentElement;
+        if (!wrap) return;
+        var fb = wrap.querySelector(".doc-carousel-fallback");
+        if (fb) {
+          fb.classList.remove("d-none");
+          fb.classList.add("d-flex");
+        }
+      }
+      if (img.complete && img.naturalWidth === 0) showFallback();
+      img.addEventListener("error", showFallback);
+    });
+  }
+
+  function wireCarouselPair(carouselId, treeRootId) {
+    var el = document.getElementById(carouselId);
+    var root = document.getElementById(treeRootId);
+    if (!el || !root || typeof bootstrap === "undefined") return;
+    var carousel = bootstrap.Carousel.getOrCreateInstance(el, { interval: false });
+    function syncTree(idx) {
+      root.querySelectorAll(".doc-carousel-jump").forEach(function (btn) {
+        var to = parseInt(btn.getAttribute("data-doc-slide-to"), 10);
+        btn.classList.toggle("active", to === idx);
+      });
+    }
+    root.querySelectorAll(".doc-carousel-jump").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var i = parseInt(btn.getAttribute("data-doc-slide-to"), 10);
+        if (!isNaN(i)) carousel.to(i);
+      });
+    });
+    el.addEventListener("slid.bs.carousel", function () {
+      var items = el.querySelectorAll(".carousel-item");
+      var active = el.querySelector(".carousel-item.active");
+      var idx = Array.prototype.indexOf.call(items, active);
+      if (idx >= 0) syncTree(idx);
+    });
+    syncTree(0);
+  }
+
+  wireDocCarouselImages();
+  wireCarouselPair("configFlowCarousel", "configFlowTree");
+  wireCarouselPair("cardEditorCarousel", "cardEditorTree");
+  wireCarouselPair("devicesGalleryCarousel", "devicesGalleryTree");
 
   document.querySelectorAll('#toc-nav-mobile a[href^="#"]').forEach(function (a) {
     a.addEventListener("click", function () {

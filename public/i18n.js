@@ -33,6 +33,17 @@
       "toc.services": "Services",
       "toc.limitations": "Limitations",
       "toc.glossary": "Glossary",
+      "toc.lovelace_showcase": "Card preview",
+      "toc.lovelace_editor": "Visual editor",
+      "toc.devices_gallery": "In Home Assistant",
+
+      "common.img_placeholder": "Screenshot missing — add file under",
+
+      "carousel.prev": "Previous",
+      "carousel.next": "Next",
+      "carousel.aria_config": "Config flow screenshots",
+      "carousel.aria_editor": "Lovelace card editor screenshots",
+      "carousel.aria_devices": "Device list screenshots",
 
       "hero.kicker": "Home Assistant · Custom integration",
       "hero.title": "Energy monitoring, costs & diagnostics",
@@ -61,7 +72,7 @@
         "<strong class=\"text-body\">Diagnostics:</strong> réinjection split, data quality, delta telemetry, unknown bucket, staleness; <strong class=\"text-body\">health</strong> sensor (<code class=\"font-mono\">ok</code> / <code class=\"font-mono\">degraded</code> / <code class=\"font-mono\">rebuilding</code> / <code class=\"font-mono\">inconsistent</code> / <code class=\"font-mono\">no_input</code>) with a readable cause.",
       "scope.stable_li6_html": "Optional clear-sky PV and solar resale when configured.",
       "scope.stable_li7_html":
-        "Lovelace assets under <code class=\"font-mono\">/hub_energie/</code> after build.",
+        "Lovelace: pre-built bundles in <code class=\"font-mono\">frontend/dist/</code> are versioned in the repo; Home Assistant serves them at <code class=\"font-mono\">/hub_energie/</code>.",
 
       "scope.exp_heading": "Experimental / best-effort",
       "scope.exp_li1": "Power-flow battery charge origin split when sensors are partial or noisy.",
@@ -92,31 +103,18 @@
       "install.note_html":
         "Home Assistant must load <code class=\"font-mono\">custom_components/hub_energie/manifest.json</code>. Avoid a nested folder such as <code class=\"font-mono\">hub_energie/hub_energie/</code>.",
       "install.choose_path": "Choose your path",
-      "tab.hacs": "HACS",
+      "tab.hacs_tba": "HACS (TBA)",
       "tab.git": "Git clone",
       "tab.copy": "Copy files",
 
-      "install.h1_title": "Add custom repository",
-      "install.h1_p_html":
-        "In HACS: menu (⋮) → <strong class=\"text-body\">Custom repositories</strong> → paste the GitLab URL → category <strong class=\"text-body\">Integration</strong> → Add.",
-      "install.h1_ph1": "Screenshot: HACS → Custom repositories",
-      "install.h1_ph2_html":
-        "Replace this block with <code class=\"font-mono\">&lt;img src=\"img/hacs-custom-repo.png\" alt=\"…\" /&gt;</code>",
-      "install.h1_caption_html":
-        "Optional — drop your PNG/WebP into <code class=\"font-mono\">public/img/</code> and reference it here.",
-
-      "install.h2_title": "Download the integration",
-      "install.h2_p_html":
-        "HACS → <strong class=\"text-body\">Integrations</strong> → find <strong class=\"text-body\">Hub Énergie</strong> → Download. HACS installs from the <code class=\"font-mono\">custom_components/hub_energie/</code> folder in the repository (standard layout).",
-
-      "install.h3_title": "Restart Home Assistant",
-      "install.h3_p_html":
-        "Full restart — not only “Reload YAML”. Then continue with <a href=\"#configure\">Configure in HA</a> below.",
+      "install.hacs_tba_heading": "HACS default store — to be confirmed",
+      "install.hacs_tba_html":
+        "<p class=\"mb-2\">The public <strong class=\"text-body\">HACS</strong> catalogue is built around <strong class=\"text-body\">GitHub</strong>-hosted repositories (<a href=\"https://hacs.xyz/docs/publish/start/\" target=\"_blank\" rel=\"noopener noreferrer\">publishing rules</a>). This project lives on <strong class=\"text-body\">GitLab</strong>, so a frictionless “search and install” entry in the default store is <strong class=\"text-body\">not available yet</strong>.</p><p class=\"mb-0\">For now use <strong class=\"text-body\">Git clone</strong> or <strong class=\"text-body\">Copy files</strong> (tabs above). If your HACS build allows <strong class=\"text-body\">custom repositories</strong> with a GitLab URL, you can try adding the integration that way — support varies by version. After install, always perform a <strong class=\"text-body\">full restart</strong> of Home Assistant.</p>",
 
       "install.git.s1_title": "Clone into the right folder",
       "install.git.s2_title": "Restart & add the integration",
       "install.git.s2_p_html":
-        "Same as HACS: full restart, then <a href=\"#configure\">Configure in HA</a>.",
+        "Full restart of Home Assistant, then <a href=\"#configure\">Configure in HA</a> (Settings → Devices &amp; services → Add integration).",
 
       "install.copy.s1_title": "Copy the full tree",
       "install.copy.s1_html":
@@ -125,13 +123,14 @@
       "install.copy.s2_p_html": "Full restart, then <a href=\"#configure\">Configure in HA</a>.",
 
       "install.lovelace_title": "If you use the Lovelace card",
-      "install.lovelace_p1": "Build the frontend bundle once on the host where the files live:",
-      "install.lovelace_p2_html":
-        "Then restart HA again if needed. For reproducible installs, use a Git tag matching <code class=\"font-mono\">manifest.json</code> <code class=\"font-mono\">version</code> (e.g. <strong class=\"text-body\">v0.2.2</strong>).",
+      "install.lovelace_body_html":
+        "The card bundles under <code class=\"font-mono\">frontend/dist/</code> are committed to this repository (rebuilt in CI on each commit). You do <strong class=\"text-body\">not</strong> need <code class=\"font-mono\">npm</code> on your Home Assistant host for a normal install—restart HA after updating the integration. For reproducible installs, match a Git tag to <code class=\"font-mono\">manifest.json</code> → <code class=\"font-mono\">version</code> (e.g. <strong class=\"text-body\">v0.2.2</strong>).",
+      "install.lovelace_dev_html":
+        "<strong class=\"text-body\">Developers:</strong> to rebuild locally, from <code class=\"font-mono\">custom_components/hub_energie/frontend/</code> run <code class=\"font-mono\">npm ci</code> then <code class=\"font-mono\">npm run build</code>.",
 
       "lovelace.title": "Lovelace card",
       "lovelace.intro_html":
-        "Vite builds <code class=\"font-mono\">hub-energie-card-boot.js</code> (registers <code class=\"font-mono\">hub-energie-card</code>) plus chunks under <code class=\"font-mono\">frontend/dist/</code>. HA serves them at <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>.",
+        "Built assets (<code class=\"font-mono\">hub-energie-card-boot.js</code>, <code class=\"font-mono\">hub-energie-card.js</code>, and chunks under <code class=\"font-mono\">frontend/dist/</code>) are shipped in the repo and refreshed by CI each commit. Home Assistant serves the <code class=\"font-mono\">dist</code> tree at <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>.",
 
       "lovelace.l1_title": "Storage-mode dashboards (default)",
       "lovelace.l1_html":
@@ -144,9 +143,21 @@
 
       "lovelace.l3_title": "Add the card",
 
-      "lovelace.fig_ph": "Screenshot: Dashboard with Hub Énergie card",
+      "lovelace.showcase_title": "Dashboard card",
+      "lovelace.fig_alt": "Hub Énergie Lovelace card on a dashboard",
       "lovelace.fig_cap_html":
-        "Swap the placeholder for an <code class=\"font-mono\">&lt;img&gt;</code> when you have a capture.",
+        "Example of the card in daily mode (Tempo, instant power, consumption, costs, reinjection). File: <code class=\"font-mono\">public/img/hub-energie-card.png</code>.",
+
+      "lovelace.editor_title": "Visual editor",
+      "lovelace.editor_intro_html":
+        "The card exposes a rich editor (<code class=\"font-mono\">hub-energie-card-editor.js</code> in the repo) to tune section visibility, Tempo controls, date period, and optional entity overrides — without YAML.",
+      "lovelace.editor_tree": "Screens",
+      "lovelace.ed1_t": "Layout & options",
+      "lovelace.ed1_d": "Sections, date range, Tempo and display toggles",
+      "lovelace.ed2_t": "Entities",
+      "lovelace.ed2_d": "Optional diagnostic / override pickers",
+      "lovelace.ed1_alt": "Lovelace card editor — general options",
+      "lovelace.ed2_alt": "Lovelace card editor — entity pickers",
 
       "configure.title": "Configure in Home Assistant",
       "configure.intro":
@@ -167,8 +178,16 @@
       "configure.s7_t": "Batteries",
       "configure.s7_d": "Per-battery in/out; optional power, SOC, capacity",
 
-      "configure.fig_ph": "Screenshot: Integrations → Hub Énergie → config flow",
-      "configure.fig_cap": "Helps readers match each step to the UI.",
+      "configure.tree_label": "Assistant steps",
+      "configure.carousel_hint_html":
+        "Screenshots are named <code class=\"font-mono\">config-flow-01.png</code> … <code class=\"font-mono\">07.png</code> in <code class=\"font-mono\">public/img/</code>. Use the outline on the left or the arrows to move between steps.",
+      "configure.slide1_alt": "Hub Énergie config flow — step 1 supplier",
+      "configure.slide2_alt": "Hub Énergie config flow — step 2 phase",
+      "configure.slide3_alt": "Hub Énergie config flow — step 3 tariff",
+      "configure.slide4_alt": "Hub Énergie config flow — step 4 contract",
+      "configure.slide5_alt": "Hub Énergie config flow — step 5 grid sensors",
+      "configure.slide6_alt": "Hub Énergie config flow — step 6 solar",
+      "configure.slide7_alt": "Hub Énergie config flow — step 7 batteries",
 
       "devices.title": "Device model",
       "devices.intro":
@@ -184,6 +203,37 @@
       "devices.p_bilan": "Computed energy flows (kWh)",
       "devices.p_couts": "Monetary values (€)",
       "devices.p_diag": "Health, reinjection diagnostics",
+
+      "devices.gallery_title": "Devices in the UI",
+      "devices.gallery_intro_html":
+        "Each integration device groups related entities. Below, one slide per device so readers can see how the structure looks in <strong class=\"text-body\">Settings → Devices &amp; services</strong>.",
+      "devices.gallery_multishot_html":
+        "For dense devices (many entities), you can add extra PNGs later (e.g. <code class=\"font-mono\">device-ui-02-reseau-2.png</code>) — the doc can be extended with a nested carousel when those assets exist.",
+      "devices.tree_label": "Device",
+      "devices.g1_t": "Offre",
+      "devices.g1_d": "Tariff, supplier, contract",
+      "devices.g2_t": "Réseau",
+      "devices.g2_d": "Grid energy / power",
+      "devices.g3_t": "Solaire",
+      "devices.g3_d": "Solar measurement / estimation",
+      "devices.g4_t": "Batterie",
+      "devices.g4_d": "Single battery instance",
+      "devices.g5_t": "Batteries (total)",
+      "devices.g5_d": "Aggregated battery summary",
+      "devices.g6_t": "Bilan énergétique",
+      "devices.g6_d": "Computed kWh flows",
+      "devices.g7_t": "Coûts",
+      "devices.g7_d": "Monetary sensors",
+      "devices.g8_t": "Diagnostics",
+      "devices.g8_d": "Health and reinjection diagnostics",
+      "devices.g1_alt": "Hub Énergie device — Offre",
+      "devices.g2_alt": "Hub Énergie device — Réseau",
+      "devices.g3_alt": "Hub Énergie device — Solaire",
+      "devices.g4_alt": "Hub Énergie device — Batterie",
+      "devices.g5_alt": "Hub Énergie device — Batteries (total)",
+      "devices.g6_alt": "Hub Énergie device — Bilan énergétique",
+      "devices.g7_alt": "Hub Énergie device — Coûts",
+      "devices.g8_alt": "Hub Énergie device — Diagnostics",
 
       "services.title": "Services",
       "services.th_service": "Service",
@@ -245,6 +295,17 @@
       "toc.services": "Services",
       "toc.limitations": "Limites",
       "toc.glossary": "Glossaire",
+      "toc.lovelace_showcase": "Aperçu carte",
+      "toc.lovelace_editor": "Éditeur visuel",
+      "toc.devices_gallery": "Dans Home Assistant",
+
+      "common.img_placeholder": "Capture absente — ajoutez le fichier sous",
+
+      "carousel.prev": "Précédent",
+      "carousel.next": "Suivant",
+      "carousel.aria_config": "Captures de l’assistant de configuration",
+      "carousel.aria_editor": "Captures de l’éditeur de carte Lovelace",
+      "carousel.aria_devices": "Captures des appareils",
 
       "hero.kicker": "Home Assistant · Intégration personnalisée",
       "hero.title": "Suivi énergétique, coûts & diagnostic",
@@ -273,7 +334,7 @@
         "<strong class=\"text-body\">Diagnostics :</strong> export/réinjection, qualité des données, télémétrie des deltas, créneau inconnu, obsolescence ; capteur <strong class=\"text-body\">santé</strong> (<code class=\"font-mono\">ok</code> / <code class=\"font-mono\">degraded</code> / <code class=\"font-mono\">rebuilding</code> / <code class=\"font-mono\">inconsistent</code> / <code class=\"font-mono\">no_input</code>) avec cause lisible.",
       "scope.stable_li6_html": "PV « ciel clair » optionnel et revente solaire si configurée.",
       "scope.stable_li7_html":
-        "Ressources Lovelace sous <code class=\"font-mono\">/hub_energie/</code> après build.",
+        "Lovelace : les paquets précompilés dans <code class=\"font-mono\">frontend/dist/</code> sont versionnés dans le dépôt ; Home Assistant les sert sous <code class=\"font-mono\">/hub_energie/</code>.",
 
       "scope.exp_heading": "Expérimental / au mieux",
       "scope.exp_li1":
@@ -307,31 +368,18 @@
       "install.note_html":
         "Home Assistant doit charger <code class=\"font-mono\">custom_components/hub_energie/manifest.json</code>. Évitez un dossier imbriqué du type <code class=\"font-mono\">hub_energie/hub_energie/</code>.",
       "install.choose_path": "Choisissez votre méthode",
-      "tab.hacs": "HACS",
+      "tab.hacs_tba": "HACS (TBA)",
       "tab.git": "Clone Git",
       "tab.copy": "Copie des fichiers",
 
-      "install.h1_title": "Ajouter le dépôt personnalisé",
-      "install.h1_p_html":
-        "Dans HACS : menu (⋮) → <strong class=\"text-body\">Dépôts personnalisés</strong> → collez l’URL GitLab → catégorie <strong class=\"text-body\">Intégration</strong> → Ajouter.",
-      "install.h1_ph1": "Capture : HACS → Dépôts personnalisés",
-      "install.h1_ph2_html":
-        "Remplacez ce bloc par <code class=\"font-mono\">&lt;img src=\"img/hacs-custom-repo.png\" alt=\"…\" /&gt;</code>",
-      "install.h1_caption_html":
-        "Optionnel — placez votre PNG/WebP dans <code class=\"font-mono\">public/img/</code> et référencez-le ici.",
-
-      "install.h2_title": "Télécharger l’intégration",
-      "install.h2_p_html":
-        "HACS → <strong class=\"text-body\">Intégrations</strong> → trouvez <strong class=\"text-body\">Hub Énergie</strong> → Télécharger. HACS installe à partir du dossier <code class=\"font-mono\">custom_components/hub_energie/</code> du dépôt (mise en page standard).",
-
-      "install.h3_title": "Redémarrer Home Assistant",
-      "install.h3_p_html":
-        "Redémarrage <strong>complet</strong> — pas seulement « Recharger YAML ». Puis poursuivez avec <a href=\"#configure\">Configurer dans HA</a> ci-dessous.",
+      "install.hacs_tba_heading": "Catalogue HACS public — à confirmer",
+      "install.hacs_tba_html":
+        "<p class=\"mb-2\">Le catalogue public <strong class=\"text-body\">HACS</strong> repose surtout sur des dépôts <strong class=\"text-body\">GitHub</strong> (<a href=\"https://hacs.xyz/docs/publish/start/\" target=\"_blank\" rel=\"noopener noreferrer\">règles de publication</a>). Ce projet est sur <strong class=\"text-body\">GitLab</strong> : une entrée « rechercher et installer » dans le catalogue par défaut n’est <strong class=\"text-body\">pas encore assurée</strong>.</p><p class=\"mb-0\">Pour l’instant privilégiez <strong class=\"text-body\">Clone Git</strong> ou <strong class=\"text-body\">Copie des fichiers</strong> (onglets ci-dessus). Si votre version de HACS accepte les <strong class=\"text-body\">dépôts personnalisés</strong> avec une URL GitLab, vous pouvez tenter cette voie — le comportement varie selon les versions. Après installation, effectuez toujours un <strong class=\"text-body\">redémarrage complet</strong> de Home Assistant.</p>",
 
       "install.git.s1_title": "Cloner au bon endroit",
       "install.git.s2_title": "Redémarrer & ajouter l’intégration",
       "install.git.s2_p_html":
-        "Comme avec HACS : redémarrage complet, puis <a href=\"#configure\">Configurer dans HA</a>.",
+        "Redémarrage <strong>complet</strong> de Home Assistant, puis <a href=\"#configure\">Configurer dans HA</a> (Réglages → Appareils et services → Ajouter une intégration).",
 
       "install.copy.s1_title": "Copier l’arborescence complète",
       "install.copy.s1_html":
@@ -340,13 +388,14 @@
       "install.copy.s2_p_html": "Redémarrage complet, puis <a href=\"#configure\">Configurer dans HA</a>.",
 
       "install.lovelace_title": "Si vous utilisez la carte Lovelace",
-      "install.lovelace_p1": "Compilez le frontend une fois sur la machine qui héberge les fichiers :",
-      "install.lovelace_p2_html":
-        "Puis redémarrez HA si besoin. Pour des installations reproductibles, utilisez un tag Git aligné sur <code class=\"font-mono\">manifest.json</code> → <code class=\"font-mono\">version</code> (ex. <strong class=\"text-body\">v0.2.2</strong>).",
+      "install.lovelace_body_html":
+        "Les paquets sous <code class=\"font-mono\">frontend/dist/</code> sont inclus dans ce dépôt (recompilés en CI à chaque commit). Vous n’avez <strong class=\"text-body\">pas</strong> besoin de lancer <code class=\"font-mono\">npm</code> sur la machine Home Assistant pour une installation courante — redémarrez HA après mise à jour de l’intégration. Pour des installations reproductibles, alignez un tag Git sur <code class=\"font-mono\">manifest.json</code> → <code class=\"font-mono\">version</code> (ex. <strong class=\"text-body\">v0.2.2</strong>).",
+      "install.lovelace_dev_html":
+        "<strong class=\"text-body\">Développement :</strong> pour recompiler en local, depuis <code class=\"font-mono\">custom_components/hub_energie/frontend/</code> exécutez <code class=\"font-mono\">npm ci</code> puis <code class=\"font-mono\">npm run build</code>.",
 
       "lovelace.title": "Carte Lovelace",
       "lovelace.intro_html":
-        "Vite produit <code class=\"font-mono\">hub-energie-card-boot.js</code> (enregistre <code class=\"font-mono\">hub-energie-card</code>) et les morceaux sous <code class=\"font-mono\">frontend/dist/</code>. HA les sert sous <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>.",
+        "Les artefacts de build (<code class=\"font-mono\">hub-energie-card-boot.js</code>, <code class=\"font-mono\">hub-energie-card.js</code> et les morceaux sous <code class=\"font-mono\">frontend/dist/</code>) sont livrés dans le dépôt et régénérés en CI à chaque commit. Home Assistant sert l’arborescence <code class=\"font-mono\">dist</code> sous <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>.",
 
       "lovelace.l1_title": "Tableaux de bord en mode stockage (défaut)",
       "lovelace.l1_html":
@@ -359,9 +408,21 @@
 
       "lovelace.l3_title": "Ajouter la carte",
 
-      "lovelace.fig_ph": "Capture : tableau de bord avec la carte Hub Énergie",
+      "lovelace.showcase_title": "Carte tableau de bord",
+      "lovelace.fig_alt": "Carte Lovelace Hub Énergie sur un tableau de bord",
       "lovelace.fig_cap_html":
-        "Remplacez le placeholder par un <code class=\"font-mono\">&lt;img&gt;</code> lorsque vous avez une capture.",
+        "Exemple en mode jour (Tempo, puissance instantanée, consommation, coûts, réinjection). Fichier : <code class=\"font-mono\">public/img/hub-energie-card.png</code>.",
+
+      "lovelace.editor_title": "Éditeur visuel",
+      "lovelace.editor_intro_html":
+        "La carte dispose d’un éditeur complet (<code class=\"font-mono\">hub-energie-card-editor.js</code> dans le dépôt) pour régler la visibilité des sections, Tempo, la période et des entités optionnelles — sans YAML.",
+      "lovelace.editor_tree": "Captures",
+      "lovelace.ed1_t": "Mise en page & options",
+      "lovelace.ed1_d": "Sections, période, Tempo et affichage",
+      "lovelace.ed2_t": "Entités",
+      "lovelace.ed2_d": "Sélecteurs optionnels / diagnostic",
+      "lovelace.ed1_alt": "Éditeur de carte Lovelace — options générales",
+      "lovelace.ed2_alt": "Éditeur de carte Lovelace — choix d’entités",
 
       "configure.title": "Configurer dans Home Assistant",
       "configure.intro":
@@ -382,8 +443,16 @@
       "configure.s7_t": "Batteries",
       "configure.s7_d": "Entrées/sorties par batterie ; puissance, SOC, capacité optionnels",
 
-      "configure.fig_ph": "Capture : Intégrations → Hub Énergie → assistant de config",
-      "configure.fig_cap": "Aide à faire correspondre chaque étape à l’interface.",
+      "configure.tree_label": "Étapes de l’assistant",
+      "configure.carousel_hint_html":
+        "Nommez les captures <code class=\"font-mono\">config-flow-01.png</code> … <code class=\"font-mono\">07.png</code> dans <code class=\"font-mono\">public/img/</code>. Utilisez l’arborescence à gauche ou les flèches pour passer d’une étape à l’autre.",
+      "configure.slide1_alt": "Hub Énergie — assistant étape 1 fournisseur",
+      "configure.slide2_alt": "Hub Énergie — assistant étape 2 phase",
+      "configure.slide3_alt": "Hub Énergie — assistant étape 3 tarif",
+      "configure.slide4_alt": "Hub Énergie — assistant étape 4 contrat",
+      "configure.slide5_alt": "Hub Énergie — assistant étape 5 capteurs réseau",
+      "configure.slide6_alt": "Hub Énergie — assistant étape 6 solaire",
+      "configure.slide7_alt": "Hub Énergie — assistant étape 7 batteries",
 
       "devices.title": "Modèle d’appareils",
       "devices.intro":
@@ -399,6 +468,37 @@
       "devices.p_bilan": "Flux énergétiques calculés (kWh)",
       "devices.p_couts": "Montants (€)",
       "devices.p_diag": "Santé, diagnostics réinjection",
+
+      "devices.gallery_title": "Appareils dans l’interface",
+      "devices.gallery_intro_html":
+        "Chaque appareil regroupe les entités associées. Ci-dessous, un volet par appareil pour illustrer la structure dans <strong class=\"text-body\">Réglages → Appareils et services</strong>.",
+      "devices.gallery_multishot_html":
+        "Pour les appareils très fournis en entités, vous pourrez ajouter d’autres PNG (ex. <code class=\"font-mono\">device-ui-02-reseau-2.png</code>) — la doc pourra intégrer un carrousel imbriqué quand ces fichiers existeront.",
+      "devices.tree_label": "Appareil",
+      "devices.g1_t": "Offre",
+      "devices.g1_d": "Tarif, fournisseur, contrat",
+      "devices.g2_t": "Réseau",
+      "devices.g2_d": "Énergie / puissance réseau",
+      "devices.g3_t": "Solaire",
+      "devices.g3_d": "Mesure ou estimation solaire",
+      "devices.g4_t": "Batterie",
+      "devices.g4_d": "Une instance batterie",
+      "devices.g5_t": "Batteries (total)",
+      "devices.g5_d": "Synthèse agrégée",
+      "devices.g6_t": "Bilan énergétique",
+      "devices.g6_d": "Flux kWh calculés",
+      "devices.g7_t": "Coûts",
+      "devices.g7_d": "Capteurs monétaires",
+      "devices.g8_t": "Diagnostics",
+      "devices.g8_d": "Santé et réinjection",
+      "devices.g1_alt": "Appareil Hub Énergie — Offre",
+      "devices.g2_alt": "Appareil Hub Énergie — Réseau",
+      "devices.g3_alt": "Appareil Hub Énergie — Solaire",
+      "devices.g4_alt": "Appareil Hub Énergie — Batterie",
+      "devices.g5_alt": "Appareil Hub Énergie — Batteries (total)",
+      "devices.g6_alt": "Appareil Hub Énergie — Bilan énergétique",
+      "devices.g7_alt": "Appareil Hub Énergie — Coûts",
+      "devices.g8_alt": "Appareil Hub Énergie — Diagnostics",
 
       "services.title": "Services",
       "services.th_service": "Service",

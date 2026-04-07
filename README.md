@@ -4,7 +4,7 @@ A Home Assistant custom integration for energy monitoring, cost tracking, and di
 
 It targets generic supplier and tariff setups, multi-battery systems, solar PV estimation (optional), and three-phase grid support.
 
-**Home Assistant:** 2024.10.0 or newer (see `custom_components/hub_energie/manifest.json`). **HACS:** standard layout with the integration under `custom_components/hub_energie/` in this repository (`hacs.json`, `brand/icon.png` per [HACS integration requirements](https://hacs.xyz/docs/publish/integration/)). The `public/` folder is only for **GitLab Pages** documentation, not loaded by Home Assistant.
+**Home Assistant:** 2024.10.0 or newer (see `custom_components/hub_energie/manifest.json`). **HACS metadata:** `hacs.json` and `brand/` follow the [HACS integration layout](https://hacs.xyz/docs/publish/integration/); **default store listing is TBA** while the canonical project stays on **GitLab** (HACS discovery is GitHub-oriented). Install via **Git clone** or **folder copy** is the supported path today. The `public/` folder is only for **GitLab Pages** documentation, not loaded by Home Assistant.
 
 ## Supported scope (v0.2.x)
 
@@ -16,7 +16,7 @@ It targets generic supplier and tariff setups, multi-battery systems, solar PV e
 - EDF Tempo helpers (when applicable): colours, quotas, next change timestamps.
 - Diagnostics: export / réinjection split, data quality, delta telemetry, unknown bucket and staleness sensors; **overall health** sensor with synthetic states (`ok` / `degraded` / `rebuilding` / `inconsistent` / `no_input`) and a readable **cause**.
 - Optional clear-sky PV estimation and solar resale revenue line (when configured).
-- Lovelace card served from `/hub_energie/` after build.
+- Lovelace card: pre-built bundles in `frontend/dist/` are versioned; HA serves them at `/hub_energie/`.
 
 **Experimental / best-effort**
 
@@ -84,23 +84,24 @@ So that Home Assistant loads `custom_components/hub_energie/manifest.json` (not 
 
 **Ways to install**
 
-1. **HACS (custom repository)** — In HACS: open the menu (⋮) → **Custom repositories** → add your repository URL → category **Integration** → **Add**. Then open **HACS → Integrations**, find **Hub Énergie**, and **Download**. HACS installs from the `custom_components/hub_energie/` path in the repo (default HACS layout; no `content_in_root`). After install, restart Home Assistant, then add the integration under **Settings → Devices & services**. If you use the Lovelace card, run `npm ci` and `npm run build` inside `custom_components/hub_energie/frontend/` on the host (same as a manual install). Listing in the default HACS store requires a public **GitHub** repo per [HACS publishing rules](https://hacs.xyz/docs/publish/start/); GitLab or other hosts still work for **manual** install or if your HACS version accepts them as custom repositories.
-2. **Clone** this repository, then copy **`custom_components/hub_energie/`** from the clone into your Home Assistant `config/custom_components/hub_energie/` (replace or merge as needed), **or**
-3. **Copy** only the tree under `custom_components/hub_energie/` from this repository into `custom_components/hub_energie/` on your host, preserving all subfolders (`battery/`, `energy/`, `frontend/`, `runtime/`, `snapshot/`, `translations/`, etc.).
+1. **Clone** this repository, then copy **`custom_components/hub_energie/`** from the clone into your Home Assistant `config/custom_components/hub_energie/` (replace or merge as needed), **or**
+2. **Copy** only the tree under `custom_components/hub_energie/` from this repository into `custom_components/hub_energie/` on your host, preserving all subfolders (`battery/`, `energy/`, `frontend/`, `runtime/`, `snapshot/`, `translations/`, etc.).
+3. **HACS (TBA)** — Default **HACS** search/add-from-store expects repositories on **GitHub** ([publishing](https://hacs.xyz/docs/publish/start/)), so frictionless install from the public store is **not** available for this GitLab-only project yet. Prefer **clone** or **copy** above. If your HACS build supports **custom repositories** pointing at GitLab, you may still add the URL under the menu (⋮) → **Custom repositories** → category **Integration**; compatibility varies by HACS version. After any install method, **restart Home Assistant**, then add the integration under **Settings → Devices & services**. The Lovelace bundles in `frontend/dist/` are committed (rebuilt in CI), so you do **not** need Node/npm on the HA host for a normal install.
 
 Do **not** cherry-pick only a few files: the integration is a single Python package split across many modules.
 
 After copying or cloning:
 
-1. If you use the Lovelace card, build the frontend bundle once: in `custom_components/hub_energie/frontend/` run `npm ci` (or `npm install`) then `npm run build`.
-2. **Restart Home Assistant** (full restart, not only “Reload YAML”).
-3. Add the integration: **Settings → Devices & services → Add integration → Hub Énergie**.
+1. **Restart Home Assistant** (full restart, not only “Reload YAML”).
+2. Add the integration: **Settings → Devices & services → Add integration → Hub Énergie**.
+
+**Card frontend:** `frontend/dist/` is included in the repository. You only need `npm ci` / `npm run build` under `custom_components/hub_energie/frontend/` if you change the card source locally.
 
 **Version:** see `custom_components/hub_energie/manifest.json` (`version` field). For reproducible installs, use the Git tag matching that version (e.g. **v0.2.2**).
 
 ## Lovelace Card
 
-The Vite build writes **`hub-energie-card-boot.js`** (small shell, registered as `hub-energie-card`) and **`hub-energie-card.js`** (full card) plus hashed chunks under `frontend/dist/`. Home Assistant serves the whole `dist` folder at **`/hub_energie/`**.
+CI rebuilds the Vite bundle on each commit; **`hub-energie-card-boot.js`** (shell, registered as `hub-energie-card`), **`hub-energie-card.js`**, and hashed chunks under `frontend/dist/` are **checked in**. Home Assistant serves the whole `dist` folder at **`/hub_energie/`**.
 
 **Lovelace resources (storage mode):** On startup the integration adds **`/hub_energie/hub-energie-card-boot.js`** as a **JavaScript module** resource (same as *Settings → Dashboards → Resources*). That path loads reliably on the Android app; legacy `frontend.add_extra_js_url` registration is removed on load.
 

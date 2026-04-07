@@ -25,6 +25,13 @@ body {
   border-bottom: 1px solid var(--bs-border-color);
 }
 
+/* Same artwork as custom_components/hub_energie/brand/icon.png (copied to public/img for Pages). */
+.doc-brand-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
 .doc-hero {
   background: linear-gradient(
     135deg,
@@ -36,6 +43,10 @@ body {
 
 .doc-section {
   scroll-margin-top: 5.5rem;
+}
+
+.doc-subsection {
+  scroll-margin-top: 5.75rem;
 }
 
 .doc-section h2 {
@@ -160,6 +171,45 @@ h2:hover .doc-anchor {
 
 .doc-figure img {
   object-fit: cover;
+}
+
+.doc-figure--photo {
+  border-style: solid !important;
+  border-width: 1px !important;
+}
+
+.doc-carousel-img {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
+.doc-doc-carousel .carousel-inner {
+  border-radius: 0.65rem 0.65rem 0 0;
+  overflow: hidden;
+}
+
+.doc-doc-carousel.card {
+  overflow: hidden;
+}
+
+@media (min-width: 992px) {
+  .doc-carousel-tree.sticky-lg-top {
+    top: 5.5rem;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+    align-self: flex-start;
+  }
+}
+
+.doc-carousel-jump.active {
+  background-color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+  color: #fff !important;
+}
+
+.doc-carousel-jump.active .text-secondary {
+  color: rgba(255, 255, 255, 0.85) !important;
 }
 
 pre.doc-code {

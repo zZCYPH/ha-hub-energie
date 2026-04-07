@@ -63,7 +63,14 @@
           <span class="d-none d-sm-inline ms-1" data-i18n="nav.contents">Contents</span>
         </button>
         <a class="navbar-brand fw-semibold d-flex align-items-center gap-2" href="#top">
-          <i class="bi bi-lightning-charge-fill text-primary"></i>
+          <img
+            src="img/icon.png"
+            alt=""
+            width="32"
+            height="32"
+            class="doc-brand-icon rounded-1"
+            decoding="async"
+          />
           Hub Énergie
         </a>
         <div class="d-flex align-items-center gap-2 ms-auto flex-wrap justify-content-end">
@@ -172,11 +179,20 @@
           <a class="nav-link" href="#lovelace" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.lovelace">Lovelace card</span></a
           >
+          <a class="nav-link small py-1 ps-3" href="#lovelace-showcase" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.lovelace_showcase">Card preview</span></a
+          >
+          <a class="nav-link small py-1 ps-3" href="#lovelace-editor" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.lovelace_editor">Visual editor</span></a
+          >
           <a class="nav-link" href="#configure" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.configure">Configure in HA</span></a
           >
           <a class="nav-link" href="#devices" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.devices">Devices</span></a
+          >
+          <a class="nav-link small py-1 ps-3" href="#devices-gallery" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.devices_gallery">In Home Assistant</span></a
           >
           <a class="nav-link" href="#services" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.services">Services</span></a
@@ -246,8 +262,17 @@
               <a class="nav-link" href="#ssot"><span data-i18n="toc.ssot">Data &amp; SSOT</span></a>
               <a class="nav-link" href="#install"><span data-i18n="toc.install">Install</span></a>
               <a class="nav-link" href="#lovelace"><span data-i18n="toc.lovelace">Lovelace card</span></a>
+              <a class="nav-link small py-1 ps-3" href="#lovelace-showcase"
+                ><span data-i18n="toc.lovelace_showcase">Card preview</span></a
+              >
+              <a class="nav-link small py-1 ps-3" href="#lovelace-editor"
+                ><span data-i18n="toc.lovelace_editor">Visual editor</span></a
+              >
               <a class="nav-link" href="#configure"><span data-i18n="toc.configure">Configure in HA</span></a>
               <a class="nav-link" href="#devices"><span data-i18n="toc.devices">Devices</span></a>
+              <a class="nav-link small py-1 ps-3" href="#devices-gallery"
+                ><span data-i18n="toc.devices_gallery">In Home Assistant</span></a
+              >
               <a class="nav-link" href="#services"><span data-i18n="toc.services">Services</span></a>
               <a class="nav-link" href="#limitations"><span data-i18n="toc.limitations">Limitations</span></a>
               <a class="nav-link" href="#glossary"><span data-i18n="toc.glossary">Glossary</span></a>
@@ -314,7 +339,8 @@
                       </li>
                       <li data-i18n-html="scope.stable_li6_html">Optional clear-sky PV and solar resale when configured.</li>
                       <li data-i18n-html="scope.stable_li7_html">
-                        Lovelace assets under <code class="font-mono">/hub_energie/</code> after build.
+                        Lovelace: pre-built bundles in <code class="font-mono">frontend/dist/</code> are
+                        versioned in the repo; Home Assistant serves them at <code class="font-mono">/hub_energie/</code>.
                       </li>
                     </ul>
                   </div>
@@ -442,18 +468,6 @@
               <li class="nav-item" role="presentation">
                 <button
                   class="nav-link active"
-                  id="tab-hacs"
-                  data-bs-toggle="tab"
-                  data-bs-target="#pane-hacs"
-                  type="button"
-                  role="tab"
-                >
-                  <span data-i18n="tab.hacs">HACS</span>
-                </button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button
-                  class="nav-link"
                   id="tab-git"
                   data-bs-toggle="tab"
                   data-bs-target="#pane-git"
@@ -475,69 +489,30 @@
                   <span data-i18n="tab.copy">Copy files</span>
                 </button>
               </li>
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link"
+                  id="tab-hacs"
+                  data-bs-toggle="tab"
+                  data-bs-target="#pane-hacs"
+                  type="button"
+                  role="tab"
+                >
+                  <span data-i18n="tab.hacs_tba">HACS (TBA)</span>
+                </button>
+              </li>
             </ul>
             <div class="tab-content">
-              <div class="tab-pane fade show active" id="pane-hacs" role="tabpanel">
-                <ol class="doc-steps">
-                  <li>
-                    <div class="doc-step-card shadow-sm">
-                      <span class="step-badge">1</span>
-                      <div class="step-body">
-                        <div class="step-title" data-i18n="install.h1_title">Add custom repository</div>
-                        <p class="small text-secondary mb-2" data-i18n-html="install.h1_p_html">
-                          In HACS: menu (⋮) → <strong class="text-body">Custom repositories</strong> → paste
-                          the GitLab URL → category <strong class="text-body">Integration</strong> → Add.
-                        </p>
-                        <figure class="doc-figure card mb-0">
-                          <div class="ratio ratio-16x9">
-                            <div
-                              class="d-flex flex-column align-items-center justify-content-center text-secondary small px-3 text-center"
-                            >
-                              <i class="bi bi-image fs-2 mb-2 opacity-50"></i>
-                              <span data-i18n="install.h1_ph1">Screenshot: HACS → Custom repositories</span>
-                              <span class="mt-1 opacity-75" data-i18n-html="install.h1_ph2_html"
-                                >Replace this block with
-                                <code class="font-mono">&lt;img src="img/hacs-custom-repo.png" alt="…" /&gt;</code></span
-                              >
-                            </div>
-                          </div>
-                          <figcaption class="card-body py-2 px-3 small text-secondary mb-0" data-i18n-html="install.h1_caption_html">
-                            Optional — drop your PNG/WebP into <code class="font-mono">public/img/</code> and
-                            reference it here.
-                          </figcaption>
-                        </figure>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="doc-step-card shadow-sm">
-                      <span class="step-badge">2</span>
-                      <div class="step-body">
-                        <div class="step-title" data-i18n="install.h2_title">Download the integration</div>
-                        <p class="small text-secondary mb-0" data-i18n-html="install.h2_p_html">
-                          HACS → <strong class="text-body">Integrations</strong> → find
-                          <strong class="text-body">Hub Énergie</strong> → Download. HACS installs from the
-                          <code class="font-mono">custom_components/hub_energie/</code> folder in the repository
-                          (standard layout).
-                        </p>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="doc-step-card shadow-sm">
-                      <span class="step-badge">3</span>
-                      <div class="step-body">
-                        <div class="step-title" data-i18n="install.h3_title">Restart Home Assistant</div>
-                        <p class="small text-secondary mb-0" data-i18n-html="install.h3_p_html">
-                          Full restart — not only “Reload YAML”. Then continue with
-                          <a href="#configure">Configure in HA</a> below.
-                        </p>
-                      </div>
-                    </div>
-                  </li>
-                </ol>
+              <div class="tab-pane fade" id="pane-hacs" role="tabpanel">
+                <div class="alert alert-secondary mb-0" role="status">
+                  <h3 class="h6 alert-heading d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-hourglass-split" aria-hidden="true"></i>
+                    <span data-i18n="install.hacs_tba_heading">HACS default store (TBA)</span>
+                  </h3>
+                  <div class="small mb-0" data-i18n-html="install.hacs_tba_html"></div>
+                </div>
               </div>
-              <div class="tab-pane fade" id="pane-git" role="tabpanel">
+              <div class="tab-pane fade show active" id="pane-git" role="tabpanel">
                 <ol class="doc-steps">
                   <li>
                     <div class="doc-step-card shadow-sm">
@@ -602,16 +577,18 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                   <i class="bi bi-puzzle text-warning"></i>
                   <span data-i18n="install.lovelace_title">If you use the Lovelace card</span>
                 </h3>
-                <p class="card-text small text-secondary mb-3" data-i18n="install.lovelace_p1">
-                  Build the frontend bundle once on the host where the files live:
+                <p class="card-text small text-secondary mb-3" data-i18n-html="install.lovelace_body_html">
+                  The card bundles under <code class="font-mono">frontend/dist/</code> are committed to this
+                  repository (rebuilt in CI on each commit). You do <strong class="text-body">not</strong> need
+                  <code class="font-mono">npm</code> on your Home Assistant host for a normal install—restart HA
+                  after updating the integration. For reproducible installs, match a Git tag to
+                  <code class="font-mono">manifest.json</code> → <code class="font-mono">version</code> (e.g.
+                  <strong class="text-body">v0.2.2</strong>).
                 </p>
-                <pre class="doc-code mb-3"><code>cd custom_components/hub_energie/frontend
-npm ci
-npm run build</code></pre>
-                <p class="card-text small text-secondary mb-0" data-i18n-html="install.lovelace_p2_html">
-                  Then restart HA again if needed. For reproducible installs, use a Git tag matching
-                  <code class="font-mono">manifest.json</code>
-                  <code class="font-mono">version</code> (e.g. <strong class="text-body">v0.2.2</strong>).
+                <p class="card-text small text-muted mb-0" data-i18n-html="install.lovelace_dev_html">
+                  <strong class="text-body">Developers:</strong> to rebuild locally, from
+                  <code class="font-mono">custom_components/hub_energie/frontend/</code> run
+                  <code class="font-mono">npm ci</code> then <code class="font-mono">npm run build</code>.
                 </p>
               </div>
             </div>
@@ -629,9 +606,10 @@ npm run build</code></pre>
               >
             </h2>
             <p class="text-secondary" data-i18n-html="lovelace.intro_html">
-              Vite builds <code class="font-mono">hub-energie-card-boot.js</code> (registers
-              <code class="font-mono">hub-energie-card</code>) plus chunks under
-              <code class="font-mono">frontend/dist/</code>. HA serves them at
+              Built assets (<code class="font-mono">hub-energie-card-boot.js</code>,
+              <code class="font-mono">hub-energie-card.js</code>, and chunks under
+              <code class="font-mono">frontend/dist/</code>) are shipped in the repo and refreshed by CI each
+              commit. Home Assistant serves the <code class="font-mono">dist</code> tree at
               <strong class="text-body"><code class="font-mono">/hub_energie/</code></strong>.
             </p>
 
@@ -679,19 +657,138 @@ npm run build</code></pre>
               </li>
             </ol>
 
-            <figure class="doc-figure card mt-4">
-              <div class="ratio ratio-16x9">
+            <h3 class="h5 mt-4 mb-2 doc-subsection" id="lovelace-showcase">
+              <span data-i18n="lovelace.showcase_title">Dashboard card</span>
+            </h3>
+            <figure class="doc-figure doc-figure--photo card mt-2">
+              <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                <img
+                  src="img/hub-energie-card.png"
+                  alt=""
+                  class="doc-carousel-img"
+                  width="1920"
+                  height="1080"
+                  decoding="async"
+                  data-i18n-alt="lovelace.fig_alt"
+                />
                 <div
-                  class="d-flex flex-column align-items-center justify-content-center text-secondary small px-3 text-center"
+                  class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
                 >
-                  <i class="bi bi-columns-gap fs-2 mb-2 opacity-50"></i>
-                  <span data-i18n="lovelace.fig_ph">Screenshot: Dashboard with Hub Énergie card</span>
+                  <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                  <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                  <code class="font-mono small mt-1">public/img/hub-energie-card.png</code>
                 </div>
               </div>
-              <figcaption class="card-body py-2 px-3 small text-secondary mb-0" data-i18n-html="lovelace.fig_cap_html">
-                Swap the placeholder for an <code class="font-mono">&lt;img&gt;</code> when you have a capture.
-              </figcaption>
+              <figcaption class="card-body py-2 px-3 small text-secondary mb-0" data-i18n-html="lovelace.fig_cap_html"></figcaption>
             </figure>
+
+            <h3 class="h5 mt-4 mb-2 doc-subsection" id="lovelace-editor">
+              <span data-i18n="lovelace.editor_title">Visual editor</span>
+            </h3>
+            <p class="text-secondary small" data-i18n-html="lovelace.editor_intro_html"></p>
+            <div class="row g-3 mt-1">
+              <div class="col-lg-3">
+                <div class="doc-carousel-tree border rounded-3 p-2 sticky-lg-top">
+                  <div class="small text-secondary text-uppercase fw-semibold mb-2" data-i18n="lovelace.editor_tree">
+                    Editor
+                  </div>
+                  <nav class="nav nav-pills flex-column gap-1" id="cardEditorTree" aria-label="Editor">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump active"
+                      data-doc-carousel="#cardEditorCarousel"
+                      data-doc-slide-to="0"
+                    >
+                      <span class="fw-semibold d-block" data-i18n="lovelace.ed1_t">General options</span>
+                      <span class="small text-secondary" data-i18n="lovelace.ed1_d">Sections and display</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                      data-doc-carousel="#cardEditorCarousel"
+                      data-doc-slide-to="1"
+                    >
+                      <span class="fw-semibold d-block" data-i18n="lovelace.ed2_t">Entity wiring</span>
+                      <span class="small text-secondary" data-i18n="lovelace.ed2_d">Optional overrides</span>
+                    </button>
+                  </nav>
+                </div>
+              </div>
+              <div class="col-lg-9">
+                <div
+                  id="cardEditorCarousel"
+                  class="carousel slide carousel-dark doc-doc-carousel card shadow-sm"
+                  data-bs-ride="false"
+                  data-i18n-aria="carousel.aria_editor"
+                  aria-label="Card editor"
+                >
+                  <div class="carousel-inner">
+                    <div class="carousel-item active">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/lovelace-editor-01.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="lovelace.ed1_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/lovelace-editor-01.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="lovelace.ed1_t">General options</div>
+                        <div class="small text-secondary" data-i18n="lovelace.ed1_d">Sections and display</div>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/lovelace-editor-02.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="lovelace.ed2_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/lovelace-editor-02.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="lovelace.ed2_t">Entity wiring</div>
+                        <div class="small text-secondary" data-i18n="lovelace.ed2_d">Optional overrides</div>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    class="carousel-control-prev"
+                    type="button"
+                    data-bs-target="#cardEditorCarousel"
+                    data-bs-slide="prev"
+                  >
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden" data-i18n="carousel.prev">Previous</span>
+                  </button>
+                  <button
+                    class="carousel-control-next"
+                    type="button"
+                    data-bs-target="#cardEditorCarousel"
+                    data-bs-slide="next"
+                  >
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden" data-i18n="carousel.next">Next</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </section>
 
           <section id="configure" class="doc-section pb-5">
@@ -709,71 +806,286 @@ npm run build</code></pre>
               After a full restart, add the integration from the UI and walk through the config flow in this
               order:
             </p>
-            <div class="list-group list-group-flush border rounded-3 overflow-hidden shadow-sm">
-              <div class="list-group-item d-flex align-items-start gap-3 py-3">
-                <span class="badge rounded-pill bg-primary align-self-center">1</span>
-                <div>
-                  <div class="fw-semibold" data-i18n="configure.s1_t">Supplier</div>
-                  <div class="small text-secondary" data-i18n="configure.s1_d">EDF or custom provider</div>
+            <div class="row g-3">
+              <div class="col-lg-3">
+                <div class="doc-carousel-tree border rounded-3 p-2 sticky-lg-top">
+                  <div class="small text-secondary text-uppercase fw-semibold mb-2" data-i18n="configure.tree_label">
+                    Assistant steps
+                  </div>
+                  <nav class="nav flex-column gap-1" id="configFlowTree" aria-label="Config flow">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump active"
+                      data-doc-carousel="#configFlowCarousel"
+                      data-doc-slide-to="0"
+                    >
+                      <span class="badge bg-primary me-1">1</span
+                      ><span class="fw-semibold" data-i18n="configure.s1_t">Supplier</span>
+                      <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.s1_d"
+                        >EDF or custom provider</span
+                      >
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                      data-doc-carousel="#configFlowCarousel"
+                      data-doc-slide-to="1"
+                    >
+                      <span class="badge bg-primary me-1">2</span
+                      ><span class="fw-semibold" data-i18n="configure.s2_t">Phase type</span>
+                      <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.s2_d"
+                        >Single-phase or three-phase</span
+                      >
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                      data-doc-carousel="#configFlowCarousel"
+                      data-doc-slide-to="2"
+                    >
+                      <span class="badge bg-primary me-1">3</span
+                      ><span class="fw-semibold" data-i18n="configure.s3_t">Tariff</span>
+                      <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.s3_d"
+                        >Auto (EDF) or manual: flat, TOU, schedule</span
+                      >
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                      data-doc-carousel="#configFlowCarousel"
+                      data-doc-slide-to="3"
+                    >
+                      <span class="badge bg-primary me-1">4</span
+                      ><span class="fw-semibold" data-i18n="configure.s4_t">Contract</span>
+                      <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.s4_d"
+                        >Power (kVA), name</span
+                      >
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                      data-doc-carousel="#configFlowCarousel"
+                      data-doc-slide-to="4"
+                    >
+                      <span class="badge bg-primary me-1">5</span
+                      ><span class="fw-semibold" data-i18n="configure.s5_t">Grid sensors</span>
+                      <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.s5_d"
+                        >Import energy (required), export, power</span
+                      >
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                      data-doc-carousel="#configFlowCarousel"
+                      data-doc-slide-to="5"
+                    >
+                      <span class="badge bg-primary me-1">6</span
+                      ><span class="fw-semibold" data-i18n="configure.s6_t">Solar</span>
+                      <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.s6_d"
+                        >Energy, power, resale, optional PV estimation</span
+                      >
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                      data-doc-carousel="#configFlowCarousel"
+                      data-doc-slide-to="6"
+                    >
+                      <span class="badge bg-primary me-1">7</span
+                      ><span class="fw-semibold" data-i18n="configure.s7_t">Batteries</span>
+                      <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.s7_d"
+                        >Per-battery in/out; optional power, SOC, capacity</span
+                      >
+                    </button>
+                  </nav>
                 </div>
               </div>
-              <div class="list-group-item d-flex align-items-start gap-3 py-3">
-                <span class="badge rounded-pill bg-primary align-self-center">2</span>
-                <div>
-                  <div class="fw-semibold" data-i18n="configure.s2_t">Phase type</div>
-                  <div class="small text-secondary" data-i18n="configure.s2_d">Single-phase or three-phase</div>
+              <div class="col-lg-9">
+                <div
+                  id="configFlowCarousel"
+                  class="carousel slide carousel-dark doc-doc-carousel card shadow-sm"
+                  data-bs-ride="false"
+                  data-i18n-aria="carousel.aria_config"
+                  aria-label="Config flow"
+                >
+                  <div class="carousel-inner">
+                    <div class="carousel-item active">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/config-flow-01.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="configure.slide1_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/config-flow-01.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="configure.s1_t">Supplier</div>
+                        <div class="small text-secondary" data-i18n="configure.s1_d">EDF or custom provider</div>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/config-flow-02.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="configure.slide2_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/config-flow-02.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="configure.s2_t">Phase type</div>
+                        <div class="small text-secondary" data-i18n="configure.s2_d">Single-phase or three-phase</div>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/config-flow-03.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="configure.slide3_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/config-flow-03.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="configure.s3_t">Tariff</div>
+                        <div class="small text-secondary" data-i18n="configure.s3_d">Auto (EDF) or manual: flat, TOU, schedule</div>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/config-flow-04.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="configure.slide4_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/config-flow-04.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="configure.s4_t">Contract</div>
+                        <div class="small text-secondary" data-i18n="configure.s4_d">Power (kVA), name</div>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/config-flow-05.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="configure.slide5_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/config-flow-05.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="configure.s5_t">Grid sensors</div>
+                        <div class="small text-secondary" data-i18n="configure.s5_d">Import energy (required), export, power</div>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/config-flow-06.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="configure.slide6_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/config-flow-06.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="configure.s6_t">Solar</div>
+                        <div class="small text-secondary" data-i18n="configure.s6_d">Energy, power, resale, optional PV estimation</div>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/config-flow-07.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="configure.slide7_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/config-flow-07.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="configure.s7_t">Batteries</div>
+                        <div class="small text-secondary" data-i18n="configure.s7_d">Per-battery in/out; optional power, SOC, capacity</div>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    class="carousel-control-prev"
+                    type="button"
+                    data-bs-target="#configFlowCarousel"
+                    data-bs-slide="prev"
+                  >
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden" data-i18n="carousel.prev">Previous</span>
+                  </button>
+                  <button
+                    class="carousel-control-next"
+                    type="button"
+                    data-bs-target="#configFlowCarousel"
+                    data-bs-slide="next"
+                  >
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden" data-i18n="carousel.next">Next</span>
+                  </button>
                 </div>
-              </div>
-              <div class="list-group-item d-flex align-items-start gap-3 py-3">
-                <span class="badge rounded-pill bg-primary align-self-center">3</span>
-                <div>
-                  <div class="fw-semibold" data-i18n="configure.s3_t">Tariff</div>
-                  <div class="small text-secondary" data-i18n="configure.s3_d">Auto (EDF) or manual: flat, TOU, schedule</div>
-                </div>
-              </div>
-              <div class="list-group-item d-flex align-items-start gap-3 py-3">
-                <span class="badge rounded-pill bg-primary align-self-center">4</span>
-                <div>
-                  <div class="fw-semibold" data-i18n="configure.s4_t">Contract</div>
-                  <div class="small text-secondary" data-i18n="configure.s4_d">Power (kVA), name</div>
-                </div>
-              </div>
-              <div class="list-group-item d-flex align-items-start gap-3 py-3">
-                <span class="badge rounded-pill bg-primary align-self-center">5</span>
-                <div>
-                  <div class="fw-semibold" data-i18n="configure.s5_t">Grid sensors</div>
-                  <div class="small text-secondary" data-i18n="configure.s5_d">Import energy (required), export, power</div>
-                </div>
-              </div>
-              <div class="list-group-item d-flex align-items-start gap-3 py-3">
-                <span class="badge rounded-pill bg-primary align-self-center">6</span>
-                <div>
-                  <div class="fw-semibold" data-i18n="configure.s6_t">Solar</div>
-                  <div class="small text-secondary" data-i18n="configure.s6_d">Energy, power, resale, optional PV estimation</div>
-                </div>
-              </div>
-              <div class="list-group-item d-flex align-items-start gap-3 py-3">
-                <span class="badge rounded-pill bg-primary align-self-center">7</span>
-                <div>
-                  <div class="fw-semibold" data-i18n="configure.s7_t">Batteries</div>
-                  <div class="small text-secondary" data-i18n="configure.s7_d">Per-battery in/out; optional power, SOC, capacity</div>
-                </div>
+                <p class="small text-secondary mt-2 mb-0" data-i18n-html="configure.carousel_hint_html"></p>
               </div>
             </div>
-
-            <figure class="doc-figure card mt-4">
-              <div class="ratio ratio-16x9">
-                <div
-                  class="d-flex flex-column align-items-center justify-content-center text-secondary small px-3 text-center"
-                >
-                  <i class="bi bi-gear-wide-connected fs-2 mb-2 opacity-50"></i>
-                  <span data-i18n="configure.fig_ph">Screenshot: Integrations → Hub Énergie → config flow</span>
-                </div>
-              </div>
-              <figcaption class="card-body py-2 px-3 small text-secondary mb-0" data-i18n="configure.fig_cap">
-                Helps readers match each step to the UI.
-              </figcaption>
-            </figure>
           </section>
 
           <section id="devices" class="doc-section pb-5">
@@ -834,6 +1146,301 @@ npm run build</code></pre>
                   </tr>
                 </tbody>
               </table>
+            </div>
+
+            <h3 class="h5 mt-4 mb-2 doc-subsection" id="devices-gallery">
+              <span data-i18n="devices.gallery_title">Devices in Home Assistant</span>
+            </h3>
+            <p class="text-secondary small" data-i18n-html="devices.gallery_intro_html"></p>
+            <p class="small text-secondary mb-2" data-i18n-html="devices.gallery_multishot_html"></p>
+            <div class="row g-3">
+              <div class="col-lg-3">
+                <div class="doc-carousel-tree border rounded-3 p-2 sticky-lg-top">
+                  <div class="small text-secondary text-uppercase fw-semibold mb-2" data-i18n="devices.tree_label">
+                    Devices
+                  </div>
+                  <nav class="nav flex-column gap-1" id="devicesGalleryTree" aria-label="Devices">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump active"
+                      data-doc-carousel="#devicesGalleryCarousel"
+                      data-doc-slide-to="0"
+                    >
+                      <span class="fw-semibold d-block" data-i18n="devices.g1_t">Offre</span>
+                      <span class="small text-secondary" data-i18n="devices.g1_d">Tariff &amp; contract</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                      data-doc-carousel="#devicesGalleryCarousel"
+                      data-doc-slide-to="1"
+                    >
+                      <span class="fw-semibold d-block" data-i18n="devices.g2_t">Réseau</span>
+                      <span class="small text-secondary" data-i18n="devices.g2_d">Grid sensors</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                      data-doc-carousel="#devicesGalleryCarousel"
+                      data-doc-slide-to="2"
+                    >
+                      <span class="fw-semibold d-block" data-i18n="devices.g3_t">Solaire</span>
+                      <span class="small text-secondary" data-i18n="devices.g3_d">Solar stack</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                      data-doc-carousel="#devicesGalleryCarousel"
+                      data-doc-slide-to="3"
+                    >
+                      <span class="fw-semibold d-block" data-i18n="devices.g4_t">Batterie</span>
+                      <span class="small text-secondary" data-i18n="devices.g4_d">Per-battery device</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                      data-doc-carousel="#devicesGalleryCarousel"
+                      data-doc-slide-to="4"
+                    >
+                      <span class="fw-semibold d-block" data-i18n="devices.g5_t">Batteries (total)</span>
+                      <span class="small text-secondary" data-i18n="devices.g5_d">Aggregated</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                      data-doc-carousel="#devicesGalleryCarousel"
+                      data-doc-slide-to="5"
+                    >
+                      <span class="fw-semibold d-block" data-i18n="devices.g6_t">Bilan énergétique</span>
+                      <span class="small text-secondary" data-i18n="devices.g6_d">Energy flows</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                      data-doc-carousel="#devicesGalleryCarousel"
+                      data-doc-slide-to="6"
+                    >
+                      <span class="fw-semibold d-block" data-i18n="devices.g7_t">Coûts</span>
+                      <span class="small text-secondary" data-i18n="devices.g7_d">Cost entities</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                      data-doc-carousel="#devicesGalleryCarousel"
+                      data-doc-slide-to="7"
+                    >
+                      <span class="fw-semibold d-block" data-i18n="devices.g8_t">Diagnostics</span>
+                      <span class="small text-secondary" data-i18n="devices.g8_d">Health &amp; quality</span>
+                    </button>
+                  </nav>
+                </div>
+              </div>
+              <div class="col-lg-9">
+                <div
+                  id="devicesGalleryCarousel"
+                  class="carousel slide carousel-dark doc-doc-carousel card shadow-sm"
+                  data-bs-ride="false"
+                  data-i18n-aria="carousel.aria_devices"
+                  aria-label="Devices"
+                >
+                  <div class="carousel-inner">
+                    <div class="carousel-item active">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/device-ui-01-offre.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="devices.g1_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/device-ui-01-offre.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="devices.g1_t">Offre</div>
+                        <div class="small text-secondary" data-i18n="devices.g1_d">Tariff &amp; contract</div>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/device-ui-02-reseau.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="devices.g2_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/device-ui-02-reseau.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="devices.g2_t">Réseau</div>
+                        <div class="small text-secondary" data-i18n="devices.g2_d">Grid sensors</div>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/device-ui-03-solaire.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="devices.g3_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/device-ui-03-solaire.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="devices.g3_t">Solaire</div>
+                        <div class="small text-secondary" data-i18n="devices.g3_d">Solar stack</div>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/device-ui-04-batterie.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="devices.g4_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/device-ui-04-batterie.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="devices.g4_t">Batterie</div>
+                        <div class="small text-secondary" data-i18n="devices.g4_d">Per-battery device</div>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/device-ui-05-batteries-total.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="devices.g5_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/device-ui-05-batteries-total.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="devices.g5_t">Batteries (total)</div>
+                        <div class="small text-secondary" data-i18n="devices.g5_d">Aggregated</div>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/device-ui-06-bilan.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="devices.g6_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/device-ui-06-bilan.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="devices.g6_t">Bilan énergétique</div>
+                        <div class="small text-secondary" data-i18n="devices.g6_d">Energy flows</div>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/device-ui-07-couts.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="devices.g7_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/device-ui-07-couts.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="devices.g7_t">Coûts</div>
+                        <div class="small text-secondary" data-i18n="devices.g7_d">Cost entities</div>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="ratio ratio-16x9 position-relative bg-body-secondary">
+                        <img
+                          src="img/device-ui-08-diagnostics.png"
+                          alt=""
+                          class="doc-carousel-img"
+                          decoding="async"
+                          data-i18n-alt="devices.g8_alt"
+                        />
+                        <div
+                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                        >
+                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                          <code class="font-mono small mt-1">public/img/device-ui-08-diagnostics.png</code>
+                        </div>
+                      </div>
+                      <div class="border-top bg-body p-3">
+                        <div class="fw-semibold" data-i18n="devices.g8_t">Diagnostics</div>
+                        <div class="small text-secondary" data-i18n="devices.g8_d">Health &amp; quality</div>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    class="carousel-control-prev"
+                    type="button"
+                    data-bs-target="#devicesGalleryCarousel"
+                    data-bs-slide="prev"
+                  >
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden" data-i18n="carousel.prev">Previous</span>
+                  </button>
+                  <button
+                    class="carousel-control-next"
+                    type="button"
+                    data-bs-target="#devicesGalleryCarousel"
+                    data-bs-slide="next"
+                  >
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden" data-i18n="carousel.next">Next</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </section>
 
