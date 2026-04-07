@@ -1,0 +1,12 @@
+# GitLab Pages: publishes everything under public/ to https://<namespace>.gitlab.io/<project>/
+# https://docs.gitlab.com/ee/user/project/pages/
+
+pages:
+  stage: deploy
+  script:
+    - echo "Publishing static site from public/"
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
