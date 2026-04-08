@@ -4,7 +4,11 @@ Run (repository root)::
 
     python -m pytest tests/test_flow_catalog_coverage.py -v --no-cov
 
-``--no-cov`` avoids failing the repo-wide coverage gate: these tests do not import integration code.
+With only ``pytest`` installed (no ``pytest-cov``), clear the repo addopts instead::
+
+    python -m pytest tests/test_flow_catalog_coverage.py -v --override-ini addopts=
+
+``--no-cov`` avoids failing the repo-wide coverage gate when ``pytest-cov`` is installed: these tests do not import integration code.
 """
 
 from __future__ import annotations

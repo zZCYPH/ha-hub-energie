@@ -16,7 +16,8 @@ flow_catalog_up_to_date:
   script:
     - pip install pytest
     - python scripts/extract_config_flow_catalog.py --check
-    - python -m pytest tests/test_flow_catalog_coverage.py -v --no-cov
+    # Avoid pytest.ini cov addopts: Alpine job only installs pytest (not pytest-cov); --no-cov is unknown without it.
+    - python -m pytest tests/test_flow_catalog_coverage.py -v --override-ini addopts=
   cache: []
 
 site_build_smoke:
