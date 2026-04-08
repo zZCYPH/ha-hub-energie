@@ -1,14 +1,14 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { FLOWSIM_ENTITY_PICKER_FILTER_KINDS } from "../data/flowsimEntityPickerFilterKinds.js";
 import { SHOWCASE_DUMMY_ENTITIES } from "../data/flowsimShowcaseEntities.js";
 import { getLang } from "../siteShell";
 
 /** Mirrors HA EntitySelector narrowing (energy / power / numeric domains / SOC). See `config_flow_selectors.py`. */
-const FILTER_KINDS = /** @type {const} */ (["all", "energy", "power", "numeric", "soc"]);
 
 /**
  * @param {{ icon: string, domain: string, value: string }} e
- * @param {(typeof FILTER_KINDS)[number]} kind
+ * @param {string} kind
  */
 function matchesEntityFilter(e, kind) {
   if (!kind || kind === "all") return true;
@@ -30,7 +30,7 @@ const props = defineProps({
   filterKind: {
     type: String,
     default: "all",
-    validator: (v) => FILTER_KINDS.includes(v),
+    validator: (v) => FLOWSIM_ENTITY_PICKER_FILTER_KINDS.includes(v),
   },
 });
 
