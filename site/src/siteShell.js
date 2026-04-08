@@ -46,9 +46,10 @@ export function applyLang(lang, page) {
     const va = tr(lang, el.getAttribute("data-i18n-alt"));
     if (va !== "") el.setAttribute("alt", va);
   });
-  document.querySelectorAll("[data-i18n-disabled-title]").forEach((el) => {
-    const vt = tr(lang, el.getAttribute("data-i18n-disabled-title"));
-    if (vt !== "") el.setAttribute("title", vt);
+  document.querySelectorAll("[data-i18n-bs-title]").forEach((el) => {
+    const k = el.getAttribute("data-i18n-bs-title");
+    const vt = tr(lang, k);
+    if (vt !== "") el.setAttribute("data-bs-title", vt);
   });
   document.querySelectorAll("img.doc-zoomable").forEach((el) => {
     const vt = tr(lang, "common.image_open_full");
@@ -83,8 +84,39 @@ export function applyLang(lang, page) {
     bEn.setAttribute("aria-pressed", lang === "en" ? "true" : "false");
     bFr.setAttribute("aria-pressed", lang === "fr" ? "true" : "false");
   }
+  refreshFooterSocialTooltips();
   refreshScrollSpy();
   window.dispatchEvent(new CustomEvent("hub-energie-lang", { detail: { lang } }));
+}
+
+function disposeFooterSocialTooltips() {
+  if (typeof bootstrap === "undefined" || !bootstrap.Tooltip) return;
+  document.querySelectorAll(".site-app-footer .site-social-tooltip-host").forEach((el) => {
+    const inst = bootstrap.Tooltip.getInstance(el);
+    if (inst) inst.dispose();
+  });
+}
+
+function initFooterSocialTooltips() {
+  if (typeof bootstrap === "undefined" || !bootstrap.Tooltip) return;
+  document.querySelectorAll(".site-app-footer .site-social-tooltip-host").forEach((el) => {
+    const title = el.getAttribute("data-bs-title");
+    if (!title) return;
+    bootstrap.Tooltip.getInstance(el)?.dispose();
+    new bootstrap.Tooltip(el, {
+      title,
+      customClass: "site-social-tooltip",
+      placement: "top",
+      fallbackPlacements: ["bottom", "left", "right"],
+      trigger: "hover focus",
+      boundary: "viewport",
+    });
+  });
+}
+
+function refreshFooterSocialTooltips() {
+  disposeFooterSocialTooltips();
+  initFooterSocialTooltips();
 }
 
 export function setTheme(mode) {

@@ -171,33 +171,42 @@ const navActive = (name) => route.name === name;
             data-i18n-aria="footer.social_group_aria"
             aria-label="Social links and newsletter"
           >
-            <button
-              type="button"
-              class="btn btn-outline-secondary btn-sm rounded-pill px-3"
-              disabled
-              data-i18n-disabled-title="social.coming_soon"
+            <span
+              class="d-inline-block site-social-tooltip-host"
+              tabindex="0"
+              data-bs-toggle="tooltip"
+              data-i18n-bs-title="social.coming_soon"
+              data-bs-title=""
             >
-              <i class="bi bi-facebook me-1" aria-hidden="true"></i
-              ><span data-i18n="social.facebook">Facebook</span>
-            </button>
-            <button
-              type="button"
-              class="btn btn-outline-secondary btn-sm rounded-pill px-3"
-              disabled
-              data-i18n-disabled-title="social.coming_soon"
+              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" disabled>
+                <i class="bi bi-facebook me-1" aria-hidden="true"></i
+                ><span data-i18n="social.facebook">Facebook</span>
+              </button>
+            </span>
+            <span
+              class="d-inline-block site-social-tooltip-host"
+              tabindex="0"
+              data-bs-toggle="tooltip"
+              data-i18n-bs-title="social.coming_soon"
+              data-bs-title=""
             >
-              <i class="bi bi-discord me-1" aria-hidden="true"></i
-              ><span data-i18n="social.discord">Discord</span>
-            </button>
-            <button
-              type="button"
-              class="btn btn-outline-secondary btn-sm rounded-pill px-3"
-              disabled
-              data-i18n-disabled-title="social.coming_soon"
+              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" disabled>
+                <i class="bi bi-discord me-1" aria-hidden="true"></i
+                ><span data-i18n="social.discord">Discord</span>
+              </button>
+            </span>
+            <span
+              class="d-inline-block site-social-tooltip-host"
+              tabindex="0"
+              data-bs-toggle="tooltip"
+              data-i18n-bs-title="social.coming_soon"
+              data-bs-title=""
             >
-              <i class="bi bi-envelope me-1" aria-hidden="true"></i
-              ><span data-i18n="social.newsletter">Newsletter</span>
-            </button>
+              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" disabled>
+                <i class="bi bi-envelope me-1" aria-hidden="true"></i
+                ><span data-i18n="social.newsletter">Newsletter</span>
+              </button>
+            </span>
           </div>
         </div>
       </div>
