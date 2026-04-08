@@ -151,6 +151,7 @@
       "toc.install": "Install",
       "toc.lovelace": "Lovelace card",
       "toc.configure": "Configure in HA",
+      "toc.configure_flow_simulator": "Flow preview (generated)",
       "toc.configure_paths": "Screenshot paths",
       "toc.configure_delta_caps": "Energy delta caps",
       "toc.devices": "Devices",
@@ -164,6 +165,15 @@
 
       "common.img_placeholder": "Screenshot missing — add file under",
       "common.image_open_full": "Click or press Enter to open full size",
+
+      "flowsim.scenario_label": "Sample path",
+      "flowsim.region_aria": "Config flow preview (generated)",
+      "flowsim.empty": "(no step)",
+      "flowsim.redirect_note": "This step only navigates in the real wizard — there is usually no form.",
+      "flowsim.disclaimer":
+        "Preview only: strings come from the integration; branching and validation are not executed. Regenerate with python scripts/extract_config_flow_catalog.py.",
+      "flowsim.back": "Back",
+      "flowsim.next": "Next",
 
       "doc.modal_aria": "Full-size screenshot",
       "doc.modal_close_aria": "Close",
@@ -336,6 +346,9 @@
       "configure.delta_caps_ha_html":
         "These fields are optional post-install tuning: they are <strong class=\"text-body\">not</strong> shown in the first-time wizard, only in <strong class=\"text-body\">Configure</strong>. The dialog description links back to this site for the longer explanation.",
 
+      "configure.flow_simulator_h": "Interactive flow preview",
+      "configure.flow_simulator_intro_html":
+        "This panel is generated from <code class=\"font-mono\">config_flow.py</code> and <code class=\"font-mono\">strings.json</code> so titles and field labels track the integration. It is <strong class=\"text-body\">not</strong> Home Assistant: there is no entity picker, no validation, and sample paths are linear shortcuts. After changing the wizard, run <code class=\"font-mono\">python scripts/extract_config_flow_catalog.py</code> and commit <code class=\"font-mono\">site/src/data/flowCatalog.generated.json</code>. CI fails if that file is stale.",
       "configure.paths_h": "Guided screenshot paths",
       "configure.flow_paths_intro_html":
         "Pick the tab that matches your setup. Each tab is a <strong class=\"text-body\">real Home Assistant dialog sequence</strong> (screenshots only — not a simulator). For <code class=\"font-mono\">step_id</code> names and the full branch map, see <code class=\"font-mono\">custom_components/hub_energie/docs/config-flow.md</code> in the repository.",
@@ -643,6 +656,7 @@
       "toc.install": "Installation",
       "toc.lovelace": "Carte Lovelace",
       "toc.configure": "Configurer dans HA",
+      "toc.configure_flow_simulator": "Aperçu du flux (généré)",
       "toc.configure_paths": "Parcours captures",
       "toc.configure_delta_caps": "Plafonds de delta",
       "toc.devices": "Appareils",
@@ -656,6 +670,15 @@
 
       "common.img_placeholder": "Capture absente — ajoutez le fichier sous",
       "common.image_open_full": "Cliquez ou appuyez sur Entrée pour agrandir",
+
+      "flowsim.scenario_label": "Parcours d’exemple",
+      "flowsim.region_aria": "Aperçu du flux de configuration (généré)",
+      "flowsim.empty": "(pas d’étape)",
+      "flowsim.redirect_note": "Cette étape ne fait qu’enchaîner dans le vrai assistant — en principe sans formulaire.",
+      "flowsim.disclaimer":
+        "Aperçu pédagogique : textes issus de l’intégration ; branchements et validation ne sont pas exécutés. Régénérer avec python scripts/extract_config_flow_catalog.py.",
+      "flowsim.back": "Précédent",
+      "flowsim.next": "Suivant",
 
       "doc.modal_aria": "Capture en grand",
       "doc.modal_close_aria": "Fermer",
@@ -830,6 +853,9 @@
       "configure.delta_caps_ha_html":
         "Ces champs sont un réglage optionnel après installation : ils n’apparaissent <strong class=\"text-body\">pas</strong> dans l’assistant initial, seulement dans <strong class=\"text-body\">Configurer</strong>. La description de la boîte de dialogue renvoie vers ce site pour l’explication détaillée.",
 
+      "configure.flow_simulator_h": "Aperçu interactif du flux",
+      "configure.flow_simulator_intro_html":
+        "Ce bloc est généré à partir de <code class=\"font-mono\">config_flow.py</code> et <code class=\"font-mono\">strings.json</code> pour que titres et libellés suivent l’intégration. Ce n’est <strong class=\"text-body\">pas</strong> Home Assistant : pas de sélecteur d’entités, pas de validation réelle, et les scénarios sont des raccourcis linéaires. Après modification de l’assistant, exécutez <code class=\"font-mono\">python scripts/extract_config_flow_catalog.py</code> et validez <code class=\"font-mono\">site/src/data/flowCatalog.generated.json</code>. La CI échoue si ce fichier est obsolète.",
       "configure.paths_h": "Parcours guidés (captures)",
       "configure.flow_paths_intro_html":
         "Choisissez l’onglet qui correspond à votre cas. Chaque onglet montre une <strong class=\"text-body\">suite réelle de boîtes de dialogue Home Assistant</strong> (captures seulement — pas de simulateur). Pour les noms d’étapes <code class=\"font-mono\">step_id</code> et le graphe complet des branches, voir <code class=\"font-mono\">custom_components/hub_energie/docs/config-flow.md</code> dans le dépôt.",

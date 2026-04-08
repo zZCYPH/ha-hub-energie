@@ -5,6 +5,7 @@
   "scripts": {
     "postinstall": "node scripts/sync-public.mjs",
     "fetch-releases": "node scripts/fetch-releases.mjs",
+    "generate:flow-catalog": "python ../scripts/extract_config_flow_catalog.py",
     "prebuild": "node scripts/sync-public.mjs",
     "predev": "node scripts/sync-public.mjs",
     "build": "vite build",

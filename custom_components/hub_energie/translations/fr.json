@@ -819,6 +819,12 @@
         "total": "Un capteur pour toutes les phases (JSON)",
         "per_phase": "Un capteur par phase (étape par étape)"
       }
+    },
+    "grid_power_sign_mode": {
+      "options": {
+        "export_negative": "L'export s'affiche en négatif (l'import en positif)",
+        "export_positive": "L'export s'affiche en positif (l'import en négatif)"
+      }
     }
   },
   "entity": {

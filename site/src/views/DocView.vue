@@ -3,6 +3,7 @@ import { createApp, nextTick, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import docHtml from "../assets/doc-fragment.html?raw";
 import InstallReleasePicker from "../components/InstallReleasePicker.vue";
+import FlowSimulator from "../components/FlowSimulator.vue";
 import {
   wireCarouselPair,
   wireDocCarouselImages,
@@ -16,6 +17,7 @@ const root = ref(null);
 const router = useRouter();
 let detachNav = () => {};
 let pickerApp = null;
+let flowSimApp = null;
 
 onMounted(() => {
   setupScrollSpy("doc");
@@ -34,6 +36,11 @@ onMounted(() => {
       pickerApp = createApp(InstallReleasePicker);
       pickerApp.mount(mountEl);
     }
+    const simEl = document.getElementById("flow-simulator-mount");
+    if (simEl && !flowSimApp) {
+      flowSimApp = createApp(FlowSimulator);
+      flowSimApp.mount(simEl);
+    }
   });
 });
 
@@ -43,6 +50,10 @@ onUnmounted(() => {
   if (pickerApp) {
     pickerApp.unmount();
     pickerApp = null;
+  }
+  if (flowSimApp) {
+    flowSimApp.unmount();
+    flowSimApp = null;
   }
 });
 </script>

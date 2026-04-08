@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="Placeholder  screenshot not bundled in repo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3d4752"/>
+      <stop offset="1" stop-color="#252a30"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" fill="url(#bg)"/>
+  <rect x="48" y="48" width="864" height="444" rx="12" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="2" stroke-dasharray="10 8"/>
+  <g fill="#c5cdd6" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif" text-anchor="middle">
+    <text x="480" y="248" font-size="22" font-weight="600">Config-flow screenshot</text>
+    <text x="480" y="284" font-size="15" fill="#9aa3ad">Not shipped in the repository yet (no 404  placeholder).</text>
+    <text x="480" y="318" font-size="14" fill="#7e8891">Add the matching PNG under <tspan font-family="ui-monospace, monospace">site/public/img/</tspan> and point the carousel <tspan font-family="ui-monospace, monospace">src</tspan> back.</text>
+  </g>
+</svg>

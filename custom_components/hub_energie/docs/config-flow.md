@@ -1,6 +1,8 @@
 # Hub Énergie — configuration flow reference
 
-This document describes the **initial setup** wizard (`HubEnergieConfigFlow`) in code: branch points, `step_id` values, and how they map to UI strings. It also tracks **documentation screenshots** under `site/public/img/` (GitLab Pages). **`config-flow-*.png` files were cleared** so you can re-capture after a full config-flow redesign; the site still references the same filenames — carousels show placeholders until you add PNGs again. For the **guided tour** (tabs), see §6 (`#/doc#configure-paths`).
+This document describes the **initial setup** wizard (`HubEnergieConfigFlow`) in code: branch points, `step_id` values, and how they map to UI strings. It also tracks **documentation screenshots** under `site/public/img/` (GitLab Pages). The vitrine still references **fixed** `config-flow-*.png` names in `doc-fragment.html` — any missing file shows a **placeholder** in the carousel. For the **Tempo · RTE** tab, the intended sequence is **`config-flow-edf-01-user.png` → … → `config-flow-edf-06-rte-credentials.png`** (see §4.1).
+
+**Interactive preview (doc site):** `python scripts/extract_config_flow_catalog.py` regenerates `site/src/data/flowCatalog.generated.json` from `config_flow.py` (AST) + `strings.json` (labels). The documentation page mounts a **non-executable** wizard shell (linear **sample paths** only). GitLab CI runs the same script with `--check` so the committed JSON cannot drift silently. **`tests/test_flow_catalog_coverage.py`** asserts every `async_step_*` on `HubEnergieConfigFlow` / `_BatteryWizardMixin` has a catalog row and that the committed file matches a fresh extract (run with `pytest … --no-cov` if your `pytest.ini` enforces coverage on unrelated modules). For the **guided tour** (tabs), see §6 (`#/doc#configure-paths`).
 
 - **Implementation:** `config_flow.py` → class `HubEnergieConfigFlow` (flow `VERSION = 2`).
 - **Dialog titles/descriptions (EN):** `translations/en.json` under `config.step.<step_id>`.
@@ -126,7 +128,7 @@ Post-setup changes use `HubEnergieOptionsFlow` (menu entries depend on config: o
 
 ## 4. Screenshot inventory (`site/public/img/`)
 
-**Status:** there are **no** `config-flow-*.png` files in the tree right now (removed so you can re-shot the whole flow). The filenames below are what **`site/src/assets/doc-fragment.html`** and §5 still expect — commit new PNGs with these exact names unless you intentionally rename and update the HTML.
+**Status:** Filenames below are what **`site/src/assets/doc-fragment.html`** and §5 expect — commit PNGs with these exact names (or update HTML + i18n if you rename). Slides without a file keep the site placeholder.
 
 **Internal step with no success dialog:** `_edf_fetch_and_continue` goes straight to `grid` on success. On failure, `edf_offer` may reappear with an error — optional capture.
 
@@ -263,7 +265,7 @@ Tick items as you drop files into `site/public/img/`. After a **flow redesign**,
 
 ## 6. Guided doc site vs this file
 
-**End users (GitLab Pages / showcase site)** — Under **Configure in Home Assistant**, open **Guided screenshot paths** (`#configure-paths`). Bootstrap **tabs** switch between screenshot carousels (**placeholders** until §5 priority files exist):
+**End users (GitLab Pages / showcase site)** — Under **Configure in Home Assistant**, open **Guided screenshot paths** (`#configure-paths`). Bootstrap **tabs** switch between screenshot carousels (missing §4.1 assets show **placeholders**):
 
 | Tab | Purpose |
 |-----|---------|

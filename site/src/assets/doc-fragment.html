@@ -1,4 +1,4 @@
-<div
+﻿<div
       class="offcanvas offcanvas-start"
       tabindex="-1"
       id="tocOffcanvasDoc"
@@ -51,6 +51,9 @@
           <a class="nav-link" href="#configure" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.configure">Configure in HA</span></a
           >
+          <a class="nav-link small py-1 ps-3" href="#configure-flow-simulator" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.configure_flow_simulator">Flow preview (generated)</span></a
+          >
           <a class="nav-link small py-1 ps-3" href="#configure-paths" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.configure_paths">Screenshot paths</span></a
           >
@@ -84,12 +87,12 @@
         <div class="row g-4 align-items-center">
           <div class="col-lg-8">
             <p class="text-uppercase small fw-semibold text-primary mb-2 tracking-wide" data-i18n="hero.kicker">
-              Home Assistant · Custom integration
+              Home Assistant Â· Custom integration
             </p>
             <h1 class="display-6 fw-bold mb-3" data-i18n="hero.title">Energy monitoring, costs &amp; diagnostics</h1>
             <p class="lead text-secondary mb-3 mb-lg-0" data-i18n-html="hero.lead_html">
               Configure suppliers and tariffs, track kWh and daily cost, optional solar estimation and
-              multi-battery support — with a Lovelace card served from
+              multi-battery support â€” with a Lovelace card served from
               <code class="font-mono small">/hub_energie/</code>.
             </p>
             <div class="mt-4">
@@ -102,7 +105,7 @@
                 >
               </a>
               <p class="small text-secondary mt-2 mb-0" data-i18n="doc.hero_internals_hint">
-                Slot attribution, per-day buckets, Store, and long-term statistics — for readers who want the full
+                Slot attribution, per-day buckets, Store, and long-term statistics â€” for readers who want the full
                 pipeline.
               </p>
             </div>
@@ -155,6 +158,9 @@
                 ><span data-i18n="toc.lovelace_editor">Visual editor</span></a
               >
               <a class="nav-link" href="#configure"><span data-i18n="toc.configure">Configure in HA</span></a>
+              <a class="nav-link small py-1 ps-3" href="#configure-flow-simulator"
+                ><span data-i18n="toc.configure_flow_simulator">Flow preview (generated)</span></a
+              >
               <a class="nav-link small py-1 ps-3" href="#configure-paths"
                 ><span data-i18n="toc.configure_paths">Screenshot paths</span></a
               >
@@ -210,22 +216,22 @@
                     <ul class="mb-0">
                       <li data-i18n-html="scope.stable_li1_html">
                         <strong class="text-body">Config flow:</strong> supplier (EDF vs custom), tariff (flat,
-                        HP–HC, multi-slot, EDF Tempo + RTE/API/sensor), grid and optional solar/battery wiring.
+                        HPâ€“HC, multi-slot, EDF Tempo + RTE/API/sensor), grid and optional solar/battery wiring.
                       </li>
                       <li data-i18n-html="scope.stable_li2_html">
                         <strong class="text-body">Energy:</strong> positive deltas from
-                        <code class="font-mono">total_increasing</code> meters → slot-day accounting (Paris day)
+                        <code class="font-mono">total_increasing</code> meters â†’ slot-day accounting (Paris day)
                         and SSOT total sensors owned by the integration.
                       </li>
                       <li data-i18n-html="scope.stable_li3_html">
-                        <strong class="text-body">Costs:</strong> daily estimate (€), subscription split,
+                        <strong class="text-body">Costs:</strong> daily estimate (â‚¬), subscription split,
                         per-slot detail in attributes.
                       </li>
                       <li data-i18n-html="scope.stable_li4_html">
                         <strong class="text-body">EDF Tempo:</strong> colours, quotas, next-change times.
                       </li>
                       <li data-i18n-html="scope.stable_li5_html">
-                        <strong class="text-body">Diagnostics:</strong> réinjection split, data quality, delta
+                        <strong class="text-body">Diagnostics:</strong> rÃ©injection split, data quality, delta
                         telemetry, unknown bucket, staleness;
                         <strong class="text-body">health</strong> sensor
                         (<code class="font-mono">ok</code> / <code class="font-mono">degraded</code> /
@@ -325,7 +331,7 @@
                     <p class="small text-secondary mb-0" data-i18n-html="ssot.s3_html">
                       After each Paris day, external statistics
                       <code class="font-mono">hub_energie:slot_&lt;source&gt;_&lt;slot&gt;_kwh</code> are
-                      written. Use these (or physical meters) for historical analytics — not raw
+                      written. Use these (or physical meters) for historical analytics â€” not raw
                       <code class="font-mono">cost_detail</code> attribute history alone.
                     </p>
                   </div>
@@ -469,7 +475,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                         <p class="small text-secondary mb-0" data-i18n-html="install.copy.s1_html">
                           From this repository, copy only the
                           <code class="font-mono">custom_components/hub_energie/</code> tree into your Home
-                          Assistant <code class="font-mono">config/custom_components/hub_energie/</code> — all
+                          Assistant <code class="font-mono">config/custom_components/hub_energie/</code> â€” all
                           subfolders (<code class="font-mono">battery/</code>,
                           <code class="font-mono">energy/</code>, <code class="font-mono">frontend/</code>,
                           etc.). Do not copy the repo root into HA.
@@ -501,9 +507,9 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                 <p class="card-text small text-secondary mb-3" data-i18n-html="install.lovelace_body_html">
                   The card bundles under <code class="font-mono">frontend/dist/</code> are committed to this
                   repository (rebuilt in CI on each commit). You do <strong class="text-body">not</strong> need
-                  <code class="font-mono">npm</code> on your Home Assistant host for a normal install—restart HA
+                  <code class="font-mono">npm</code> on your Home Assistant host for a normal installâ€”restart HA
                   after updating the integration. For reproducible installs, match a Git tag to
-                  <code class="font-mono">manifest.json</code> → <code class="font-mono">version</code> (e.g.
+                  <code class="font-mono">manifest.json</code> â†’ <code class="font-mono">version</code> (e.g.
                   <strong class="text-body">v0.3.1</strong>).
                 </p>
                 <p class="card-text small text-muted mb-0" data-i18n-html="install.lovelace_dev_html">
@@ -544,7 +550,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                       On startup the integration adds
                       <code class="font-mono">/hub_energie/hub-energie-card-boot.js</code> as a
                       <strong class="text-body">JavaScript module</strong> (same as
-                      <em>Settings → Dashboards → Resources</em>). Usually nothing to do manually.
+                      <em>Settings â†’ Dashboards â†’ Resources</em>). Usually nothing to do manually.
                     </p>
                   </div>
                 </div>
@@ -648,6 +654,19 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
               </div>
             </div>
 
+            <h3 class="h5 mt-2 mb-2 doc-subsection" id="configure-flow-simulator">
+              <span data-i18n="configure.flow_simulator_h">Interactive flow preview</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#configure-flow-simulator"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h3>
+            <p class="text-secondary small mb-3" data-i18n-html="configure.flow_simulator_intro_html"></p>
+            <div id="flow-simulator-mount" class="mb-4"></div>
+
             <h3 class="h5 mt-2 mb-2 doc-subsection" id="configure-delta-caps">
               <span data-i18n="configure.delta_caps_h">Energy delta caps (advanced)</span>
               <a
@@ -698,7 +717,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                   aria-controls="config-flow-pane-rte"
                   aria-selected="true"
                 >
-                  <span data-i18n="configure.path_tab_rte">Tempo · RTE</span>
+                  <span data-i18n="configure.path_tab_rte">Tempo Â· RTE</span>
                 </button>
               </li>
               <li class="nav-item" role="presentation">
@@ -713,7 +732,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                   aria-selected="false"
                   tabindex="-1"
                 >
-                  <span data-i18n="configure.path_tab_api">Tempo · API</span>
+                  <span data-i18n="configure.path_tab_api">Tempo Â· API</span>
                 </button>
               </li>
               <li class="nav-item" role="presentation">
@@ -852,7 +871,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                     <div class="carousel-item active">
                       <div class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary">
                         <img
-                          src="img/config-flow-edf-01-user.png"
+                          src="img/doc-screenshot-placeholder.svg"
                           alt=""
                           class="doc-carousel-img doc-zoomable"
                           decoding="async"
@@ -874,7 +893,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                     <div class="carousel-item">
                       <div class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary">
                         <img
-                          src="img/config-flow-edf-02-tariff-mode.png"
+                          src="img/doc-screenshot-placeholder.svg"
                           alt=""
                           class="doc-carousel-img doc-zoomable"
                           decoding="async"
@@ -896,7 +915,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                     <div class="carousel-item">
                       <div class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary">
                         <img
-                          src="img/config-flow-edf-03-contract.png"
+                          src="img/doc-screenshot-placeholder.svg"
                           alt=""
                           class="doc-carousel-img doc-zoomable"
                           decoding="async"
@@ -918,7 +937,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                     <div class="carousel-item">
                       <div class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary">
                         <img
-                          src="img/config-flow-edf-04-edf-offer.png"
+                          src="img/doc-screenshot-placeholder.svg"
                           alt=""
                           class="doc-carousel-img doc-zoomable"
                           decoding="async"
@@ -940,7 +959,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                     <div class="carousel-item">
                       <div class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary">
                         <img
-                          src="img/config-flow-edf-05-tempo-source.png"
+                          src="img/doc-screenshot-placeholder.svg"
                           alt=""
                           class="doc-carousel-img doc-zoomable"
                           decoding="async"
@@ -962,7 +981,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                     <div class="carousel-item">
                       <div class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary">
                         <img
-                          src="img/config-flow-edf-06-rte-credentials.png"
+                          src="img/doc-screenshot-placeholder.svg"
                           alt=""
                           class="doc-carousel-img doc-zoomable"
                           decoding="async"
@@ -1099,7 +1118,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
                           >
                             <img
-                              src="img/config-flow-edf-01-user.png"
+                              src="img/doc-screenshot-placeholder.svg"
                               alt=""
                               class="doc-carousel-img doc-zoomable"
                               decoding="async"
@@ -1125,7 +1144,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
                           >
                             <img
-                              src="img/config-flow-edf-02-tariff-mode.png"
+                              src="img/doc-screenshot-placeholder.svg"
                               alt=""
                               class="doc-carousel-img doc-zoomable"
                               decoding="async"
@@ -1151,7 +1170,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
                           >
                             <img
-                              src="img/config-flow-edf-03-contract.png"
+                              src="img/doc-screenshot-placeholder.svg"
                               alt=""
                               class="doc-carousel-img doc-zoomable"
                               decoding="async"
@@ -1177,7 +1196,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
                           >
                             <img
-                              src="img/config-flow-edf-04-edf-offer.png"
+                              src="img/doc-screenshot-placeholder.svg"
                               alt=""
                               class="doc-carousel-img doc-zoomable"
                               decoding="async"
@@ -1203,7 +1222,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
                           >
                             <img
-                              src="img/config-flow-edf-tempo-api-couleur.png"
+                              src="img/doc-screenshot-placeholder.svg"
                               alt=""
                               class="doc-carousel-img doc-zoomable"
                               decoding="async"
@@ -1354,7 +1373,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
                           >
                             <img
-                              src="img/config-flow-edf-01-user.png"
+                              src="img/doc-screenshot-placeholder.svg"
                               alt=""
                               class="doc-carousel-img doc-zoomable"
                               decoding="async"
@@ -1380,7 +1399,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
                           >
                             <img
-                              src="img/config-flow-tariff-mode-manual.png"
+                              src="img/doc-screenshot-placeholder.svg"
                               alt=""
                               class="doc-carousel-img doc-zoomable"
                               decoding="async"
@@ -1404,7 +1423,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
                           >
                             <img
-                              src="img/config-flow-edf-03-contract.png"
+                              src="img/doc-screenshot-placeholder.svg"
                               alt=""
                               class="doc-carousel-img doc-zoomable"
                               decoding="async"
@@ -1430,7 +1449,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
                           >
                             <img
-                              src="img/config-flow-manual-pricing-flat.png"
+                              src="img/doc-screenshot-placeholder.svg"
                               alt=""
                               class="doc-carousel-img doc-zoomable"
                               decoding="async"
@@ -1456,7 +1475,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
                           >
                             <img
-                              src="img/config-flow-manual-flat.png"
+                              src="img/doc-screenshot-placeholder.svg"
                               alt=""
                               class="doc-carousel-img doc-zoomable"
                               decoding="async"
@@ -1482,7 +1501,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
                           >
                             <img
-                              src="img/config-flow-grid-mono.png"
+                              src="img/doc-screenshot-placeholder.svg"
                               alt=""
                               class="doc-carousel-img doc-zoomable"
                               decoding="async"
@@ -1597,7 +1616,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
                           >
                             <img
-                              src="img/config-flow-edf-offer-base.png"
+                              src="img/doc-screenshot-placeholder.svg"
                               alt=""
                               class="doc-carousel-img doc-zoomable"
                               decoding="async"
@@ -1621,7 +1640,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
                           >
                             <img
-                              src="img/config-flow-edf-offer-hphc.png"
+                              src="img/doc-screenshot-placeholder.svg"
                               alt=""
                               class="doc-carousel-img doc-zoomable"
                               decoding="async"
@@ -1645,7 +1664,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
                           >
                             <img
-                              src="img/config-flow-edf-04-edf-offer.png"
+                              src="img/doc-screenshot-placeholder.svg"
                               alt=""
                               class="doc-carousel-img doc-zoomable"
                               decoding="async"
@@ -1744,7 +1763,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                     <td data-i18n="devices.p_offre">Tariff, supplier, contract</td>
                   </tr>
                   <tr>
-                    <td><strong>Réseau</strong></td>
+                    <td><strong>RÃ©seau</strong></td>
                     <td data-i18n="devices.p_reseau">Grid energy / power sensors</td>
                   </tr>
                   <tr>
@@ -1760,12 +1779,12 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                     <td data-i18n="devices.p_battsum">Aggregated battery summary</td>
                   </tr>
                   <tr>
-                    <td><strong>Bilan énergétique</strong></td>
+                    <td><strong>Bilan Ã©nergÃ©tique</strong></td>
                     <td data-i18n="devices.p_bilan">Computed energy flows (kWh)</td>
                   </tr>
                   <tr>
-                    <td><strong>Coûts</strong></td>
-                    <td data-i18n="devices.p_couts">Monetary values (€)</td>
+                    <td><strong>CoÃ»ts</strong></td>
+                    <td data-i18n="devices.p_couts">Monetary values (â‚¬)</td>
                   </tr>
                   <tr>
                     <td><strong>Diagnostics</strong></td>
@@ -1802,7 +1821,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                       data-doc-carousel="#devicesGalleryCarousel"
                       data-doc-slide-to="1"
                     >
-                      <span class="fw-semibold d-block" data-i18n="devices.g2_t">Réseau</span>
+                      <span class="fw-semibold d-block" data-i18n="devices.g2_t">RÃ©seau</span>
                       <span class="small text-secondary" data-i18n="devices.g2_d">Grid sensors</span>
                     </button>
                     <button
@@ -1838,7 +1857,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                       data-doc-carousel="#devicesGalleryCarousel"
                       data-doc-slide-to="5"
                     >
-                      <span class="fw-semibold d-block" data-i18n="devices.g6_t">Bilan énergétique</span>
+                      <span class="fw-semibold d-block" data-i18n="devices.g6_t">Bilan Ã©nergÃ©tique</span>
                       <span class="small text-secondary" data-i18n="devices.g6_d">Energy flows</span>
                     </button>
                     <button
@@ -1847,7 +1866,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                       data-doc-carousel="#devicesGalleryCarousel"
                       data-doc-slide-to="6"
                     >
-                      <span class="fw-semibold d-block" data-i18n="devices.g7_t">Coûts</span>
+                      <span class="fw-semibold d-block" data-i18n="devices.g7_t">CoÃ»ts</span>
                       <span class="small text-secondary" data-i18n="devices.g7_d">Cost entities</span>
                     </button>
                     <button
@@ -1911,7 +1930,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                         </div>
                       </div>
                       <div class="border-top bg-body p-3">
-                        <div class="fw-semibold" data-i18n="devices.g2_t">Réseau</div>
+                        <div class="fw-semibold" data-i18n="devices.g2_t">RÃ©seau</div>
                         <div class="small text-secondary" data-i18n="devices.g2_d">Grid sensors</div>
                       </div>
                     </div>
@@ -1999,7 +2018,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                         </div>
                       </div>
                       <div class="border-top bg-body p-3">
-                        <div class="fw-semibold" data-i18n="devices.g6_t">Bilan énergétique</div>
+                        <div class="fw-semibold" data-i18n="devices.g6_t">Bilan Ã©nergÃ©tique</div>
                         <div class="small text-secondary" data-i18n="devices.g6_d">Energy flows</div>
                       </div>
                     </div>
@@ -2021,7 +2040,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                         </div>
                       </div>
                       <div class="border-top bg-body p-3">
-                        <div class="fw-semibold" data-i18n="devices.g7_t">Coûts</div>
+                        <div class="fw-semibold" data-i18n="devices.g7_t">CoÃ»ts</div>
                         <div class="small text-secondary" data-i18n="devices.g7_d">Cost entities</div>
                       </div>
                     </div>
@@ -2117,9 +2136,9 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
             </h2>
             <ul class="text-secondary">
               <li data-i18n="limitations.li1">Recorder retention limits history, charts, and rebuild-from-recorder paths.</li>
-              <li data-i18n="limitations.li2">Optional solar estimation is clear-sky output — indicative, not a production meter.</li>
+              <li data-i18n="limitations.li2">Optional solar estimation is clear-sky output â€” indicative, not a production meter.</li>
               <li data-i18n-html="limitations.li3_html">
-                The card’s power graph needs statistics; missing <code class="font-mono">state_class</code> or
+                The cardâ€™s power graph needs statistics; missing <code class="font-mono">state_class</code> or
                 history can leave it empty.
               </li>
               <li data-i18n-html="limitations.li4_html">
@@ -2175,7 +2194,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
 
           <footer class="border-top pt-4 mt-2 small text-secondary">
             <p class="mb-2" data-i18n-html="footer.p1_html">
-              Hub Énergie — documentation snapshot <strong class="text-body">v0.3.1</strong>. Canonical detail:
+              Hub Ã‰nergie â€” documentation snapshot <strong class="text-body">v0.3.1</strong>. Canonical detail:
               README and <code class="font-mono">docs/</code> in the
               <a href="https://gitlab.com/zzcyph1/home-assistant/hub-energie">GitLab project</a>.
             </p>

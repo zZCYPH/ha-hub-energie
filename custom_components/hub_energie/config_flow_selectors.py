@@ -307,8 +307,9 @@ def price_basis_selector() -> SelectSelector:
 def grid_power_sign_selector() -> SelectSelector:
     return SelectSelector(
         SelectSelectorConfig(
-            options=[SelectOptionDict(value=value, label=value) for value in GRID_POWER_SIGN_OPTIONS],
+            options=list(GRID_POWER_SIGN_OPTIONS),
             mode=SelectSelectorMode.DROPDOWN,
+            translation_key="grid_power_sign_mode",
         )
     )
 

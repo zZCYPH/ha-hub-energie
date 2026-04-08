@@ -1,241 +1,31 @@
-# GitLab Pages: artifact must include `public/` at repo root (site/dist → public).
-# Pages deploy: tag site-vX.Y.Z-i only (X.Y.Z = manifest version, i = doc-only increment).
-#
-# Semver tags (e.g. v0.2.3): build zip (integration + pre-built Lovelace frontend/dist),
-# upload generic package, resolve package_files id via API, set release link to:
-#   {CI_PROJECT_URL}/-/package_files/{id}/download
-# (The pretty URL .../packages/generic/.../file.zip often 404s; package_files/download works.)
-#
-# Permissions: enable API access for the CI job token (Settings → CI/CD → Job token permissions),
-# or set a project access token as CI variable GITLAB_RELEASE_TOKEN (api scope).
+# Hub Énergie — minimal CI: keep generated doc catalog in sync with config_flow.py + strings.json.
+# Extend with your own test/build jobs as needed.
 
-# release (integration_release) before deploy (pages) within a single pipeline; dual v* + site-v* tag
-# pushes still spawn separate tag pipelines — see pages: wait-for-release block below.
 stages:
   - verify
-  - release
-  - deploy
-
-# Marketing site + README must stay aligned with manifest.json and services.yaml.
-verify_docs_consistency:
-  stage: verify
-  image: python:3.12-alpine
-  script:
-    - python3 scripts/verify_vitrine_integration_docs.py
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/
-    # Doc-site releases: same checks as before publishing Pages (see pages job rules).
-    - if: $CI_COMMIT_TAG =~ /^site-v[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$/
 
 variables:
-  GITLAB_PACKAGE_NAME: hub-energie
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
 
-integration_release:
-  stage: release
+flow_catalog_up_to_date:
+  stage: verify
+  image: python:3.12-alpine
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH
+  script:
+    - pip install pytest
+    - python scripts/extract_config_flow_catalog.py --check
+    - python -m pytest tests/test_flow_catalog_coverage.py -v --no-cov
+  cache: []
+
+site_build_smoke:
+  stage: verify
   image: node:22-alpine
   rules:
-    - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/
-  before_script:
-    - apk add --no-cache zip rsync curl jq
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH
   script:
-    - |
-      set -euo pipefail
-      TAG="$CI_COMMIT_TAG"
-      VERSION="${TAG#v}"
-      MANIFEST_VER="$(node -p "JSON.parse(require('fs').readFileSync('custom_components/hub_energie/manifest.json','utf8')).version")"
-      if [ "$MANIFEST_VER" != "$VERSION" ]; then
-        echo "manifest.json version ($MANIFEST_VER) must match tag ($VERSION) without the leading v"
-        exit 1
-      fi
-      (cd custom_components/hub_energie/frontend && npm ci && npm run build)
-      STAGE="${CI_PROJECT_DIR}/.zip-stage"
-      rm -rf "$STAGE"
-      mkdir -p "$STAGE/custom_components"
-      rsync -a \
-        --exclude 'frontend/node_modules' \
-        --exclude '__pycache__' \
-        --exclude '.pytest_cache' \
-        --exclude '*.pyc' \
-        "${CI_PROJECT_DIR}/custom_components/hub_energie/" \
-        "$STAGE/custom_components/hub_energie/"
-      ZIP_NAME="hub-energie-${VERSION}.zip"
-      (cd "$STAGE" && zip -qr "${CI_PROJECT_DIR}/${ZIP_NAME}" custom_components)
-      if [ -n "${GITLAB_RELEASE_TOKEN:-}" ]; then
-        AUTH_HEADER="PRIVATE-TOKEN: ${GITLAB_RELEASE_TOKEN}"
-      else
-        AUTH_HEADER="JOB-TOKEN: ${CI_JOB_TOKEN}"
-      fi
-      PKG_API="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${GITLAB_PACKAGE_NAME}/${VERSION}/${ZIP_NAME}"
-      echo "Uploading ${ZIP_NAME} to generic package ${GITLAB_PACKAGE_NAME}/${VERSION}..."
-      curl --fail --silent --show-error \
-        --header "${AUTH_HEADER}" \
-        --upload-file "${CI_PROJECT_DIR}/${ZIP_NAME}" \
-        "$PKG_API"
-      echo "Resolving package_files id for release link..."
-      PKG_LIST_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_type=generic&package_name=${GITLAB_PACKAGE_NAME}&package_version=${VERSION}&per_page=20"
-      FILE_ID=""
-      PKG_ID=""
-      FILES_JSON=""
-      scrape_pkg_page() {
-        local pid="$1"
-        [ -n "$pid" ] || return 1
-        local page code
-        page="$(curl -sS -w "\n%{http_code}" --header "${AUTH_HEADER}" "${CI_PROJECT_URL}/-/packages/${pid}")"
-        code="$(echo "$page" | tail -n1)"
-        page="$(echo "$page" | sed '$d')"
-        if [ "$code" != "200" ]; then
-          echo "package web page HTTP ${code} for package_id=${pid}" >&2
-          return 1
-        fi
-        # Same links as the GitLab UI (JOB-TOKEN often cannot list package_files via API but HTML works)
-        echo "$page" | grep -oE "/-/package_files/[0-9]+/download" | sed 's|/-/package_files/||;s|/download||' | head -n1
-      }
-      for _try in $(seq 1 25); do
-        PKGS="$(curl -s --header "${AUTH_HEADER}" "$PKG_LIST_URL")"
-        PKG_ID="$(echo "$PKGS" | jq -r --arg ver "$VERSION" --arg name "${GITLAB_PACKAGE_NAME}" \
-          '[.[]? | select(.name == $name and .version == $ver)] | sort_by(.id) | reverse | first | .id // empty')"
-        if [ -n "$PKG_ID" ] && [ "$PKG_ID" != "null" ]; then
-          PF_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${PKG_ID}/package_files?per_page=100"
-          PF_HTTP="$(curl -s -o /tmp/pkg_files.json -w "%{http_code}" --header "${AUTH_HEADER}" "$PF_URL")"
-          FILES_JSON="$(cat /tmp/pkg_files.json)"
-          if [ "$PF_HTTP" = "200" ] && echo "$FILES_JSON" | jq -e 'type == "array"' >/dev/null 2>&1; then
-            FILE_ID="$(echo "$FILES_JSON" | jq -r --arg zip "$ZIP_NAME" \
-              '[.[]? | select(.file_name == $zip)] | first | .id // empty')"
-            if [ -z "$FILE_ID" ] || [ "$FILE_ID" = "null" ]; then
-              FILE_ID="$(echo "$FILES_JSON" | jq -r \
-                '[.[]? | select(.file_name | test("^hub-energie-.*\\.zip$"))] | first | .id // empty')"
-            fi
-            if { [ -z "$FILE_ID" ] || [ "$FILE_ID" = "null" ]; } && [ "$(echo "$FILES_JSON" | jq 'length')" = "1" ]; then
-              FILE_ID="$(echo "$FILES_JSON" | jq -r '.[0].id // empty')"
-            fi
-          else
-            echo "package_files API HTTP ${PF_HTTP} or non-array (try ${_try}); trying package page HTML…"
-          fi
-          if [ -z "$FILE_ID" ] || [ "$FILE_ID" = "null" ]; then
-            FILE_ID="$(scrape_pkg_page "$PKG_ID")"
-            if [ -n "$FILE_ID" ]; then
-              echo "Resolved file id ${FILE_ID} from package page HTML"
-            fi
-          fi
-        fi
-        if [ -n "$FILE_ID" ] && [ "$FILE_ID" != "null" ]; then
-          break
-        fi
-        sleep 3
-      done
-      if [ -z "$FILE_ID" ] || [ "$FILE_ID" = "null" ]; then
-        echo "Could not resolve package file id for ${ZIP_NAME} (package_id=${PKG_ID:-?})."
-        echo "Set CI variable GITLAB_RELEASE_TOKEN (api, read_api) if JOB-TOKEN cannot read packages."
-        echo "package_files last response (truncated):"
-        echo "${FILES_JSON:-}" | head -c 2500
-        exit 1
-      fi
-      ASSET_WEB_URL="${CI_PROJECT_URL}/-/package_files/${FILE_ID}/download"
-      echo "Release asset URL: ${ASSET_WEB_URL}"
-      RELEASE_BODY=$'Archive: unzip at the root of your Home Assistant `config/` folder so you obtain `config/custom_components/hub_energie/`. The Lovelace bundle is pre-built in `frontend/dist/` (served by HA at `/hub_energie/`).'
-      RELEASE_API_BASE="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/${TAG}"
-      EXISTING=$(curl -s -o /dev/null -w "%{http_code}" \
-        --header "${AUTH_HEADER}" \
-        "${RELEASE_API_BASE}")
-      if [ "$EXISTING" = "200" ]; then
-        echo "Release ${TAG} exists — refreshing ZIP asset link (drop old link, re-add package_files URL)."
-        LINKS_JSON="$(curl -s --header "${AUTH_HEADER}" "${RELEASE_API_BASE}/assets/links")"
-        echo "$LINKS_JSON" | jq -r --arg zip "$ZIP_NAME" \
-          '.[]? | select(.name == $zip) | .id' \
-        | while read -r LID; do
-            [ -n "$LID" ] || continue
-            echo "Deleting release link id=${LID} (${ZIP_NAME})"
-            curl -s -o /dev/null -w "DELETE link %{http_code}\n" \
-              --request DELETE \
-              --header "${AUTH_HEADER}" \
-              "${RELEASE_API_BASE}/assets/links/${LID}"
-          done
-        curl --fail --silent --show-error \
-          --request POST \
-          --header "${AUTH_HEADER}" \
-          --data-urlencode "name=${ZIP_NAME}" \
-          --data-urlencode "url=${ASSET_WEB_URL}" \
-          "${RELEASE_API_BASE}/assets/links"
-        echo "Release ${TAG} asset link updated."
-        exit 0
-      fi
-      echo "Creating GitLab release ${TAG}..."
-      jq -n \
-        --arg name "$TAG" \
-        --arg tag "$TAG" \
-        --arg desc "$RELEASE_BODY" \
-        --arg url "$ASSET_WEB_URL" \
-        --arg linkname "$ZIP_NAME" \
-        '{name:$name,tag_name:$tag,description:$desc,assets:{links:[{name:$linkname,url:$url}]}}' \
-      | curl --fail --silent --show-error \
-          --request POST \
-          --header "${AUTH_HEADER}" \
-          --header "Content-Type: application/json" \
-          --data @- \
-          "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases"
-
-# Pages deploy only on tags site-vX.Y.Z-i: X.Y.Z must match custom_components/hub_energie/manifest.json
-# version; i is a doc-only increment (e.g. site-v0.2.5-1, site-v0.2.5-2) without bumping the manifest.
-# Push doc fixes on the default branch, then tag when the vitrine should go live.
-pages:
-  stage: deploy
-  image: node:22-alpine
-  before_script:
-    - apk add --no-cache curl jq
-  script:
-    - |
-      set -euo pipefail
-      TAG="${CI_COMMIT_TAG:?}"
-      if ! printf '%s' "$TAG" | grep -qE '^site-v[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$'; then
-        echo "pages: unexpected tag ${TAG} (expected site-vX.Y.Z-i matching manifest version)"
-        exit 1
-      fi
-      TAG_VER="$(node -e "const t=process.env.CI_COMMIT_TAG; const m=t.match(/^site-v([0-9]+\\.[0-9]+\\.[0-9]+)-[0-9]+$/); if(!m){process.exit(1)}; process.stdout.write(m[1])")"
-      MANIFEST_VER="$(node -p "JSON.parse(require('fs').readFileSync('custom_components/hub_energie/manifest.json','utf8')).version")"
-      if [ "$TAG_VER" != "$MANIFEST_VER" ]; then
-        echo "pages: tag base version ${TAG_VER} must match manifest.json version ${MANIFEST_VER} (tag ${TAG})"
-        exit 1
-      fi
-      # Pushing vX.Y.Z and site-vX.Y.Z-i on the same commit creates two tag pipelines in parallel;
-      # stages cannot order jobs across pipelines. Wait until the semver release (integration_release)
-      # exists with a hub-energie ZIP asset before fetch-releases so /releases.json lists the new version.
-      if [ -n "${GITLAB_RELEASE_TOKEN:-}" ]; then
-        AUTH_HEADER="PRIVATE-TOKEN: ${GITLAB_RELEASE_TOKEN}"
-      else
-        AUTH_HEADER="JOB-TOKEN: ${CI_JOB_TOKEN}"
-      fi
-      SEMVER_TAG="v${MANIFEST_VER}"
-      REL_ENC="$(printf '%s' "$SEMVER_TAG" | jq -sRr @uri)"
-      RELEASE_API="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/${REL_ENC}"
-      READY=""
-      for _try in $(seq 1 90); do
-        HTTP_CODE="$(curl -sS -o /tmp/gitlab_release.json -w "%{http_code}" \
-          --header "${AUTH_HEADER}" "$RELEASE_API")"
-        if [ "$HTTP_CODE" = "200" ] && \
-           jq -e 'any(.assets.links[]?; (.name // "") | test("^hub-energie-.*\\.zip$"))' \
-             /tmp/gitlab_release.json >/dev/null 2>&1; then
-          echo "pages: release ${SEMVER_TAG} is ready (ZIP asset present)."
-          READY=1
-          break
-        fi
-        echo "pages: waiting for release ${SEMVER_TAG} + ZIP asset (${_try}/90, HTTP ${HTTP_CODE})…"
-        sleep 5
-      done
-      if [ -z "$READY" ]; then
-        echo "pages: timed out waiting for ${SEMVER_TAG}. Push the v*.*.* tag before or with site-v*," \
-             "or set GITLAB_RELEASE_TOKEN if JOB-TOKEN cannot read releases/assets."
-        exit 1
-      fi
-      # GitLab Releases API → site/public/releases.json (bundled as /releases.json on the site)
-      node site/scripts/fetch-releases.mjs
-      (cd site && npm ci && npm run build)
-      rm -rf public
-      mkdir -p public
-      cp -r site/dist/. public/
-  artifacts:
-    paths:
-      - public
-  rules:
-    - if: $CI_COMMIT_TAG =~ /^site-v[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$/
+    - cd site
+    - npm ci
+    - npm run build
