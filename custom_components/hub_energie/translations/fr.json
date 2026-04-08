@@ -6,7 +6,6 @@
         "description": "Configurez votre intégration de suivi d'énergie. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-user)",
         "data": {
           "supplier": "Fournisseur d'énergie",
-          "supplier_custom_name": "Nom du fournisseur",
           "phase_type": "Type de phase"
         },
         "data_description": {
@@ -326,21 +325,12 @@
         "title": "Configuration solaire",
         "data": {
           "has_solar": "Avez-vous des panneaux solaires ?",
-          "solar_energy": "Production d'énergie solaire (kWh)",
-          "solar_power_sensor": "Puissance solaire (W, optionnel)",
-          "solar_resale_contract": "Contrat de revente solaire ?",
-          "solar_export_tariff": "Tarif de revente (par kWh)",
           "flow_nav": "Navigation dans l’assistant"
-        },
-        "data_description": {
-          "solar_energy": "Compteur d'énergie total croissant pour la production solaire.",
-          "solar_power_sensor": "Améliore l'affichage temps réel et les diagnostics.",
-          "solar_export_tariff": "Prix de revente par kWh de l'énergie solaire exportée."
         },
         "description": "Indiquez si vous souhaitez suivre la production solaire ici. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar)"
       },
       "solar_config": {
-        "title": "Configuration solaire",
+        "title": "Capteurs de production solaire",
         "description": "Sélectionnez les capteurs de production solaire. Optionnel : revente et estimation. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_config)",
         "data": {
           "solar_energy": "Production d'énergie solaire (kWh)",
@@ -814,9 +804,9 @@
     },
     "tariff_offer": {
       "options": {
-        "base": "BASE",
+        "tempo": "TEMPO",
         "hphc": "HPHC",
-        "tempo": "TEMPO"
+        "base": "BASE"
       }
     },
     "tempo_mode": {

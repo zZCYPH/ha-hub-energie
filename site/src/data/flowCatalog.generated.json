@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-08T14:53:20.575689+00:00",
+  "generated_at": "2026-04-08T15:31:20.198348+00:00",
   "source_files": {
     "config_flow": "custom_components/hub_energie/config_flow.py",
     "strings_en": "custom_components/hub_energie/strings.json",
@@ -27,9 +27,9 @@
       },
       "tariff_offer": {
         "options": {
-          "base": "BASE",
+          "tempo": "TEMPO",
           "hphc": "HPHC",
-          "tempo": "TEMPO"
+          "base": "BASE"
         }
       },
       "tempo_mode": {
@@ -131,9 +131,9 @@
       },
       "tariff_offer": {
         "options": {
-          "base": "BASE",
+          "tempo": "TEMPO",
           "hphc": "HPHC",
-          "tempo": "TEMPO"
+          "base": "BASE"
         }
       },
       "tempo_mode": {
@@ -1807,26 +1807,6 @@
               "key": "has_solar",
               "label": "Do you have solar panels?",
               "description": ""
-            },
-            {
-              "key": "solar_energy",
-              "label": "Solar energy production (kWh)",
-              "description": "Total increasing energy counter for solar production."
-            },
-            {
-              "key": "solar_power_sensor",
-              "label": "Solar power (W, optional)",
-              "description": "Improves real-time power display and power-balance diagnostics."
-            },
-            {
-              "key": "solar_resale_contract",
-              "label": "Solar export re-sale contract?",
-              "description": ""
-            },
-            {
-              "key": "solar_export_tariff",
-              "label": "Export tariff (per kWh)",
-              "description": "Re-sale price per kWh for exported solar energy."
             }
           ],
           "menu_choices": [],
@@ -1840,26 +1820,6 @@
               "key": "has_solar",
               "label": "Avez-vous des panneaux solaires ?",
               "description": ""
-            },
-            {
-              "key": "solar_energy",
-              "label": "Production d'énergie solaire (kWh)",
-              "description": "Compteur d'énergie total croissant pour la production solaire."
-            },
-            {
-              "key": "solar_power_sensor",
-              "label": "Puissance solaire (W, optionnel)",
-              "description": "Améliore l'affichage temps réel et les diagnostics."
-            },
-            {
-              "key": "solar_resale_contract",
-              "label": "Contrat de revente solaire ?",
-              "description": ""
-            },
-            {
-              "key": "solar_export_tariff",
-              "label": "Tarif de revente (par kWh)",
-              "description": "Prix de revente par kWh de l'énergie solaire exportée."
             }
           ],
           "menu_choices": [],
@@ -1875,7 +1835,7 @@
       "menu_options": null,
       "strings": {
         "en": {
-          "title": "Solar configuration",
+          "title": "Solar production sensors",
           "description": "Select the solar production sensors. Optional: resale and estimation. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_config)",
           "fields": [
             {
@@ -1908,7 +1868,7 @@
           "sections": []
         },
         "fr": {
-          "title": "Configuration solaire",
+          "title": "Capteurs de production solaire",
           "description": "Sélectionnez les capteurs de production solaire. Optionnel : revente et estimation. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_config)",
           "fields": [
             {
@@ -2344,11 +2304,6 @@
               "description": "Select your energy supplier. Choose 'Other' for non-EDF providers."
             },
             {
-              "key": "supplier_custom_name",
-              "label": "Supplier name",
-              "description": ""
-            },
-            {
               "key": "phase_type",
               "label": "Phase type",
               "description": "Single-phase (mono) or three-phase (tri) installation."
@@ -2365,11 +2320,6 @@
               "key": "supplier",
               "label": "Fournisseur d'énergie",
               "description": "Sélectionnez votre fournisseur. Choisissez 'Autre' pour les fournisseurs non-EDF."
-            },
-            {
-              "key": "supplier_custom_name",
-              "label": "Nom du fournisseur",
-              "description": ""
             },
             {
               "key": "phase_type",

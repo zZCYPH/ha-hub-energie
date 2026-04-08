@@ -45,6 +45,7 @@ const DUMMY_ENTITIES = [
   "sensor.linky_puissance",
   "sensor.shellyem3_channel_a_energy",
   "sensor.grid_import_energy_total",
+  "sensor.energy_returned",
   "sensor.solaredge_import",
 ];
 
@@ -321,7 +322,8 @@ function isEntityKey(key) {
     key === "solar_tilt" ||
     key === "solar_commissioning_year" ||
     key === "solar_degradation_rate" ||
-    key === "solar_performance_ratio"
+    key === "solar_performance_ratio" ||
+    key === "solar_export_tariff"
   )
     return false;
   if (/_entity$/.test(key)) return true;
@@ -339,6 +341,8 @@ function isEntityKey(key) {
 function fieldKind(key) {
   if (key === "rte_client_secret") return "password";
   if (key === "schedule_slots" || key === "solar_arrays") return "textarea";
+  /** Manual kWh price in config flow — not an entity despite ``solar_`` prefix. */
+  if (key === "solar_export_tariff") return "text";
   if (key === "supplier") return "supplier";
   if (key === "phase_type") return "phase_type";
   if (key === "tariff_mode") return "tariff_mode";
@@ -384,6 +388,16 @@ function fieldKind(key) {
   return "text";
 }
 
+function boolFieldModelChecked(key) {
+  const v = formState[key];
+  return v === true || v === "true";
+}
+
+function setBoolFieldFromEvent(key, ev) {
+  const el = ev?.target;
+  formState[key] = el && el.checked ? "true" : "false";
+}
+
 /** Maps simulator fieldKind → top-level key under integration `strings.json` → `selector`. */
 const SELECTOR_KEY_BY_KIND = {
   supplier: "supplier",
@@ -426,6 +440,12 @@ function selectRowsForKind(kind) {
       value: k,
       label: String(opts[k] ?? k),
     }));
+  }
+  if (kind === "tariff_offer") {
+    const order = ["tempo", "hphc", "base"];
+    return order
+      .filter((k) => Object.prototype.hasOwnProperty.call(opts, k))
+      .map((value) => ({ value, label: String(opts[value] ?? value) }));
   }
   return Object.keys(opts).map((value) => ({
     value,
@@ -511,37 +531,55 @@ onUnmounted(() => {
               <div v-for="sec in stepCopy.sections" :key="sec.id" class="flow-sim-ha__group">
                 <div class="flow-sim-ha__group-title">{{ sec.name }}</div>
                 <div v-for="f in sec.fields" :key="sec.id + f.key" class="flow-sim-ha__field">
-                  <label class="flow-sim-ha__label">{{ f.label }}</label>
-                  <template v-if="fieldKind(f.key) === 'entity'">
-                    <select v-model="formState[f.key]" class="flow-sim-ha__control" :aria-label="f.label">
-                      <option v-for="opt in entitySelectOptions()" :key="opt.value + opt.label" :value="opt.value">
-                        {{ opt.label }}
-                      </option>
-                    </select>
-                    <span class="flow-sim-ha__hint flow-sim-ha__hint--muted">{{ tr("flowsim.dummy_entity_picker") }}</span>
-                  </template>
-                  <template v-else-if="fieldKind(f.key) !== 'text' && hasSelectRows(fieldKind(f.key))">
-                    <select v-model="formState[f.key]" class="flow-sim-ha__control" :aria-label="f.label">
-                      <option
-                        v-for="opt in selectRowsForKind(fieldKind(f.key))"
-                        :key="f.key + opt.value"
-                        :value="opt.value"
-                      >
-                        {{ opt.label }}
-                      </option>
-                    </select>
-                  </template>
-                  <template v-else-if="fieldKind(f.key) === 'number'">
-                    <input
-                      v-model="formState[f.key]"
-                      class="flow-sim-ha__control"
-                      type="number"
-                      step="any"
-                      :aria-label="f.label"
-                    />
+                  <template v-if="fieldKind(f.key) === 'boolean'">
+                    <div class="flow-sim-ha__row--toggle">
+                      <span class="flow-sim-ha__toggle-text">{{ f.label }}</span>
+                      <label class="flow-sim-ha__switch">
+                        <input
+                          type="checkbox"
+                          role="switch"
+                          :checked="boolFieldModelChecked(f.key)"
+                          :aria-label="f.label"
+                          @change="setBoolFieldFromEvent(f.key, $event)"
+                        />
+                        <span class="flow-sim-ha__slider" />
+                      </label>
+                    </div>
+                    <p v-if="f.description" class="flow-sim-ha__hint">{{ f.description }}</p>
                   </template>
                   <template v-else>
-                    <input v-model="formState[f.key]" class="flow-sim-ha__control" type="text" :aria-label="f.label" />
+                    <label class="flow-sim-ha__label">{{ f.label }}</label>
+                    <template v-if="fieldKind(f.key) === 'entity'">
+                      <select v-model="formState[f.key]" class="flow-sim-ha__control" :aria-label="f.label">
+                        <option v-for="opt in entitySelectOptions()" :key="opt.value + opt.label" :value="opt.value">
+                          {{ opt.label }}
+                        </option>
+                      </select>
+                      <span class="flow-sim-ha__hint flow-sim-ha__hint--muted">{{ tr("flowsim.dummy_entity_picker") }}</span>
+                    </template>
+                    <template v-else-if="fieldKind(f.key) !== 'text' && hasSelectRows(fieldKind(f.key))">
+                      <select v-model="formState[f.key]" class="flow-sim-ha__control" :aria-label="f.label">
+                        <option
+                          v-for="opt in selectRowsForKind(fieldKind(f.key))"
+                          :key="f.key + opt.value"
+                          :value="opt.value"
+                        >
+                          {{ opt.label }}
+                        </option>
+                      </select>
+                    </template>
+                    <template v-else-if="fieldKind(f.key) === 'number'">
+                      <input
+                        v-model="formState[f.key]"
+                        class="flow-sim-ha__control"
+                        type="number"
+                        step="any"
+                        :aria-label="f.label"
+                      />
+                    </template>
+                    <template v-else>
+                      <input v-model="formState[f.key]" class="flow-sim-ha__control" type="text" :aria-label="f.label" />
+                    </template>
                   </template>
                 </div>
               </div>
@@ -549,8 +587,24 @@ onUnmounted(() => {
 
             <template v-else>
               <div v-for="f in stepCopy?.fields || []" :key="f.key" class="flow-sim-ha__field">
-                <label class="flow-sim-ha__label">{{ f.label }}</label>
-                <template v-if="fieldKind(f.key) === 'password'">
+                <template v-if="fieldKind(f.key) === 'boolean'">
+                  <div class="flow-sim-ha__row--toggle">
+                    <span class="flow-sim-ha__toggle-text">{{ f.label }}</span>
+                    <label class="flow-sim-ha__switch">
+                      <input
+                        type="checkbox"
+                        role="switch"
+                        :checked="boolFieldModelChecked(f.key)"
+                        :aria-label="f.label"
+                        @change="setBoolFieldFromEvent(f.key, $event)"
+                      />
+                      <span class="flow-sim-ha__slider" />
+                    </label>
+                  </div>
+                </template>
+                <template v-else>
+                  <label class="flow-sim-ha__label">{{ f.label }}</label>
+                  <template v-if="fieldKind(f.key) === 'password'">
                   <input
                     v-model="formState[f.key]"
                     class="flow-sim-ha__control"
@@ -597,6 +651,7 @@ onUnmounted(() => {
                 </template>
                 <template v-else>
                   <input v-model="formState[f.key]" class="flow-sim-ha__control" type="text" :aria-label="f.label" />
+                </template>
                 </template>
                 <p v-if="f.description" class="flow-sim-ha__hint">{{ f.description }}</p>
               </div>
@@ -828,5 +883,74 @@ onUnmounted(() => {
 
 .flow-sim-ha__btn--primary:not(:disabled):hover {
   filter: brightness(1.08);
+}
+
+/* HA-like boolean row: label left, switch right */
+.flow-sim-ha__row--toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
+  padding-block: 4px;
+}
+
+.flow-sim-ha__toggle-text {
+  flex: 1;
+  font-size: 0.9375rem;
+  line-height: 1.35;
+  color: var(--fs-ha-ink);
+}
+
+.flow-sim-ha__switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 24px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.flow-sim-ha__switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.flow-sim-ha__slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fs-ha-muted) 55%, var(--fs-ha-field));
+  transition: background 0.22s ease;
+}
+
+.flow-sim-ha__slider::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: #e0e0e0;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 35%);
+  transition: transform 0.22s ease, background 0.22s ease;
+}
+
+.flow-sim-ha__switch input:focus-visible + .flow-sim-ha__slider {
+  outline: 2px solid var(--fs-ha-accent);
+  outline-offset: 2px;
+}
+
+.flow-sim-ha__switch input:checked + .flow-sim-ha__slider {
+  background: color-mix(in srgb, var(--fs-ha-accent) 72%, #1a1a1a);
+}
+
+.flow-sim-ha__switch input:checked + .flow-sim-ha__slider::before {
+  transform: translate(16px, -50%);
+  background: #fff;
 }
 </style>

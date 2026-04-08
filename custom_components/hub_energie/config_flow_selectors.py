@@ -44,8 +44,7 @@ from .const import (
     SOLAR_SHADING_OPTIONS,
     SOLAR_TILT_AUTO,
     SOLAR_TILT_MANUAL,
-    SUPPLIER_EDF,
-    SUPPLIER_OTHER,
+    SUPPLIER_OPTIONS,
     TARIFF_MODE_AUTO,
     TARIFF_MODE_MANUAL,
     TARIFF_OFFER_OPTIONS,
@@ -159,11 +158,9 @@ def optional_percentage_entity_or_empty() -> EntitySelector:
 def supplier_selector() -> SelectSelector:
     return SelectSelector(
         SelectSelectorConfig(
-            options=[
-                SelectOptionDict(value=SUPPLIER_EDF, label="EDF"),
-                SelectOptionDict(value=SUPPLIER_OTHER, label="Other supplier"),
-            ],
+            options=list(SUPPLIER_OPTIONS),
             mode=SelectSelectorMode.DROPDOWN,
+            translation_key="supplier",
             # HA validates the POST before async_step_*; some clients send values that
             # fail vol.In(options). We still enforce SUPPLIER_OPTIONS in config_validation.
             custom_value=True,
@@ -207,11 +204,9 @@ def tri_grid_energy_mode_selector() -> SelectSelector:
 def tariff_mode_selector() -> SelectSelector:
     return SelectSelector(
         SelectSelectorConfig(
-            options=[
-                SelectOptionDict(value=TARIFF_MODE_AUTO, label="Automatic (provider API)"),
-                SelectOptionDict(value=TARIFF_MODE_MANUAL, label="Manual"),
-            ],
+            options=[TARIFF_MODE_AUTO, TARIFF_MODE_MANUAL],
             mode=SelectSelectorMode.DROPDOWN,
+            translation_key="tariff_mode",
         )
     )
 
@@ -242,11 +237,9 @@ def contract_power_selector_other() -> NumberSelector:
 def offer_selector() -> SelectSelector:
     return SelectSelector(
         SelectSelectorConfig(
-            options=[
-                SelectOptionDict(value=value, label=value.upper())
-                for value in TARIFF_OFFER_OPTIONS
-            ],
+            options=list(TARIFF_OFFER_OPTIONS),
             mode=SelectSelectorMode.DROPDOWN,
+            translation_key="tariff_offer",
         )
     )
 
@@ -317,11 +310,9 @@ def grid_power_sign_selector() -> SelectSelector:
 def tempo_mode_selector() -> SelectSelector:
     return SelectSelector(
         SelectSelectorConfig(
-            options=[
-                SelectOptionDict(value=TEMPO_MODE_RTE, label="RTE"),
-                SelectOptionDict(value=TEMPO_MODE_API, label="API Couleur Tempo"),
-            ],
+            options=[TEMPO_MODE_RTE, TEMPO_MODE_API],
             mode=SelectSelectorMode.DROPDOWN,
+            translation_key="tempo_mode",
         )
     )
 

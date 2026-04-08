@@ -6,7 +6,6 @@
         "description": "Configure your energy monitoring integration. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-user)",
         "data": {
           "supplier": "Energy supplier",
-          "supplier_custom_name": "Supplier name",
           "phase_type": "Phase type"
         },
         "data_description": {
@@ -326,21 +325,12 @@
         "title": "Solar configuration",
         "data": {
           "has_solar": "Do you have solar panels?",
-          "solar_energy": "Solar energy production (kWh)",
-          "solar_power_sensor": "Solar power (W, optional)",
-          "solar_resale_contract": "Solar export re-sale contract?",
-          "solar_export_tariff": "Export tariff (per kWh)",
           "flow_nav": "Wizard navigation"
-        },
-        "data_description": {
-          "solar_energy": "Total increasing energy counter for solar production.",
-          "solar_power_sensor": "Improves real-time power display and power-balance diagnostics.",
-          "solar_export_tariff": "Re-sale price per kWh for exported solar energy."
         },
         "description": "Say whether you want to track solar production in this integration. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar)"
       },
       "solar_config": {
-        "title": "Solar configuration",
+        "title": "Solar production sensors",
         "description": "Select the solar production sensors. Optional: resale and estimation. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_config)",
         "data": {
           "solar_energy": "Solar energy production (kWh)",
@@ -814,9 +804,9 @@
     },
     "tariff_offer": {
       "options": {
-        "base": "BASE",
+        "tempo": "TEMPO",
         "hphc": "HPHC",
-        "tempo": "TEMPO"
+        "base": "BASE"
       }
     },
     "tempo_mode": {
