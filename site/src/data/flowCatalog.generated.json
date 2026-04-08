@@ -1,8 +1,219 @@
 {
-  "generated_at": "2026-04-08T13:11:10.447582+00:00",
+  "generated_at": "2026-04-08T14:53:20.575689+00:00",
   "source_files": {
     "config_flow": "custom_components/hub_energie/config_flow.py",
-    "strings": "custom_components/hub_energie/strings.json"
+    "strings_en": "custom_components/hub_energie/strings.json",
+    "strings_fr": "custom_components/hub_energie/translations/fr.json"
+  },
+  "selector": {
+    "en": {
+      "supplier": {
+        "options": {
+          "edf": "EDF",
+          "other": "Other supplier"
+        }
+      },
+      "phase_type": {
+        "options": {
+          "mono": "Mono",
+          "tri": "Tri"
+        }
+      },
+      "tariff_mode": {
+        "options": {
+          "auto": "Automatic (provider API)",
+          "manual": "Manual"
+        }
+      },
+      "tariff_offer": {
+        "options": {
+          "base": "BASE",
+          "hphc": "HPHC",
+          "tempo": "TEMPO"
+        }
+      },
+      "tempo_mode": {
+        "options": {
+          "rte": "RTE",
+          "api_couleur": "API Couleur Tempo"
+        }
+      },
+      "price_basis": {
+        "options": {
+          "TTC": "TTC (incl. tax)",
+          "HT": "HT (excl. tax)"
+        }
+      },
+      "boolean": {
+        "options": {
+          "true": "Yes",
+          "false": "No"
+        }
+      },
+      "solar_tilt_mode": {
+        "options": {
+          "auto": "Auto",
+          "manual": "Manual"
+        }
+      },
+      "solar_shading": {
+        "options": {
+          "none": "None",
+          "light": "Light",
+          "medium": "Medium",
+          "heavy": "Heavy"
+        }
+      },
+      "solar_performance": {
+        "options": {
+          "high": "High",
+          "standard": "Standard",
+          "low": "Low"
+        }
+      },
+      "batt_power_net_sign": {
+        "options": {
+          "positive_discharge": "Positive on discharge",
+          "positive_charge": "Positive on charge"
+        }
+      },
+      "pricing_structure": {
+        "options": {
+          "flat": "Single rate — one price per kWh",
+          "time_of_use": "Peak / off-peak — several time bands with different prices (HC/HP style)",
+          "schedule": "Advanced schedule — slots by day type (weekday, weekend, …)"
+        }
+      },
+      "schedule_day_type": {
+        "options": {
+          "all": "All days",
+          "weekdays": "Weekdays (Mon–Fri)",
+          "weekends": "Weekends (Sat–Sun)"
+        }
+      },
+      "grid_tri_energy_mode": {
+        "options": {
+          "single": "One meter for all phases (total import)",
+          "per_phase": "One import meter per phase (summed by the integration)"
+        }
+      },
+      "grid_tri_sensor_layout": {
+        "options": {
+          "total": "One sensor for all phases (JSON)",
+          "per_phase": "One sensor per phase (step-by-step)"
+        }
+      },
+      "grid_power_sign_mode": {
+        "options": {
+          "export_negative": "Export shows as negative (import as positive)",
+          "export_positive": "Export shows as positive (import as negative)"
+        }
+      }
+    },
+    "fr": {
+      "supplier": {
+        "options": {
+          "edf": "EDF",
+          "other": "Autre fournisseur"
+        }
+      },
+      "phase_type": {
+        "options": {
+          "mono": "Mono",
+          "tri": "Tri"
+        }
+      },
+      "tariff_mode": {
+        "options": {
+          "auto": "Automatique (API fournisseur)",
+          "manual": "Manuel"
+        }
+      },
+      "tariff_offer": {
+        "options": {
+          "base": "BASE",
+          "hphc": "HPHC",
+          "tempo": "TEMPO"
+        }
+      },
+      "tempo_mode": {
+        "options": {
+          "rte": "RTE",
+          "api_couleur": "API Couleur Tempo"
+        }
+      },
+      "price_basis": {
+        "options": {
+          "TTC": "TTC",
+          "HT": "HT"
+        }
+      },
+      "boolean": {
+        "options": {
+          "true": "Oui",
+          "false": "Non"
+        }
+      },
+      "solar_tilt_mode": {
+        "options": {
+          "auto": "Auto",
+          "manual": "Manuel"
+        }
+      },
+      "solar_shading": {
+        "options": {
+          "none": "Aucun",
+          "light": "Léger",
+          "medium": "Moyen",
+          "heavy": "Fort"
+        }
+      },
+      "solar_performance": {
+        "options": {
+          "high": "Élevé",
+          "standard": "Standard",
+          "low": "Faible"
+        }
+      },
+      "batt_power_net_sign": {
+        "options": {
+          "positive_discharge": "Positif en décharge",
+          "positive_charge": "Positif en charge"
+        }
+      },
+      "pricing_structure": {
+        "options": {
+          "flat": "Tarif unique — un seul prix au kWh",
+          "time_of_use": "Heures pleines / creuses — plusieurs plages avec des prix différents (type HC/HP)",
+          "schedule": "Planning avancé — créneaux par type de jour (semaine, week-end, …)"
+        }
+      },
+      "schedule_day_type": {
+        "options": {
+          "all": "Tous les jours",
+          "weekdays": "Semaine (lun–ven)",
+          "weekends": "Week-end (sam–dim)"
+        }
+      },
+      "grid_tri_energy_mode": {
+        "options": {
+          "single": "Un seul compteur pour toutes les phases (import total)",
+          "per_phase": "Un compteur d'import par phase (somme L1+L2+L3 par l'intégration)"
+        }
+      },
+      "grid_tri_sensor_layout": {
+        "options": {
+          "total": "Un capteur pour toutes les phases (JSON)",
+          "per_phase": "Un capteur par phase (étape par étape)"
+        }
+      },
+      "grid_power_sign_mode": {
+        "options": {
+          "export_negative": "L'export s'affiche en négatif (l'import en positif)",
+          "export_positive": "L'export s'affiche en positif (l'import en négatif)"
+        }
+      }
+    }
   },
   "steps": [
     {
@@ -12,17 +223,32 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Battery systems",
-        "description": "Say whether you want to track home battery systems. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery)",
-        "fields": [
-          {
-            "key": "has_batteries",
-            "label": "Do you have battery systems?",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Battery systems",
+          "description": "Say whether you want to track home battery systems. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery)",
+          "fields": [
+            {
+              "key": "has_batteries",
+              "label": "Do you have battery systems?",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Systèmes de batterie",
+          "description": "Indiquez si vous souhaitez suivre des batteries domestiques. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery)",
+          "fields": [
+            {
+              "key": "has_batteries",
+              "label": "Avez-vous des systèmes de batterie ?",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -32,52 +258,102 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Add battery system",
-        "description": "Configure a battery/inverter system. Only charge and discharge energy sensors are required. If you enable advanced fields, the next step will ask for optional capacity, power limits, and SOC bounds. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_add)",
-        "fields": [
-          {
-            "key": "batt_name",
-            "label": "Battery name",
-            "description": ""
-          },
-          {
-            "key": "batt_energy_in",
-            "label": "Charge energy (kWh, total increasing)",
-            "description": ""
-          },
-          {
-            "key": "batt_energy_out",
-            "label": "Discharge energy (kWh, total increasing)",
-            "description": ""
-          },
-          {
-            "key": "batt_power_in",
-            "label": "Charging power sensor (W, optional)",
-            "description": "Instantaneous power currently going into the battery (not a max value)."
-          },
-          {
-            "key": "batt_power_out",
-            "label": "Discharging power sensor (W, optional)",
-            "description": "Instantaneous power currently drawn from the battery (not a max value)."
-          },
-          {
-            "key": "batt_power_net",
-            "label": "Net power sensor (W, optional, signed)",
-            "description": "Use this if you have a single signed sensor instead of separate charge/discharge. If you set charge + discharge sensors, you can leave this empty."
-          },
-          {
-            "key": "batt_soc",
-            "label": "State of charge (%, optional)",
-            "description": "Optional percentage sensor (0–100). Used for the SOC bar and ETA."
-          },
-          {
-            "key": "batt_advanced",
-            "label": "Show advanced battery fields",
-            "description": "Opens a separate step for nominal capacity (kWh), charge/discharge limits (W), and SOC min/max."
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Add battery system",
+          "description": "Configure a battery/inverter system. Only charge and discharge energy sensors are required. If you enable advanced fields, the next step will ask for optional capacity, power limits, and SOC bounds. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_add)",
+          "fields": [
+            {
+              "key": "batt_name",
+              "label": "Battery name",
+              "description": ""
+            },
+            {
+              "key": "batt_energy_in",
+              "label": "Charge energy (kWh, total increasing)",
+              "description": ""
+            },
+            {
+              "key": "batt_energy_out",
+              "label": "Discharge energy (kWh, total increasing)",
+              "description": ""
+            },
+            {
+              "key": "batt_power_in",
+              "label": "Charging power sensor (W, optional)",
+              "description": "Instantaneous power currently going into the battery (not a max value)."
+            },
+            {
+              "key": "batt_power_out",
+              "label": "Discharging power sensor (W, optional)",
+              "description": "Instantaneous power currently drawn from the battery (not a max value)."
+            },
+            {
+              "key": "batt_power_net",
+              "label": "Net power sensor (W, optional, signed)",
+              "description": "Use this if you have a single signed sensor instead of separate charge/discharge. If you set charge + discharge sensors, you can leave this empty."
+            },
+            {
+              "key": "batt_soc",
+              "label": "State of charge (%, optional)",
+              "description": "Optional percentage sensor (0–100). Used for the SOC bar and ETA."
+            },
+            {
+              "key": "batt_advanced",
+              "label": "Show advanced battery fields",
+              "description": "Opens a separate step for nominal capacity (kWh), charge/discharge limits (W), and SOC min/max."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Ajouter un système de batterie",
+          "description": "Configurez un système batterie/onduleur. Seuls les capteurs d'énergie charge et décharge sont requis. Si vous activez les champs avancés, une étape suivante proposera capacité, limites de puissance et bornes SOC. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_add)",
+          "fields": [
+            {
+              "key": "batt_name",
+              "label": "Nom de la batterie",
+              "description": ""
+            },
+            {
+              "key": "batt_energy_in",
+              "label": "Capteur énergie de charge (kWh, total croissant)",
+              "description": ""
+            },
+            {
+              "key": "batt_energy_out",
+              "label": "Capteur énergie de décharge (kWh, total croissant)",
+              "description": ""
+            },
+            {
+              "key": "batt_power_in",
+              "label": "Capteur puissance en charge (W, optionnel)",
+              "description": "Puissance instantanée qui entre dans la batterie (ce n'est pas une valeur max)."
+            },
+            {
+              "key": "batt_power_out",
+              "label": "Capteur puissance en décharge (W, optionnel)",
+              "description": "Puissance instantanée qui sort de la batterie (ce n'est pas une valeur max)."
+            },
+            {
+              "key": "batt_power_net",
+              "label": "Capteur puissance nette (W, optionnel, signé)",
+              "description": "À utiliser si vous avez un seul capteur signé au lieu de deux capteurs séparés. Si vous renseignez charge + décharge, vous pouvez laisser ce champ vide."
+            },
+            {
+              "key": "batt_soc",
+              "label": "État de charge (%, optionnel)",
+              "description": "Capteur % optionnel (0–100). Utilisé pour la barre SOC et l'estimation."
+            },
+            {
+              "key": "batt_advanced",
+              "label": "Afficher les champs avancés batterie",
+              "description": "Ouvre une étape séparée pour la capacité nominale (kWh), les limites charge/décharge (W) et le SOC min/max."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -87,62 +363,122 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Battery advanced settings",
-        "description": "Battery #{battery_number}: for each setting, two rows share the same title: first a sensor/helper, then a manual value. Only fill one of the two rows (not both). [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_advanced)",
-        "fields": [
-          {
-            "key": "batt_capacity_kwh_entity",
-            "label": "Nominal capacity — sensor or helper",
-            "description": "Nominal capacity at 100% SOC (max storable energy, kWh). Numeric value in kWh (e.g. sensor, input_number). Use when the value comes from an entity."
-          },
-          {
-            "key": "batt_capacity_kwh",
-            "label": "Nominal capacity — manual entry",
-            "description": "Nominal capacity at 100% SOC (max storable energy, kWh). Enter here or use the entity above — only one of the two."
-          },
-          {
-            "key": "batt_max_charge_w_entity",
-            "label": "Max charge power — sensor or helper",
-            "description": "Technical limit in W read from an entity."
-          },
-          {
-            "key": "batt_max_charge_w",
-            "label": "Max charge power — manual entry",
-            "description": "Technical limit in W (not your instantaneous measured power)."
-          },
-          {
-            "key": "batt_max_discharge_w_entity",
-            "label": "Max discharge power — sensor or helper",
-            "description": "Technical limit in W read from an entity."
-          },
-          {
-            "key": "batt_max_discharge_w",
-            "label": "Max discharge power — manual entry",
-            "description": "Technical limit in W (not your instantaneous measured power)."
-          },
-          {
-            "key": "batt_soc_min_entity",
-            "label": "SOC minimum — sensor or helper",
-            "description": "Percent 0–100 from an entity."
-          },
-          {
-            "key": "batt_soc_min",
-            "label": "SOC minimum — manual entry",
-            "description": "Use if the battery never reaches 0%."
-          },
-          {
-            "key": "batt_soc_max_entity",
-            "label": "SOC maximum — sensor or helper",
-            "description": "Percent 0–100 from an entity."
-          },
-          {
-            "key": "batt_soc_max",
-            "label": "SOC maximum — manual entry",
-            "description": "Use if the battery never reaches 100%."
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Battery advanced settings",
+          "description": "Battery #{battery_number}: for each setting, two rows share the same title: first a sensor/helper, then a manual value. Only fill one of the two rows (not both). [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_advanced)",
+          "fields": [
+            {
+              "key": "batt_capacity_kwh_entity",
+              "label": "Nominal capacity — sensor or helper",
+              "description": "Nominal capacity at 100% SOC (max storable energy, kWh). Numeric value in kWh (e.g. sensor, input_number). Use when the value comes from an entity."
+            },
+            {
+              "key": "batt_capacity_kwh",
+              "label": "Nominal capacity — manual entry",
+              "description": "Nominal capacity at 100% SOC (max storable energy, kWh). Enter here or use the entity above — only one of the two."
+            },
+            {
+              "key": "batt_max_charge_w_entity",
+              "label": "Max charge power — sensor or helper",
+              "description": "Technical limit in W read from an entity."
+            },
+            {
+              "key": "batt_max_charge_w",
+              "label": "Max charge power — manual entry",
+              "description": "Technical limit in W (not your instantaneous measured power)."
+            },
+            {
+              "key": "batt_max_discharge_w_entity",
+              "label": "Max discharge power — sensor or helper",
+              "description": "Technical limit in W read from an entity."
+            },
+            {
+              "key": "batt_max_discharge_w",
+              "label": "Max discharge power — manual entry",
+              "description": "Technical limit in W (not your instantaneous measured power)."
+            },
+            {
+              "key": "batt_soc_min_entity",
+              "label": "SOC minimum — sensor or helper",
+              "description": "Percent 0–100 from an entity."
+            },
+            {
+              "key": "batt_soc_min",
+              "label": "SOC minimum — manual entry",
+              "description": "Use if the battery never reaches 0%."
+            },
+            {
+              "key": "batt_soc_max_entity",
+              "label": "SOC maximum — sensor or helper",
+              "description": "Percent 0–100 from an entity."
+            },
+            {
+              "key": "batt_soc_max",
+              "label": "SOC maximum — manual entry",
+              "description": "Use if the battery never reaches 100%."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Paramètres avancés batterie",
+          "description": "Batterie n°{battery_number} : pour chaque réglage, deux lignes partagent le même titre — d'abord un capteur (ou helper), puis une saisie manuelle. Ne remplissez qu'une des deux (pas les deux). [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_advanced)",
+          "fields": [
+            {
+              "key": "batt_capacity_kwh_entity",
+              "label": "Capacité nominale — capteur ou helper",
+              "description": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Nombre en kWh (ex. capteur, input_number). Utile si la valeur est exposée par une entité."
+            },
+            {
+              "key": "batt_capacity_kwh",
+              "label": "Capacité nominale — saisie manuelle",
+              "description": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Saisie directe ou via l'entité ci-dessus — une seule des deux."
+            },
+            {
+              "key": "batt_max_charge_w_entity",
+              "label": "Puissance max. de charge — capteur ou helper",
+              "description": "Limite technique en W lue depuis une entité."
+            },
+            {
+              "key": "batt_max_charge_w",
+              "label": "Puissance max. de charge — saisie manuelle",
+              "description": "Limite technique en W (pas la puissance instantanée mesurée)."
+            },
+            {
+              "key": "batt_max_discharge_w_entity",
+              "label": "Puissance max. de décharge — capteur ou helper",
+              "description": "Limite technique en W lue depuis une entité."
+            },
+            {
+              "key": "batt_max_discharge_w",
+              "label": "Puissance max. de décharge — saisie manuelle",
+              "description": "Limite technique en W (pas la puissance instantanée mesurée)."
+            },
+            {
+              "key": "batt_soc_min_entity",
+              "label": "SOC minimum — capteur ou helper",
+              "description": "Pourcentage 0–100 depuis une entité."
+            },
+            {
+              "key": "batt_soc_min",
+              "label": "SOC minimum — saisie manuelle",
+              "description": "Réserve basse si la batterie ne descend jamais à 0 %."
+            },
+            {
+              "key": "batt_soc_max_entity",
+              "label": "SOC maximum — capteur ou helper",
+              "description": "Pourcentage 0–100 depuis une entité."
+            },
+            {
+              "key": "batt_soc_max",
+              "label": "SOC maximum — saisie manuelle",
+              "description": "Réserve haute si la batterie ne charge jamais à 100 %."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -152,17 +488,32 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "More batteries?",
-        "description": "You can add more battery systems or continue. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_more)",
-        "fields": [
-          {
-            "key": "add_another",
-            "label": "Add another battery system?",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "More batteries?",
+          "description": "You can add more battery systems or continue. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_more)",
+          "fields": [
+            {
+              "key": "add_another",
+              "label": "Add another battery system?",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Autres batteries ?",
+          "description": "Vous pouvez ajouter d'autres systèmes ou continuer. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_more)",
+          "fields": [
+            {
+              "key": "add_another",
+              "label": "Ajouter un autre système de batterie ?",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -172,22 +523,42 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Contract details",
-        "description": "Enter your subscribed power (kVA) and an optional contract label. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-contract)",
-        "fields": [
-          {
-            "key": "contract_power",
-            "label": "Contract power (kVA)",
-            "description": ""
-          },
-          {
-            "key": "contract_name",
-            "label": "Contract name (optional)",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Contract details",
+          "description": "Enter your subscribed power (kVA) and an optional contract label. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-contract)",
+          "fields": [
+            {
+              "key": "contract_power",
+              "label": "Contract power (kVA)",
+              "description": ""
+            },
+            {
+              "key": "contract_name",
+              "label": "Contract name (optional)",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Détails du contrat",
+          "description": "Saisissez la puissance souscrite (kVA) et un libellé de contrat optionnel. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-contract)",
+          "fields": [
+            {
+              "key": "contract_power",
+              "label": "Puissance souscrite (kVA)",
+              "description": ""
+            },
+            {
+              "key": "contract_name",
+              "label": "Nom du contrat (optionnel)",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -197,17 +568,32 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "EDF offer selection",
-        "description": "Choose how your EDF offer is priced: BASE, HPHC, or Tempo. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_offer)",
-        "fields": [
-          {
-            "key": "tariff_offer",
-            "label": "Offer type",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "EDF offer selection",
+          "description": "Choose how your EDF offer is priced: BASE, HPHC, or Tempo. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_offer)",
+          "fields": [
+            {
+              "key": "tariff_offer",
+              "label": "Offer type",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Sélection de l'offre EDF",
+          "description": "Choisissez le type de prix : BASE, HPHC ou Tempo. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_offer)",
+          "fields": [
+            {
+              "key": "tariff_offer",
+              "label": "Type d'offre",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -217,32 +603,62 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Tempo signal source",
-        "description": "RTE is the most reliable source but requires credentials. API Couleur Tempo works without credentials and is easier to set up. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_tempo)",
-        "fields": [
-          {
-            "key": "tempo_mode",
-            "label": "Signal source",
-            "description": ""
-          },
-          {
-            "key": "rte_client_id",
-            "label": "RTE API client ID",
-            "description": ""
-          },
-          {
-            "key": "rte_client_secret",
-            "label": "RTE API client secret",
-            "description": ""
-          },
-          {
-            "key": "current_slot_sensor",
-            "label": "External slot sensor",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Tempo signal source",
+          "description": "RTE is the most reliable source but requires credentials. API Couleur Tempo works without credentials and is easier to set up. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_tempo)",
+          "fields": [
+            {
+              "key": "tempo_mode",
+              "label": "Signal source",
+              "description": ""
+            },
+            {
+              "key": "rte_client_id",
+              "label": "RTE API client ID",
+              "description": ""
+            },
+            {
+              "key": "rte_client_secret",
+              "label": "RTE API client secret",
+              "description": ""
+            },
+            {
+              "key": "current_slot_sensor",
+              "label": "External slot sensor",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Source du signal Tempo",
+          "description": "RTE est la source la plus fiable mais nécessite des identifiants. API Couleur Tempo fonctionne sans identifiants et est plus simple à configurer. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_tempo)",
+          "fields": [
+            {
+              "key": "tempo_mode",
+              "label": "Source du signal",
+              "description": ""
+            },
+            {
+              "key": "rte_client_id",
+              "label": "Client ID API RTE",
+              "description": ""
+            },
+            {
+              "key": "rte_client_secret",
+              "label": "Client secret API RTE",
+              "description": ""
+            },
+            {
+              "key": "current_slot_sensor",
+              "label": "Capteur de créneau externe",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -252,22 +668,42 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "RTE credentials",
-        "description": "Enter your RTE API credentials to fetch the Tempo calendar from the official source. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_tempo_rte)",
-        "fields": [
-          {
-            "key": "rte_client_id",
-            "label": "RTE API client ID",
-            "description": ""
-          },
-          {
-            "key": "rte_client_secret",
-            "label": "RTE API client secret",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "RTE credentials",
+          "description": "Enter your RTE API credentials to fetch the Tempo calendar from the official source. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_tempo_rte)",
+          "fields": [
+            {
+              "key": "rte_client_id",
+              "label": "RTE API client ID",
+              "description": ""
+            },
+            {
+              "key": "rte_client_secret",
+              "label": "RTE API client secret",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Identifiants RTE",
+          "description": "Saisissez vos identifiants API RTE pour récupérer le calendrier Tempo depuis la source officielle. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_tempo_rte)",
+          "fields": [
+            {
+              "key": "rte_client_id",
+              "label": "Client ID API RTE",
+              "description": ""
+            },
+            {
+              "key": "rte_client_secret",
+              "label": "Client secret API RTE",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -277,37 +713,72 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Grid energy sensors",
-        "description": "Configure your grid energy measurement sensors. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid)",
-        "fields": [
-          {
-            "key": "grid_import_energy",
-            "label": "Grid import energy (kWh)",
-            "description": "Total increasing energy counter for grid import."
-          },
-          {
-            "key": "grid_export_energy",
-            "label": "Grid export energy (kWh, optional)",
-            "description": "Total increasing energy counter for grid export (if separate from import)."
-          },
-          {
-            "key": "grid_power_sensor",
-            "label": "Grid power (W, optional)",
-            "description": "Instantaneous grid power for real-time display."
-          },
-          {
-            "key": "grid_power_sign_mode",
-            "label": "Grid power sign convention",
-            "description": "Convention: is export negative or positive on this sensor?"
-          },
-          {
-            "key": "load_power_sensor",
-            "label": "House load power (W, optional)",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Grid energy sensors",
+          "description": "Configure your grid energy measurement sensors. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid)",
+          "fields": [
+            {
+              "key": "grid_import_energy",
+              "label": "Grid import energy (kWh)",
+              "description": "Total increasing energy counter for grid import."
+            },
+            {
+              "key": "grid_export_energy",
+              "label": "Grid export energy (kWh, optional)",
+              "description": "Total increasing energy counter for grid export (if separate from import)."
+            },
+            {
+              "key": "grid_power_sensor",
+              "label": "Grid power (W, optional)",
+              "description": "Instantaneous grid power for real-time display."
+            },
+            {
+              "key": "grid_power_sign_mode",
+              "label": "Grid power sign convention",
+              "description": "Convention: is export negative or positive on this sensor?"
+            },
+            {
+              "key": "load_power_sensor",
+              "label": "House load power (W, optional)",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Capteurs réseau électrique",
+          "description": "Configurez vos capteurs de mesure du réseau. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid)",
+          "fields": [
+            {
+              "key": "grid_import_energy",
+              "label": "Énergie importée (kWh)",
+              "description": "Compteur d'énergie total croissant pour l'import réseau."
+            },
+            {
+              "key": "grid_export_energy",
+              "label": "Énergie exportée (kWh, optionnel)",
+              "description": "Compteur d'énergie total croissant pour l'export réseau."
+            },
+            {
+              "key": "grid_power_sensor",
+              "label": "Puissance réseau (W, optionnel)",
+              "description": "Puissance instantanée du réseau pour l'affichage temps réel."
+            },
+            {
+              "key": "grid_power_sign_mode",
+              "label": "Convention de signe puissance réseau",
+              "description": "L'export est-il négatif ou positif sur ce capteur ?"
+            },
+            {
+              "key": "load_power_sensor",
+              "label": "Puissance consommation maison (W, optionnel)",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -317,27 +788,52 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Three-phase grid sensors (JSON)",
-        "description": "Optional JSON lists: either one entry for a total sensor or one entry per phase (see template). Leave fields empty to skip. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_phases)",
-        "fields": [
-          {
-            "key": "grid_import_energy_phases",
-            "label": "Import energy sensors (per-phase, JSON list)",
-            "description": ""
-          },
-          {
-            "key": "grid_export_energy_phases",
-            "label": "Export energy sensors (per-phase, JSON list)",
-            "description": ""
-          },
-          {
-            "key": "grid_power_phases",
-            "label": "Grid power sensors (per-phase, JSON list)",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Three-phase grid sensors (JSON)",
+          "description": "Optional JSON lists: either one entry for a total sensor or one entry per phase (see template). Leave fields empty to skip. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_phases)",
+          "fields": [
+            {
+              "key": "grid_import_energy_phases",
+              "label": "Import energy sensors (per-phase, JSON list)",
+              "description": ""
+            },
+            {
+              "key": "grid_export_energy_phases",
+              "label": "Export energy sensors (per-phase, JSON list)",
+              "description": ""
+            },
+            {
+              "key": "grid_power_phases",
+              "label": "Grid power sensors (per-phase, JSON list)",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Capteurs réseau triphasé (JSON)",
+          "description": "Listes JSON optionnelles : une entrée pour un total ou une par phase (voir modèle). Laisser vide pour ignorer. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_phases)",
+          "fields": [
+            {
+              "key": "grid_import_energy_phases",
+              "label": "Import énergie (liste JSON)",
+              "description": ""
+            },
+            {
+              "key": "grid_export_energy_phases",
+              "label": "Export énergie (liste JSON)",
+              "description": ""
+            },
+            {
+              "key": "grid_power_phases",
+              "label": "Puissance réseau (liste JSON)",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -347,17 +843,32 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Three-phase grid import",
-        "description": "Does your installation expose one total import counter for the whole grid, or one counter per phase? [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_energy_mode)",
-        "fields": [
-          {
-            "key": "grid_tri_energy_mode",
-            "label": "Grid import metering",
-            "description": "One total: you will pick a single import sensor next. One per phase: the integration sums L1+L2+L3 for accounting."
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Three-phase grid import",
+          "description": "Does your installation expose one total import counter for the whole grid, or one counter per phase? [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_energy_mode)",
+          "fields": [
+            {
+              "key": "grid_tri_energy_mode",
+              "label": "Grid import metering",
+              "description": "One total: you will pick a single import sensor next. One per phase: the integration sums L1+L2+L3 for accounting."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Import réseau triphasé",
+          "description": "Un seul compteur d'import pour tout le tableau, ou un compteur par phase ? [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_energy_mode)",
+          "fields": [
+            {
+              "key": "grid_tri_energy_mode",
+              "label": "Mesure de l'import réseau",
+              "description": "Total unique : vous choisirez un capteur d'import à l'étape suivante. Un par phase : l'intégration additionne L1+L2+L3."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -367,17 +878,32 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Three-phase sensor layout",
-        "description": "Choose how you want to enter optional per-phase sensors (import/export energy and grid power). Your main grid sensors from the previous step stay as the primary totals. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_layout)",
-        "fields": [
-          {
-            "key": "grid_tri_sensor_layout",
-            "label": "Sensor layout",
-            "description": "One for all phases: next step uses JSON lists (one total or multiple phases). One per phase: the next three steps ask for phase L1, L2, and L3 separately."
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Three-phase sensor layout",
+          "description": "Choose how you want to enter optional per-phase sensors (import/export energy and grid power). Your main grid sensors from the previous step stay as the primary totals. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_layout)",
+          "fields": [
+            {
+              "key": "grid_tri_sensor_layout",
+              "label": "Sensor layout",
+              "description": "One for all phases: next step uses JSON lists (one total or multiple phases). One per phase: the next three steps ask for phase L1, L2, and L3 separately."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Répartition des capteurs triphasés",
+          "description": "Choisissez comment saisir les capteurs optionnels par phase (import/export énergie et puissance réseau). Les capteurs principaux de l'étape précédente restent les totaux. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_layout)",
+          "fields": [
+            {
+              "key": "grid_tri_sensor_layout",
+              "label": "Mode de saisie",
+              "description": "Un pour toutes les phases : étape JSON (total ou liste par phase). Un par phase : trois étapes pour L1, L2 et L3."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -387,67 +913,132 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Three-phase import meters",
-        "description": "Select one import energy sensor per phase. Optional: three export sensors (all or none). [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_per_phase)",
-        "fields": [
-          {
-            "key": "grid_power_sign_mode",
-            "label": "Grid power sign convention",
-            "description": "Convention: is export negative or positive on your per-phase grid power sensors?"
-          },
-          {
-            "key": "load_power_sensor",
-            "label": "House load power (W, optional)",
-            "description": "Optional house consumption for load-side diagnostics."
-          },
-          {
-            "key": "tri_import_energy_p1",
-            "label": "Phase L1 — grid import energy (kWh)",
-            "description": ""
-          },
-          {
-            "key": "tri_import_energy_p2",
-            "label": "Phase L2 — grid import energy (kWh)",
-            "description": ""
-          },
-          {
-            "key": "tri_import_energy_p3",
-            "label": "Phase L3 — grid import energy (kWh)",
-            "description": ""
-          },
-          {
-            "key": "tri_export_energy_p1",
-            "label": "Phase L1 — grid export energy (kWh, optional)",
-            "description": ""
-          },
-          {
-            "key": "tri_export_energy_p2",
-            "label": "Phase L2 — grid export energy (kWh, optional)",
-            "description": ""
-          },
-          {
-            "key": "tri_export_energy_p3",
-            "label": "Phase L3 — grid export energy (kWh, optional)",
-            "description": ""
-          },
-          {
-            "key": "tri_grid_power_p1",
-            "label": "Phase L1 — grid power (W, optional)",
-            "description": "Instantaneous power on L1; the integration sums whichever phases you set for real-time display. For a single total sensor, fill only one phase."
-          },
-          {
-            "key": "tri_grid_power_p2",
-            "label": "Phase L2 — grid power (W, optional)",
-            "description": "Instantaneous power on L2."
-          },
-          {
-            "key": "tri_grid_power_p3",
-            "label": "Phase L3 — grid power (W, optional)",
-            "description": "Instantaneous power on L3."
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Three-phase import meters",
+          "description": "Select one import energy sensor per phase. Optional: three export sensors (all or none). [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_per_phase)",
+          "fields": [
+            {
+              "key": "grid_power_sign_mode",
+              "label": "Grid power sign convention",
+              "description": "Convention: is export negative or positive on your per-phase grid power sensors?"
+            },
+            {
+              "key": "load_power_sensor",
+              "label": "House load power (W, optional)",
+              "description": "Optional house consumption for load-side diagnostics."
+            },
+            {
+              "key": "tri_import_energy_p1",
+              "label": "Phase L1 — grid import energy (kWh)",
+              "description": ""
+            },
+            {
+              "key": "tri_import_energy_p2",
+              "label": "Phase L2 — grid import energy (kWh)",
+              "description": ""
+            },
+            {
+              "key": "tri_import_energy_p3",
+              "label": "Phase L3 — grid import energy (kWh)",
+              "description": ""
+            },
+            {
+              "key": "tri_export_energy_p1",
+              "label": "Phase L1 — grid export energy (kWh, optional)",
+              "description": ""
+            },
+            {
+              "key": "tri_export_energy_p2",
+              "label": "Phase L2 — grid export energy (kWh, optional)",
+              "description": ""
+            },
+            {
+              "key": "tri_export_energy_p3",
+              "label": "Phase L3 — grid export energy (kWh, optional)",
+              "description": ""
+            },
+            {
+              "key": "tri_grid_power_p1",
+              "label": "Phase L1 — grid power (W, optional)",
+              "description": "Instantaneous power on L1; the integration sums whichever phases you set for real-time display. For a single total sensor, fill only one phase."
+            },
+            {
+              "key": "tri_grid_power_p2",
+              "label": "Phase L2 — grid power (W, optional)",
+              "description": "Instantaneous power on L2."
+            },
+            {
+              "key": "tri_grid_power_p3",
+              "label": "Phase L3 — grid power (W, optional)",
+              "description": "Instantaneous power on L3."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Compteurs d'import par phase",
+          "description": "Un capteur d'import par phase. Export : trois capteurs ou aucun. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_per_phase)",
+          "fields": [
+            {
+              "key": "grid_power_sign_mode",
+              "label": "Convention de signe puissance réseau",
+              "description": "L'export est-il négatif ou positif sur vos capteurs de puissance réseau (par phase) ?"
+            },
+            {
+              "key": "load_power_sensor",
+              "label": "Puissance consommation maison (W, optionnel)",
+              "description": "Consommation maison optionnelle pour le diagnostic."
+            },
+            {
+              "key": "tri_import_energy_p1",
+              "label": "Phase L1 — import réseau (kWh)",
+              "description": ""
+            },
+            {
+              "key": "tri_import_energy_p2",
+              "label": "Phase L2 — import réseau (kWh)",
+              "description": ""
+            },
+            {
+              "key": "tri_import_energy_p3",
+              "label": "Phase L3 — import réseau (kWh)",
+              "description": ""
+            },
+            {
+              "key": "tri_export_energy_p1",
+              "label": "Phase L1 — export réseau (kWh, optionnel)",
+              "description": ""
+            },
+            {
+              "key": "tri_export_energy_p2",
+              "label": "Phase L2 — export réseau (kWh, optionnel)",
+              "description": ""
+            },
+            {
+              "key": "tri_export_energy_p3",
+              "label": "Phase L3 — export réseau (kWh, optionnel)",
+              "description": ""
+            },
+            {
+              "key": "tri_grid_power_p1",
+              "label": "Phase L1 — puissance réseau (W, optionnel)",
+              "description": "Puissance instantanée L1 ; l'intégration additionne les phases renseignées pour le temps réel. Un seul capteur « total » : ne renseignez qu'une phase."
+            },
+            {
+              "key": "tri_grid_power_p2",
+              "label": "Phase L2 — puissance réseau (W, optionnel)",
+              "description": "Puissance instantanée L2."
+            },
+            {
+              "key": "tri_grid_power_p3",
+              "label": "Phase L3 — puissance réseau (W, optionnel)",
+              "description": "Puissance instantanée L3."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -457,22 +1048,42 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Flat tariff",
-        "description": "Enter your single kWh energy price and optional monthly subscription. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_flat)",
-        "fields": [
-          {
-            "key": "energy_price",
-            "label": "Energy price (per kWh)",
-            "description": ""
-          },
-          {
-            "key": "subscription_price",
-            "label": "Monthly subscription",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Flat tariff",
+          "description": "Enter your single kWh energy price and optional monthly subscription. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_flat)",
+          "fields": [
+            {
+              "key": "energy_price",
+              "label": "Energy price (per kWh)",
+              "description": ""
+            },
+            {
+              "key": "subscription_price",
+              "label": "Monthly subscription",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Tarif fixe",
+          "description": "Saisissez le prix au kWh et l'abonnement mensuel optionnel. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_flat)",
+          "fields": [
+            {
+              "key": "energy_price",
+              "label": "Prix de l'énergie (par kWh)",
+              "description": ""
+            },
+            {
+              "key": "subscription_price",
+              "label": "Abonnement mensuel",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -482,27 +1093,52 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Pricing structure",
-        "description": "Choose how your manual tariff is modeled. Pick the option that best matches how your bill is structured. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_pricing)",
-        "fields": [
-          {
-            "key": "pricing_structure",
-            "label": "Pricing type",
-            "description": "Single rate: one kWh price. Peak/off-peak: time windows with different prices (e.g. off-peak nights). Advanced: slots per day type."
-          },
-          {
-            "key": "price_basis",
-            "label": "Prices are",
-            "description": ""
-          },
-          {
-            "key": "currency",
-            "label": "Currency",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Pricing structure",
+          "description": "Choose how your manual tariff is modeled. Pick the option that best matches how your bill is structured. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_pricing)",
+          "fields": [
+            {
+              "key": "pricing_structure",
+              "label": "Pricing type",
+              "description": "Single rate: one kWh price. Peak/off-peak: time windows with different prices (e.g. off-peak nights). Advanced: slots per day type."
+            },
+            {
+              "key": "price_basis",
+              "label": "Prices are",
+              "description": ""
+            },
+            {
+              "key": "currency",
+              "label": "Currency",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Structure tarifaire",
+          "description": "Choisissez comment modéliser votre tarif manuel. L’option doit correspondre à la structure de votre facturation. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_pricing)",
+          "fields": [
+            {
+              "key": "pricing_structure",
+              "label": "Type de tarification",
+              "description": "Tarif unique : un seul prix au kWh. Heures creuses / pleines : plages horaires avec prix différents (comme HC/HP). Avancé : créneaux selon le type de jour."
+            },
+            {
+              "key": "price_basis",
+              "label": "Les prix sont",
+              "description": ""
+            },
+            {
+              "key": "currency",
+              "label": "Devise",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -516,24 +1152,46 @@
         "manual_schedule_prev"
       ],
       "strings": {
-        "title": "Advanced schedule",
-        "description": "Choose how to enter your tariff slots. Full JSON format and examples: {doc_url} [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule)",
-        "fields": [],
-        "menu_choices": [
-          {
-            "key": "manual_schedule_form",
-            "label": "Form (up to 6 slots)"
-          },
-          {
-            "key": "manual_schedule_json",
-            "label": "JSON (advanced)"
-          },
-          {
-            "key": "manual_schedule_prev",
-            "label": "Back to tariff structure"
-          }
-        ],
-        "sections": []
+        "en": {
+          "title": "Advanced schedule",
+          "description": "Choose how to enter your tariff slots. Full JSON format and examples: {doc_url} [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule)",
+          "fields": [],
+          "menu_choices": [
+            {
+              "key": "manual_schedule_form",
+              "label": "Form (up to 6 slots)"
+            },
+            {
+              "key": "manual_schedule_json",
+              "label": "JSON (advanced)"
+            },
+            {
+              "key": "manual_schedule_prev",
+              "label": "Back to tariff structure"
+            }
+          ],
+          "sections": []
+        },
+        "fr": {
+          "title": "Planning avancé",
+          "description": "Choisissez comment saisir vos créneaux. Format JSON complet et exemples : {doc_url} [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule)",
+          "fields": [],
+          "menu_choices": [
+            {
+              "key": "manual_schedule_form",
+              "label": "Formulaire (jusqu'à 6 créneaux)"
+            },
+            {
+              "key": "manual_schedule_json",
+              "label": "JSON (avancé)"
+            },
+            {
+              "key": "manual_schedule_prev",
+              "label": "Retour à la structure tarifaire"
+            }
+          ],
+          "sections": []
+        }
       }
     },
     {
@@ -543,204 +1201,406 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Advanced schedule — form",
-        "description": "Fill one row per slot (up to 6). Leave unused rows empty. See {doc_url} for midnight ranges and day types. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule_form)",
-        "fields": [
-          {
-            "key": "subscription_price",
-            "label": "Monthly subscription",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": [
-          {
-            "id": "sched_slot_0",
-            "name": "Time slot 1",
-            "fields": [
-              {
-                "key": "start",
-                "label": "Start",
-                "description": ""
-              },
-              {
-                "key": "end",
-                "label": "End",
-                "description": ""
-              },
-              {
-                "key": "price",
-                "label": "Energy price (per kWh)",
-                "description": ""
-              },
-              {
-                "key": "day_type",
-                "label": "Day type",
-                "description": ""
-              },
-              {
-                "key": "name",
-                "label": "Label (optional)",
-                "description": ""
-              }
-            ]
-          },
-          {
-            "id": "sched_slot_1",
-            "name": "Time slot 2",
-            "fields": [
-              {
-                "key": "start",
-                "label": "Start",
-                "description": ""
-              },
-              {
-                "key": "end",
-                "label": "End",
-                "description": ""
-              },
-              {
-                "key": "price",
-                "label": "Energy price (per kWh)",
-                "description": ""
-              },
-              {
-                "key": "day_type",
-                "label": "Day type",
-                "description": ""
-              },
-              {
-                "key": "name",
-                "label": "Label (optional)",
-                "description": ""
-              }
-            ]
-          },
-          {
-            "id": "sched_slot_2",
-            "name": "Time slot 3",
-            "fields": [
-              {
-                "key": "start",
-                "label": "Start",
-                "description": ""
-              },
-              {
-                "key": "end",
-                "label": "End",
-                "description": ""
-              },
-              {
-                "key": "price",
-                "label": "Energy price (per kWh)",
-                "description": ""
-              },
-              {
-                "key": "day_type",
-                "label": "Day type",
-                "description": ""
-              },
-              {
-                "key": "name",
-                "label": "Label (optional)",
-                "description": ""
-              }
-            ]
-          },
-          {
-            "id": "sched_slot_3",
-            "name": "Time slot 4",
-            "fields": [
-              {
-                "key": "start",
-                "label": "Start",
-                "description": ""
-              },
-              {
-                "key": "end",
-                "label": "End",
-                "description": ""
-              },
-              {
-                "key": "price",
-                "label": "Energy price (per kWh)",
-                "description": ""
-              },
-              {
-                "key": "day_type",
-                "label": "Day type",
-                "description": ""
-              },
-              {
-                "key": "name",
-                "label": "Label (optional)",
-                "description": ""
-              }
-            ]
-          },
-          {
-            "id": "sched_slot_4",
-            "name": "Time slot 5",
-            "fields": [
-              {
-                "key": "start",
-                "label": "Start",
-                "description": ""
-              },
-              {
-                "key": "end",
-                "label": "End",
-                "description": ""
-              },
-              {
-                "key": "price",
-                "label": "Energy price (per kWh)",
-                "description": ""
-              },
-              {
-                "key": "day_type",
-                "label": "Day type",
-                "description": ""
-              },
-              {
-                "key": "name",
-                "label": "Label (optional)",
-                "description": ""
-              }
-            ]
-          },
-          {
-            "id": "sched_slot_5",
-            "name": "Time slot 6",
-            "fields": [
-              {
-                "key": "start",
-                "label": "Start",
-                "description": ""
-              },
-              {
-                "key": "end",
-                "label": "End",
-                "description": ""
-              },
-              {
-                "key": "price",
-                "label": "Energy price (per kWh)",
-                "description": ""
-              },
-              {
-                "key": "day_type",
-                "label": "Day type",
-                "description": ""
-              },
-              {
-                "key": "name",
-                "label": "Label (optional)",
-                "description": ""
-              }
-            ]
-          }
-        ]
+        "en": {
+          "title": "Advanced schedule — form",
+          "description": "Fill one row per slot (up to 6). Leave unused rows empty. See {doc_url} for midnight ranges and day types. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule_form)",
+          "fields": [
+            {
+              "key": "subscription_price",
+              "label": "Monthly subscription",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": [
+            {
+              "id": "sched_slot_0",
+              "name": "Time slot 1",
+              "fields": [
+                {
+                  "key": "start",
+                  "label": "Start",
+                  "description": ""
+                },
+                {
+                  "key": "end",
+                  "label": "End",
+                  "description": ""
+                },
+                {
+                  "key": "price",
+                  "label": "Energy price (per kWh)",
+                  "description": ""
+                },
+                {
+                  "key": "day_type",
+                  "label": "Day type",
+                  "description": ""
+                },
+                {
+                  "key": "name",
+                  "label": "Label (optional)",
+                  "description": ""
+                }
+              ]
+            },
+            {
+              "id": "sched_slot_1",
+              "name": "Time slot 2",
+              "fields": [
+                {
+                  "key": "start",
+                  "label": "Start",
+                  "description": ""
+                },
+                {
+                  "key": "end",
+                  "label": "End",
+                  "description": ""
+                },
+                {
+                  "key": "price",
+                  "label": "Energy price (per kWh)",
+                  "description": ""
+                },
+                {
+                  "key": "day_type",
+                  "label": "Day type",
+                  "description": ""
+                },
+                {
+                  "key": "name",
+                  "label": "Label (optional)",
+                  "description": ""
+                }
+              ]
+            },
+            {
+              "id": "sched_slot_2",
+              "name": "Time slot 3",
+              "fields": [
+                {
+                  "key": "start",
+                  "label": "Start",
+                  "description": ""
+                },
+                {
+                  "key": "end",
+                  "label": "End",
+                  "description": ""
+                },
+                {
+                  "key": "price",
+                  "label": "Energy price (per kWh)",
+                  "description": ""
+                },
+                {
+                  "key": "day_type",
+                  "label": "Day type",
+                  "description": ""
+                },
+                {
+                  "key": "name",
+                  "label": "Label (optional)",
+                  "description": ""
+                }
+              ]
+            },
+            {
+              "id": "sched_slot_3",
+              "name": "Time slot 4",
+              "fields": [
+                {
+                  "key": "start",
+                  "label": "Start",
+                  "description": ""
+                },
+                {
+                  "key": "end",
+                  "label": "End",
+                  "description": ""
+                },
+                {
+                  "key": "price",
+                  "label": "Energy price (per kWh)",
+                  "description": ""
+                },
+                {
+                  "key": "day_type",
+                  "label": "Day type",
+                  "description": ""
+                },
+                {
+                  "key": "name",
+                  "label": "Label (optional)",
+                  "description": ""
+                }
+              ]
+            },
+            {
+              "id": "sched_slot_4",
+              "name": "Time slot 5",
+              "fields": [
+                {
+                  "key": "start",
+                  "label": "Start",
+                  "description": ""
+                },
+                {
+                  "key": "end",
+                  "label": "End",
+                  "description": ""
+                },
+                {
+                  "key": "price",
+                  "label": "Energy price (per kWh)",
+                  "description": ""
+                },
+                {
+                  "key": "day_type",
+                  "label": "Day type",
+                  "description": ""
+                },
+                {
+                  "key": "name",
+                  "label": "Label (optional)",
+                  "description": ""
+                }
+              ]
+            },
+            {
+              "id": "sched_slot_5",
+              "name": "Time slot 6",
+              "fields": [
+                {
+                  "key": "start",
+                  "label": "Start",
+                  "description": ""
+                },
+                {
+                  "key": "end",
+                  "label": "End",
+                  "description": ""
+                },
+                {
+                  "key": "price",
+                  "label": "Energy price (per kWh)",
+                  "description": ""
+                },
+                {
+                  "key": "day_type",
+                  "label": "Day type",
+                  "description": ""
+                },
+                {
+                  "key": "name",
+                  "label": "Label (optional)",
+                  "description": ""
+                }
+              ]
+            }
+          ]
+        },
+        "fr": {
+          "title": "Planning avancé — formulaire",
+          "description": "Une ligne par créneau (6 max). Laissez les lignes inutilisées vides. Voir {doc_url} pour les plages après minuit et les types de jour. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule_form)",
+          "fields": [
+            {
+              "key": "subscription_price",
+              "label": "Abonnement mensuel",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": [
+            {
+              "id": "sched_slot_0",
+              "name": "Créneau 1",
+              "fields": [
+                {
+                  "key": "start",
+                  "label": "Début",
+                  "description": ""
+                },
+                {
+                  "key": "end",
+                  "label": "Fin",
+                  "description": ""
+                },
+                {
+                  "key": "price",
+                  "label": "Prix énergie (par kWh)",
+                  "description": ""
+                },
+                {
+                  "key": "day_type",
+                  "label": "Type de jour",
+                  "description": ""
+                },
+                {
+                  "key": "name",
+                  "label": "Libellé (optionnel)",
+                  "description": ""
+                }
+              ]
+            },
+            {
+              "id": "sched_slot_1",
+              "name": "Créneau 2",
+              "fields": [
+                {
+                  "key": "start",
+                  "label": "Début",
+                  "description": ""
+                },
+                {
+                  "key": "end",
+                  "label": "Fin",
+                  "description": ""
+                },
+                {
+                  "key": "price",
+                  "label": "Prix énergie (par kWh)",
+                  "description": ""
+                },
+                {
+                  "key": "day_type",
+                  "label": "Type de jour",
+                  "description": ""
+                },
+                {
+                  "key": "name",
+                  "label": "Libellé (optionnel)",
+                  "description": ""
+                }
+              ]
+            },
+            {
+              "id": "sched_slot_2",
+              "name": "Créneau 3",
+              "fields": [
+                {
+                  "key": "start",
+                  "label": "Début",
+                  "description": ""
+                },
+                {
+                  "key": "end",
+                  "label": "Fin",
+                  "description": ""
+                },
+                {
+                  "key": "price",
+                  "label": "Prix énergie (par kWh)",
+                  "description": ""
+                },
+                {
+                  "key": "day_type",
+                  "label": "Type de jour",
+                  "description": ""
+                },
+                {
+                  "key": "name",
+                  "label": "Libellé (optionnel)",
+                  "description": ""
+                }
+              ]
+            },
+            {
+              "id": "sched_slot_3",
+              "name": "Créneau 4",
+              "fields": [
+                {
+                  "key": "start",
+                  "label": "Début",
+                  "description": ""
+                },
+                {
+                  "key": "end",
+                  "label": "Fin",
+                  "description": ""
+                },
+                {
+                  "key": "price",
+                  "label": "Prix énergie (par kWh)",
+                  "description": ""
+                },
+                {
+                  "key": "day_type",
+                  "label": "Type de jour",
+                  "description": ""
+                },
+                {
+                  "key": "name",
+                  "label": "Libellé (optionnel)",
+                  "description": ""
+                }
+              ]
+            },
+            {
+              "id": "sched_slot_4",
+              "name": "Créneau 5",
+              "fields": [
+                {
+                  "key": "start",
+                  "label": "Début",
+                  "description": ""
+                },
+                {
+                  "key": "end",
+                  "label": "Fin",
+                  "description": ""
+                },
+                {
+                  "key": "price",
+                  "label": "Prix énergie (par kWh)",
+                  "description": ""
+                },
+                {
+                  "key": "day_type",
+                  "label": "Type de jour",
+                  "description": ""
+                },
+                {
+                  "key": "name",
+                  "label": "Libellé (optionnel)",
+                  "description": ""
+                }
+              ]
+            },
+            {
+              "id": "sched_slot_5",
+              "name": "Créneau 6",
+              "fields": [
+                {
+                  "key": "start",
+                  "label": "Début",
+                  "description": ""
+                },
+                {
+                  "key": "end",
+                  "label": "Fin",
+                  "description": ""
+                },
+                {
+                  "key": "price",
+                  "label": "Prix énergie (par kWh)",
+                  "description": ""
+                },
+                {
+                  "key": "day_type",
+                  "label": "Type de jour",
+                  "description": ""
+                },
+                {
+                  "key": "name",
+                  "label": "Libellé (optionnel)",
+                  "description": ""
+                }
+              ]
+            }
+          ]
+        }
       }
     },
     {
@@ -750,22 +1610,42 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Advanced schedule — JSON",
-        "description": "Paste a JSON array of slots. Specification: {doc_url} [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule_json)",
-        "fields": [
-          {
-            "key": "schedule_slots",
-            "label": "Schedule slots (JSON)",
-            "description": ""
-          },
-          {
-            "key": "subscription_price",
-            "label": "Monthly subscription",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Advanced schedule — JSON",
+          "description": "Paste a JSON array of slots. Specification: {doc_url} [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule_json)",
+          "fields": [
+            {
+              "key": "schedule_slots",
+              "label": "Schedule slots (JSON)",
+              "description": ""
+            },
+            {
+              "key": "subscription_price",
+              "label": "Monthly subscription",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Planning avancé — JSON",
+          "description": "Collez un tableau JSON de créneaux. Spécification : {doc_url} [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule_json)",
+          "fields": [
+            {
+              "key": "schedule_slots",
+              "label": "Créneaux horaires (JSON)",
+              "description": ""
+            },
+            {
+              "key": "subscription_price",
+              "label": "Abonnement mensuel",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -775,11 +1655,20 @@
       "kind": "redirect",
       "menu_options": null,
       "strings": {
-        "title": "Manual Schedule Prev",
-        "description": "",
-        "fields": [],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Manual Schedule Prev",
+          "description": "",
+          "fields": [],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Manual Schedule Prev",
+          "description": "",
+          "fields": [],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -789,60 +1678,118 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Time-of-use tariff",
-        "description": "Define off-peak (HC) and peak (HP) windows and their kWh prices. Use advanced schedule for more than two bands. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_tou)",
-        "fields": [
-          {
-            "key": "subscription_price",
-            "label": "Monthly subscription",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": [
-          {
-            "id": "tou_slot_0",
-            "name": "Off-peak (HC)",
-            "fields": [
-              {
-                "key": "tou_r0_start",
-                "label": "Start",
-                "description": ""
-              },
-              {
-                "key": "tou_r0_end",
-                "label": "End",
-                "description": ""
-              },
-              {
-                "key": "tou_r0_price",
-                "label": "Energy price (per kWh)",
-                "description": ""
-              }
-            ]
-          },
-          {
-            "id": "tou_slot_1",
-            "name": "Peak (HP)",
-            "fields": [
-              {
-                "key": "tou_r1_start",
-                "label": "Start",
-                "description": ""
-              },
-              {
-                "key": "tou_r1_end",
-                "label": "End",
-                "description": ""
-              },
-              {
-                "key": "tou_r1_price",
-                "label": "Energy price (per kWh)",
-                "description": ""
-              }
-            ]
-          }
-        ]
+        "en": {
+          "title": "Time-of-use tariff",
+          "description": "Define off-peak (HC) and peak (HP) windows and their kWh prices. Use advanced schedule for more than two bands. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_tou)",
+          "fields": [
+            {
+              "key": "subscription_price",
+              "label": "Monthly subscription",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": [
+            {
+              "id": "tou_slot_0",
+              "name": "Off-peak (HC)",
+              "fields": [
+                {
+                  "key": "tou_r0_start",
+                  "label": "Start",
+                  "description": ""
+                },
+                {
+                  "key": "tou_r0_end",
+                  "label": "End",
+                  "description": ""
+                },
+                {
+                  "key": "tou_r0_price",
+                  "label": "Energy price (per kWh)",
+                  "description": ""
+                }
+              ]
+            },
+            {
+              "id": "tou_slot_1",
+              "name": "Peak (HP)",
+              "fields": [
+                {
+                  "key": "tou_r1_start",
+                  "label": "Start",
+                  "description": ""
+                },
+                {
+                  "key": "tou_r1_end",
+                  "label": "End",
+                  "description": ""
+                },
+                {
+                  "key": "tou_r1_price",
+                  "label": "Energy price (per kWh)",
+                  "description": ""
+                }
+              ]
+            }
+          ]
+        },
+        "fr": {
+          "title": "Tarif heures pleines/creuses",
+          "description": "Définissez les créneaux heures creuses (HC) et heures pleines (HP) et leurs prix au kWh. Utilisez le planning avancé pour plus de deux tranches. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_tou)",
+          "fields": [
+            {
+              "key": "subscription_price",
+              "label": "Abonnement mensuel",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": [
+            {
+              "id": "tou_slot_0",
+              "name": "Heures creuses (HC)",
+              "fields": [
+                {
+                  "key": "tou_r0_start",
+                  "label": "Début",
+                  "description": ""
+                },
+                {
+                  "key": "tou_r0_end",
+                  "label": "Fin",
+                  "description": ""
+                },
+                {
+                  "key": "tou_r0_price",
+                  "label": "Prix de l'énergie (par kWh)",
+                  "description": ""
+                }
+              ]
+            },
+            {
+              "id": "tou_slot_1",
+              "name": "Heures pleines (HP)",
+              "fields": [
+                {
+                  "key": "tou_r1_start",
+                  "label": "Début",
+                  "description": ""
+                },
+                {
+                  "key": "tou_r1_end",
+                  "label": "Fin",
+                  "description": ""
+                },
+                {
+                  "key": "tou_r1_price",
+                  "label": "Prix de l'énergie (par kWh)",
+                  "description": ""
+                }
+              ]
+            }
+          ]
+        }
       }
     },
     {
@@ -852,37 +1799,72 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Solar configuration",
-        "description": "Say whether you want to track solar production in this integration. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar)",
-        "fields": [
-          {
-            "key": "has_solar",
-            "label": "Do you have solar panels?",
-            "description": ""
-          },
-          {
-            "key": "solar_energy",
-            "label": "Solar energy production (kWh)",
-            "description": "Total increasing energy counter for solar production."
-          },
-          {
-            "key": "solar_power_sensor",
-            "label": "Solar power (W, optional)",
-            "description": "Improves real-time power display and power-balance diagnostics."
-          },
-          {
-            "key": "solar_resale_contract",
-            "label": "Solar export re-sale contract?",
-            "description": ""
-          },
-          {
-            "key": "solar_export_tariff",
-            "label": "Export tariff (per kWh)",
-            "description": "Re-sale price per kWh for exported solar energy."
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Solar configuration",
+          "description": "Say whether you want to track solar production in this integration. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar)",
+          "fields": [
+            {
+              "key": "has_solar",
+              "label": "Do you have solar panels?",
+              "description": ""
+            },
+            {
+              "key": "solar_energy",
+              "label": "Solar energy production (kWh)",
+              "description": "Total increasing energy counter for solar production."
+            },
+            {
+              "key": "solar_power_sensor",
+              "label": "Solar power (W, optional)",
+              "description": "Improves real-time power display and power-balance diagnostics."
+            },
+            {
+              "key": "solar_resale_contract",
+              "label": "Solar export re-sale contract?",
+              "description": ""
+            },
+            {
+              "key": "solar_export_tariff",
+              "label": "Export tariff (per kWh)",
+              "description": "Re-sale price per kWh for exported solar energy."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Configuration solaire",
+          "description": "Indiquez si vous souhaitez suivre la production solaire ici. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar)",
+          "fields": [
+            {
+              "key": "has_solar",
+              "label": "Avez-vous des panneaux solaires ?",
+              "description": ""
+            },
+            {
+              "key": "solar_energy",
+              "label": "Production d'énergie solaire (kWh)",
+              "description": "Compteur d'énergie total croissant pour la production solaire."
+            },
+            {
+              "key": "solar_power_sensor",
+              "label": "Puissance solaire (W, optionnel)",
+              "description": "Améliore l'affichage temps réel et les diagnostics."
+            },
+            {
+              "key": "solar_resale_contract",
+              "label": "Contrat de revente solaire ?",
+              "description": ""
+            },
+            {
+              "key": "solar_export_tariff",
+              "label": "Tarif de revente (par kWh)",
+              "description": "Prix de revente par kWh de l'énergie solaire exportée."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -892,37 +1874,72 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Solar configuration",
-        "description": "Select the solar production sensors. Optional: resale and estimation. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_config)",
-        "fields": [
-          {
-            "key": "solar_energy",
-            "label": "Solar energy production (kWh)",
-            "description": "Total increasing energy counter for solar production."
-          },
-          {
-            "key": "solar_power_sensor",
-            "label": "Solar power (W, optional)",
-            "description": "Improves real-time power display and power-balance diagnostics."
-          },
-          {
-            "key": "solar_resale_contract",
-            "label": "Solar export re-sale contract?",
-            "description": "Enable if you have a contract that pays you for exported solar energy."
-          },
-          {
-            "key": "solar_export_tariff",
-            "label": "Export tariff (per kWh)",
-            "description": "Re-sale price per kWh for exported solar energy."
-          },
-          {
-            "key": "solar_estimation_enabled",
-            "label": "Enable production estimation?",
-            "description": "Adds an estimation model to complement real solar measurements."
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Solar configuration",
+          "description": "Select the solar production sensors. Optional: resale and estimation. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_config)",
+          "fields": [
+            {
+              "key": "solar_energy",
+              "label": "Solar energy production (kWh)",
+              "description": "Total increasing energy counter for solar production."
+            },
+            {
+              "key": "solar_power_sensor",
+              "label": "Solar power (W, optional)",
+              "description": "Improves real-time power display and power-balance diagnostics."
+            },
+            {
+              "key": "solar_resale_contract",
+              "label": "Solar export re-sale contract?",
+              "description": "Enable if you have a contract that pays you for exported solar energy."
+            },
+            {
+              "key": "solar_export_tariff",
+              "label": "Export tariff (per kWh)",
+              "description": "Re-sale price per kWh for exported solar energy."
+            },
+            {
+              "key": "solar_estimation_enabled",
+              "label": "Enable production estimation?",
+              "description": "Adds an estimation model to complement real solar measurements."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Configuration solaire",
+          "description": "Sélectionnez les capteurs de production solaire. Optionnel : revente et estimation. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_config)",
+          "fields": [
+            {
+              "key": "solar_energy",
+              "label": "Production d'énergie solaire (kWh)",
+              "description": "Compteur d'énergie total croissant pour la production solaire."
+            },
+            {
+              "key": "solar_power_sensor",
+              "label": "Puissance solaire (W, optionnel)",
+              "description": "Améliore l'affichage temps réel et les diagnostics."
+            },
+            {
+              "key": "solar_resale_contract",
+              "label": "Contrat de revente solaire ?",
+              "description": "Activez si vous avez un contrat qui rémunère l'énergie solaire exportée."
+            },
+            {
+              "key": "solar_export_tariff",
+              "label": "Tarif de revente (par kWh)",
+              "description": "Prix de revente par kWh de l'énergie solaire exportée."
+            },
+            {
+              "key": "solar_estimation_enabled",
+              "label": "Activer l'estimation de production ?",
+              "description": "Ajoute un modèle d'estimation en complément des mesures réelles."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -932,57 +1949,112 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Solar production estimation",
-        "description": "Optional: configure PV estimation when you enable it. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_estimation)",
-        "fields": [
-          {
-            "key": "solar_estimation_enabled",
-            "label": "Enable production estimation?",
-            "description": ""
-          },
-          {
-            "key": "solar_lat",
-            "label": "Latitude",
-            "description": ""
-          },
-          {
-            "key": "solar_lon",
-            "label": "Longitude",
-            "description": ""
-          },
-          {
-            "key": "solar_peak_power",
-            "label": "Peak power (kWc)",
-            "description": ""
-          },
-          {
-            "key": "solar_orientation",
-            "label": "Panel orientation",
-            "description": ""
-          },
-          {
-            "key": "solar_tilt",
-            "label": "Tilt angle (°)",
-            "description": ""
-          },
-          {
-            "key": "solar_tilt_mode",
-            "label": "Tilt mode",
-            "description": ""
-          },
-          {
-            "key": "solar_shading",
-            "label": "Shading level",
-            "description": ""
-          },
-          {
-            "key": "solar_performance",
-            "label": "System performance",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Solar production estimation",
+          "description": "Optional: configure PV estimation when you enable it. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_estimation)",
+          "fields": [
+            {
+              "key": "solar_estimation_enabled",
+              "label": "Enable production estimation?",
+              "description": ""
+            },
+            {
+              "key": "solar_lat",
+              "label": "Latitude",
+              "description": ""
+            },
+            {
+              "key": "solar_lon",
+              "label": "Longitude",
+              "description": ""
+            },
+            {
+              "key": "solar_peak_power",
+              "label": "Peak power (kWc)",
+              "description": ""
+            },
+            {
+              "key": "solar_orientation",
+              "label": "Panel orientation",
+              "description": ""
+            },
+            {
+              "key": "solar_tilt",
+              "label": "Tilt angle (°)",
+              "description": ""
+            },
+            {
+              "key": "solar_tilt_mode",
+              "label": "Tilt mode",
+              "description": ""
+            },
+            {
+              "key": "solar_shading",
+              "label": "Shading level",
+              "description": ""
+            },
+            {
+              "key": "solar_performance",
+              "label": "System performance",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Estimation de production solaire",
+          "description": "Optionnel : paramètres d'estimation PV lorsqu'elle est activée. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_estimation)",
+          "fields": [
+            {
+              "key": "solar_estimation_enabled",
+              "label": "Activer l'estimation de production ?",
+              "description": ""
+            },
+            {
+              "key": "solar_lat",
+              "label": "Latitude",
+              "description": ""
+            },
+            {
+              "key": "solar_lon",
+              "label": "Longitude",
+              "description": ""
+            },
+            {
+              "key": "solar_peak_power",
+              "label": "Puissance crête (kWc)",
+              "description": ""
+            },
+            {
+              "key": "solar_orientation",
+              "label": "Orientation des panneaux",
+              "description": ""
+            },
+            {
+              "key": "solar_tilt",
+              "label": "Angle d'inclinaison (°)",
+              "description": ""
+            },
+            {
+              "key": "solar_tilt_mode",
+              "label": "Mode d'inclinaison",
+              "description": ""
+            },
+            {
+              "key": "solar_shading",
+              "label": "Niveau d'ombrage",
+              "description": ""
+            },
+            {
+              "key": "solar_performance",
+              "label": "Performance du système",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -992,17 +2064,32 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Custom supplier",
-        "description": "You chose Other as your energy supplier. Enter a short name for dashboards and entity labels (for example the name on your bill). Tariffs are entered manually when there is no automatic feed for this provider. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-supplier_custom)",
-        "fields": [
-          {
-            "key": "supplier_custom_name",
-            "label": "Supplier display name",
-            "description": "Required. A brand name or abbreviation is enough."
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Custom supplier",
+          "description": "You chose Other as your energy supplier. Enter a short name for dashboards and entity labels (for example the name on your bill). Tariffs are entered manually when there is no automatic feed for this provider. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-supplier_custom)",
+          "fields": [
+            {
+              "key": "supplier_custom_name",
+              "label": "Supplier display name",
+              "description": "Required. A brand name or abbreviation is enough."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Autre fournisseur",
+          "description": "Vous avez choisi « Autre » comme fournisseur. Indiquez un nom court pour les tableaux de bord et le libellé des entités (par ex. le nom sur votre facture). Les tarifs se saisissent manuellement lorsqu’aucun flux automatique n’existe pour ce fournisseur. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-supplier_custom)",
+          "fields": [
+            {
+              "key": "supplier_custom_name",
+              "label": "Nom affiché du fournisseur",
+              "description": "Obligatoire. Le nom commercial ou une abréviation suffisent."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -1012,17 +2099,32 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Tariff retrieval mode",
-        "description": "Choose how tariffs should be configured. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode)",
-        "fields": [
-          {
-            "key": "tariff_mode",
-            "label": "Tariff mode",
-            "description": "Auto: fetch tariffs from provider API. Manual: enter rates yourself."
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Tariff retrieval mode",
+          "description": "Choose how tariffs should be configured. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode)",
+          "fields": [
+            {
+              "key": "tariff_mode",
+              "label": "Tariff mode",
+              "description": "Auto: fetch tariffs from provider API. Manual: enter rates yourself."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Mode de récupération tarifaire",
+          "description": "Choisissez comment les tarifs doivent être configurés. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode)",
+          "fields": [
+            {
+              "key": "tariff_mode",
+              "label": "Mode tarifaire",
+              "description": "Auto : récupération depuis l'API du fournisseur. Manuel : saisie manuelle."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -1032,17 +2134,32 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Tariff configuration",
-        "description": "Automatic tariff retrieval is not yet available for this supplier. Rates must be entered manually. If auto-retrieval becomes available later, a migration path will be provided without affecting historical data. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode_manual_only)",
-        "fields": [
-          {
-            "key": "tariff_mode",
-            "label": "Tariff mode",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Tariff configuration",
+          "description": "Automatic tariff retrieval is not yet available for this supplier. Rates must be entered manually. If auto-retrieval becomes available later, a migration path will be provided without affecting historical data. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode_manual_only)",
+          "fields": [
+            {
+              "key": "tariff_mode",
+              "label": "Tariff mode",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Configuration tarifaire",
+          "description": "La récupération automatique des tarifs n'est pas encore disponible pour ce fournisseur. Les tarifs doivent être saisis manuellement. Si la récupération automatique devient disponible, une migration sera proposée sans affecter l'historique. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode_manual_only)",
+          "fields": [
+            {
+              "key": "tariff_mode",
+              "label": "Mode tarifaire",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -1052,27 +2169,52 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Three-phase grid — phase L1",
-        "description": "Optional sensors for phase 1. Leave a field empty if you do not have it. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_1)",
-        "fields": [
-          {
-            "key": "tri_phase_step_import_energy",
-            "label": "Import energy (kWh, optional)",
-            "description": ""
-          },
-          {
-            "key": "tri_phase_step_export_energy",
-            "label": "Export energy (kWh, optional)",
-            "description": ""
-          },
-          {
-            "key": "tri_phase_step_grid_power",
-            "label": "Grid power (W, optional)",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Three-phase grid — phase L1",
+          "description": "Optional sensors for phase 1. Leave a field empty if you do not have it. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_1)",
+          "fields": [
+            {
+              "key": "tri_phase_step_import_energy",
+              "label": "Import energy (kWh, optional)",
+              "description": ""
+            },
+            {
+              "key": "tri_phase_step_export_energy",
+              "label": "Export energy (kWh, optional)",
+              "description": ""
+            },
+            {
+              "key": "tri_phase_step_grid_power",
+              "label": "Grid power (W, optional)",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Réseau triphasé — phase L1",
+          "description": "Capteurs optionnels pour la phase 1. Laisser vide si absent. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_1)",
+          "fields": [
+            {
+              "key": "tri_phase_step_import_energy",
+              "label": "Import énergie (kWh, optionnel)",
+              "description": ""
+            },
+            {
+              "key": "tri_phase_step_export_energy",
+              "label": "Export énergie (kWh, optionnel)",
+              "description": ""
+            },
+            {
+              "key": "tri_phase_step_grid_power",
+              "label": "Puissance réseau (W, optionnel)",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -1082,27 +2224,52 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Three-phase grid — phase L2",
-        "description": "Optional sensors for phase 2. Leave a field empty if you do not have it. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_2)",
-        "fields": [
-          {
-            "key": "tri_phase_step_import_energy",
-            "label": "Import energy (kWh, optional)",
-            "description": ""
-          },
-          {
-            "key": "tri_phase_step_export_energy",
-            "label": "Export energy (kWh, optional)",
-            "description": ""
-          },
-          {
-            "key": "tri_phase_step_grid_power",
-            "label": "Grid power (W, optional)",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Three-phase grid — phase L2",
+          "description": "Optional sensors for phase 2. Leave a field empty if you do not have it. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_2)",
+          "fields": [
+            {
+              "key": "tri_phase_step_import_energy",
+              "label": "Import energy (kWh, optional)",
+              "description": ""
+            },
+            {
+              "key": "tri_phase_step_export_energy",
+              "label": "Export energy (kWh, optional)",
+              "description": ""
+            },
+            {
+              "key": "tri_phase_step_grid_power",
+              "label": "Grid power (W, optional)",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Réseau triphasé — phase L2",
+          "description": "Capteurs optionnels pour la phase 2. Laisser vide si absent. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_2)",
+          "fields": [
+            {
+              "key": "tri_phase_step_import_energy",
+              "label": "Import énergie (kWh, optionnel)",
+              "description": ""
+            },
+            {
+              "key": "tri_phase_step_export_energy",
+              "label": "Export énergie (kWh, optionnel)",
+              "description": ""
+            },
+            {
+              "key": "tri_phase_step_grid_power",
+              "label": "Puissance réseau (W, optionnel)",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -1112,27 +2279,52 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Three-phase grid — phase L3",
-        "description": "Optional sensors for phase 3. Leave a field empty if you do not have it. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_3)",
-        "fields": [
-          {
-            "key": "tri_phase_step_import_energy",
-            "label": "Import energy (kWh, optional)",
-            "description": ""
-          },
-          {
-            "key": "tri_phase_step_export_energy",
-            "label": "Export energy (kWh, optional)",
-            "description": ""
-          },
-          {
-            "key": "tri_phase_step_grid_power",
-            "label": "Grid power (W, optional)",
-            "description": ""
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Three-phase grid — phase L3",
+          "description": "Optional sensors for phase 3. Leave a field empty if you do not have it. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_3)",
+          "fields": [
+            {
+              "key": "tri_phase_step_import_energy",
+              "label": "Import energy (kWh, optional)",
+              "description": ""
+            },
+            {
+              "key": "tri_phase_step_export_energy",
+              "label": "Export energy (kWh, optional)",
+              "description": ""
+            },
+            {
+              "key": "tri_phase_step_grid_power",
+              "label": "Grid power (W, optional)",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Réseau triphasé — phase L3",
+          "description": "Capteurs optionnels pour la phase 3. Laisser vide si absent. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_3)",
+          "fields": [
+            {
+              "key": "tri_phase_step_import_energy",
+              "label": "Import énergie (kWh, optionnel)",
+              "description": ""
+            },
+            {
+              "key": "tri_phase_step_export_energy",
+              "label": "Export énergie (kWh, optionnel)",
+              "description": ""
+            },
+            {
+              "key": "tri_phase_step_grid_power",
+              "label": "Puissance réseau (W, optionnel)",
+              "description": ""
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
     },
     {
@@ -1142,107 +2334,53 @@
       "kind": "form",
       "menu_options": null,
       "strings": {
-        "title": "Hub Énergie – Setup",
-        "description": "Configure your energy monitoring integration. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-user)",
-        "fields": [
-          {
-            "key": "supplier",
-            "label": "Energy supplier",
-            "description": "Select your energy supplier. Choose 'Other' for non-EDF providers."
-          },
-          {
-            "key": "supplier_custom_name",
-            "label": "Supplier name",
-            "description": ""
-          },
-          {
-            "key": "phase_type",
-            "label": "Phase type",
-            "description": "Single-phase (mono) or three-phase (tri) installation."
-          }
-        ],
-        "menu_choices": [],
-        "sections": []
+        "en": {
+          "title": "Hub Énergie – Setup",
+          "description": "Configure your energy monitoring integration. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-user)",
+          "fields": [
+            {
+              "key": "supplier",
+              "label": "Energy supplier",
+              "description": "Select your energy supplier. Choose 'Other' for non-EDF providers."
+            },
+            {
+              "key": "supplier_custom_name",
+              "label": "Supplier name",
+              "description": ""
+            },
+            {
+              "key": "phase_type",
+              "label": "Phase type",
+              "description": "Single-phase (mono) or three-phase (tri) installation."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Hub Énergie – Configuration",
+          "description": "Configurez votre intégration de suivi d'énergie. [aide par étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-user)",
+          "fields": [
+            {
+              "key": "supplier",
+              "label": "Fournisseur d'énergie",
+              "description": "Sélectionnez votre fournisseur. Choisissez 'Autre' pour les fournisseurs non-EDF."
+            },
+            {
+              "key": "supplier_custom_name",
+              "label": "Nom du fournisseur",
+              "description": ""
+            },
+            {
+              "key": "phase_type",
+              "label": "Type de phase",
+              "description": "Installation monophasée ou triphasée."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
       }
-    }
-  ],
-  "scenarios": [
-    {
-      "id": "tempo_rte",
-      "title": "Tempo · RTE (mono, no battery)",
-      "step_ids": [
-        "user",
-        "tariff_mode",
-        "contract",
-        "edf_offer",
-        "edf_tempo",
-        "edf_tempo_rte",
-        "grid",
-        "solar",
-        "battery"
-      ],
-      "note": "After valid RTE credentials the integration fetches EDF tariffs internally, then continues to grid."
-    },
-    {
-      "id": "tempo_api",
-      "title": "Tempo · API Couleur (mono, no battery)",
-      "step_ids": [
-        "user",
-        "tariff_mode",
-        "contract",
-        "edf_offer",
-        "edf_tempo",
-        "grid",
-        "solar",
-        "battery"
-      ],
-      "note": "Choose API Couleur on the Tempo source step. Tariffs are fetched before grid."
-    },
-    {
-      "id": "manual_flat_edf",
-      "title": "EDF · manual flat tariff (mono)",
-      "step_ids": [
-        "user",
-        "tariff_mode",
-        "contract",
-        "manual_pricing",
-        "manual_flat",
-        "grid",
-        "solar",
-        "battery"
-      ]
-    },
-    {
-      "id": "other_supplier_flat",
-      "title": "Other supplier · manual flat (mono)",
-      "step_ids": [
-        "user",
-        "supplier_custom",
-        "tariff_mode_manual_only",
-        "contract",
-        "manual_pricing",
-        "manual_flat",
-        "grid",
-        "solar",
-        "battery"
-      ]
-    },
-    {
-      "id": "tempo_rte_with_battery",
-      "title": "Tempo · RTE + one battery",
-      "step_ids": [
-        "user",
-        "tariff_mode",
-        "contract",
-        "edf_offer",
-        "edf_tempo",
-        "edf_tempo_rte",
-        "grid",
-        "solar",
-        "battery",
-        "battery_add",
-        "battery_more"
-      ]
     }
   ]
 }

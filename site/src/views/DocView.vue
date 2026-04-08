@@ -23,10 +23,6 @@ onMounted(() => {
   setupScrollSpy("doc");
   nextTick(() => {
     wireDocCarouselImages();
-    wireCarouselPair("configFlowCarousel", "configFlowTree");
-    wireCarouselPair("configFlowCarouselApi", "configFlowTreeApi");
-    wireCarouselPair("configFlowCarouselManual", "configFlowTreeManual");
-    wireCarouselPair("configFlowCarouselOffers", "configFlowTreeOffers");
     wireCarouselPair("devicesGalleryCarousel", "devicesGalleryTree");
     wireImageLightbox();
     wireTocMobile();

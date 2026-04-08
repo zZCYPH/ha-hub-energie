@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Build a JSON catalog of Hub Énergie *initial* config-flow steps for the doc vitrine.
 
-Reads ``config_flow.py`` (AST) for ``HubEnergieConfigFlow`` + ``_BatteryWizardMixin`` and
-``strings.json`` for English titles / field labels. Declarative **scenarios** (linear paths)
-are embedded here for the interactive preview; CI validates that every referenced ``step_id``
-exists in the extracted catalog.
+Reads ``config_flow.py`` (AST) for ``HubEnergieConfigFlow`` + ``_BatteryWizardMixin``,
+``strings.json`` (EN) and ``translations/fr.json`` for localized titles / field labels, plus
+a ``selector`` block (option labels) for the doc vitrine.
 
-Full branching + validation cannot be replayed without Home Assistant; this artifact stays
-aligned with real ``step_id`` values and integration strings.
+The interactive preview navigates using **branching logic in the Vue simulator** (not linear
+scenarios in this JSON). Full validation cannot be replayed without Home Assistant; this artifact
+stays aligned with real ``step_id`` values and integration strings.
 
 Usage::
     python scripts/extract_config_flow_catalog.py              # write site/src/data/flowCatalog.generated.json
@@ -28,90 +28,10 @@ from typing import Any
 REPO = Path(__file__).resolve().parent.parent
 CONFIG_FLOW = REPO / "custom_components/hub_energie/config_flow.py"
 STRINGS_JSON = REPO / "custom_components/hub_energie/strings.json"
+STRINGS_FR_JSON = REPO / "custom_components/hub_energie/translations/fr.json"
 OUT_JSON = REPO / "site/src/data/flowCatalog.generated.json"
 
 CLASS_NAMES = frozenset({"HubEnergieConfigFlow", "_BatteryWizardMixin"})
-
-# Linear paths for the doc “fake wizard”. Keep in sync with real navigation where possible.
-SCENARIOS: list[dict[str, Any]] = [
-    {
-        "id": "tempo_rte",
-        "title": "Tempo · RTE (mono, no battery)",
-        "step_ids": [
-            "user",
-            "tariff_mode",
-            "contract",
-            "edf_offer",
-            "edf_tempo",
-            "edf_tempo_rte",
-            "grid",
-            "solar",
-            "battery",
-        ],
-        "note": "After valid RTE credentials the integration fetches EDF tariffs internally, then continues to grid.",
-    },
-    {
-        "id": "tempo_api",
-        "title": "Tempo · API Couleur (mono, no battery)",
-        "step_ids": [
-            "user",
-            "tariff_mode",
-            "contract",
-            "edf_offer",
-            "edf_tempo",
-            "grid",
-            "solar",
-            "battery",
-        ],
-        "note": "Choose API Couleur on the Tempo source step. Tariffs are fetched before grid.",
-    },
-    {
-        "id": "manual_flat_edf",
-        "title": "EDF · manual flat tariff (mono)",
-        "step_ids": [
-            "user",
-            "tariff_mode",
-            "contract",
-            "manual_pricing",
-            "manual_flat",
-            "grid",
-            "solar",
-            "battery",
-        ],
-    },
-    {
-        "id": "other_supplier_flat",
-        "title": "Other supplier · manual flat (mono)",
-        "step_ids": [
-            "user",
-            "supplier_custom",
-            "tariff_mode_manual_only",
-            "contract",
-            "manual_pricing",
-            "manual_flat",
-            "grid",
-            "solar",
-            "battery",
-        ],
-    },
-    {
-        "id": "tempo_rte_with_battery",
-        "title": "Tempo · RTE + one battery",
-        "step_ids": [
-            "user",
-            "tariff_mode",
-            "contract",
-            "edf_offer",
-            "edf_tempo",
-            "edf_tempo_rte",
-            "grid",
-            "solar",
-            "battery",
-            "battery_add",
-            "battery_more",
-        ],
-    },
-]
 
 
 def _tri_phase_step_id(method_name: str) -> str | None:
@@ -255,8 +175,10 @@ def iter_setup_flow_handlers() -> list[tuple[str, str]]:
 def extract_steps() -> list[dict[str, Any]]:
     tree = ast.parse(CONFIG_FLOW.read_text(encoding="utf-8"))
     by_step: dict[str, dict[str, Any]] = {}
-    strings_root = json.loads(STRINGS_JSON.read_text(encoding="utf-8"))
-    step_strings: dict[str, Any] = strings_root.get("config", {}).get("step", {})
+    strings_root_en = json.loads(STRINGS_JSON.read_text(encoding="utf-8"))
+    step_strings_en: dict[str, Any] = strings_root_en.get("config", {}).get("step", {})
+    strings_root_fr = json.loads(STRINGS_FR_JSON.read_text(encoding="utf-8"))
+    step_strings_fr: dict[str, Any] = strings_root_fr.get("config", {}).get("step", {})
 
     for node in tree.body:
         if not isinstance(node, ast.ClassDef) or node.name not in CLASS_NAMES:
@@ -287,39 +209,48 @@ def extract_steps() -> list[dict[str, Any]]:
     steps: list[dict[str, Any]] = []
     for step_id in sorted(by_step):
         meta = by_step[step_id]
-        raw = step_strings.get(step_id, {})
-        if not isinstance(raw, dict):
-            raw = {}
+        raw_en = step_strings_en.get(step_id, {})
+        if not isinstance(raw_en, dict):
+            raw_en = {}
+        raw_fr = step_strings_fr.get(step_id, raw_en)
+        if not isinstance(raw_fr, dict):
+            raw_fr = raw_en
+        strings_en = _build_field_entries(step_id, raw_en)
+        strings_fr = _build_field_entries(step_id, raw_fr)
+        if not strings_en["title"]:
+            strings_en["title"] = step_id.replace("_", " ").title()
+        if not strings_fr["title"]:
+            strings_fr["title"] = strings_en["title"]
         merged: dict[str, Any] = {
             **meta,
-            "strings": _build_field_entries(step_id, raw),
+            "strings": {"en": strings_en, "fr": strings_fr},
         }
-        if not merged["strings"]["title"]:
-            merged["strings"]["title"] = step_id.replace("_", " ").title()
         steps.append(merged)
 
     return steps
 
 
-def validate_scenarios(steps: list[dict[str, Any]]) -> None:
-    ids = {s["step_id"] for s in steps}
-    for sc in SCENARIOS:
-        for sid in sc["step_ids"]:
-            if sid not in ids:
-                raise SystemExit(f"Scenario {sc['id']!r} references unknown step_id {sid!r}")
+def _integration_selector_i18n() -> dict[str, Any]:
+    """``selector`` option labels from integration ``strings.json`` / ``translations/fr.json`` (HA shape)."""
+    en_root = json.loads(STRINGS_JSON.read_text(encoding="utf-8"))
+    fr_root = json.loads(STRINGS_FR_JSON.read_text(encoding="utf-8"))
+    return {
+        "en": en_root.get("selector", {}) or {},
+        "fr": fr_root.get("selector", {}) or {},
+    }
 
 
 def build_doc() -> dict[str, Any]:
     steps = extract_steps()
-    validate_scenarios(steps)
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "source_files": {
             "config_flow": CONFIG_FLOW.relative_to(REPO).as_posix(),
-            "strings": STRINGS_JSON.relative_to(REPO).as_posix(),
+            "strings_en": STRINGS_JSON.relative_to(REPO).as_posix(),
+            "strings_fr": STRINGS_FR_JSON.relative_to(REPO).as_posix(),
         },
+        "selector": _integration_selector_i18n(),
         "steps": steps,
-        "scenarios": SCENARIOS,
     }
 
 
@@ -357,7 +288,7 @@ def main() -> None:
         return
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(text, encoding="utf-8")
-    print(f"Wrote {OUT_JSON.relative_to(REPO)} ({len(doc['steps'])} steps, {len(doc['scenarios'])} scenarios)")
+    print(f"Wrote {OUT_JSON.relative_to(REPO)} ({len(doc['steps'])} steps)")
 
 
 if __name__ == "__main__":

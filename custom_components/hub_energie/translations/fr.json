@@ -794,6 +794,76 @@
     }
   },
   "selector": {
+    "supplier": {
+      "options": {
+        "edf": "EDF",
+        "other": "Autre fournisseur"
+      }
+    },
+    "phase_type": {
+      "options": {
+        "mono": "Mono",
+        "tri": "Tri"
+      }
+    },
+    "tariff_mode": {
+      "options": {
+        "auto": "Automatique (API fournisseur)",
+        "manual": "Manuel"
+      }
+    },
+    "tariff_offer": {
+      "options": {
+        "base": "BASE",
+        "hphc": "HPHC",
+        "tempo": "TEMPO"
+      }
+    },
+    "tempo_mode": {
+      "options": {
+        "rte": "RTE",
+        "api_couleur": "API Couleur Tempo"
+      }
+    },
+    "price_basis": {
+      "options": {
+        "TTC": "TTC",
+        "HT": "HT"
+      }
+    },
+    "boolean": {
+      "options": {
+        "true": "Oui",
+        "false": "Non"
+      }
+    },
+    "solar_tilt_mode": {
+      "options": {
+        "auto": "Auto",
+        "manual": "Manuel"
+      }
+    },
+    "solar_shading": {
+      "options": {
+        "none": "Aucun",
+        "light": "Léger",
+        "medium": "Moyen",
+        "heavy": "Fort"
+      }
+    },
+    "solar_performance": {
+      "options": {
+        "high": "Élevé",
+        "standard": "Standard",
+        "low": "Faible"
+      }
+    },
+    "batt_power_net_sign": {
+      "options": {
+        "positive_discharge": "Positif en décharge",
+        "positive_charge": "Positif en charge"
+      }
+    },
     "pricing_structure": {
       "options": {
         "flat": "Tarif unique — un seul prix au kWh",
