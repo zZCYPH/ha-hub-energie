@@ -771,6 +771,8 @@
               "tri_grid_power_p1": "Puissance réseau (W, optionnel)"
             },
             "data_description": {
+              "tri_import_energy_p1": "Compteur kWh total_increasing d’import réseau sur la phase L1.",
+              "tri_export_energy_p1": "Compteur d’export L1 optionnel ; vide si inutilisé.",
               "tri_grid_power_p1": "Puissance instantanée L1 ; l'intégration additionne les phases renseignées pour le temps réel. Un seul capteur « total » : ne renseignez qu'une phase."
             }
           },
@@ -782,6 +784,8 @@
               "tri_grid_power_p2": "Puissance réseau (W, optionnel)"
             },
             "data_description": {
+              "tri_import_energy_p2": "Compteur kWh total_increasing d’import réseau sur la phase L2.",
+              "tri_export_energy_p2": "Compteur d’export L2 optionnel ; vide si inutilisé.",
               "tri_grid_power_p2": "Puissance instantanée L2."
             }
           },
@@ -793,6 +797,8 @@
               "tri_grid_power_p3": "Puissance réseau (W, optionnel)"
             },
             "data_description": {
+              "tri_import_energy_p3": "Compteur kWh total_increasing d’import réseau sur la phase L3.",
+              "tri_export_energy_p3": "Compteur d’export L3 optionnel ; vide si inutilisé.",
               "tri_grid_power_p3": "Puissance instantanée L3."
             }
           },

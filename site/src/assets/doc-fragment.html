@@ -31,13 +31,25 @@
           >
           <hr class="border-secondary my-2 opacity-25" />
           <a class="nav-link" href="#overview" data-bs-dismiss="offcanvas"
-            ><span data-i18n="toc.overview">Overview</span></a
-          >
-          <a class="nav-link" href="#ssot" data-bs-dismiss="offcanvas"
-            ><span data-i18n="toc.ssot">Data &amp; SSOT</span></a
+            ><span data-i18n="toc.overview">Quick tour</span></a
           >
           <a class="nav-link" href="#install" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.install">Install</span></a
+          >
+          <a class="nav-link" href="#configure" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.configure">Configuration</span></a
+          >
+          <a class="nav-link small py-1 ps-3" href="#configure-flow-simulator" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.configure_flow_simulator">Flow preview (generated)</span></a
+          >
+          <a class="nav-link small py-1 ps-3" href="#configure-advanced" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.configure_advanced">Advanced configuration</span></a
+          >
+          <a class="nav-link small py-1 ps-3" href="#configure-delta-caps" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.configure_delta_caps">Energy delta caps</span></a
+          >
+          <a class="nav-link" href="#sensors" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.sensors">Sensors &amp; entities</span></a
           >
           <a class="nav-link" href="#lovelace" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.lovelace">Lovelace card</span></a
@@ -47,15 +59,6 @@
           >
           <a class="nav-link small py-1 ps-3" href="#lovelace-editor" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.lovelace_editor">Visual editor</span></a
-          >
-          <a class="nav-link" href="#configure" data-bs-dismiss="offcanvas"
-            ><span data-i18n="toc.configure">Configure in HA</span></a
-          >
-          <a class="nav-link small py-1 ps-3" href="#configure-flow-simulator" data-bs-dismiss="offcanvas"
-            ><span data-i18n="toc.configure_flow_simulator">Flow preview (generated)</span></a
-          >
-          <a class="nav-link small py-1 ps-3" href="#configure-delta-caps" data-bs-dismiss="offcanvas"
-            ><span data-i18n="toc.configure_delta_caps">Energy delta caps</span></a
           >
           <a class="nav-link" href="#devices" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.devices">Devices</span></a
@@ -144,22 +147,25 @@
               On this page
             </div>
             <nav id="toc-nav-doc" class="nav nav-pills flex-column gap-1" role="navigation" data-i18n-aria="nav.toc_aria" aria-label="Page">
-              <a class="nav-link" href="#overview"><span data-i18n="toc.overview">Overview</span></a>
-              <a class="nav-link" href="#ssot"><span data-i18n="toc.ssot">Data &amp; SSOT</span></a>
+              <a class="nav-link" href="#overview"><span data-i18n="toc.overview">Quick tour</span></a>
               <a class="nav-link" href="#install"><span data-i18n="toc.install">Install</span></a>
+              <a class="nav-link" href="#configure"><span data-i18n="toc.configure">Configuration</span></a>
+              <a class="nav-link small py-1 ps-3" href="#configure-flow-simulator"
+                ><span data-i18n="toc.configure_flow_simulator">Flow preview (generated)</span></a
+              >
+              <a class="nav-link small py-1 ps-3" href="#configure-advanced"
+                ><span data-i18n="toc.configure_advanced">Advanced configuration</span></a
+              >
+              <a class="nav-link small py-1 ps-3" href="#configure-delta-caps"
+                ><span data-i18n="toc.configure_delta_caps">Energy delta caps</span></a
+              >
+              <a class="nav-link" href="#sensors"><span data-i18n="toc.sensors">Sensors &amp; entities</span></a>
               <a class="nav-link" href="#lovelace"><span data-i18n="toc.lovelace">Lovelace card</span></a>
               <a class="nav-link small py-1 ps-3" href="#lovelace-showcase"
                 ><span data-i18n="toc.lovelace_showcase">Card preview</span></a
               >
               <a class="nav-link small py-1 ps-3" href="#lovelace-editor"
                 ><span data-i18n="toc.lovelace_editor">Visual editor</span></a
-              >
-              <a class="nav-link" href="#configure"><span data-i18n="toc.configure">Configure in HA</span></a>
-              <a class="nav-link small py-1 ps-3" href="#configure-flow-simulator"
-                ><span data-i18n="toc.configure_flow_simulator">Flow preview (generated)</span></a
-              >
-              <a class="nav-link small py-1 ps-3" href="#configure-delta-caps"
-                ><span data-i18n="toc.configure_delta_caps">Energy delta caps</span></a
               >
               <a class="nav-link" href="#devices"><span data-i18n="toc.devices">Devices</span></a>
               <a class="nav-link small py-1 ps-3" href="#devices-integration"
@@ -272,66 +278,6 @@
                 lists above describe intent, not a warranty for every edge case.
               </div>
             </div>
-          </section>
-
-          <section id="ssot" class="doc-section pb-5">
-            <h2 class="mb-3">
-              <span data-i18n="ssot.title">Data sources (SSOT)</span>
-              <a
-                class="doc-anchor text-secondary"
-                href="#ssot"
-                data-i18n-aria="section.link_aria"
-                aria-label="Link to section"
-                >#</a
-              >
-            </h2>
-            <p class="text-secondary" data-i18n="ssot.intro">
-              Knowing what is authoritative avoids misconfiguring the Energy panel or the wrong attributes.
-            </p>
-            <ol class="doc-steps">
-              <li>
-                <div class="doc-step-card shadow-sm">
-                  <span class="step-badge">1</span>
-                  <div class="step-body">
-                    <div class="step-title" data-i18n="ssot.s1_title">Physical meters (external SSOT)</div>
-                    <p class="small text-secondary mb-0" data-i18n-html="ssot.s1_html">
-                      The energy entities you select (<code class="font-mono">grid_import_energy</code>, solar,
-                      export, per-battery in/out). <strong class="text-body">Recorder history</strong> is ground
-                      truth for total kWh from hardware or upstream integrations.
-                    </p>
-                  </div>
-                </div>
-              </li>
-              <li>
-                <div class="doc-step-card shadow-sm">
-                  <span class="step-badge">2</span>
-                  <div class="step-body">
-                    <div class="step-title" data-i18n="ssot.s2_title">Internal accounting</div>
-                    <p class="small text-secondary mb-0" data-i18n-html="ssot.s2_html">
-                      The coordinator accumulates <strong class="text-body">positive deltas</strong> into totals
-                      and per-day slot kWh. Integration
-                      <code class="font-mono">total_increasing</code> SSOT sensors reflect this
-                      <strong class="text-body">internal sum</strong>, not a full re-read of the meter every
-                      cycle.
-                    </p>
-                  </div>
-                </div>
-              </li>
-              <li>
-                <div class="doc-step-card shadow-sm">
-                  <span class="step-badge">3</span>
-                  <div class="step-body">
-                    <div class="step-title" data-i18n="ssot.s3_title">Long-term per-slot kWh (daily)</div>
-                    <p class="small text-secondary mb-0" data-i18n-html="ssot.s3_html">
-                      After each Paris day, external statistics
-                      <code class="font-mono">hub_energie:slot_&lt;source&gt;_&lt;slot&gt;_kwh</code> are
-                      written. Use these (or physical meters) for historical analytics â€” not raw
-                      <code class="font-mono">cost_detail</code> attribute history alone.
-                    </p>
-                  </div>
-                </div>
-              </li>
-            </ol>
           </section>
 
           <section id="install" class="doc-section pb-5">
@@ -515,6 +461,91 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
             </div>
           </section>
 
+          <section id="configure" class="doc-section pb-5">
+            <h2 class="mb-3">
+              <span data-i18n="configure.title">Configuration</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#configure"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h2>
+            <p class="text-secondary mb-3" data-i18n-html="configure.flow_lead_html"></p>
+            <p class="text-secondary mb-3" data-i18n-html="configure.after_install_html"></p>
+            <p class="small text-secondary mb-3 mb-lg-4" data-i18n-html="configure.flow_step_help_html"></p>
+            <div class="card border mb-4 shadow-sm">
+              <div class="card-body">
+                <h3 class="h6 card-title" data-i18n="configure.flow_map_title">How the config flow branches</h3>
+                <div class="small text-secondary" data-i18n-html="configure.flow_map_html"></div>
+              </div>
+            </div>
+
+            <h3 class="h5 mt-2 mb-2 doc-subsection" id="configure-flow-simulator">
+              <span data-i18n="configure.flow_simulator_h">Interactive flow preview</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#configure-flow-simulator"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h3>
+            <p class="text-secondary small mb-3" data-i18n-html="configure.flow_simulator_intro_html"></p>
+            <div id="flow-simulator-mount" class="mb-4"></div>
+
+            <h3 class="h5 mt-2 mb-2 doc-subsection" id="configure-advanced">
+              <span data-i18n="configure.advanced_h">Advanced configuration</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#configure-advanced"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h3>
+            <p class="text-secondary small mb-3" data-i18n-html="configure.advanced_intro_html"></p>
+
+            <h4 class="h5 mt-2 mb-2 doc-subsection" id="configure-delta-caps">
+              <span data-i18n="configure.delta_caps_h">Energy delta caps</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#configure-delta-caps"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h4>
+            <p class="text-secondary small mb-3" data-i18n-html="configure.delta_caps_intro_html"></p>
+            <div class="card border mb-4 shadow-sm">
+              <div class="card-body small text-secondary">
+                <h4 class="h6 text-uppercase text-secondary fw-semibold" data-i18n="configure.delta_caps_defaults_h">
+                  Default ceilings (kWh per coordinator update)
+                </h4>
+                <div class="mb-0" data-i18n-html="configure.delta_caps_defaults_html"></div>
+              </div>
+            </div>
+            <h4 class="h6 mb-2" data-i18n="configure.delta_caps_cases_h">Concrete cases</h4>
+            <div class="small text-secondary mb-4" data-i18n-html="configure.delta_caps_cases_html"></div>
+            <p class="text-secondary small mb-0" data-i18n-html="configure.delta_caps_ha_html"></p>
+          </section>
+
+          <section id="sensors" class="doc-section pb-5">
+            <h2 class="mb-3">
+              <span data-i18n="sensors.title">Sensors &amp; entities</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#sensors"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h2>
+            <p class="text-secondary mb-3" data-i18n-html="sensors.intro_html"></p>
+            <p class="text-secondary small mb-0" data-i18n-html="sensors.more_html"></p>
+          </section>
+
           <section id="lovelace" class="doc-section pb-5">
             <h2 class="mb-3">
               <span data-i18n="lovelace.title">Lovelace card</span>
@@ -628,64 +659,6 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
             </figure>
           </section>
 
-          <section id="configure" class="doc-section pb-5">
-            <h2 class="mb-3">
-              <span data-i18n="configure.title">Configure in Home Assistant</span>
-              <a
-                class="doc-anchor text-secondary"
-                href="#configure"
-                data-i18n-aria="section.link_aria"
-                aria-label="Link to section"
-                >#</a
-              >
-            </h2>
-            <p class="text-secondary mb-3" data-i18n-html="configure.flow_lead_html"></p>
-            <p class="small text-secondary mb-3 mb-lg-4" data-i18n-html="configure.flow_step_help_html"></p>
-            <div class="card border mb-4 shadow-sm">
-              <div class="card-body">
-                <h3 class="h6 card-title" data-i18n="configure.flow_map_title">How the config flow branches</h3>
-                <div class="small text-secondary" data-i18n-html="configure.flow_map_html"></div>
-              </div>
-            </div>
-
-            <h3 class="h5 mt-2 mb-2 doc-subsection" id="configure-flow-simulator">
-              <span data-i18n="configure.flow_simulator_h">Interactive flow preview</span>
-              <a
-                class="doc-anchor text-secondary"
-                href="#configure-flow-simulator"
-                data-i18n-aria="section.link_aria"
-                aria-label="Link to section"
-                >#</a
-              >
-            </h3>
-            <p class="text-secondary small mb-3" data-i18n-html="configure.flow_simulator_intro_html"></p>
-            <div id="flow-simulator-mount" class="mb-4"></div>
-
-            <h3 class="h5 mt-2 mb-2 doc-subsection" id="configure-delta-caps">
-              <span data-i18n="configure.delta_caps_h">Energy delta caps (advanced)</span>
-              <a
-                class="doc-anchor text-secondary"
-                href="#configure-delta-caps"
-                data-i18n-aria="section.link_aria"
-                aria-label="Link to section"
-                >#</a
-              >
-            </h3>
-            <p class="text-secondary small mb-3" data-i18n-html="configure.delta_caps_intro_html"></p>
-            <div class="card border mb-4 shadow-sm">
-              <div class="card-body small text-secondary">
-                <h4 class="h6 text-uppercase text-secondary fw-semibold" data-i18n="configure.delta_caps_defaults_h">
-                  Default ceilings (kWh per coordinator update)
-                </h4>
-                <div class="mb-0" data-i18n-html="configure.delta_caps_defaults_html"></div>
-              </div>
-            </div>
-            <h4 class="h6 mb-2" data-i18n="configure.delta_caps_cases_h">Concrete cases</h4>
-            <div class="small text-secondary mb-4" data-i18n-html="configure.delta_caps_cases_html"></div>
-            <p class="text-secondary small mb-0" data-i18n-html="configure.delta_caps_ha_html"></p>
-
-          </section>
-
           <section id="devices" class="doc-section pb-5">
             <h2 class="mb-3">
               <span data-i18n="devices.title">Device model</span>
@@ -735,35 +708,35 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                 </thead>
                 <tbody class="table-group-divider">
                   <tr>
-                    <td><strong>Offre</strong></td>
+                    <td><strong data-i18n="devices.g1_t">Offre</strong></td>
                     <td data-i18n="devices.p_offre">Tariff, supplier, contract</td>
                   </tr>
                   <tr>
-                    <td><strong>RÃ©seau</strong></td>
+                    <td><strong data-i18n="devices.g2_t">Réseau</strong></td>
                     <td data-i18n="devices.p_reseau">Grid energy / power sensors</td>
                   </tr>
                   <tr>
-                    <td><strong>Solaire</strong></td>
+                    <td><strong data-i18n="devices.g3_t">Solaire</strong></td>
                     <td data-i18n="devices.p_solaire">Solar measurement / estimation</td>
                   </tr>
                   <tr>
-                    <td><strong>Batterie &lt;name&gt;</strong></td>
+                    <td><strong data-i18n="devices.table_row_batt">Battery &lt;name&gt;</strong></td>
                     <td data-i18n="devices.p_batt">Per-battery system (0..N)</td>
                   </tr>
                   <tr>
-                    <td><strong>Batteries (total)</strong></td>
+                    <td><strong data-i18n="devices.g5_t">Batteries (total)</strong></td>
                     <td data-i18n="devices.p_battsum">Aggregated battery summary</td>
                   </tr>
                   <tr>
-                    <td><strong>Bilan Ã©nergÃ©tique</strong></td>
+                    <td><strong data-i18n="devices.g6_t">Bilan énergétique</strong></td>
                     <td data-i18n="devices.p_bilan">Computed energy flows (kWh)</td>
                   </tr>
                   <tr>
-                    <td><strong>CoÃ»ts</strong></td>
-                    <td data-i18n="devices.p_couts">Monetary values (â‚¬)</td>
+                    <td><strong data-i18n="devices.g7_t">Coûts</strong></td>
+                    <td data-i18n="devices.p_couts">Monetary values (€)</td>
                   </tr>
                   <tr>
-                    <td><strong>Diagnostics</strong></td>
+                    <td><strong data-i18n="devices.g8_t">Diagnostics</strong></td>
                     <td data-i18n="devices.p_diag">Health, reinjection diagnostics</td>
                   </tr>
                 </tbody>
@@ -797,7 +770,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                       data-doc-carousel="#devicesGalleryCarousel"
                       data-doc-slide-to="1"
                     >
-                      <span class="fw-semibold d-block" data-i18n="devices.g2_t">RÃ©seau</span>
+                      <span class="fw-semibold d-block" data-i18n="devices.g2_t">Réseau</span>
                       <span class="small text-secondary" data-i18n="devices.g2_d">Grid sensors</span>
                     </button>
                     <button
@@ -833,7 +806,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                       data-doc-carousel="#devicesGalleryCarousel"
                       data-doc-slide-to="5"
                     >
-                      <span class="fw-semibold d-block" data-i18n="devices.g6_t">Bilan Ã©nergÃ©tique</span>
+                      <span class="fw-semibold d-block" data-i18n="devices.g6_t">Bilan énergétique</span>
                       <span class="small text-secondary" data-i18n="devices.g6_d">Energy flows</span>
                     </button>
                     <button
@@ -842,7 +815,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                       data-doc-carousel="#devicesGalleryCarousel"
                       data-doc-slide-to="6"
                     >
-                      <span class="fw-semibold d-block" data-i18n="devices.g7_t">CoÃ»ts</span>
+                      <span class="fw-semibold d-block" data-i18n="devices.g7_t">Coûts</span>
                       <span class="small text-secondary" data-i18n="devices.g7_d">Cost entities</span>
                     </button>
                     <button
@@ -867,20 +840,79 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                 >
                   <div class="carousel-inner">
                     <div class="carousel-item active">
-                      <div class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary">
-                        <img
-                          src="img/device-ui-01-offre.png"
-                          alt=""
-                          class="doc-carousel-img doc-zoomable"
-                          decoding="async"
-                          data-i18n-alt="devices.g1_alt"
-                        />
+                      <div
+                        class="doc-screenshot-frame doc-screenshot-frame--carousel doc-screenshot-frame--device-mock position-relative"
+                      >
                         <div
-                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                          class="doc-ha-mock"
+                          role="region"
+                          data-i18n-aria="devices.g1_alt"
+                          aria-label=""
                         >
-                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
-                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
-                          <code class="font-mono small mt-1">public/img/device-ui-01-offre.png</code>
+                          <div class="doc-ha-mock-bc">
+                            <span data-i18n="devices.mock.ha_brand">Hub Énergie</span>
+                            <span class="doc-ha-mock-bc-sep" aria-hidden="true">·</span>
+                            <span data-i18n="devices.g1_t">Offre</span>
+                          </div>
+                          <p class="doc-ha-mock-note" data-i18n="devices.mock.note_offre">
+                            EDF TEMPO example — colour / quota sensors are absent on BASE / HPHC.
+                          </p>
+                          <div class="doc-ha-card">
+                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_sensors">Sensors</div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-eye doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_current_slot">Current slot</span>
+                              <span class="doc-ha-val font-monospace">bleu_hp</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-circle-half doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_tempo_hc">Tempo off-peak</span>
+                              <span class="doc-ha-val" data-i18n="devices.mock.val_off">Off</span>
+                            </div>
+                          </div>
+                          <div class="doc-ha-card">
+                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_diagnostic">Diagnostics</div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-eye doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_today_color">Today colour</span>
+                              <span class="doc-ha-val" data-i18n="devices.mock.val_color_blue">blue</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-eye doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_tomorrow_color">Tomorrow colour</span>
+                              <span class="doc-ha-val" data-i18n="devices.mock.val_color_blue">blue</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-calendar3 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_days_white_left">White days left</span>
+                              <span class="doc-ha-val">5 d</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-calendar3 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_days_blue_left">Blue days left</span>
+                              <span class="doc-ha-val">141 d</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-calendar3 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_days_red_left">Red days left</span>
+                              <span class="doc-ha-val">0 d</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-clock-history doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_next_colour">Next colour change</span>
+                              <span class="doc-ha-val" data-i18n="devices.mock.val_in_16h">In 16 hours</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-moon-stars doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_next_hc">Next off-peak start</span>
+                              <span class="doc-ha-val" data-i18n="devices.mock.val_in_8h">In 8 hours</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-broadcast doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_tempo_source">Tempo source</span>
+                              <span class="doc-ha-val font-monospace">rte</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div class="border-top bg-body p-3">
@@ -889,42 +921,129 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                       </div>
                     </div>
                     <div class="carousel-item">
-                      <div class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary">
-                        <img
-                          src="img/device-ui-02-reseau.png"
-                          alt=""
-                          class="doc-carousel-img doc-zoomable"
-                          decoding="async"
-                          data-i18n-alt="devices.g2_alt"
-                        />
+                      <div
+                        class="doc-screenshot-frame doc-screenshot-frame--carousel doc-screenshot-frame--device-mock position-relative"
+                      >
                         <div
-                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                          class="doc-ha-mock"
+                          role="region"
+                          data-i18n-aria="devices.g2_alt"
+                          aria-label=""
                         >
-                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
-                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
-                          <code class="font-mono small mt-1">public/img/device-ui-02-reseau.png</code>
+                          <div class="doc-ha-mock-bc">
+                            <span data-i18n="devices.mock.ha_brand">Hub Énergie</span>
+                            <span class="doc-ha-mock-bc-sep" aria-hidden="true">·</span>
+                            <span data-i18n="devices.g2_t">Réseau</span>
+                          </div>
+                          <p class="doc-ha-mock-note" data-i18n="devices.mock.note_grid">
+                            Plus one kWh sensor per visible tariff slot (offer-dependent).
+                          </p>
+                          <div class="doc-ha-card">
+                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_sensors">Sensors</div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_grid_total">Grid energy (total)</span>
+                              <span class="doc-ha-val">12 482 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-sun doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_grid_today">Grid energy (today)</span>
+                              <span class="doc-ha-val">14.2 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_grid_origin">Grid energy (origin)</span>
+                              <span class="doc-ha-val">12 468 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_grid_import_p">Grid import power</span>
+                              <span class="doc-ha-val">3 210 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_grid_to_home_p">Grid to home power</span>
+                              <span class="doc-ha-val">1 050 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_usage_grid_home">Grid → home</span>
+                              <span class="doc-ha-val">11.2 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_usage_grid_batt">Grid → battery</span>
+                              <span class="doc-ha-val">2.1 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-question-circle doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_grid_unknown_slot">Grid — unknown slot (today)</span>
+                              <span class="doc-ha-val">0 kWh</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div class="border-top bg-body p-3">
-                        <div class="fw-semibold" data-i18n="devices.g2_t">RÃ©seau</div>
+                        <div class="fw-semibold" data-i18n="devices.g2_t">Réseau</div>
                         <div class="small text-secondary" data-i18n="devices.g2_d">Grid sensors</div>
                       </div>
                     </div>
                     <div class="carousel-item">
-                      <div class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary">
-                        <img
-                          src="img/device-ui-03-solaire.png"
-                          alt=""
-                          class="doc-carousel-img doc-zoomable"
-                          decoding="async"
-                          data-i18n-alt="devices.g3_alt"
-                        />
+                      <div
+                        class="doc-screenshot-frame doc-screenshot-frame--carousel doc-screenshot-frame--device-mock position-relative"
+                      >
                         <div
-                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                          class="doc-ha-mock"
+                          role="region"
+                          data-i18n-aria="devices.g3_alt"
+                          aria-label=""
                         >
-                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
-                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
-                          <code class="font-mono small mt-1">public/img/device-ui-03-solaire.png</code>
+                          <div class="doc-ha-mock-bc">
+                            <span data-i18n="devices.mock.ha_brand">Hub Énergie</span>
+                            <span class="doc-ha-mock-bc-sep" aria-hidden="true">·</span>
+                            <span data-i18n="devices.g3_t">Solaire</span>
+                          </div>
+                          <p class="doc-ha-mock-note" data-i18n="devices.mock.note_solar">
+                            Estimation &amp; resale sensors appear only when enabled in config.
+                          </p>
+                          <div class="doc-ha-card">
+                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_sensors">Sensors</div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-sun doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_prod_p">Solar production power</span>
+                              <span class="doc-ha-val">0 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_total">Solar energy (total)</span>
+                              <span class="doc-ha-val">6 120 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_today">Solar energy (today)</span>
+                              <span class="doc-ha-val">0 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_origin">Solar energy (origin)</span>
+                              <span class="doc-ha-val">6 118 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_home">Solar → home</span>
+                              <span class="doc-ha-val">0 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_batt">Solar → battery</span>
+                              <span class="doc-ha-val">0 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_export_p">Solar export power</span>
+                              <span class="doc-ha-val">0 W</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div class="border-top bg-body p-3">
@@ -933,20 +1052,56 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                       </div>
                     </div>
                     <div class="carousel-item">
-                      <div class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary">
-                        <img
-                          src="img/device-ui-04-batterie.png"
-                          alt=""
-                          class="doc-carousel-img doc-zoomable"
-                          decoding="async"
-                          data-i18n-alt="devices.g4_alt"
-                        />
+                      <div
+                        class="doc-screenshot-frame doc-screenshot-frame--carousel doc-screenshot-frame--device-mock position-relative"
+                      >
                         <div
-                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                          class="doc-ha-mock"
+                          role="region"
+                          data-i18n-aria="devices.g4_alt"
+                          aria-label=""
                         >
-                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
-                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
-                          <code class="font-mono small mt-1">public/img/device-ui-04-batterie.png</code>
+                          <div class="doc-ha-mock-bc">
+                            <span data-i18n="devices.mock.ha_brand">Hub Énergie</span>
+                            <span class="doc-ha-mock-bc-sep" aria-hidden="true">·</span>
+                            <span data-i18n="devices.mock.batt_example_name">Garage pack</span>
+                          </div>
+                          <p class="doc-ha-mock-note" data-i18n="devices.mock.note_batt">
+                            One device per configured battery; labels use your chosen name.
+                          </p>
+                          <div class="doc-ha-card">
+                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_sensors">Sensors</div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-battery-charging doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_charge_e">Charge energy</span>
+                              <span class="doc-ha-val">1 240 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-battery-half doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_discharge_e">Discharge energy</span>
+                              <span class="doc-ha-val">1 180 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_pnet">Net power</span>
+                              <span class="doc-ha-val">−200 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-percent doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_soc">State of charge</span>
+                              <span class="doc-ha-val">72 %</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-battery doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_stored">Stored energy</span>
+                              <span class="doc-ha-val">7.2 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-battery doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_avail">Available energy</span>
+                              <span class="doc-ha-val">5.1 kWh</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div class="border-top bg-body p-3">
@@ -955,20 +1110,43 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                       </div>
                     </div>
                     <div class="carousel-item">
-                      <div class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary">
-                        <img
-                          src="img/device-ui-05-batteries-total.png"
-                          alt=""
-                          class="doc-carousel-img doc-zoomable"
-                          decoding="async"
-                          data-i18n-alt="devices.g5_alt"
-                        />
+                      <div
+                        class="doc-screenshot-frame doc-screenshot-frame--carousel doc-screenshot-frame--device-mock position-relative"
+                      >
                         <div
-                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                          class="doc-ha-mock"
+                          role="region"
+                          data-i18n-aria="devices.g5_alt"
+                          aria-label=""
                         >
-                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
-                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
-                          <code class="font-mono small mt-1">public/img/device-ui-05-batteries-total.png</code>
+                          <div class="doc-ha-mock-bc">
+                            <span data-i18n="devices.mock.ha_brand">Hub Énergie</span>
+                            <span class="doc-ha-mock-bc-sep" aria-hidden="true">·</span>
+                            <span data-i18n="devices.g5_t">Batteries (total)</span>
+                          </div>
+                          <div class="doc-ha-card">
+                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_sensors">Sensors</div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-battery-charging doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_sum_charge">Total charge energy</span>
+                              <span class="doc-ha-val">1 240 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-battery-half doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_sum_discharge">Total discharge energy</span>
+                              <span class="doc-ha-val">1 180 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_sum_pnet">Total net power</span>
+                              <span class="doc-ha-val">−200 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_home">Battery → home</span>
+                              <span class="doc-ha-val">3.4 kWh</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div class="border-top bg-body p-3">
@@ -977,64 +1155,152 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                       </div>
                     </div>
                     <div class="carousel-item">
-                      <div class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary">
-                        <img
-                          src="img/device-ui-06-bilan.png"
-                          alt=""
-                          class="doc-carousel-img doc-zoomable"
-                          decoding="async"
-                          data-i18n-alt="devices.g6_alt"
-                        />
+                      <div
+                        class="doc-screenshot-frame doc-screenshot-frame--carousel doc-screenshot-frame--device-mock position-relative"
+                      >
                         <div
-                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                          class="doc-ha-mock"
+                          role="region"
+                          data-i18n-aria="devices.g6_alt"
+                          aria-label=""
                         >
-                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
-                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
-                          <code class="font-mono small mt-1">public/img/device-ui-06-bilan.png</code>
+                          <div class="doc-ha-mock-bc">
+                            <span data-i18n="devices.mock.ha_brand">Hub Énergie</span>
+                            <span class="doc-ha-mock-bc-sep" aria-hidden="true">·</span>
+                            <span data-i18n="devices.g6_t">Bilan énergétique</span>
+                          </div>
+                          <p class="doc-ha-mock-note" data-i18n="devices.mock.note_bilan">
+                            “Maison …” kWh exists for each visible slot; house power lives here too.
+                          </p>
+                          <div class="doc-ha-card">
+                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_sensors">Sensors</div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-house doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_home_today">Home energy (today)</span>
+                              <span class="doc-ha-val">18.4 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_home_power">Home power</span>
+                              <span class="doc-ha-val">2 100 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_maison_hp">Home — peak (example)</span>
+                              <span class="doc-ha-val">10.1 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_maison_hc">Home — off-peak (example)</span>
+                              <span class="doc-ha-val">8.3 kWh</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div class="border-top bg-body p-3">
-                        <div class="fw-semibold" data-i18n="devices.g6_t">Bilan Ã©nergÃ©tique</div>
+                        <div class="fw-semibold" data-i18n="devices.g6_t">Bilan énergétique</div>
                         <div class="small text-secondary" data-i18n="devices.g6_d">Energy flows</div>
                       </div>
                     </div>
                     <div class="carousel-item">
-                      <div class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary">
-                        <img
-                          src="img/device-ui-07-couts.png"
-                          alt=""
-                          class="doc-carousel-img doc-zoomable"
-                          decoding="async"
-                          data-i18n-alt="devices.g7_alt"
-                        />
+                      <div
+                        class="doc-screenshot-frame doc-screenshot-frame--carousel doc-screenshot-frame--device-mock position-relative"
+                      >
                         <div
-                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                          class="doc-ha-mock"
+                          role="region"
+                          data-i18n-aria="devices.g7_alt"
+                          aria-label=""
                         >
-                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
-                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
-                          <code class="font-mono small mt-1">public/img/device-ui-07-couts.png</code>
+                          <div class="doc-ha-mock-bc">
+                            <span data-i18n="devices.mock.ha_brand">Hub Énergie</span>
+                            <span class="doc-ha-mock-bc-sep" aria-hidden="true">·</span>
+                            <span data-i18n="devices.g7_t">Coûts</span>
+                          </div>
+                          <div class="doc-ha-card">
+                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_sensors">Sensors</div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-currency-euro doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_cost_day">Cost of the day</span>
+                              <span class="doc-ha-val">4.26 €</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-piggy-bank doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_savings_solar">Solar savings</span>
+                              <span class="doc-ha-val">0.85 €</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-piggy-bank doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_savings_batt">Battery savings</span>
+                              <span class="doc-ha-val">1.12 €</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div class="border-top bg-body p-3">
-                        <div class="fw-semibold" data-i18n="devices.g7_t">CoÃ»ts</div>
+                        <div class="fw-semibold" data-i18n="devices.g7_t">Coûts</div>
                         <div class="small text-secondary" data-i18n="devices.g7_d">Cost entities</div>
                       </div>
                     </div>
                     <div class="carousel-item">
-                      <div class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary">
-                        <img
-                          src="img/device-ui-08-diagnostics.png"
-                          alt=""
-                          class="doc-carousel-img doc-zoomable"
-                          decoding="async"
-                          data-i18n-alt="devices.g8_alt"
-                        />
+                      <div
+                        class="doc-screenshot-frame doc-screenshot-frame--carousel doc-screenshot-frame--device-mock position-relative"
+                      >
                         <div
-                          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                          class="doc-ha-mock"
+                          role="region"
+                          data-i18n-aria="devices.g8_alt"
+                          aria-label=""
                         >
-                          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
-                          <span data-i18n="common.img_placeholder">Add screenshot to</span>
-                          <code class="font-mono small mt-1">public/img/device-ui-08-diagnostics.png</code>
+                          <div class="doc-ha-mock-bc">
+                            <span data-i18n="devices.mock.ha_brand">Hub Énergie</span>
+                            <span class="doc-ha-mock-bc-sep" aria-hidden="true">·</span>
+                            <span data-i18n="devices.g8_t">Diagnostics</span>
+                          </div>
+                          <p class="doc-ha-mock-note" data-i18n="devices.mock.note_diag">
+                            Several export-split sensors are grouped on Solar or Batteries when clearer.
+                          </p>
+                          <div class="doc-ha-card">
+                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_sensors">Sensors</div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-heart-pulse doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_health">Overall health</span>
+                              <span class="doc-ha-val" data-i18n="devices.mock.val_health_ok">OK</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-activity doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_reinj_cause">Reinjection cause</span>
+                              <span class="doc-ha-val font-monospace">—</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-shield-check doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_reinj_conf">Reinjection confidence</span>
+                              <span class="doc-ha-val">94 %</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_export_p">Export power</span>
+                              <span class="doc-ha-val">0 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-info-circle doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_config_overview">Configuration overview</span>
+                              <span class="doc-ha-val font-monospace">tempo</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-hourglass-split doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_since_update">Since last meter update</span>
+                              <span class="doc-ha-val">42 s</span>
+                            </div>
+                          </div>
+                          <div class="doc-ha-card">
+                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_diagnostic">Diagnostics</div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-wifi doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_connectivity">Connectivity</span>
+                              <span class="doc-ha-val" data-i18n="devices.mock.val_on">Connected</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div class="border-top bg-body p-3">

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-08T21:07:44.068376+00:00",
+  "generated_at": "2026-04-08T21:25:22.454741+00:00",
   "source_files": {
     "strings_en": "custom_components/hub_energie/strings.json",
     "strings_fr": "custom_components/hub_energie/translations/fr.json"
@@ -2267,12 +2267,12 @@
               {
                 "key": "tri_import_energy_p1",
                 "label": "Grid import energy (kWh)",
-                "description": ""
+                "description": "Total increasing kWh counter for grid import on phase L1."
               },
               {
                 "key": "tri_export_energy_p1",
                 "label": "Grid export energy (kWh, optional)",
-                "description": ""
+                "description": "Optional export counter for L1; leave empty if unused."
               },
               {
                 "key": "tri_grid_power_p1",
@@ -2288,12 +2288,12 @@
               {
                 "key": "tri_import_energy_p2",
                 "label": "Grid import energy (kWh)",
-                "description": ""
+                "description": "Total increasing kWh counter for grid import on phase L2."
               },
               {
                 "key": "tri_export_energy_p2",
                 "label": "Grid export energy (kWh, optional)",
-                "description": ""
+                "description": "Optional export counter for L2; leave empty if unused."
               },
               {
                 "key": "tri_grid_power_p2",
@@ -2309,12 +2309,12 @@
               {
                 "key": "tri_import_energy_p3",
                 "label": "Grid import energy (kWh)",
-                "description": ""
+                "description": "Total increasing kWh counter for grid import on phase L3."
               },
               {
                 "key": "tri_export_energy_p3",
                 "label": "Grid export energy (kWh, optional)",
-                "description": ""
+                "description": "Optional export counter for L3; leave empty if unused."
               },
               {
                 "key": "tri_grid_power_p3",
@@ -2358,12 +2358,12 @@
               {
                 "key": "tri_import_energy_p1",
                 "label": "Import réseau (kWh)",
-                "description": ""
+                "description": "Compteur kWh total_increasing d’import réseau sur la phase L1."
               },
               {
                 "key": "tri_export_energy_p1",
                 "label": "Export réseau (kWh, optionnel)",
-                "description": ""
+                "description": "Compteur d’export L1 optionnel ; vide si inutilisé."
               },
               {
                 "key": "tri_grid_power_p1",
@@ -2379,12 +2379,12 @@
               {
                 "key": "tri_import_energy_p2",
                 "label": "Import réseau (kWh)",
-                "description": ""
+                "description": "Compteur kWh total_increasing d’import réseau sur la phase L2."
               },
               {
                 "key": "tri_export_energy_p2",
                 "label": "Export réseau (kWh, optionnel)",
-                "description": ""
+                "description": "Compteur d’export L2 optionnel ; vide si inutilisé."
               },
               {
                 "key": "tri_grid_power_p2",
@@ -2400,12 +2400,12 @@
               {
                 "key": "tri_import_energy_p3",
                 "label": "Import réseau (kWh)",
-                "description": ""
+                "description": "Compteur kWh total_increasing d’import réseau sur la phase L3."
               },
               {
                 "key": "tri_export_energy_p3",
                 "label": "Export réseau (kWh, optionnel)",
-                "description": ""
+                "description": "Compteur d’export L3 optionnel ; vide si inutilisé."
               },
               {
                 "key": "tri_grid_power_p3",

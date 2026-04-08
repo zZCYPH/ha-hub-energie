@@ -14,7 +14,7 @@
     en: {
       "meta.title": "Hub Énergie — Documentation",
       "meta.description":
-        "Hub Énergie — a Home Assistant custom integration for energy monitoring, cost tracking, and diagnostics.",
+        "Quick tour of Hub Énergie for Home Assistant: install, configure, sensors, Lovelace card, and devices — with links to deeper technical notes.",
       "meta.title.landing": "Hub Énergie — Home energy, centralized",
       "meta.description.landing":
         "Hub Énergie — a single Home Assistant integration for tariffs, energy, costs, solar, batteries, and diagnostics.",
@@ -151,11 +151,13 @@
       "lang.fr": "FR",
 
       "toc.on_this_page": "On this page",
-      "toc.overview": "Overview",
+      "toc.overview": "Quick tour",
       "toc.ssot": "Data & SSOT",
       "toc.install": "Install",
       "toc.lovelace": "Lovelace card",
-      "toc.configure": "Configure in HA",
+      "toc.configure": "Configuration",
+      "toc.configure_advanced": "Advanced configuration",
+      "toc.sensors": "Sensors & entities",
       "toc.configure_flow_simulator": "Flow preview (generated)",
       "toc.configure_paths": "Screenshot paths",
       "toc.configure_delta_caps": "Energy delta caps",
@@ -228,9 +230,9 @@
       "glance.snapshot": "Doc snapshot <span class=\"badge bg-primary badge-doc\">v{{HUB_ENERGIE_VERSION}}</span>",
       "glance.issues": "Issues & feedback",
 
-      "overview.title": "Overview",
+      "overview.title": "Quick tour",
       "overview.intro":
-        "This page complements the README. Follow the steps below in order for a first-time setup.",
+        "This page is a short walkthrough: what the integration does, how to install and configure it, where sensors and entities live, how the Lovelace card is loaded, and how devices are organised. For slot accounting, the Store file, and long-term statistics, open Implementation details.",
 
       "scope.stable_heading": "Intended stable scope (v{{HUB_ENERGIE_VERSION_SERIES}}.x)",
       "scope.stable_li1_html":
@@ -298,13 +300,14 @@
       "install.git.s1_title": "Clone into the right folder",
       "install.git.s2_title": "Restart & add the integration",
       "install.git.s2_p_html":
-        "Perform a full restart of Home Assistant, then <a href=\"#configure\">Configure in HA</a> (Settings → Devices &amp; services → Add integration).",
+        "Perform a full restart of Home Assistant, then add the integration under <strong class=\"text-body\">Settings → Devices &amp; services → Add integration</strong> (see <a href=\"#configure\">Configuration</a>).",
 
       "install.copy.s1_title": "Copy the full tree",
       "install.copy.s1_html":
         "From this repository, copy only the <code class=\"font-mono\">custom_components/hub_energie/</code> tree into your Home Assistant <code class=\"font-mono\">config/custom_components/hub_energie/</code> — all subfolders (<code class=\"font-mono\">battery/</code>, <code class=\"font-mono\">energy/</code>, <code class=\"font-mono\">frontend/</code>, etc.). Do not copy the repo root (<code class=\"font-mono\">site/</code>, <code class=\"font-mono\">tests/</code>, …) into HA.",
       "install.copy.s2_title": "Restart & add the integration",
-      "install.copy.s2_p_html": "Full restart, then <a href=\"#configure\">Configure in HA</a>.",
+      "install.copy.s2_p_html":
+        "Full restart, then add the integration under <strong class=\"text-body\">Settings → Devices &amp; services → Add integration</strong> (see <a href=\"#configure\">Configuration</a>).",
 
       "install.lovelace_title": "If you use the Lovelace card",
       "install.lovelace_body_html":
@@ -339,9 +342,14 @@
       "lovelace.editor_fig_cap_html":
         "<strong class=\"text-body\">Configuration</strong> tab with section toggles and live card preview. Extra captures (e.g. <strong class=\"text-body\">Visibilité</strong> / <strong class=\"text-body\">Mise en page</strong>) can be added later as <code class=\"font-mono\">lovelace-editor-02.png</code> if you want a second slide.",
 
-      "configure.title": "Configure in Home Assistant",
+      "configure.title": "Configuration",
       "configure.flow_lead_html":
         "After a <strong class=\"text-body\">full restart</strong>, add the integration under <strong class=\"text-body\">Settings → Devices &amp; services → Add integration</strong>. The flow is <strong class=\"text-body\">not linear</strong>: screens depend on supplier, automatic vs manual tariffs, EDF offer (BASE / HPHC / TEMPO), Tempo data source, single- vs three-phase grid wiring, solar, and batteries.",
+      "configure.after_install_html":
+        "Once the integration is added, open <strong class=\"text-body\">Settings → Devices &amp; services → Hub Énergie → Configure</strong> whenever you need to change your setup. The <strong class=\"text-body\">Batteries</strong> step lets you add, rename, or <strong class=\"text-body\">remove</strong> storage systems; other menu items take you back to grid sensors, tariff options, solar, and advanced tuning.",
+      "configure.advanced_h": "Advanced configuration",
+      "configure.advanced_intro_html":
+        "You can change options at any time: open <strong class=\"text-body\">Settings → Devices &amp; services → Hub Énergie</strong> and use the <strong class=\"text-body\">Configure</strong> button. The first-time wizard and the Configure menu expose the same steps; values such as energy delta caps are tuned from Configure after setup (see below).",
 
       "configure.flow_step_help_html":
         "<strong class=\"text-body\">Deep links from Home Assistant:</strong> each dialog can link to a short explainer on a <strong class=\"text-body\">separate page</strong> so the main documentation stays light for casual readers. Open <a href=\"#/doc/setup-help\">Setup &amp; options — step help</a> (anchors such as <code class=\"font-mono\">#/doc/setup-help#flow-step-grid</code> or <code class=\"font-mono\">#flow-step-options-advanced_energy</code>).",
@@ -358,13 +366,19 @@
       "flowhelp.setup_heading": "Initial setup wizard",
       "flowhelp.options_heading": "Settings → Hub Énergie → Configure",
       "flowhelp.footer_html":
-        "Full branch graph and <code class=\"font-mono\">step_id</code> table: <code class=\"font-mono\">custom_components/hub_energie/docs/config-flow.md</code> in GitLab. Main guided doc (screenshots): <a href=\"#/doc#configure\">Configure in HA</a> on this site.",
+        "Full branch graph and <code class=\"font-mono\">step_id</code> table: <code class=\"font-mono\">custom_components/hub_energie/docs/config-flow.md</code> in GitLab. Main guided doc: <a href=\"#/doc#configure\">Configuration</a> on this site.",
+      "flowhelp.fieldguide_heading": "Fields on this screen",
+      "flowhelp.fieldguide_menu_heading": "Menu actions",
+      "flowhelp.fieldguide_no_hint":
+        "No extra description in translations (see the label). Required vs optional follows Home Assistant defaults for this step.",
+      "flowhelp.fieldguide_col_field": "Field",
+      "flowhelp.fieldguide_col_description": "Description",
 
       "configure.flow_map_title": "How the config flow branches",
       "configure.flow_map_html":
         "<ul class=\"mb-0 ps-3\"><li><strong class=\"text-body\">Start</strong> · <em>user</em> — supplier (EDF or other) and phase type on the same form.</li><li><strong class=\"text-body\">Other supplier</strong> · <em>supplier_custom</em> (name) → tariff mode is forced to <strong class=\"text-body\">manual</strong> → <em>contract</em> → manual pricing wizard (flat / time-of-use / schedule) → <strong class=\"text-body\">grid → solar → batteries → finish</strong>.</li><li><strong class=\"text-body\">EDF + automatic tariffs</strong> · <em>tariff_mode</em> (provider API vs manual) → <em>contract</em> (kVA, optional name) → <em>edf_offer</em> (BASE, HPHC, or TEMPO). If <strong class=\"text-body\">TEMPO</strong>: <em>edf_tempo</em> choose <strong class=\"text-body\">RTE</strong> (OAuth API) or <strong class=\"text-body\">API Couleur Tempo</strong> (no credentials). RTE adds <em>edf_tempo_rte</em> (client id + secret, validated against the API). Then EDF prices are fetched and you continue to <strong class=\"text-body\">grid → solar → batteries → finish</strong>.</li><li><strong class=\"text-body\">EDF + manual tariffs</strong> · skips EDF offer/Tempo; after <em>contract</em> you enter the same manual pricing branch as “other supplier”.</li><li><strong class=\"text-body\">After pricing is resolved</strong> · <em>grid</em> picks import (and optional export / power); <strong class=\"text-body\">three-phase</strong> adds sub-steps (per-phase vs combined sensors). Then <em>solar</em> (optional production / resale / estimation), then <em>battery</em> wizard (0..N systems), then create entry.</li></ul>",
 
-      "configure.delta_caps_h": "Energy delta caps (advanced)",
+      "configure.delta_caps_h": "Energy delta caps",
       "configure.delta_caps_intro_html":
         "Hub Énergie moves your <code class=\"font-mono\">total_increasing</code> kWh meters in <strong class=\"text-body\">steps</strong>. On each coordinator cycle it compares the current reading to the last one it stored: the <strong class=\"text-body\">positive difference</strong> is a candidate delta. If that delta is <strong class=\"text-body\">within the cap</strong> for its source class (grid, solar, battery, or other), those kWh are booked into internal totals and the current tariff slot. If it is <strong class=\"text-body\">above the cap</strong>, the integration flags the jump as <strong class=\"text-body\">unrealistic</strong>: those kWh are <strong class=\"text-body\">not</strong> added to internal SSOT, but the stored “last raw” value still advances to the new meter reading so future deltas are computed from a sane baseline. Physical meters and Recorder history remain the reference for raw totals; these caps protect internal slot/cost accounting from spikes and from accidental huge catch-up after downtime.",
       "configure.delta_caps_defaults_h": "Default ceilings (kWh per update)",
@@ -374,11 +388,18 @@
       "configure.delta_caps_cases_html":
         "<ul class=\"mb-0 ps-3\"><li class=\"mb-2\"><strong class=\"text-body\">Short outage.</strong> Home Assistant was off for one night; the grid import meter increased by 12 kWh before the next poll. With the default 300 kWh grid cap, the full 12 kWh is applied once, attributed to the <em>current</em> Paris day and tariff slot (the integration does not reconstruct hour-by-hour consumption across the gap).</li><li class=\"mb-2\"><strong class=\"text-body\">Very long outage or heavy catch-up.</strong> The same meter is 400 kWh higher when HA returns. A single delta of 400 exceeds the default 300 kWh grid cap: internal SSOT <strong class=\"text-body\">skips</strong> that chunk; logs / discard telemetry explain why. If your site often sees big jumps, raise the grid cap (for example 800–1500 kWh) or ensure HA stays up so deltas stay smaller.</li><li class=\"mb-2\"><strong class=\"text-body\">PV inverter over-reporting for one tick.</strong> The solar kWh entity jumps by 30 kWh while actual production was tiny. A tighter solar cap (e.g. 40 kWh) caps how much of that spike can enter internal totals in one go; choose a value above the realistic maximum you expect <em>between two hub polls</em> under sunny conditions.</li><li class=\"mb-0\"><strong class=\"text-body\">Large batteries or off-grid.</strong> Domestic lithium systems often move only a few kWh between updates; 80 kWh is already generous. A large stack cycling tens of kWh every few minutes might need a higher battery cap so legitimate fast ramps are not discarded.</li></ul>",
       "configure.delta_caps_ha_html":
-        "These fields are optional post-install tuning: they are <strong class=\"text-body\">not</strong> shown in the first-time wizard, only in <strong class=\"text-body\">Configure</strong>. The dialog description links back to this site for the longer explanation.",
+        "These fields are optional post-install tuning: they are <strong class=\"text-body\">not</strong> shown in the first-time wizard, only under <strong class=\"text-body\">Configure → Advanced: energy delta caps</strong>. The dialog description links back to this site for the longer explanation.",
 
       "configure.flow_simulator_h": "Interactive flow preview",
       "configure.flow_simulator_intro_html":
         "This panel is generated from <code class=\"font-mono\">config_flow.py</code> and <code class=\"font-mono\">strings.json</code> so titles, descriptions, and option labels track the integration. Navigation branches from your inputs (supplier, tariff mode, offer, three-phase path, solar/battery toggles, …) like the real wizard. It is still <strong class=\"text-body\">not</strong> Home Assistant: no real entity validation, no network fetches — approximations are intentional. After changing the wizard, run <code class=\"font-mono\">python scripts/extract_config_flow_catalog.py</code> and commit <code class=\"font-mono\">site/src/data/flowCatalog.generated.json</code>. CI fails if that file is stale.",
+
+      "sensors.title": "Sensors & entities",
+      "sensors.intro_html":
+        "Entities are grouped under Home Assistant <strong class=\"text-body\">devices</strong> (tariff, grid, solar, per-battery, energy balance, costs, diagnostics). You get <code class=\"font-mono\">total_increasing</code> kWh sensors for integration totals, power sensors where configured, monetary sensors on the costs device, and diagnostic entities (health, data quality, Tempo hints when applicable).",
+      "sensors.more_html":
+        "The <a href=\"#devices\">Devices</a> section lists each device’s role; the interactive gallery shows typical sensor names. Field-level help for each config step lives on <a href=\"#/doc/setup-help\">Setup &amp; options — step help</a>. For how internal totals relate to your physical meters and statistics, see <a href=\"#/internals\">Implementation details</a>.",
+
       "configure.paths_h": "Guided screenshot paths",
       "configure.flow_paths_intro_html":
         "Pick the tab that matches your setup. Each tab is a <strong class=\"text-body\">real Home Assistant dialog sequence</strong> (screenshots only — not a simulator). For <code class=\"font-mono\">step_id</code> names and the full branch map, see <code class=\"font-mono\">custom_components/hub_energie/docs/config-flow.md</code> in the repository.",
@@ -466,12 +487,13 @@
       "devices.p_bilan": "Computed energy flows (kWh)",
       "devices.p_couts": "Monetary values (€)",
       "devices.p_diag": "Health, grid-export diagnostics",
+      "devices.table_row_batt": "Battery <name>",
 
       "devices.gallery_title": "Devices in the UI",
       "devices.gallery_intro_html":
         "Each integration device groups related entities. Below, one slide per device so readers can see how the structure looks in <strong class=\"text-body\">Settings → Devices &amp; services</strong>.",
       "devices.gallery_multishot_html":
-        "For device pages with many entities, you can add extra PNGs later (e.g. <code class=\"font-mono\">device-ui-02-reseau-2.png</code>) — the doc can grow into a nested carousel when those assets exist.",
+        "The panels use a compact HTML layout (not screenshots). Sample values are illustrative; real entities depend on supplier, EDF offer (BASE / HPHC / TEMPO), solar, batteries, and visible tariff slots.",
       "devices.tree_label": "Device",
       "devices.g1_t": "Offre",
       "devices.g1_d": "Tariff, supplier, contract",
@@ -497,6 +519,75 @@
       "devices.g6_alt": "Hub Énergie device — Bilan énergétique",
       "devices.g7_alt": "Hub Énergie device — Coûts",
       "devices.g8_alt": "Hub Énergie device — Diagnostics",
+
+      "devices.mock.ha_brand": "Hub Énergie",
+      "devices.mock.note_offre":
+        "Example: EDF with TEMPO — colour / quota / next-change sensors are not created on BASE or HPHC.",
+      "devices.mock.note_grid": "Plus one kWh sensor per visible tariff slot (depends on offer).",
+      "devices.mock.note_solar": "Clear-sky estimation and solar resale sensors only appear when enabled in configuration.",
+      "devices.mock.note_batt": "One device per battery you configure; titles use the name you entered.",
+      "devices.mock.note_bilan":
+        "A “home … kWh” sensor exists for each visible slot; instantaneous home power is listed here too.",
+      "devices.mock.note_diag":
+        "Some export-split sensors are attached to Solar or All batteries when that is clearer than Diagnostics.",
+      "devices.mock.ha_sensors": "Sensors",
+      "devices.mock.ha_diagnostic": "Diagnostics",
+      "devices.mock.batt_example_name": "Garage pack",
+      "devices.mock.lbl_current_slot": "Current slot",
+      "devices.mock.lbl_tempo_hc": "Tempo off-peak hours",
+      "devices.mock.val_off": "Off",
+      "devices.mock.lbl_today_color": "Today colour",
+      "devices.mock.lbl_tomorrow_color": "Tomorrow colour",
+      "devices.mock.val_color_blue": "blue",
+      "devices.mock.lbl_days_white_left": "White days left",
+      "devices.mock.lbl_days_blue_left": "Blue days left",
+      "devices.mock.lbl_days_red_left": "Red days left",
+      "devices.mock.lbl_next_colour": "Next colour change",
+      "devices.mock.lbl_next_hc": "Next off-peak start",
+      "devices.mock.val_in_16h": "In 16 hours",
+      "devices.mock.val_in_8h": "In 8 hours",
+      "devices.mock.lbl_tempo_source": "Tempo source",
+      "devices.mock.lbl_grid_total": "Grid energy (total)",
+      "devices.mock.lbl_grid_today": "Grid energy (today)",
+      "devices.mock.lbl_grid_origin": "Grid energy (origin)",
+      "devices.mock.lbl_grid_import_p": "Grid import power",
+      "devices.mock.lbl_grid_to_home_p": "Grid to home power",
+      "devices.mock.lbl_usage_grid_home": "Grid → home",
+      "devices.mock.lbl_usage_grid_batt": "Grid → battery",
+      "devices.mock.lbl_grid_unknown_slot": "Grid — unknown tariff bucket (today)",
+      "devices.mock.lbl_solar_prod_p": "Solar production power",
+      "devices.mock.lbl_solar_total": "Solar energy (total)",
+      "devices.mock.lbl_solar_today": "Solar energy (today)",
+      "devices.mock.lbl_solar_origin": "Solar energy (origin)",
+      "devices.mock.lbl_solar_home": "Solar → home",
+      "devices.mock.lbl_solar_batt": "Solar → battery",
+      "devices.mock.lbl_solar_export_p": "Solar export power",
+      "devices.mock.lbl_batt_charge_e": "Charge energy",
+      "devices.mock.lbl_batt_discharge_e": "Discharge energy",
+      "devices.mock.lbl_batt_pnet": "Net power",
+      "devices.mock.lbl_batt_soc": "State of charge",
+      "devices.mock.lbl_batt_stored": "Stored energy",
+      "devices.mock.lbl_batt_avail": "Available energy",
+      "devices.mock.lbl_batt_sum_charge": "Total charge energy",
+      "devices.mock.lbl_batt_sum_discharge": "Total discharge energy",
+      "devices.mock.lbl_batt_sum_pnet": "Total net power",
+      "devices.mock.lbl_batt_home": "Battery → home",
+      "devices.mock.lbl_home_today": "Home energy (today)",
+      "devices.mock.lbl_home_power": "Home power",
+      "devices.mock.lbl_maison_hp": "Home — peak hours (example)",
+      "devices.mock.lbl_maison_hc": "Home — off-peak (example)",
+      "devices.mock.lbl_cost_day": "Cost of the day",
+      "devices.mock.lbl_savings_solar": "Solar savings",
+      "devices.mock.lbl_savings_batt": "Battery savings",
+      "devices.mock.lbl_health": "Overall health",
+      "devices.mock.val_health_ok": "OK",
+      "devices.mock.lbl_reinj_cause": "Reinjection cause",
+      "devices.mock.lbl_reinj_conf": "Reinjection confidence",
+      "devices.mock.lbl_export_p": "Export power",
+      "devices.mock.lbl_config_overview": "Configuration overview",
+      "devices.mock.lbl_since_update": "Since last meter update",
+      "devices.mock.lbl_connectivity": "Connectivity",
+      "devices.mock.val_on": "Connected",
 
       "services.title": "Services",
       "services.th_service": "Service",
@@ -544,7 +635,7 @@
     fr: {
       "meta.title": "Hub Énergie — Documentation",
       "meta.description":
-        "Hub Énergie — intégration personnalisée Home Assistant pour le suivi de l’énergie, des coûts et le diagnostic.",
+        "Parcours rapide Hub Énergie pour Home Assistant : installation, configuration, capteurs, carte Lovelace et appareils — avec liens vers les notes techniques.",
       "meta.title.landing": "Hub Énergie — L’énergie du foyer, centralisée",
       "meta.description.landing":
         "Hub Énergie — une seule intégration Home Assistant pour tarifs, énergie, coûts, solaire, batteries et diagnostics.",
@@ -681,14 +772,16 @@
       "lang.fr": "FR",
 
       "toc.on_this_page": "Sur cette page",
-      "toc.overview": "Vue d’ensemble",
+      "toc.overview": "Parcours rapide",
       "toc.ssot": "Données & SSOT",
       "toc.install": "Installation",
       "toc.lovelace": "Carte Lovelace",
-      "toc.configure": "Configurer dans HA",
+      "toc.configure": "Configuration",
+      "toc.configure_advanced": "Configuration avancée",
+      "toc.sensors": "Capteurs & entités",
       "toc.configure_flow_simulator": "Aperçu du flux (généré)",
       "toc.configure_paths": "Parcours captures",
-      "toc.configure_delta_caps": "Plafonds de delta",
+      "toc.configure_delta_caps": "Plafonds de delta énergétique",
       "toc.devices": "Appareils",
       "toc.devices_integration": "Liste sous l’intégration",
       "toc.services": "Services",
@@ -758,9 +851,9 @@
       "glance.snapshot": "Doc figée <span class=\"badge bg-primary badge-doc\">v{{HUB_ENERGIE_VERSION}}</span>",
       "glance.issues": "Tickets & retours",
 
-      "overview.title": "Vue d’ensemble",
+      "overview.title": "Parcours rapide",
       "overview.intro":
-        "Cette page prolonge le README. Pour une première installation, suivez les étapes ci-dessous dans l’ordre.",
+        "Cette page propose un tour d’horizon : rôle de l’intégration, installation et configuration, où se trouvent capteurs et entités, chargement de la carte Lovelace et organisation des appareils. Pour la ventilation par créneau, le fichier Store et les statistiques long terme, ouvrez Détails d’implémentation.",
 
       "scope.stable_heading": "Périmètre stable visé (v{{HUB_ENERGIE_VERSION_SERIES}}.x)",
       "scope.stable_li1_html":
@@ -831,13 +924,14 @@
       "install.git.s1_title": "Cloner au bon endroit",
       "install.git.s2_title": "Redémarrer & ajouter l’intégration",
       "install.git.s2_p_html":
-        "Effectuez un redémarrage <strong>complet</strong> de Home Assistant, puis <a href=\"#configure\">Configurer dans HA</a> (Réglages → Appareils et services → Ajouter une intégration).",
+        "Effectuez un redémarrage <strong>complet</strong> de Home Assistant, puis ajoutez l’intégration via <strong class=\"text-body\">Réglages → Appareils et services → Ajouter une intégration</strong> (voir <a href=\"#configure\">Configuration</a>).",
 
       "install.copy.s1_title": "Copier l’arborescence complète",
       "install.copy.s1_html":
         "Depuis ce dépôt, copiez uniquement l’arborescence <code class=\"font-mono\">custom_components/hub_energie/</code> vers le <code class=\"font-mono\">config/custom_components/hub_energie/</code> de Home Assistant — tous les sous-dossiers (<code class=\"font-mono\">battery/</code>, <code class=\"font-mono\">energy/</code>, <code class=\"font-mono\">frontend/</code>, etc.). Ne copiez pas la racine du dépôt (<code class=\"font-mono\">site/</code>, <code class=\"font-mono\">tests/</code>, …) dans HA.",
       "install.copy.s2_title": "Redémarrer & ajouter l’intégration",
-      "install.copy.s2_p_html": "Redémarrage complet, puis <a href=\"#configure\">Configurer dans HA</a>.",
+      "install.copy.s2_p_html":
+        "Redémarrage complet, puis ajoutez l’intégration via <strong class=\"text-body\">Réglages → Appareils et services → Ajouter une intégration</strong> (voir <a href=\"#configure\">Configuration</a>).",
 
       "install.lovelace_title": "Si vous utilisez la carte Lovelace",
       "install.lovelace_body_html":
@@ -872,9 +966,14 @@
       "lovelace.editor_fig_cap_html":
         "Onglet <strong class=\"text-body\">Configuration</strong> avec bascules de sections et aperçu live. D’autres captures (ex. <strong class=\"text-body\">Visibilité</strong> / <strong class=\"text-body\">Mise en page</strong>) pourront compléter sous <code class=\"font-mono\">lovelace-editor-02.png</code>.",
 
-      "configure.title": "Configurer dans Home Assistant",
+      "configure.title": "Configuration",
       "configure.flow_lead_html":
         "Après un <strong class=\"text-body\">redémarrage complet</strong>, ajoutez l’intégration via <strong class=\"text-body\">Réglages → Appareils et services → Ajouter une intégration</strong>. Le parcours n’est <strong class=\"text-body\">pas linéaire</strong> : les écrans dépendent du fournisseur, du mode auto ou manuel des tarifs, du type d’offre EDF (BASE / HPHC / TEMPO), de la source Tempo, du câblage réseau mono ou triphasé, du solaire et des batteries.",
+      "configure.after_install_html":
+        "Une fois l’intégration ajoutée, ouvrez <strong class=\"text-body\">Réglages → Appareils et services → Hub Énergie → Configurer</strong> pour faire évoluer l’installation à tout moment. L’entrée <strong class=\"text-body\">Batteries</strong> permet d’ajouter, renommer ou <strong class=\"text-body\">supprimer</strong> des systèmes de stockage ; les autres entrées du menu renvoient aux capteurs réseau, aux options tarifaires, au solaire et aux réglages avancés.",
+      "configure.advanced_h": "Configuration avancée",
+      "configure.advanced_intro_html":
+        "Vous pouvez modifier les options à tout moment : sous <strong class=\"text-body\">Réglages → Appareils et services → Hub Énergie</strong>, utilisez le bouton <strong class=\"text-body\">Configurer</strong>. L’assistant de première installation et le menu Configurer exposent les mêmes étapes ; des réglages comme les plafonds de delta énergétique se règlent après coup via Configurer (voir ci-dessous).",
       "configure.flow_step_help_html":
         "<strong class=\"text-body\">Liens profonds depuis Home Assistant :</strong> chaque boîte de dialogue peut renvoyer vers un <strong class=\"text-body\">complément court</strong> sur une page dédiée, pour ne pas alourdir la documentation principale si vous la parcourez seul. Ouvrir <a href=\"#/doc/setup-help\">Assistant &amp; options — aide par étape</a> (ex. <code class=\"font-mono\">#/doc/setup-help#flow-step-grid</code> ou <code class=\"font-mono\">#flow-step-options-advanced_energy</code>).",
 
@@ -890,13 +989,19 @@
       "flowhelp.setup_heading": "Assistant de première installation",
       "flowhelp.options_heading": "Réglages → Hub Énergie → Configurer",
       "flowhelp.footer_html":
-        "Graphe de branches et tableau des <code class=\"font-mono\">step_id</code> : <code class=\"font-mono\">custom_components/hub_energie/docs/config-flow.md</code> sur GitLab. Documentation guidée (captures) : <a href=\"#/doc#configure\">Configurer dans HA</a> sur ce site.",
+        "Graphe de branches et tableau des <code class=\"font-mono\">step_id</code> : <code class=\"font-mono\">custom_components/hub_energie/docs/config-flow.md</code> sur GitLab. Documentation guidée : <a href=\"#/doc#configure\">Configuration</a> sur ce site.",
+      "flowhelp.fieldguide_heading": "Champs de cet écran",
+      "flowhelp.fieldguide_menu_heading": "Actions du menu",
+      "flowhelp.fieldguide_no_hint":
+        "Pas de texte d’aide supplémentaire dans les traductions (voir le libellé). Obligatoire / optionnel selon les règles Home Assistant pour cette étape.",
+      "flowhelp.fieldguide_col_field": "Champ",
+      "flowhelp.fieldguide_col_description": "Description",
 
       "configure.flow_map_title": "Arborescence du flux de configuration",
       "configure.flow_map_html":
         "<ul class=\"mb-0 ps-3\"><li><strong class=\"text-body\">Départ</strong> · <em>user</em> — fournisseur (EDF ou autre) et type de phase sur le même formulaire.</li><li><strong class=\"text-body\">Autre fournisseur</strong> · <em>supplier_custom</em> (nom) → tarif forcé en <strong class=\"text-body\">manuel</strong> → <em>contract</em> → assistant prix manuel (prix unique / heures creuses / calendrier) → <strong class=\"text-body\">réseau → solaire → batteries → fin</strong>.</li><li><strong class=\"text-body\">EDF + tarifs automatiques</strong> · <em>tariff_mode</em> (API fournisseur ou manuel) → <em>contract</em> (kVA, nom optionnel) → <em>edf_offer</em> (BASE, HPHC ou TEMPO). Si <strong class=\"text-body\">TEMPO</strong> : <em>edf_tempo</em> — <strong class=\"text-body\">RTE</strong> (API OAuth) ou <strong class=\"text-body\">API Couleur Tempo</strong> (sans identifiants). RTE ajoute <em>edf_tempo_rte</em> (id + secret, validés). Puis récupération des tarifs EDF et enchaînement <strong class=\"text-body\">réseau → solaire → batteries → fin</strong>.</li><li><strong class=\"text-body\">EDF + tarifs manuels</strong> · pas d’écran offre/Tempo ; après <em>contract</em>, même branche prix manuel que « autre fournisseur ».</li><li><strong class=\"text-body\">Après résolution des prix</strong> · <em>grid</em> (import obligatoire ; export / puissance optionnels) ; le <strong class=\"text-body\">triphasé</strong> ajoute des sous-étapes. Puis <em>solar</em> (production, revente, estimation), puis assistant <em>batterie</em> (0..N), puis création de l’entrée.</li></ul>",
 
-      "configure.delta_caps_h": "Plafonds de delta (avancé)",
+      "configure.delta_caps_h": "Plafonds de delta énergétique",
       "configure.delta_caps_intro_html":
         "Hub Énergie fait avancer vos compteurs kWh <code class=\"font-mono\">total_increasing</code> par <strong class=\"text-body\">bonds</strong>. À chaque cycle, il compare la lecture courante à la dernière mémorisée : la <strong class=\"text-body\">différence positive</strong> est un delta candidat. S’il est <strong class=\"text-body\">sous le plafond</strong> de sa classe (réseau, solaire, batterie, autre), ces kWh sont comptabilisés dans les totaux internes et le créneau tarifaire actif. S’il est <strong class=\"text-body\">au-dessus du plafond</strong>, l’intégration traite le bond comme <strong class=\"text-body\">irréaliste</strong> : ces kWh ne sont <strong class=\"text-body\">pas</strong> ajoutés à la SSOT interne, mais la dernière lecture brute stockée est quand même mise à jour pour que les deltas suivants repartent d’une base cohérente. Les compteurs physiques et l’historique Recorder restent la référence pour les totaux bruts ; ces plafonds protègent la ventilation par créneau et les coûts contre les pics et les rattrapages aberrants après une coupure.",
       "configure.delta_caps_defaults_h": "Plafonds par défaut (kWh par mise à jour)",
@@ -906,11 +1011,18 @@
       "configure.delta_caps_cases_html":
         "<ul class=\"mb-0 ps-3\"><li class=\"mb-2\"><strong class=\"text-body\">Coupure courte.</strong> Home Assistant est resté éteint une nuit ; le compteur d’import a pris 12 kWh avant le prochain relevé. Avec le plafond réseau par défaut (300 kWh), les 12 kWh sont appliqués d’un coup, affectés au <em>jour</em> Paris et au <em>créneau</em> courants (pas de reconstitution heure par heure de la coupure).</li><li class=\"mb-2\"><strong class=\"text-body\">Coupure longue ou gros rattrapage.</strong> Le même compteur a bondi de 400 kWh pendant l’arrêt. Un seul delta de 400 dépasse le plafond 300 kWh : la SSOT interne <strong class=\"text-body\">ignore</strong> ce bloc ; journaux / télémétrie de rejet expliquent pourquoi. Si c’est fréquent sur votre site, augmentez le plafond réseau (par ex. 800–1500 kWh) ou faites en sorte que HA reste disponible pour garder des deltas plus petits.</li><li class=\"mb-2\"><strong class=\"text-body\">Pic erroné d’onduleur PV.</strong> L’entité kWh solaire saute de 30 kWh en une lecture alors que la production réelle était faible. Un plafond solaire plus serré (ex. 40 kWh) limite ce qui peut entrer en une fois ; restez au-dessus du maximum <em>réaliste</em> que vous attendez entre deux cycles du hub par beau temps.</li><li class=\"mb-0\"><strong class=\"text-body\">Grosses batteries ou site isolé.</strong> Un pack résidentiel bouge souvent de quelques kWh entre deux mises à jour ; 80 kWh est déjà large. Un gros stockage qui enchaîne des cycles rapides peut exiger un plafond batterie plus haut pour ne pas rejeter de vraies rampes.</li></ul>",
       "configure.delta_caps_ha_html":
-        "Ces champs sont un réglage optionnel après installation : ils n’apparaissent <strong class=\"text-body\">pas</strong> dans l’assistant initial, seulement dans <strong class=\"text-body\">Configurer</strong>. La description de la boîte de dialogue renvoie vers ce site pour l’explication détaillée.",
+        "Ces champs sont un réglage optionnel après installation : ils n’apparaissent <strong class=\"text-body\">pas</strong> dans l’assistant initial, seulement sous <strong class=\"text-body\">Configurer → Avancé : plafonds de delta (kWh)</strong>. La description de la boîte de dialogue renvoie vers ce site pour l’explication détaillée.",
 
       "configure.flow_simulator_h": "Aperçu interactif du flux",
       "configure.flow_simulator_intro_html":
         "Ce bloc est généré à partir de <code class=\"font-mono\">config_flow.py</code> et <code class=\"font-mono\">strings.json</code> pour que titres, descriptions et libellés suivent l’intégration. L’enchaînement dépend de vos saisies (fournisseur, mode tarifaire, offre, triphasé, solaire/batteries, …) comme dans l’assistant réel. Ce n’est toujours <strong class=\"text-body\">pas</strong> Home Assistant : pas de validation d’entités ni d’appels réseau — les écarts sont volontaires. Après modification de l’assistant, exécutez <code class=\"font-mono\">python scripts/extract_config_flow_catalog.py</code> et validez <code class=\"font-mono\">site/src/data/flowCatalog.generated.json</code>. La CI échoue si ce fichier est obsolète.",
+
+      "sensors.title": "Capteurs & entités",
+      "sensors.intro_html":
+        "Les entités sont regroupées sous des <strong class=\"text-body\">appareils</strong> Home Assistant (offre, réseau, solaire, une entrée par batterie, bilan énergétique, coûts, diagnostics). Vous obtenez des capteurs kWh <code class=\"font-mono\">total_increasing</code> pour les totaux internes, des capteurs de puissance lorsqu’ils sont câblés, des capteurs monétaires sur l’appareil coûts, et des entités de diagnostic (santé, qualité des données, indices Tempo le cas échéant).",
+      "sensors.more_html":
+        "La section <a href=\"#devices\">Appareils</a> détaille le rôle de chaque appareil ; la galerie interactive illustre des libellés typiques. L’aide champ par champ pour chaque étape de configuration se trouve sur <a href=\"#/doc/setup-help\">Assistant &amp; options — aide par étape</a>. Pour le lien entre totaux internes, compteurs physiques et statistiques, voir <a href=\"#/internals\">Détails d’implémentation</a>.",
+
       "configure.paths_h": "Parcours guidés (captures)",
       "configure.flow_paths_intro_html":
         "Choisissez l’onglet qui correspond à votre cas. Chaque onglet montre une <strong class=\"text-body\">suite réelle de boîtes de dialogue Home Assistant</strong> (captures seulement — pas de simulateur). Pour les noms d’étapes <code class=\"font-mono\">step_id</code> et le graphe complet des branches, voir <code class=\"font-mono\">custom_components/hub_energie/docs/config-flow.md</code> dans le dépôt.",
@@ -998,12 +1110,13 @@
       "devices.p_bilan": "Flux énergétiques calculés (kWh)",
       "devices.p_couts": "Montants (€)",
       "devices.p_diag": "Santé, diagnostics d’export réseau",
+      "devices.table_row_batt": "Batterie <name>",
 
       "devices.gallery_title": "Appareils dans l’interface",
       "devices.gallery_intro_html":
         "Chaque appareil regroupe les entités associées. Ci-dessous, un volet par appareil pour illustrer la structure dans <strong class=\"text-body\">Réglages → Appareils et services</strong>.",
       "devices.gallery_multishot_html":
-        "Pour les appareils avec de nombreuses entités, vous pourrez ajouter d’autres PNG (ex. <code class=\"font-mono\">device-ui-02-reseau-2.png</code>) — la documentation pourra intégrer un carrousel imbriqué lorsque ces fichiers seront disponibles.",
+        "Les volets utilisent une maquette HTML compacte (pas des captures). Les valeurs sont illustratives ; les entités réelles dépendent du fournisseur, de l’offre EDF (BASE / HPHC / TEMPO), du solaire, des batteries et des créneaux tarifaires visibles.",
       "devices.tree_label": "Appareil",
       "devices.g1_t": "Offre",
       "devices.g1_d": "Tarif, fournisseur, contrat",
@@ -1029,6 +1142,76 @@
       "devices.g6_alt": "Appareil Hub Énergie — Bilan énergétique",
       "devices.g7_alt": "Appareil Hub Énergie — Coûts",
       "devices.g8_alt": "Appareil Hub Énergie — Diagnostics",
+
+      "devices.mock.ha_brand": "Hub Énergie",
+      "devices.mock.note_offre":
+        "Exemple : EDF en TEMPO — les capteurs couleur / quotas / prochains changements n’existent pas en BASE ou HPHC.",
+      "devices.mock.note_grid": "Plus un capteur kWh par créneau tarifaire visible (selon l’offre).",
+      "devices.mock.note_solar":
+        "Les capteurs d’estimation « ciel clair » et de revente n’apparaissent que si activés dans la configuration.",
+      "devices.mock.note_batt": "Un appareil par batterie configurée ; le titre reprend le nom saisi.",
+      "devices.mock.note_bilan":
+        "Un capteur « Maison … kWh » existe pour chaque créneau visible ; la puissance maison instantanée est ici aussi.",
+      "devices.mock.note_diag":
+        "Certains capteurs de répartition d’export sont rattachés à Solaire ou Toutes batteries quand c’est plus clair.",
+      "devices.mock.ha_sensors": "Capteurs",
+      "devices.mock.ha_diagnostic": "Diagnostic",
+      "devices.mock.batt_example_name": "Pack garage",
+      "devices.mock.lbl_current_slot": "Créneau actuel",
+      "devices.mock.lbl_tempo_hc": "Heures creuses Tempo",
+      "devices.mock.val_off": "Désactivé",
+      "devices.mock.lbl_today_color": "Couleur aujourd'hui",
+      "devices.mock.lbl_tomorrow_color": "Couleur demain",
+      "devices.mock.val_color_blue": "bleu",
+      "devices.mock.lbl_days_white_left": "Jours blancs restants",
+      "devices.mock.lbl_days_blue_left": "Jours bleus restants",
+      "devices.mock.lbl_days_red_left": "Jours rouges restants",
+      "devices.mock.lbl_next_colour": "Prochain changement de couleur",
+      "devices.mock.lbl_next_hc": "Prochain début heures creuses",
+      "devices.mock.val_in_16h": "Dans 16 heures",
+      "devices.mock.val_in_8h": "Dans 8 heures",
+      "devices.mock.lbl_tempo_source": "Source Tempo",
+      "devices.mock.lbl_grid_total": "Énergie réseau (total)",
+      "devices.mock.lbl_grid_today": "Énergie réseau (aujourd'hui)",
+      "devices.mock.lbl_grid_origin": "Énergie réseau",
+      "devices.mock.lbl_grid_import_p": "Puissance import réseau",
+      "devices.mock.lbl_grid_to_home_p": "Puissance réseau vers maison",
+      "devices.mock.lbl_usage_grid_home": "Réseau → maison",
+      "devices.mock.lbl_usage_grid_batt": "Réseau → batterie",
+      "devices.mock.lbl_grid_unknown_slot": "Réseau — créneau indéterminé (jour en cours)",
+      "devices.mock.lbl_solar_prod_p": "Puissance production solaire",
+      "devices.mock.lbl_solar_total": "Énergie solaire (total)",
+      "devices.mock.lbl_solar_today": "Énergie solaire (aujourd'hui)",
+      "devices.mock.lbl_solar_origin": "Énergie solaire",
+      "devices.mock.lbl_solar_home": "Solaire → maison",
+      "devices.mock.lbl_solar_batt": "Solaire → batterie",
+      "devices.mock.lbl_solar_export_p": "Puissance export solaire",
+      "devices.mock.lbl_batt_charge_e": "Énergie de charge",
+      "devices.mock.lbl_batt_discharge_e": "Énergie de décharge",
+      "devices.mock.lbl_batt_pnet": "Puissance nette",
+      "devices.mock.lbl_batt_soc": "État de charge",
+      "devices.mock.lbl_batt_stored": "Énergie stockée",
+      "devices.mock.lbl_batt_avail": "Énergie disponible",
+      "devices.mock.lbl_batt_sum_charge": "Énergie de charge (total)",
+      "devices.mock.lbl_batt_sum_discharge": "Énergie de décharge (total)",
+      "devices.mock.lbl_batt_sum_pnet": "Puissance nette (total)",
+      "devices.mock.lbl_batt_home": "Batterie → maison",
+      "devices.mock.lbl_home_today": "Énergie maison (aujourd'hui)",
+      "devices.mock.lbl_home_power": "Puissance maison",
+      "devices.mock.lbl_maison_hp": "Maison — heures pleines (exemple)",
+      "devices.mock.lbl_maison_hc": "Maison — heures creuses (exemple)",
+      "devices.mock.lbl_cost_day": "Coût du jour",
+      "devices.mock.lbl_savings_solar": "Économies solaire",
+      "devices.mock.lbl_savings_batt": "Économies batterie",
+      "devices.mock.lbl_health": "État général",
+      "devices.mock.val_health_ok": "OK",
+      "devices.mock.lbl_reinj_cause": "Cause réinjection",
+      "devices.mock.lbl_reinj_conf": "Fiabilité réinjection",
+      "devices.mock.lbl_export_p": "Puissance d'export",
+      "devices.mock.lbl_config_overview": "Aperçu de la configuration",
+      "devices.mock.lbl_since_update": "Délai depuis dernière mise à jour compteur",
+      "devices.mock.lbl_connectivity": "Connexion",
+      "devices.mock.val_on": "Connecté",
 
       "services.title": "Services",
       "services.th_service": "Service",

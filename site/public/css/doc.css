@@ -538,3 +538,107 @@ pre.doc-code {
   flex-shrink: 1;
   min-width: 0;
 }
+
+/* --- Home Assistant device page mock (doc carousel, not screenshots) --- */
+#devicesGalleryCarousel .doc-screenshot-frame--device-mock {
+  padding: 0.45rem 0.55rem 0.65rem;
+  background: var(--bs-tertiary-bg);
+}
+
+.doc-ha-mock {
+  --doc-ha-mock-bg: #131316;
+  --doc-ha-mock-card: #1a1a20;
+  --doc-ha-mock-border: rgba(255, 255, 255, 0.085);
+  --doc-ha-mock-accent: #9b7efd;
+  background: var(--doc-ha-mock-bg);
+  color: #ececf1;
+  border-radius: 0.45rem;
+  padding: 0.45rem 0.55rem 0.55rem;
+  font-size: 0.78rem;
+  line-height: 1.32;
+  text-align: left;
+}
+
+.doc-ha-mock-bc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.35rem;
+  font-weight: 600;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.045em;
+  color: #aeb4c5;
+  margin-bottom: 0.3rem;
+}
+
+.doc-ha-mock-bc-sep {
+  opacity: 0.55;
+}
+
+.doc-ha-mock-note {
+  font-size: 0.68rem;
+  color: #949aad;
+  margin: 0 0 0.4rem;
+  line-height: 1.38;
+}
+
+.doc-ha-card {
+  background: var(--doc-ha-mock-card);
+  border: 1px solid var(--doc-ha-mock-border);
+  border-radius: 0.4rem;
+  margin-bottom: 0.38rem;
+  overflow: hidden;
+}
+
+.doc-ha-card:last-child {
+  margin-bottom: 0;
+}
+
+.doc-ha-card-h {
+  padding: 0.26rem 0.45rem;
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #c5c9d4;
+  border-bottom: 1px solid var(--doc-ha-mock-border);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.doc-ha-row {
+  display: grid;
+  grid-template-columns: 1rem 1fr auto;
+  gap: 0.3rem 0.4rem;
+  align-items: center;
+  padding: 0.28rem 0.4rem;
+  border-top: 1px solid var(--doc-ha-mock-border);
+}
+
+.doc-ha-card > .doc-ha-row:first-of-type {
+  border-top: none;
+}
+
+.doc-ha-ico {
+  font-size: 0.82rem;
+  color: var(--doc-ha-mock-accent);
+  line-height: 1;
+  opacity: 0.95;
+}
+
+.doc-ha-name {
+  min-width: 0;
+  color: #e2e4eb;
+}
+
+.doc-ha-val {
+  font-variant-numeric: tabular-nums;
+  color: #a8aec0;
+  text-align: right;
+  max-width: 46%;
+  word-break: break-word;
+}
+
+.doc-ha-val.font-monospace {
+  font-size: 0.7rem;
+}
