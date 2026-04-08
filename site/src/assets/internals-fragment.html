@@ -28,6 +28,9 @@
           <a class="nav-link" href="#internals-overview" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.internals_overview">Pipeline</span></a
           >
+          <a class="nav-link" href="#internals-ssot" data-bs-dismiss="offcanvas"
+            ><span data-i18n="ssot.title">Data sources (SSOT)</span></a
+          >
           <a class="nav-link" href="#internals-sources" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.internals_sources">Energy sources</span></a
           >
@@ -81,6 +84,7 @@
             </div>
             <nav id="toc-nav-internals" class="nav nav-pills flex-column gap-1" role="navigation" data-i18n-aria="nav.toc_aria" aria-label="Page">
               <a class="nav-link" href="#internals-overview"><span data-i18n="toc.internals_overview">Pipeline</span></a>
+              <a class="nav-link" href="#internals-ssot"><span data-i18n="ssot.title">Data sources (SSOT)</span></a>
               <a class="nav-link" href="#internals-sources"><span data-i18n="toc.internals_sources">Energy sources</span></a>
               <a class="nav-link" href="#internals-slots"><span data-i18n="toc.internals_slots">Tariff slots</span></a>
               <a class="nav-link" href="#internals-attribution"><span data-i18n="toc.internals_attribution">Slot attribution</span></a>
@@ -115,6 +119,66 @@
               integration SSOT sensors expose the <strong class="text-body">internally accumulated</strong> totals
               used for slot splits and cost snapshots.
             </p>
+          </section>
+
+          <section id="internals-ssot" class="doc-section pb-5">
+            <h2 class="mb-3">
+              <span data-i18n="ssot.title">Data sources (SSOT)</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#internals-ssot"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h2>
+            <p class="text-secondary" data-i18n="ssot.intro">
+              Knowing what is authoritative avoids misconfiguring the Energy panel or the wrong attributes.
+            </p>
+            <ol class="doc-steps">
+              <li>
+                <div class="doc-step-card shadow-sm">
+                  <span class="step-badge">1</span>
+                  <div class="step-body">
+                    <div class="step-title" data-i18n="ssot.s1_title">Physical meters (external SSOT)</div>
+                    <p class="small text-secondary mb-0" data-i18n-html="ssot.s1_html">
+                      The energy entities you select (<code class="font-mono">grid_import_energy</code>, solar,
+                      export, per-battery in/out). <strong class="text-body">Recorder history</strong> is ground
+                      truth for total kWh from hardware or upstream integrations.
+                    </p>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="doc-step-card shadow-sm">
+                  <span class="step-badge">2</span>
+                  <div class="step-body">
+                    <div class="step-title" data-i18n="ssot.s2_title">Internal accounting</div>
+                    <p class="small text-secondary mb-0" data-i18n-html="ssot.s2_html">
+                      The coordinator accumulates <strong class="text-body">positive deltas</strong> into totals
+                      and per-day slot kWh. Integration
+                      <code class="font-mono">total_increasing</code> SSOT sensors reflect this
+                      <strong class="text-body">internal sum</strong>, not a full re-read of the meter every
+                      cycle.
+                    </p>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="doc-step-card shadow-sm">
+                  <span class="step-badge">3</span>
+                  <div class="step-body">
+                    <div class="step-title" data-i18n="ssot.s3_title">Long-term per-slot kWh (daily)</div>
+                    <p class="small text-secondary mb-0" data-i18n-html="ssot.s3_html">
+                      After each Paris day, external statistics
+                      <code class="font-mono">hub_energie:slot_&lt;source&gt;_&lt;slot&gt;_kwh</code> are
+                      written. Use these (or physical meters) for historical analytics â€” not raw
+                      <code class="font-mono">cost_detail</code> attribute history alone.
+                    </p>
+                  </div>
+                </div>
+              </li>
+            </ol>
           </section>
 
           <section id="internals-sources" class="doc-section pb-5">

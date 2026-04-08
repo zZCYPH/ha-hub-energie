@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import { FLOW_HELP_EN, FLOW_HELP_FR } from "../data/flowHelpContent";
 import fieldGuideDoc from "../data/flowHelpFieldGuide.generated.json";
 import { FLOW_HELP_OPTIONS_IDS, FLOW_HELP_WIZARD_IDS } from "../data/flowStepHelpDefs";
+import FlowhelpFieldGuideTables from "../components/FlowhelpFieldGuideTables.vue";
 import { attachInPageNav } from "../inPageNav";
 import { applyLang, teardownScrollSpy } from "../siteShell";
 
@@ -128,97 +129,55 @@ onUnmounted(() => {
           </div>
         </aside>
 
-        <main class="col-lg-9">
-          <section class="mb-5">
-            <h2 class="h5 mb-3" data-i18n="flowhelp.setup_heading">Initial setup wizard</h2>
+        <main class="col-lg-9 flowhelp-main">
+          <section class="mb-5 pb-lg-2">
+            <h2 class="h5 mb-4 flowhelp-section-h" data-i18n="flowhelp.setup_heading">Initial setup wizard</h2>
             <article
               v-for="rid in FLOW_HELP_WIZARD_IDS"
               :id="'flow-step-' + rid"
               :key="'w-' + rid"
-              class="doc-section pb-4 mb-4 border-bottom border-secondary border-opacity-10"
+              class="flowhelp-step-card doc-section"
             >
-              <h3 class="h5 mb-2">{{ sectionTitle(rid) }}</h3>
-              <div class="small text-secondary flowhelp-body" v-html="sectionHtml(rid)"></div>
+              <h3 class="h5 mb-3 flowhelp-step-title">{{ sectionTitle(rid) }}</h3>
+              <div class="small text-secondary flowhelp-body flowhelp-step-prose" v-html="sectionHtml(rid)"></div>
               <div
                 v-if="fieldGuideHasContent(wizardFieldGuide(rid))"
-                class="flowhelp-fieldguide mt-3 pt-3 border-top border-secondary border-opacity-10"
+                class="flowhelp-fieldguide mt-4 pt-3 border-top border-secondary border-opacity-25"
               >
                 <h4 class="h6 fw-semibold text-body mb-3">{{ fgTr("flowhelp.fieldguide_heading") }}</h4>
-                <template v-if="wizardFieldGuide(rid).menu_choices?.length">
-                  <p class="small fw-semibold text-body mb-1">{{ fgTr("flowhelp.fieldguide_menu_heading") }}</p>
-                  <ul class="small ps-3 mb-3">
-                    <li v-for="c in wizardFieldGuide(rid).menu_choices" :key="rid + '-m-' + c.key">{{ c.label }}</li>
-                  </ul>
-                </template>
-                <template v-for="f in wizardFieldGuide(rid).fields" :key="rid + '-f-' + f.key">
-                  <div class="mb-2 small">
-                    <div class="fw-semibold text-body">{{ f.label }}</div>
-                    <div class="text-secondary">
-                      {{ f.description || fgTr("flowhelp.fieldguide_no_hint") }}
-                    </div>
-                  </div>
-                </template>
-                <template v-for="sec in wizardFieldGuide(rid).sections" :key="rid + '-s-' + sec.id">
-                  <div class="mt-3 small">
-                    <div class="fw-semibold text-body mb-2">{{ sec.name }}</div>
-                    <div v-for="sf in sec.fields" :key="rid + '-' + sec.id + '-' + sf.key" class="mb-2 ps-0 ps-sm-2">
-                      <div class="fw-semibold text-body">{{ sf.label }}</div>
-                      <div class="text-secondary">
-                        {{ sf.description || fgTr("flowhelp.fieldguide_no_hint") }}
-                      </div>
-                    </div>
-                  </div>
-                </template>
+                <FlowhelpFieldGuideTables
+                  :bundle="wizardFieldGuide(rid)"
+                  :no-hint="fgTr('flowhelp.fieldguide_no_hint')"
+                  :menu-heading="fgTr('flowhelp.fieldguide_menu_heading')"
+                  :col-field="fgTr('flowhelp.fieldguide_col_field')"
+                  :col-description="fgTr('flowhelp.fieldguide_col_description')"
+                />
               </div>
             </article>
           </section>
 
-          <section class="mb-5">
-            <h2 class="h5 mb-3" data-i18n="flowhelp.options_heading">Settings → Hub Énergie → Configure</h2>
+          <section class="mb-5 pb-lg-2">
+            <h2 class="h5 mb-4 flowhelp-section-h" data-i18n="flowhelp.options_heading">Settings → Hub Énergie → Configure</h2>
             <article
               v-for="rid in FLOW_HELP_OPTIONS_IDS"
               :id="'flow-step-options-' + rid"
               :key="'o-' + rid"
-              class="doc-section pb-4 mb-4 border-bottom border-secondary border-opacity-10"
+              class="flowhelp-step-card doc-section"
             >
-              <h3 class="h5 mb-2">{{ sectionTitle("options_" + rid) }}</h3>
-              <div class="small text-secondary flowhelp-body" v-html="sectionHtml('options_' + rid)"></div>
+              <h3 class="h5 mb-3 flowhelp-step-title">{{ sectionTitle("options_" + rid) }}</h3>
+              <div class="small text-secondary flowhelp-body flowhelp-step-prose" v-html="sectionHtml('options_' + rid)"></div>
               <div
                 v-if="fieldGuideHasContent(optionsFieldGuide(rid))"
-                class="flowhelp-fieldguide mt-3 pt-3 border-top border-secondary border-opacity-10"
+                class="flowhelp-fieldguide mt-4 pt-3 border-top border-secondary border-opacity-25"
               >
                 <h4 class="h6 fw-semibold text-body mb-3">{{ fgTr("flowhelp.fieldguide_heading") }}</h4>
-                <template v-if="optionsFieldGuide(rid).menu_choices?.length">
-                  <p class="small fw-semibold text-body mb-1">{{ fgTr("flowhelp.fieldguide_menu_heading") }}</p>
-                  <ul class="small ps-3 mb-3">
-                    <li v-for="c in optionsFieldGuide(rid).menu_choices" :key="'o-' + rid + '-m-' + c.key">
-                      {{ c.label }}
-                    </li>
-                  </ul>
-                </template>
-                <template v-for="f in optionsFieldGuide(rid).fields" :key="'o-' + rid + '-f-' + f.key">
-                  <div class="mb-2 small">
-                    <div class="fw-semibold text-body">{{ f.label }}</div>
-                    <div class="text-secondary">
-                      {{ f.description || fgTr("flowhelp.fieldguide_no_hint") }}
-                    </div>
-                  </div>
-                </template>
-                <template v-for="sec in optionsFieldGuide(rid).sections" :key="'o-' + rid + '-s-' + sec.id">
-                  <div class="mt-3 small">
-                    <div class="fw-semibold text-body mb-2">{{ sec.name }}</div>
-                    <div
-                      v-for="sf in sec.fields"
-                      :key="'o-' + rid + '-' + sec.id + '-' + sf.key"
-                      class="mb-2 ps-0 ps-sm-2"
-                    >
-                      <div class="fw-semibold text-body">{{ sf.label }}</div>
-                      <div class="text-secondary">
-                        {{ sf.description || fgTr("flowhelp.fieldguide_no_hint") }}
-                      </div>
-                    </div>
-                  </div>
-                </template>
+                <FlowhelpFieldGuideTables
+                  :bundle="optionsFieldGuide(rid)"
+                  :no-hint="fgTr('flowhelp.fieldguide_no_hint')"
+                  :menu-heading="fgTr('flowhelp.fieldguide_menu_heading')"
+                  :col-field="fgTr('flowhelp.fieldguide_col_field')"
+                  :col-description="fgTr('flowhelp.fieldguide_col_description')"
+                />
               </div>
             </article>
           </section>
@@ -231,6 +190,48 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.flowhelp-main {
+  max-width: 56rem;
+}
+
+.flowhelp-section-h {
+  letter-spacing: 0.02em;
+}
+
+.flowhelp-step-card {
+  margin-bottom: 2rem;
+  padding: 1.35rem 1.35rem 1.5rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--bs-border-color-translucent);
+  background-color: var(--bs-body-bg);
+  box-shadow: var(--bs-box-shadow-sm);
+}
+
+@media (min-width: 768px) {
+  .flowhelp-step-card {
+    padding: 1.5rem 1.65rem 1.65rem;
+    margin-bottom: 2.25rem;
+  }
+}
+
+.flowhelp-step-title {
+  color: var(--bs-emphasis-color);
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+.flowhelp-step-prose :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+.flowhelp-step-prose :deep(p + p) {
+  margin-top: 0.65rem;
+}
+
+.flowhelp-step-prose :deep(p) {
+  line-height: 1.58;
+}
+
 .flowhelp-fieldguide {
   max-width: 52rem;
 }

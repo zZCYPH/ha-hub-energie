@@ -754,6 +754,8 @@
               "tri_grid_power_p1": "Grid power (W, optional)"
             },
             "data_description": {
+              "tri_import_energy_p1": "Total increasing kWh counter for grid import on phase L1.",
+              "tri_export_energy_p1": "Optional export counter for L1; leave empty if unused.",
               "tri_grid_power_p1": "Instantaneous power on L1; the integration sums whichever phases you set for real-time display. For a single total sensor, fill only one phase."
             }
           },
@@ -765,6 +767,8 @@
               "tri_grid_power_p2": "Grid power (W, optional)"
             },
             "data_description": {
+              "tri_import_energy_p2": "Total increasing kWh counter for grid import on phase L2.",
+              "tri_export_energy_p2": "Optional export counter for L2; leave empty if unused.",
               "tri_grid_power_p2": "Instantaneous power on L2."
             }
           },
@@ -776,6 +780,8 @@
               "tri_grid_power_p3": "Grid power (W, optional)"
             },
             "data_description": {
+              "tri_import_energy_p3": "Total increasing kWh counter for grid import on phase L3.",
+              "tri_export_energy_p3": "Optional export counter for L3; leave empty if unused.",
               "tri_grid_power_p3": "Instantaneous power on L3."
             }
           },

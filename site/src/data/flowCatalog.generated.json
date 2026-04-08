@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-08T21:07:44.065378+00:00",
+  "generated_at": "2026-04-08T21:25:22.453193+00:00",
   "source_files": {
     "config_flow": "custom_components/hub_energie/config_flow.py",
     "strings_en": "custom_components/hub_energie/strings.json",
