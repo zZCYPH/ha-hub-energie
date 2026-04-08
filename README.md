@@ -4,7 +4,9 @@ A Home Assistant custom integration for energy monitoring, cost tracking, and di
 
 It targets generic supplier and tariff setups, multi-battery systems, solar PV estimation (optional), and three-phase grid support.
 
-**Home Assistant:** 2024.10.0 or newer (see `custom_components/hub_energie/manifest.json`). **HACS metadata:** `hacs.json` and `brand/` follow the [HACS integration layout](https://hacs.xyz/docs/publish/integration/); **default store listing is TBA** while the canonical project stays on **GitLab** (HACS discovery is GitHub-oriented). Install via **Git clone** or **folder copy** is the supported path today. The **`site/`** folder holds the **Vue + Vite** static documentation built in CI for **GitLab Pages**; it is not loaded by Home Assistant.
+**Visit the showcase site** at **[hub-energie.ts-devops.com](https://hub-energie.ts-devops.com)** for a guided overview, the documentation snapshot, and implementation notes—it is the easiest way to **explore** Hub Énergie before installing the integration in Home Assistant.
+
+**Home Assistant:** 2024.10.0 or newer (see `custom_components/hub_energie/manifest.json`). **HACS metadata:** `hacs.json` and `brand/` follow the [HACS integration layout](https://hacs.xyz/docs/publish/integration/); **default store listing is TBA** while the canonical project stays on **GitLab** (HACS discovery is GitHub-oriented). Install via **Git clone** or **folder copy** is the supported path today. The **`site/`** folder holds the **Vue + Vite** static documentation built in CI for **GitLab Pages** (same content as the showcase above); it is not loaded by Home Assistant.
 
 ## Supported scope (v0.2.x)
 
