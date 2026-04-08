@@ -1,4 +1,5 @@
 # GitLab Pages: artifact must include `public/` at repo root (site/dist → public).
+# Pages deploy: tag site-vX.Y.Z-i only (X.Y.Z = manifest version, i = doc-only increment).
 #
 # Semver tags (e.g. v0.2.3): build zip (integration + pre-built Lovelace frontend/dist),
 # upload generic package, resolve package_files id via API, set release link to:
@@ -23,6 +24,8 @@ verify_docs_consistency:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/
+    # Doc-site releases: same checks as before publishing Pages (see pages job rules).
+    - if: $CI_COMMIT_TAG =~ /^site-v[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$/
 
 variables:
   GITLAB_PACKAGE_NAME: hub-energie
@@ -171,15 +174,26 @@ integration_release:
           --data @- \
           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases"
 
-# Pages runs on default-branch pushes and on semver tags (after release stage on tags).
-# Both pipelines refresh releases.json so the vitrine lists new releases after a tag *and*
-# stays current when only master changes (e.g. doc fixes).
+# Pages deploy only on tags site-vX.Y.Z-i: X.Y.Z must match custom_components/hub_energie/manifest.json
+# version; i is a doc-only increment (e.g. site-v0.2.5-1, site-v0.2.5-2) without bumping the manifest.
+# Push doc fixes on the default branch, then tag when the vitrine should go live.
 pages:
   stage: deploy
   image: node:22-alpine
   script:
     - |
-      set -e
+      set -euo pipefail
+      TAG="${CI_COMMIT_TAG:?}"
+      if ! printf '%s' "$TAG" | grep -qE '^site-v[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$'; then
+        echo "pages: unexpected tag ${TAG} (expected site-vX.Y.Z-i matching manifest version)"
+        exit 1
+      fi
+      TAG_VER="$(node -e "const t=process.env.CI_COMMIT_TAG; const m=t.match(/^site-v([0-9]+\\.[0-9]+\\.[0-9]+)-[0-9]+$/); if(!m){process.exit(1)}; process.stdout.write(m[1])")"
+      MANIFEST_VER="$(node -p "JSON.parse(require('fs').readFileSync('custom_components/hub_energie/manifest.json','utf8')).version")"
+      if [ "$TAG_VER" != "$MANIFEST_VER" ]; then
+        echo "pages: tag base version ${TAG_VER} must match manifest.json version ${MANIFEST_VER} (tag ${TAG})"
+        exit 1
+      fi
       # GitLab Releases API → site/public/releases.json (bundled as /releases.json on the site)
       node site/scripts/fetch-releases.mjs
       (cd site && npm ci && npm run build)
@@ -190,5 +204,4 @@ pages:
     paths:
       - public
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/
+    - if: $CI_COMMIT_TAG =~ /^site-v[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$/

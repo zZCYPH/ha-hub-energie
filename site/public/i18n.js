@@ -35,7 +35,7 @@
       "landing.cta_discover": "Discover",
       "landing.cta_internals": "How it works internally",
       "landing.cta_discover_footer": "Discover the documentation",
-      "landing.version_note": "Documentation snapshot v0.2.3",
+      "landing.version_note": "Documentation snapshot v0.2.5",
       "landing.f1_title": "True centralization",
       "landing.f1_body":
         "Tariff, grid, solar, per-battery devices, energy balance, costs, and diagnostics live under one integration instead of scattered helpers and templates.",
@@ -174,7 +174,7 @@
 
       "glance.title": "At a glance",
       "glance.ha": "<strong class=\"text-body\">HA</strong> 2024.10.0 or newer",
-      "glance.snapshot": "Doc snapshot <span class=\"badge bg-primary badge-doc\">v0.2.3</span>",
+      "glance.snapshot": "Doc snapshot <span class=\"badge bg-primary badge-doc\">v0.2.5</span>",
       "glance.issues": "Issues & feedback",
 
       "overview.title": "Overview",
@@ -263,7 +263,7 @@
 
       "lovelace.title": "Lovelace card",
       "lovelace.intro_html":
-        "Built assets (<code class=\"font-mono\">hub-energie-card-boot.js</code>, <code class=\"font-mono\">hub-energie-card.js</code>, <code class=\"font-mono\">hub-energie-card-editor.js</code>, and shared chunks under <code class=\"font-mono\">frontend/dist/</code>) ship in the repo and are rebuilt by CI on every commit. Home Assistant serves the <code class=\"font-mono\">dist</code> tree at <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>. Since <strong class=\"text-body\">v0.2.3</strong>, the optional <strong class=\"text-body\">Solar production (energy)</strong> bar breaks out kWh (self-consumption, battery charge, attributed export) for the card’s selected day or range.",
+        "Built assets (<code class=\"font-mono\">hub-energie-card-boot.js</code>, <code class=\"font-mono\">hub-energie-card.js</code>, <code class=\"font-mono\">hub-energie-card-editor.js</code>, and shared chunks under <code class=\"font-mono\">frontend/dist/</code>) ship in the repo and are rebuilt by CI on every commit. Home Assistant serves the <code class=\"font-mono\">dist</code> tree at <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>. The optional <strong class=\"text-body\">Solar production (energy)</strong> bar breaks out kWh (self-consumption, battery charge, attributed export) for the card’s selected day or range.",
 
       "lovelace.l1_title": "Storage-mode dashboards (default)",
       "lovelace.l1_html":
@@ -402,7 +402,7 @@
       "glossary.est_d": "Heuristic or model-based values when no direct energy meter exists — e.g. clear-sky PV, splits inferred from power sensors.",
 
       "footer.p1_html":
-        "Hub Énergie — documentation snapshot <strong class=\"text-body\">v0.2.3</strong>. Authoritative detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>. Official platform: <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
+        "Hub Énergie — documentation snapshot <strong class=\"text-body\">v0.2.5</strong>. Authoritative detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>. Official platform: <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
       "footer.license": "License: see the repository.",
       "footer.social_note": "Community links — coming soon.",
       "footer.social_group_aria": "Social links and newsletter signup",
@@ -441,7 +441,7 @@
       "landing.cta_discover": "Découvrir",
       "landing.cta_internals": "Fonctionnement interne",
       "landing.cta_discover_footer": "Voir la documentation",
-      "landing.version_note": "Documentation figée v0.2.3",
+      "landing.version_note": "Documentation figée v0.2.5",
       "landing.f1_title": "Centralisation réelle",
       "landing.f1_body":
         "Offre, réseau, solaire, appareils par batterie, bilan énergétique, coûts et diagnostics sont regroupés dans une même intégration, au lieu d’être éclatés entre helpers et modèles.",
@@ -580,7 +580,7 @@
 
       "glance.title": "En bref",
       "glance.ha": "<strong class=\"text-body\">HA</strong> 2024.10.0 ou plus récent",
-      "glance.snapshot": "Doc figée <span class=\"badge bg-primary badge-doc\">v0.2.3</span>",
+      "glance.snapshot": "Doc figée <span class=\"badge bg-primary badge-doc\">v0.2.5</span>",
       "glance.issues": "Tickets & retours",
 
       "overview.title": "Vue d’ensemble",
@@ -672,7 +672,7 @@
 
       "lovelace.title": "Carte Lovelace",
       "lovelace.intro_html":
-        "Les artefacts de build (<code class=\"font-mono\">hub-energie-card-boot.js</code>, <code class=\"font-mono\">hub-energie-card.js</code>, <code class=\"font-mono\">hub-energie-card-editor.js</code> et les fragments partagés sous <code class=\"font-mono\">frontend/dist/</code>) sont livrés dans le dépôt et régénérés en CI à chaque commit. Home Assistant expose l’arborescence <code class=\"font-mono\">dist</code> sous <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>. Depuis la <strong class=\"text-body\">v0.2.3</strong>, la bande optionnelle <strong class=\"text-body\">Production solaire (énergie)</strong> ventile les kWh (autoconsommation, charge batterie, export attribué) pour le jour ou la plage affichée sur la carte.",
+        "Les artefacts de build (<code class=\"font-mono\">hub-energie-card-boot.js</code>, <code class=\"font-mono\">hub-energie-card.js</code>, <code class=\"font-mono\">hub-energie-card-editor.js</code> et les fragments partagés sous <code class=\"font-mono\">frontend/dist/</code>) sont livrés dans le dépôt et régénérés en CI à chaque commit. Home Assistant expose l’arborescence <code class=\"font-mono\">dist</code> sous <strong class=\"text-body\"><code class=\"font-mono\">/hub_energie/</code></strong>. La bande optionnelle <strong class=\"text-body\">Production solaire (énergie)</strong> ventile les kWh (autoconsommation, charge batterie, export attribué) pour le jour ou la plage affichée sur la carte.",
 
       "lovelace.l1_title": "Tableaux de bord en mode stockage (défaut)",
       "lovelace.l1_html":
@@ -814,7 +814,7 @@
         "Valeurs heuristiques ou modélisées sans compteur d’énergie direct — ex. PV « ciel clair », ventilations déduites des capteurs de puissance.",
 
       "footer.p1_html":
-        "Hub Énergie — documentation figée <strong class=\"text-body\">v0.2.3</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>. Plateforme officielle : <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
+        "Hub Énergie — documentation figée <strong class=\"text-body\">v0.2.5</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>. Plateforme officielle : <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
       "footer.license": "Licence : voir le dépôt.",
       "footer.social_note": "Liens communautaires — bientôt disponibles.",
       "footer.social_group_aria": "Réseaux sociaux et inscription à la newsletter",

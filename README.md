@@ -6,7 +6,7 @@ It targets generic supplier and tariff setups, multi-battery systems, solar PV e
 
 **Visit the showcase site** at **[hub-energie.ts-devops.com](https://hub-energie.ts-devops.com)** for a guided overview, the documentation snapshot, and implementation notes—it is the easiest way to **explore** Hub Énergie before installing the integration in Home Assistant.
 
-**Home Assistant:** 2024.10.0 or newer (see `custom_components/hub_energie/manifest.json`). **HACS metadata:** `hacs.json` and `brand/` follow the [HACS integration layout](https://hacs.xyz/docs/publish/integration/); **default store listing is TBA** while the canonical project stays on **GitLab** (HACS discovery is GitHub-oriented). Install via **Git clone** or **folder copy** is the supported path today. The **`site/`** folder holds the **Vue + Vite** static documentation built in CI for **GitLab Pages** (same content as the showcase above); it is not loaded by Home Assistant.
+**Home Assistant:** 2024.10.0 or newer (see `custom_components/hub_energie/manifest.json`). **Install today:** download a **[GitLab release ZIP](https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/releases)** and extract it so `custom_components/hub_energie/` sits under your config, or use **git clone** / **copy** of that folder tree (see [Installation](#installation)). Hub Énergie is **not in the default HACS catalogue** yet—the project lives on **GitLab**, while HACS is largely built around **GitHub**, so there is **no one-click store install** for now. The repo still includes `hacs.json` and `brand/` for a possible future listing; treat them as preparatory, not as a supported install path. The **`site/`** folder is the **Vue + Vite** static documentation built in CI for **GitLab Pages** (same content as the showcase above); it is not loaded by Home Assistant.
 
 ## Supported scope (v0.2.x)
 
@@ -86,20 +86,24 @@ So that Home Assistant loads `custom_components/hub_energie/manifest.json` (not 
 
 **Ways to install**
 
-1. **Clone** this repository, then copy **`custom_components/hub_energie/`** from the clone into your Home Assistant `config/custom_components/hub_energie/` (replace or merge as needed), **or**
-2. **Copy** only the tree under `custom_components/hub_energie/` from this repository into `custom_components/hub_energie/` on your host, preserving all subfolders (`battery/`, `energy/`, `frontend/`, `runtime/`, `snapshot/`, `translations/`, etc.).
-3. **HACS (TBA)** — Default **HACS** search/add-from-store expects repositories on **GitHub** ([publishing](https://hacs.xyz/docs/publish/start/)), so frictionless install from the public store is **not** available for this GitLab-only project yet. Prefer **clone** or **copy** above. If your HACS build supports **custom repositories** pointing at GitLab, you may still add the URL under the menu (⋮) → **Custom repositories** → category **Integration**; compatibility varies by HACS version. After any install method, **restart Home Assistant**, then add the integration under **Settings → Devices & services**. The Lovelace bundles in `frontend/dist/` are committed (rebuilt in CI), so you do **not** need Node/npm on the HA host for a normal install.
+1. **Release ZIP (simplest)** — On [GitLab Releases](https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/releases), download the archive for the version you want. Unzip at the **root** of your Home Assistant configuration directory (the folder that contains `configuration.yaml`) so you get `config/custom_components/hub_energie/` with `manifest.json` at that path (not nested `hub_energie/hub_energie/`).
+2. **Clone** this repository, then copy **`custom_components/hub_energie/`** from the clone into your Home Assistant `config/custom_components/hub_energie/` (replace or merge as needed).
+3. **Copy** only the tree under `custom_components/hub_energie/` from this repository into `custom_components/hub_energie/` on your host, preserving all subfolders (`battery/`, `energy/`, `frontend/`, `runtime/`, `snapshot/`, `translations/`, etc.).
+
+**HACS store** — Hub Énergie is **not** in the default HACS catalogue. The ecosystem is mainly **GitHub**-centric ([publishing](https://hacs.xyz/docs/publish/start/)), so you cannot install it like a mainstream HACS integration today. Use **ZIP**, **clone**, or **copy** above. If your HACS version allows a **custom repository** with a GitLab URL, you can try that under (⋮) → **Custom repositories** → **Integration**; results vary by version and this is **best-effort**, not a supported primary path.
 
 Do **not** cherry-pick only a few files: the integration is a single Python package split across many modules.
 
-After copying or cloning:
+After any install method:
 
 1. **Restart Home Assistant** (full restart, not only “Reload YAML”).
 2. Add the integration: **Settings → Devices & services → Add integration → Hub Énergie**.
 
+The Lovelace bundles in `frontend/dist/` are committed (rebuilt in CI), so you do **not** need Node/npm on the HA host for a normal install.
+
 **Card frontend:** `frontend/dist/` is included in the repository. You only need `npm ci` / `npm run build` under `custom_components/hub_energie/frontend/` if you change the card source locally.
 
-**Version:** see `custom_components/hub_energie/manifest.json` (`version` field). For reproducible installs, use the Git tag matching that version (e.g. **v0.2.3**).
+**Version:** see `custom_components/hub_energie/manifest.json` (`version` field). For reproducible installs, use the Git tag matching that version (e.g. **v0.2.5**).
 
 ## Lovelace Card
 
