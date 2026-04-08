@@ -19,6 +19,22 @@ let detachNav = () => {};
 let pickerApp = null;
 let flowSimApp = null;
 
+function bindFlowsimJumpButtons() {
+  root.value?.querySelectorAll("[data-flowsim-jump]").forEach((el) => {
+    el.addEventListener("click", () => {
+      const stepId = el.getAttribute("data-flowsim-jump");
+      if (!stepId) return;
+      router
+        .push({ name: "doc", hash: "#configure-flow-simulator" })
+        .then(() =>
+          nextTick(() => {
+            window.dispatchEvent(new CustomEvent("hub-energie-flowsim-jump", { detail: { stepId } }));
+          }),
+        );
+    });
+  });
+}
+
 onMounted(() => {
   setupScrollSpy("doc");
   nextTick(() => {
@@ -37,6 +53,7 @@ onMounted(() => {
       flowSimApp = createApp(FlowSimulator);
       flowSimApp.mount(simEl);
     }
+    bindFlowsimJumpButtons();
   });
 });
 

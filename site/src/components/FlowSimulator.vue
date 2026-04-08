@@ -45,8 +45,6 @@ const INITIAL_FORM = {
   has_batteries: "false",
   batt_advanced: "false",
   add_another: "false",
-  /** When true, after “Battery systems” the preview shows the post-setup picker (Configure → Batteries). */
-  simulate_existing_batteries: "false",
   battery_index: "0",
   batt_remove_selected: "false",
   add_new: "false",
@@ -226,7 +224,6 @@ function computeNext(stepId, s) {
       return "battery";
     case "battery":
       if (!boolFromForm(s, "has_batteries")) return STEP_DONE;
-      if (boolFromForm(s, "simulate_existing_batteries")) return "battery_pick";
       return "battery_add";
     case "battery_pick": {
       if (boolFromForm(s, "batt_remove_selected") && boolFromForm(s, "add_new")) return null;
@@ -371,6 +368,21 @@ function restartWizard() {
   Object.assign(formState, { ...INITIAL_FORM });
 }
 
+/** Post-setup options step: Configure → Batteries when systems already exist (doc shortcut only). */
+function jumpToBatteryPick() {
+  finished.value = false;
+  flowNavChoice.value = "continue";
+  for (const k of Object.keys(formState)) delete formState[k];
+  Object.assign(formState, { ...INITIAL_FORM });
+  formState.has_batteries = "true";
+  history.value = ["battery_pick"];
+}
+
+function onFlowsimJumpEvent(ev) {
+  const sid = ev?.detail?.stepId;
+  if (sid === "battery_pick") jumpToBatteryPick();
+}
+
 const progressLabel = computed(() => {
   if (finished.value) return tr("flowsim.done_progress");
   return tr("flowsim.step_depth").replace("{n}", String(history.value.length));
@@ -512,7 +524,6 @@ function fieldKind(key) {
     key === "has_batteries" ||
     key === "batt_advanced" ||
     key === "add_another" ||
-    key === "simulate_existing_batteries" ||
     key === "solar_estimation_enabled" ||
     key === "solar_advanced" ||
     key === "solar_resale_contract" ||
@@ -639,10 +650,12 @@ function hasSelectRows(kind) {
 
 onMounted(() => {
   window.addEventListener("hub-energie-lang", bumpLang);
+  window.addEventListener("hub-energie-flowsim-jump", onFlowsimJumpEvent);
 });
 
 onUnmounted(() => {
   window.removeEventListener("hub-energie-lang", bumpLang);
+  window.removeEventListener("hub-energie-flowsim-jump", onFlowsimJumpEvent);
 });
 </script>
 
@@ -652,20 +665,6 @@ onUnmounted(() => {
       <div class="d-flex flex-column flex-md-row gap-3 align-items-md-end justify-content-between mb-3">
         <div class="flex-grow-1">
           <p class="small text-secondary mb-1">{{ tr("flowsim.branching_hint") }}</p>
-          <div class="form-check form-check-inline small mb-2">
-            <input
-              id="flowsim-simulate-existing-batteries"
-              v-model="formState.simulate_existing_batteries"
-              class="form-check-input"
-              type="checkbox"
-              true-value="true"
-              false-value="false"
-            />
-            <label class="form-check-label" for="flowsim-simulate-existing-batteries">
-              {{ tr("flowsim.simulate_existing_batteries") }}
-            </label>
-          </div>
-          <p class="small text-secondary mb-2">{{ tr("flowsim.simulate_existing_batteries_hint") }}</p>
           <button type="button" class="btn btn-sm btn-outline-secondary" @click="restartWizard">
             {{ tr("flowsim.start_over") }}
           </button>

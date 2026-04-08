@@ -43,6 +43,9 @@
           <a class="nav-link" href="#internals-deltas" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.internals_deltas">Deltas & policy</span></a
           >
+          <a class="nav-link" href="#internals-delta-caps" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.internals_delta_caps">Energy delta caps</span></a
+          >
           <a class="nav-link" href="#internals-day" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.internals_day">Paris day buckets</span></a
           >
@@ -89,6 +92,7 @@
               <a class="nav-link" href="#internals-slots"><span data-i18n="toc.internals_slots">Tariff slots</span></a>
               <a class="nav-link" href="#internals-attribution"><span data-i18n="toc.internals_attribution">Slot attribution</span></a>
               <a class="nav-link" href="#internals-deltas"><span data-i18n="toc.internals_deltas">Deltas & policy</span></a>
+              <a class="nav-link" href="#internals-delta-caps"><span data-i18n="toc.internals_delta_caps">Energy delta caps</span></a>
               <a class="nav-link" href="#internals-day"><span data-i18n="toc.internals_day">Paris day buckets</span></a>
               <a class="nav-link" href="#internals-store"><span data-i18n="toc.internals_store">Store file</span></a>
               <a class="nav-link" href="#internals-lts"><span data-i18n="toc.internals_lts">Long-term statistics</span></a>
@@ -253,6 +257,31 @@
               Drift between the external meter reading and the internal running sum is tracked per source so the health
               model can report inconsistent or degraded trust states without surprising silently shifted costs.
             </p>
+          </section>
+
+          <section id="internals-delta-caps" class="doc-section pb-5">
+            <h2 class="mb-3">
+              <span data-i18n="configure.delta_caps_h">Energy delta caps</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#internals-delta-caps"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h2>
+            <p class="text-secondary small mb-3" data-i18n-html="configure.delta_caps_intro_html"></p>
+            <div class="card border mb-4 shadow-sm">
+              <div class="card-body small text-secondary">
+                <h3 class="h6 text-uppercase text-secondary fw-semibold" data-i18n="configure.delta_caps_defaults_h">
+                  Default ceilings (kWh per coordinator update)
+                </h3>
+                <div class="mb-0" data-i18n-html="configure.delta_caps_defaults_html"></div>
+              </div>
+            </div>
+            <h3 class="h6 mb-2" data-i18n="configure.delta_caps_cases_h">Concrete cases</h3>
+            <div class="small text-secondary mb-4" data-i18n-html="configure.delta_caps_cases_html"></div>
+            <p class="text-secondary small mb-0" data-i18n-html="configure.delta_caps_ha_html"></p>
           </section>
 
           <section id="internals-day" class="doc-section pb-5">

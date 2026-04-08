@@ -45,12 +45,6 @@
           <a class="nav-link small py-1 ps-3" href="#configure-advanced" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.configure_advanced">Advanced configuration</span></a
           >
-          <a class="nav-link small py-1 ps-3" href="#configure-delta-caps" data-bs-dismiss="offcanvas"
-            ><span data-i18n="toc.configure_delta_caps">Energy delta caps</span></a
-          >
-          <a class="nav-link" href="#sensors" data-bs-dismiss="offcanvas"
-            ><span data-i18n="toc.sensors">Sensors &amp; entities</span></a
-          >
           <a class="nav-link" href="#lovelace" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.lovelace">Lovelace card</span></a
           >
@@ -62,9 +56,6 @@
           >
           <a class="nav-link" href="#devices" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.devices">Devices</span></a
-          >
-          <a class="nav-link small py-1 ps-3" href="#devices-integration" data-bs-dismiss="offcanvas"
-            ><span data-i18n="toc.devices_integration">Integration device list</span></a
           >
           <a class="nav-link small py-1 ps-3" href="#devices-gallery" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.devices_gallery">In Home Assistant</span></a
@@ -156,10 +147,6 @@
               <a class="nav-link small py-1 ps-3" href="#configure-advanced"
                 ><span data-i18n="toc.configure_advanced">Advanced configuration</span></a
               >
-              <a class="nav-link small py-1 ps-3" href="#configure-delta-caps"
-                ><span data-i18n="toc.configure_delta_caps">Energy delta caps</span></a
-              >
-              <a class="nav-link" href="#sensors"><span data-i18n="toc.sensors">Sensors &amp; entities</span></a>
               <a class="nav-link" href="#lovelace"><span data-i18n="toc.lovelace">Lovelace card</span></a>
               <a class="nav-link small py-1 ps-3" href="#lovelace-showcase"
                 ><span data-i18n="toc.lovelace_showcase">Card preview</span></a
@@ -168,9 +155,6 @@
                 ><span data-i18n="toc.lovelace_editor">Visual editor</span></a
               >
               <a class="nav-link" href="#devices"><span data-i18n="toc.devices">Devices</span></a>
-              <a class="nav-link small py-1 ps-3" href="#devices-integration"
-                ><span data-i18n="toc.devices_integration">Integration device list</span></a
-              >
               <a class="nav-link small py-1 ps-3" href="#devices-gallery"
                 ><span data-i18n="toc.devices_gallery">In Home Assistant</span></a
               >
@@ -506,44 +490,14 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
               >
             </h3>
             <p class="text-secondary small mb-3" data-i18n-html="configure.advanced_intro_html"></p>
-
-            <h4 class="h5 mt-2 mb-2 doc-subsection" id="configure-delta-caps">
-              <span data-i18n="configure.delta_caps_h">Energy delta caps</span>
-              <a
-                class="doc-anchor text-secondary"
-                href="#configure-delta-caps"
-                data-i18n-aria="section.link_aria"
-                aria-label="Link to section"
-                >#</a
-              >
-            </h4>
-            <p class="text-secondary small mb-3" data-i18n-html="configure.delta_caps_intro_html"></p>
-            <div class="card border mb-4 shadow-sm">
-              <div class="card-body small text-secondary">
-                <h4 class="h6 text-uppercase text-secondary fw-semibold" data-i18n="configure.delta_caps_defaults_h">
-                  Default ceilings (kWh per coordinator update)
-                </h4>
-                <div class="mb-0" data-i18n-html="configure.delta_caps_defaults_html"></div>
-              </div>
+            <div class="d-flex flex-wrap gap-2 mb-2">
+              <button type="button" class="btn btn-outline-primary btn-sm" data-flowsim-jump="battery_pick">
+                <span data-i18n="configure.advanced_btn_flowsim_batteries">Preview: Configure → Batteries (existing)</span>
+              </button>
+              <a class="btn btn-outline-secondary btn-sm" href="#/internals#internals-delta-caps" role="button">
+                <span data-i18n="configure.advanced_btn_internals_delta">Energy delta caps (implementation notes)</span>
+              </a>
             </div>
-            <h4 class="h6 mb-2" data-i18n="configure.delta_caps_cases_h">Concrete cases</h4>
-            <div class="small text-secondary mb-4" data-i18n-html="configure.delta_caps_cases_html"></div>
-            <p class="text-secondary small mb-0" data-i18n-html="configure.delta_caps_ha_html"></p>
-          </section>
-
-          <section id="sensors" class="doc-section pb-5">
-            <h2 class="mb-3">
-              <span data-i18n="sensors.title">Sensors &amp; entities</span>
-              <a
-                class="doc-anchor text-secondary"
-                href="#sensors"
-                data-i18n-aria="section.link_aria"
-                aria-label="Link to section"
-                >#</a
-              >
-            </h2>
-            <p class="text-secondary mb-3" data-i18n-html="sensors.intro_html"></p>
-            <p class="text-secondary small mb-0" data-i18n-html="sensors.more_html"></p>
           </section>
 
           <section id="lovelace" class="doc-section pb-5">
@@ -675,74 +629,6 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
               domains; see <code class="font-mono">CHANGELOG.md</code> for finer detail.
             </p>
 
-            <h3 class="h5 mt-3 mb-2 doc-subsection" id="devices-integration">
-              <span data-i18n="devices.integration_title">Integration device list</span>
-            </h3>
-            <figure class="doc-figure doc-figure--photo card mb-4">
-              <div class="doc-screenshot-frame doc-screenshot-frame--full position-relative bg-body-secondary">
-                <img
-                  src="img/integration-devices-overview.png"
-                  alt=""
-                  class="doc-carousel-img doc-zoomable"
-                  decoding="async"
-                  data-i18n-alt="devices.integration_alt"
-                />
-                <div
-                  class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
-                >
-                  <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
-                  <span data-i18n="common.img_placeholder">Add screenshot to</span>
-                  <code class="font-mono small mt-1">public/img/integration-devices-overview.png</code>
-                </div>
-              </div>
-              <figcaption class="card-body py-2 px-3 small text-secondary mb-0" data-i18n-html="devices.integration_cap_html"></figcaption>
-            </figure>
-
-            <div class="table-responsive rounded-3 border">
-              <table class="table table-doc table-striped table-hover mb-0">
-                <thead>
-                  <tr>
-                    <th scope="col" data-i18n="devices.th_device">Device</th>
-                    <th scope="col" data-i18n="devices.th_purpose">Purpose</th>
-                  </tr>
-                </thead>
-                <tbody class="table-group-divider">
-                  <tr>
-                    <td><strong data-i18n="devices.g1_t">Offre</strong></td>
-                    <td data-i18n="devices.p_offre">Tariff, supplier, contract</td>
-                  </tr>
-                  <tr>
-                    <td><strong data-i18n="devices.g2_t">Réseau</strong></td>
-                    <td data-i18n="devices.p_reseau">Grid energy / power sensors</td>
-                  </tr>
-                  <tr>
-                    <td><strong data-i18n="devices.g3_t">Solaire</strong></td>
-                    <td data-i18n="devices.p_solaire">Solar measurement / estimation</td>
-                  </tr>
-                  <tr>
-                    <td><strong data-i18n="devices.table_row_batt">Battery &lt;name&gt;</strong></td>
-                    <td data-i18n="devices.p_batt">Per-battery system (0..N)</td>
-                  </tr>
-                  <tr>
-                    <td><strong data-i18n="devices.g5_t">Batteries (total)</strong></td>
-                    <td data-i18n="devices.p_battsum">Aggregated battery summary</td>
-                  </tr>
-                  <tr>
-                    <td><strong data-i18n="devices.g6_t">Bilan énergétique</strong></td>
-                    <td data-i18n="devices.p_bilan">Computed energy flows (kWh)</td>
-                  </tr>
-                  <tr>
-                    <td><strong data-i18n="devices.g7_t">Coûts</strong></td>
-                    <td data-i18n="devices.p_couts">Monetary values (€)</td>
-                  </tr>
-                  <tr>
-                    <td><strong data-i18n="devices.g8_t">Diagnostics</strong></td>
-                    <td data-i18n="devices.p_diag">Health, reinjection diagnostics</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
             <h3 class="h5 mt-4 mb-2 doc-subsection" id="devices-gallery">
               <span data-i18n="devices.gallery_title">Devices in Home Assistant</span>
             </h3>
@@ -839,6 +725,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                   aria-label="Devices"
                 >
                   <div class="carousel-inner">
+<!-- hub_energie doc: device carousel mock · v{{HUB_ENERGIE_VERSION}} · Home Assistant 2024.10.0+ -->
                     <div class="carousel-item active">
                       <div
                         class="doc-screenshot-frame doc-screenshot-frame--carousel doc-screenshot-frame--device-mock position-relative"
@@ -862,12 +749,12 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             <div class="doc-ha-row">
                               <i class="bi bi-eye doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_current_slot">Current slot</span>
-                              <span class="doc-ha-val font-monospace">bleu_hp</span>
+                              <span class="doc-ha-val font-monospace">bleu_hc</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-circle-half doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_tempo_hc">Tempo off-peak</span>
-                              <span class="doc-ha-val" data-i18n="devices.mock.val_off">Off</span>
+                              <span class="doc-ha-val" data-i18n="devices.mock.val_enabled">On</span>
                             </div>
                           </div>
                           <div class="doc-ha-card">
@@ -890,7 +777,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             <div class="doc-ha-row">
                               <i class="bi bi-calendar3 doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_days_blue_left">Blue days left</span>
-                              <span class="doc-ha-val">141 d</span>
+                              <span class="doc-ha-val">139 d</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-calendar3 doc-ha-ico" aria-hidden="true"></i>
@@ -900,12 +787,12 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             <div class="doc-ha-row">
                               <i class="bi bi-clock-history doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_next_colour">Next colour change</span>
-                              <span class="doc-ha-val" data-i18n="devices.mock.val_in_16h">In 16 hours</span>
+                              <span class="doc-ha-val" data-i18n="devices.mock.val_in_5h">In 5 hours</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-moon-stars doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_next_hc">Next off-peak start</span>
-                              <span class="doc-ha-val" data-i18n="devices.mock.val_in_8h">In 8 hours</span>
+                              <span class="doc-ha-val" data-i18n="devices.mock.val_in_21h">In 21 hours</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-broadcast doc-ha-ico" aria-hidden="true"></i>
@@ -942,43 +829,76 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             <div class="doc-ha-card-h" data-i18n="devices.mock.ha_sensors">Sensors</div>
                             <div class="doc-ha-row">
                               <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_grid_total">Grid energy (total)</span>
-                              <span class="doc-ha-val">12 482 kWh</span>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_grid_origin">Grid energy (origin)</span>
+                              <span class="doc-ha-val">2.63 kWh</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-sun doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_grid_today">Grid energy (today)</span>
-                              <span class="doc-ha-val">14.2 kWh</span>
+                              <span class="doc-ha-val">2.63 kWh</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_grid_origin">Grid energy (origin)</span>
-                              <span class="doc-ha-val">12 468 kWh</span>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_grid_total">Grid energy (total)</span>
+                              <span class="doc-ha-val">27.41 kWh</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_grid_import_p">Grid import power</span>
-                              <span class="doc-ha-val">3 210 W</span>
+                              <span class="doc-ha-val">248 W</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_grid_to_home_p">Grid to home power</span>
-                              <span class="doc-ha-val">1 050 W</span>
+                              <span class="doc-ha-val">248 W</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_usage_grid_home">Grid → home</span>
-                              <span class="doc-ha-val">11.2 kWh</span>
+                              <span class="doc-ha-val">2.63 kWh</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_usage_grid_batt">Grid → battery</span>
-                              <span class="doc-ha-val">2.1 kWh</span>
+                              <span class="doc-ha-val">0.00 kWh</span>
                             </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_reseau_blanc_hc"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_reseau_blanc_hp"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_reseau_bleu_hc"></span>
+                              <span class="doc-ha-val">2.63 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_reseau_bleu_hp"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_reseau_rouge_hc"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_reseau_rouge_hp"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                          </div>
+                          <div class="doc-ha-card">
+                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_diagnostic">Diagnostics</div>
                             <div class="doc-ha-row">
                               <i class="bi bi-question-circle doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_grid_unknown_slot">Grid — unknown slot (today)</span>
-                              <span class="doc-ha-val">0 kWh</span>
+                              <span class="doc-ha-val">0.00 kWh</span>
                             </div>
                           </div>
                         </div>
@@ -1009,39 +929,142 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                           <div class="doc-ha-card">
                             <div class="doc-ha-card-h" data-i18n="devices.mock.ha_sensors">Sensors</div>
                             <div class="doc-ha-row">
-                              <i class="bi bi-sun doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_prod_p">Solar production power</span>
-                              <span class="doc-ha-val">0 W</span>
+                              <i class="bi bi-piggy-bank doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_savings"></span>
+                              <span class="doc-ha-val">0.0 €</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_total">Solar energy (total)</span>
-                              <span class="doc-ha-val">6 120 kWh</span>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_est_year"></span>
+                              <span class="doc-ha-val">3 079.60 kWh</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_today">Solar energy (today)</span>
-                              <span class="doc-ha-val">0 kWh</span>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_est_day"></span>
+                              <span class="doc-ha-val">8.38 kWh</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_origin">Solar energy (origin)</span>
-                              <span class="doc-ha-val">6 118 kWh</span>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_export_today"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
                             </div>
                             <div class="doc-ha-row">
-                              <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_home">Solar → home</span>
-                              <span class="doc-ha-val">0 kWh</span>
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_export_total"></span>
+                              <span class="doc-ha-val">3.79 kWh</span>
                             </div>
                             <div class="doc-ha-row">
-                              <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_batt">Solar → battery</span>
-                              <span class="doc-ha-val">0 kWh</span>
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_origin"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_today"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_total"></span>
+                              <span class="doc-ha-val">24.80 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-toggle2-off doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_prod_active"></span>
+                              <span class="doc-ha-val" data-i18n="devices.mock.val_inactive"></span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_export_p">Solar export power</span>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_est_p"></span>
                               <span class="doc-ha-val">0 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_export_p"></span>
+                              <span class="doc-ha-val">0 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-sun doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_prod_p"></span>
+                              <span class="doc-ha-val">0 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_p_to_batt"></span>
+                              <span class="doc-ha-val">0 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_p_to_home"></span>
+                              <span class="doc-ha-val">0 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_batt"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solar_home"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solaire_blanc_hc"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solaire_blanc_hp"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solaire_bleu_hc"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solaire_bleu_hp"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solaire_rouge_hc"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_solaire_rouge_hp"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                          </div>
+                          <div class="doc-ha-card">
+                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_diagnostic">Diagnostics</div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-piggy-bank doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_oop_solar_surplus"></span>
+                              <span class="doc-ha-val">0.0 €</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-toggle2-off doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_pv_est_active"></span>
+                              <span class="doc-ha-val" data-i18n="devices.mock.val_inactive"></span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_export_surplus_solar"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_export_p"></span>
+                              <span class="doc-ha-val">0 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-activity doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_activity"></span>
+                              <span class="doc-ha-val">—</span>
                             </div>
                           </div>
                         </div>
@@ -1073,33 +1096,38 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             <div class="doc-ha-card-h" data-i18n="devices.mock.ha_sensors">Sensors</div>
                             <div class="doc-ha-row">
                               <i class="bi bi-battery-charging doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_charging"></span>
+                              <span class="doc-ha-val" data-i18n="devices.mock.val_not_charging"></span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-battery-charging doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_charge_e">Charge energy</span>
-                              <span class="doc-ha-val">1 240 kWh</span>
+                              <span class="doc-ha-val">0.00 kWh</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-battery-half doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_discharge_e">Discharge energy</span>
-                              <span class="doc-ha-val">1 180 kWh</span>
-                            </div>
-                            <div class="doc-ha-row">
-                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_pnet">Net power</span>
-                              <span class="doc-ha-val">−200 W</span>
-                            </div>
-                            <div class="doc-ha-row">
-                              <i class="bi bi-percent doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_soc">State of charge</span>
-                              <span class="doc-ha-val">72 %</span>
-                            </div>
-                            <div class="doc-ha-row">
-                              <i class="bi bi-battery doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_stored">Stored energy</span>
-                              <span class="doc-ha-val">7.2 kWh</span>
+                              <span class="doc-ha-val">0.00 kWh</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-battery doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_avail">Available energy</span>
-                              <span class="doc-ha-val">5.1 kWh</span>
+                              <span class="doc-ha-val">1.56 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-battery doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_stored">Stored energy</span>
+                              <span class="doc-ha-val">2.13 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-percent doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_soc">State of charge</span>
+                              <span class="doc-ha-val">37.0 %</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_pnet">Net power</span>
+                              <span class="doc-ha-val">0 W</span>
                             </div>
                           </div>
                         </div>
@@ -1124,27 +1152,146 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             <span class="doc-ha-mock-bc-sep" aria-hidden="true">·</span>
                             <span data-i18n="devices.g5_t">Batteries (total)</span>
                           </div>
+                          <p class="doc-ha-mock-note" data-i18n="devices.mock.note_battsum"></p>
                           <div class="doc-ha-card">
                             <div class="doc-ha-card-h" data-i18n="devices.mock.ha_sensors">Sensors</div>
                             <div class="doc-ha-row">
-                              <i class="bi bi-battery-charging doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_sum_charge">Total charge energy</span>
-                              <span class="doc-ha-val">1 240 kWh</span>
+                              <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_home"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
                             </div>
                             <div class="doc-ha-row">
-                              <i class="bi bi-battery-half doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_sum_discharge">Total discharge energy</span>
-                              <span class="doc-ha-val">1 180 kWh</span>
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_chg_blanc_hc"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_chg_blanc_hp"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_chg_bleu_hc"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_chg_bleu_hp"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_chg_rouge_hc"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_chg_rouge_hp"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_dch_blanc_hc"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_dch_blanc_hp"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_dch_bleu_hc"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_dch_bleu_hp"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_dch_rouge_hc"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_dch_rouge_hp"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-piggy-bank doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_savings_batt"></span>
+                              <span class="doc-ha-val">0.0 €</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_sum_pnet">Total net power</span>
-                              <span class="doc-ha-val">−200 W</span>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_chg_today"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_chg_total_named"></span>
+                              <span class="doc-ha-val">11.41 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_chg_total"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_dch_total"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_dch_today"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_dch_total_named"></span>
+                              <span class="doc-ha-val">10.33 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-house doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_home_today"></span>
+                              <span class="doc-ha-val">2.63 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_p_to_home"></span>
+                              <span class="doc-ha-val">0 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_p_dch"></span>
+                              <span class="doc-ha-val">0 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-lightning-charge doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_sum_pnet"></span>
+                              <span class="doc-ha-val">0 W</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_p_grid_to_batt"></span>
+                              <span class="doc-ha-val">0 W</span>
+                            </div>
+                          </div>
+                          <div class="doc-ha-card">
+                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_diagnostic">Diagnostics</div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-piggy-bank doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_oop_battery"></span>
+                              <span class="doc-ha-val">0.0 €</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_batt_home">Battery → home</span>
-                              <span class="doc-ha-val">3.4 kWh</span>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_export_batt_full"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
                             </div>
                           </div>
                         </div>
@@ -1175,24 +1322,39 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                           <div class="doc-ha-card">
                             <div class="doc-ha-card-h" data-i18n="devices.mock.ha_sensors">Sensors</div>
                             <div class="doc-ha-row">
-                              <i class="bi bi-house doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_home_today">Home energy (today)</span>
-                              <span class="doc-ha-val">18.4 kWh</span>
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_maison_blanc_hc"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_maison_blanc_hp"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_maison_bleu_hc"></span>
+                              <span class="doc-ha-val">2.61 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_maison_bleu_hp"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_maison_rouge_hc"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_maison_rouge_hp"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
                             </div>
                             <div class="doc-ha-row">
                               <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_home_power">Home power</span>
-                              <span class="doc-ha-val">2 100 W</span>
-                            </div>
-                            <div class="doc-ha-row">
-                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_maison_hp">Home — peak (example)</span>
-                              <span class="doc-ha-val">10.1 kWh</span>
-                            </div>
-                            <div class="doc-ha-row">
-                              <i class="bi bi-grid-1x2 doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_maison_hc">Home — off-peak (example)</span>
-                              <span class="doc-ha-val">8.3 kWh</span>
+                              <span class="doc-ha-val">319 W</span>
                             </div>
                           </div>
                         </div>
@@ -1222,17 +1384,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             <div class="doc-ha-row">
                               <i class="bi bi-currency-euro doc-ha-ico" aria-hidden="true"></i>
                               <span class="doc-ha-name" data-i18n="devices.mock.lbl_cost_day">Cost of the day</span>
-                              <span class="doc-ha-val">4.26 €</span>
-                            </div>
-                            <div class="doc-ha-row">
-                              <i class="bi bi-piggy-bank doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_savings_solar">Solar savings</span>
-                              <span class="doc-ha-val">0.85 €</span>
-                            </div>
-                            <div class="doc-ha-row">
-                              <i class="bi bi-piggy-bank doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_savings_batt">Battery savings</span>
-                              <span class="doc-ha-val">1.12 €</span>
+                              <span class="doc-ha-val">0.987 €</span>
                             </div>
                           </div>
                         </div>
@@ -1261,44 +1413,61 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                             Several export-split sensors are grouped on Solar or Batteries when clearer.
                           </p>
                           <div class="doc-ha-card">
-                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_sensors">Sensors</div>
-                            <div class="doc-ha-row">
-                              <i class="bi bi-heart-pulse doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_health">Overall health</span>
-                              <span class="doc-ha-val" data-i18n="devices.mock.val_health_ok">OK</span>
-                            </div>
-                            <div class="doc-ha-row">
-                              <i class="bi bi-activity doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_reinj_cause">Reinjection cause</span>
-                              <span class="doc-ha-val font-monospace">—</span>
-                            </div>
-                            <div class="doc-ha-row">
-                              <i class="bi bi-shield-check doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_reinj_conf">Reinjection confidence</span>
-                              <span class="doc-ha-val">94 %</span>
-                            </div>
-                            <div class="doc-ha-row">
-                              <i class="bi bi-speedometer2 doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_export_p">Export power</span>
-                              <span class="doc-ha-val">0 W</span>
-                            </div>
+                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_diagnostic">Diagnostics</div>
                             <div class="doc-ha-row">
                               <i class="bi bi-info-circle doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_config_overview">Configuration overview</span>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_config_overview"></span>
                               <span class="doc-ha-val font-monospace">tempo</span>
                             </div>
                             <div class="doc-ha-row">
-                              <i class="bi bi-hourglass-split doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_since_update">Since last meter update</span>
-                              <span class="doc-ha-val">42 s</span>
+                              <i class="bi bi-activity doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_reinj_cause"></span>
+                              <span class="doc-ha-val font-monospace" data-i18n="devices.mock.val_unattributed"></span>
                             </div>
-                          </div>
-                          <div class="doc-ha-card">
-                            <div class="doc-ha-card-h" data-i18n="devices.mock.ha_diagnostic">Diagnostics</div>
                             <div class="doc-ha-row">
                               <i class="bi bi-wifi doc-ha-ico" aria-hidden="true"></i>
-                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_connectivity">Connectivity</span>
-                              <span class="doc-ha-val" data-i18n="devices.mock.val_on">Connected</span>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_connectivity"></span>
+                              <span class="doc-ha-val" data-i18n="devices.mock.val_on"></span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-piggy-bank doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_oop_latency"></span>
+                              <span class="doc-ha-val">0.0 €</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-piggy-bank doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_oop_unattrib"></span>
+                              <span class="doc-ha-val">0.0 €</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-piggy-bank doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_oop_export_total"></span>
+                              <span class="doc-ha-val">0.0 €</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-hourglass-split doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_since_update"></span>
+                              <span class="doc-ha-val">53.64 s</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-heart-pulse doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_health"></span>
+                              <span class="doc-ha-val" data-i18n="devices.mock.val_health_ok"></span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_export_latency_kwh"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-arrow-left-right doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_export_unattrib_kwh"></span>
+                              <span class="doc-ha-val">0.00 kWh</span>
+                            </div>
+                            <div class="doc-ha-row">
+                              <i class="bi bi-shield-check doc-ha-ico" aria-hidden="true"></i>
+                              <span class="doc-ha-name" data-i18n="devices.mock.lbl_reinj_conf"></span>
+                              <span class="doc-ha-val">85.0 %</span>
                             </div>
                           </div>
                         </div>
@@ -1308,7 +1477,6 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                         <div class="small text-secondary" data-i18n="devices.g8_d">Health &amp; quality</div>
                       </div>
                     </div>
-                  </div>
                   <button
                     class="carousel-control-prev"
                     type="button"
