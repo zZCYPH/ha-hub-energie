@@ -9,7 +9,8 @@ Canonical sources:
 
 Scanned surfaces:
   - site/public/i18n.js (EN/FR strings shown on the static site)
-  - site/src/assets/*.html (static fallbacks / fragments)
+  - site/src/assets/*.html (static fallbacks / fragments; may use
+    {{HUB_ENERGIE_VERSION}} substituted at site build from manifest)
 
 Exit 0 if consistent; non-zero with a short report otherwise.
 """
@@ -27,6 +28,8 @@ SERVICES = ROOT / "custom_components/hub_energie/services.yaml"
 README = ROOT / "README.md"
 SITE_I18N = ROOT / "site/public/i18n.js"
 SITE_ASSETS = ROOT / "site/src/assets"
+# Replaced from manifest during site prebuild (see site/scripts/manifest-version.mjs).
+MANIFEST_VERSION_PLACEHOLDER = "{{HUB_ENERGIE_VERSION}}"
 
 # Triplet a.b.c (integration semver or calendar-style HA min); calendar years filtered below.
 TRIPLET_RE = re.compile(r"\b(v?)([0-9]+\.[0-9]+\.[0-9]+)\b")
@@ -101,14 +104,25 @@ def _check_site_text(
     expect_ha: str,
     *,
     require_ha_line: bool = True,
+    allow_build_time_version_placeholder: bool = False,
 ) -> list[str]:
     errors: list[str] = []
     semvers, ha_vers = _collect_semvers_and_ha(text)
 
-    if expect_ver not in semvers:
+    version_ok = expect_ver in semvers
+    if (
+        not version_ok
+        and allow_build_time_version_placeholder
+        and MANIFEST_VERSION_PLACEHOLDER in text
+        and len(semvers) == 0
+    ):
+        # Literal semver in source would override / contradict the placeholder contract.
+        version_ok = True
+    if not version_ok:
         errors.append(
             f"{label}: expected integration version token {expect_ver!r} "
-            f"(from manifest) not found in file text."
+            f"(from manifest), or {MANIFEST_VERSION_PLACEHOLDER!r} with no other integration "
+            f"semver literals in the file."
         )
     if len(semvers) > 1:
         errors.append(
@@ -179,6 +193,7 @@ def main() -> int:
                     ver,
                     ha_min,
                     require_ha_line=require_ha,
+                    allow_build_time_version_placeholder=True,
                 )
             )
 
@@ -189,7 +204,8 @@ def main() -> int:
         print(
             "\nFix: bump custom_components/hub_energie/manifest.json, then align "
             "README.md, hacs.json, site/public/i18n.js, and site/src/assets/*.html "
-            "(or run from Cursor with the verify-vitrine-vs-integration skill).",
+            "(or use {{HUB_ENERGIE_VERSION}} in HTML; prebuild fills it from the manifest). "
+            "Or run from Cursor with the verify-vitrine-vs-integration skill.",
             file=sys.stderr,
         )
         return 1
