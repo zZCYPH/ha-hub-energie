@@ -11,6 +11,7 @@ import json
 from typing import Final
 
 from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.selector import (
     EntitySelector,
     EntitySelectorConfig,
@@ -30,6 +31,8 @@ from .const import (
     BATT_SIGN_POSITIVE_CHARGE,
     BATT_SIGN_POSITIVE_DISCHARGE,
     CONTRACT_POWER_OPTIONS,
+    FLOW_NAV_BACK,
+    FLOW_NAV_CONTINUE,
     DAY_TYPE_OPTIONS,
     GRID_POWER_SIGN_OPTIONS,
     PHASE_OPTIONS,
@@ -260,6 +263,26 @@ def schedule_day_type_selector() -> SelectSelector:
 
 def time_slot_selector() -> TextSelector:
     return TextSelector(TextSelectorConfig(type=TextSelectorType.TIME))
+
+
+def flow_nav_selector(hass: HomeAssistant | None) -> SelectSelector:
+    """Bottom-of-form continue / back (setup wizard). Localized labels; no ``translation_key`` so the field title uses ``config.step.*.data.flow_nav``."""
+    lang = ((hass.config.language if hass else None) or "").lower()
+    if lang.startswith("fr"):
+        lbl_continue = "Continuer"
+        lbl_back = "Revenir à l’étape précédente"
+    else:
+        lbl_continue = "Continue"
+        lbl_back = "Back to previous step"
+    return SelectSelector(
+        SelectSelectorConfig(
+            options=[
+                SelectOptionDict(value=FLOW_NAV_CONTINUE, label=lbl_continue),
+                SelectOptionDict(value=FLOW_NAV_BACK, label=lbl_back),
+            ],
+            mode=SelectSelectorMode.DROPDOWN,
+        )
+    )
 
 
 def pricing_structure_selector() -> SelectSelector:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import uuid
 from typing import Any, Final
 
@@ -34,6 +35,7 @@ from .config_flow_selectors import (
     default_phase_json,
     default_schedule_json,
     energy_entity_selector,
+    flow_nav_selector,
     grid_power_sign_selector,
     offer_selector,
     optional_energy_entity,
@@ -93,6 +95,7 @@ from .const import (
     CONF_CONTRACT_POWER,
     CONF_CURRENCY,
     CONF_ENERGY_PRICE,
+    CONF_FLOW_NAV,
     CONF_GRID_EXPORT_ENERGY,
     CONF_GRID_EXPORT_ENERGY_PHASES,
     CONF_GRID_IMPORT_ENERGY,
@@ -124,7 +127,14 @@ from .const import (
     CONF_RTE_CLIENT_SECRET,
     CONF_SCHEDULE_SLOTS,
     DAY_TYPE_ALL,
+    DEFAULT_MAX_DELTA_KWH_BATTERY,
+    DEFAULT_MAX_DELTA_KWH_GRID,
+    DEFAULT_MAX_DELTA_KWH_SOLAR,
+    DELTA_CAP_KWH_MAX,
+    DELTA_CAP_KWH_MIN,
     DOCUMENTATION_ADVANCED_SCHEDULE_SLOTS_URL,
+    FLOW_NAV_BACK,
+    FLOW_NAV_CONTINUE,
     SCHEDULE_FORM_MAX_SLOTS,
     SCHEDULE_FORM_SECTION_PREFIX,
     CONF_SOLAR_ENERGY,
@@ -152,6 +162,7 @@ from .const import (
     TOU_FORM_SECTION_PREFIX,
     DOMAIN,
     GRID_POWER_SIGN_EXPORT_NEGATIVE,
+    MAX_DELTA_KWH_DEFAULT,
     GRID_TRI_DETAIL_KEYS,
     OPT_ABONNEMENT,
     OPT_BLEU_HC,
@@ -159,6 +170,10 @@ from .const import (
     OPT_BLANC_HC,
     OPT_BLANC_HP,
     OPT_FIXED_TTC,
+    OPT_MAX_DELTA_KWH_BATTERY,
+    OPT_MAX_DELTA_KWH_GRID,
+    OPT_MAX_DELTA_KWH_OTHER,
+    OPT_MAX_DELTA_KWH_SOLAR,
     OPT_ROUGE_HC,
     OPT_ROUGE_HP,
     OPT_TARIFF_FETCHED_AT,
@@ -215,6 +230,43 @@ def _redact_user_input(value: Any) -> Any:
     if not isinstance(value, dict):
         return value
     return redact_sensitive_mapping(value)
+
+
+def _strip_flow_nav(user_input: dict[str, Any]) -> dict[str, Any]:
+    return {k: v for k, v in user_input.items() if k != CONF_FLOW_NAV}
+
+
+def _vol_schema_to_dict(schema: vol.Schema) -> dict[Any, Any]:
+    """Copy a dict-shaped ``vol.Schema`` mapping (keys may be markers or plain strings)."""
+    for attr in ("schema", "_schema"):
+        raw = getattr(schema, attr, None)
+        if isinstance(raw, dict):
+            return dict(raw)
+    raise TypeError("Expected a dict-based voluptuous Schema")
+
+
+def _vol_schema_extra(schema: vol.Schema) -> int:
+    ex = getattr(schema, "extra", None)
+    if ex is not None:
+        return int(ex)
+    return int(getattr(schema, "_extra", vol.PREVENT_EXTRA))
+
+
+def _wrap_setup_wizard_schema(flow: object, schema: vol.Schema) -> vol.Schema:
+    nav_stack = getattr(flow, "_nav_stack", None)
+    if not isinstance(nav_stack, list) or not nav_stack:
+        return schema
+    d = _vol_schema_to_dict(schema)
+    hass = getattr(flow, "hass", None)
+    d[vol.Optional(CONF_FLOW_NAV, default=FLOW_NAV_CONTINUE)] = flow_nav_selector(hass)
+    return vol.Schema(d, extra=_vol_schema_extra(schema))
+
+
+async def _wizard_nav_forward(flow: object, from_step: str, coroutine: Any) -> ConfigFlowResult:
+    nav = getattr(flow, "_nav_stack", None)
+    if isinstance(nav, list):
+        nav.append(from_step)
+    return await coroutine
 
 
 class _StepLoggingMixin:
@@ -358,7 +410,21 @@ def _tou_form_defaults_from_periods(periods: Any) -> dict[str, Any]:
     return out
 
 
-def _manual_tou_form_schema(draft: dict[str, Any], currency: str) -> vol.Schema:
+def _subscription_price_uom(hass: HomeAssistant, currency: str) -> str:
+    """Suffix for monthly subscription number fields (not translated by strings.json)."""
+    lang = (getattr(hass.config, "language", None) or "").lower()
+    if lang.startswith("fr"):
+        return f"{currency}/mois"
+    return f"{currency}/month"
+
+
+def _manual_tou_form_schema(
+    hass: HomeAssistant,
+    draft: dict[str, Any],
+    currency: str,
+    *,
+    setup_flow: object | None = None,
+) -> vol.Schema:
     dfn = _tou_form_defaults_from_periods(draft.get(CONF_TOU_PERIODS))
     fields: dict[Any, Any] = {}
     for i in range(TOU_FORM_MAX_SLOTS):
@@ -385,13 +451,22 @@ def _manual_tou_form_schema(draft: dict[str, Any], currency: str) -> vol.Schema:
             min=0,
             max=1000,
             mode=NumberSelectorMode.BOX,
-            unit_of_measurement=f"{currency}/month",
+            unit_of_measurement=_subscription_price_uom(hass, currency),
         )
     )
+    nav_stack = getattr(setup_flow, "_nav_stack", None) if setup_flow is not None else None
+    if isinstance(nav_stack, list) and nav_stack:
+        fields[vol.Optional(CONF_FLOW_NAV, default=FLOW_NAV_CONTINUE)] = flow_nav_selector(hass)
     return vol.Schema(fields)
 
 
-def _manual_schedule_form_schema(draft: dict[str, Any], currency: str) -> vol.Schema:
+def _manual_schedule_form_schema(
+    hass: HomeAssistant,
+    draft: dict[str, Any],
+    currency: str,
+    *,
+    setup_flow: object | None = None,
+) -> vol.Schema:
     dfn = _schedule_form_defaults_from_slots(draft.get(CONF_SCHEDULE_SLOTS))
     fields: dict[Any, Any] = {}
     for i in range(SCHEDULE_FORM_MAX_SLOTS):
@@ -420,9 +495,12 @@ def _manual_schedule_form_schema(draft: dict[str, Any], currency: str) -> vol.Sc
             min=0,
             max=1000,
             mode=NumberSelectorMode.BOX,
-            unit_of_measurement=f"{currency}/month",
+            unit_of_measurement=_subscription_price_uom(hass, currency),
         )
     )
+    nav_stack = getattr(setup_flow, "_nav_stack", None) if setup_flow is not None else None
+    if isinstance(nav_stack, list) and nav_stack:
+        fields[vol.Optional(CONF_FLOW_NAV, default=FLOW_NAV_CONTINUE)] = flow_nav_selector(hass)
     return vol.Schema(fields)
 
 
@@ -778,14 +856,14 @@ class _BatteryWizardMixin(_StepLoggingMixin):
     async def _after_batteries_finished(self) -> ConfigFlowResult:
         raise NotImplementedError
 
-    async def _commit_current_battery(self) -> ConfigFlowResult:
+    async def _commit_current_battery(self, *, from_step: str = "battery_add") -> ConfigFlowResult:
         if self._edit_batt_index is None:
             self._batteries.append(dict(self._current_battery))
         else:
             self._batteries[self._edit_batt_index] = dict(self._current_battery)
         self._current_battery = {}
         self._edit_batt_index = None
-        return await self.async_step_battery_more()
+        return await _wizard_nav_forward(self, from_step, self.async_step_battery_more())
 
     async def async_step_battery_add(
         self, user_input: dict[str, Any] | None = None
@@ -798,6 +876,12 @@ class _BatteryWizardMixin(_StepLoggingMixin):
             else:
                 user_input = {k: v for k, v in user_input.items() if k != CONF_HAS_BATTERIES}
         if user_input is not None:
+            back_coro = getattr(self, "_setup_flow_nav_back", None)
+            if callable(back_coro):
+                back_res = await back_coro(user_input)
+                if back_res is not None:
+                    return back_res
+            user_input = _strip_flow_nav(user_input)
             patch, errors = await _async_validate_step(self.hass, "battery_add", battery, user_input)
             if not errors:
                 updated = dict(battery)
@@ -805,12 +889,12 @@ class _BatteryWizardMixin(_StepLoggingMixin):
                 _apply_patch(updated, patch)
                 self._current_battery = updated
                 if updated.get(CONF_BATT_ADVANCED):
-                    return await self.async_step_battery_advanced()
-                return await self._commit_current_battery()
+                    return await _wizard_nav_forward(self, "battery_add", self.async_step_battery_advanced())
+                return await self._commit_current_battery(from_step="battery_add")
         number = (self._edit_batt_index + 1) if self._edit_batt_index is not None else (len(self._batteries) + 1)
         return self.async_show_form(
             step_id="battery_add",
-            data_schema=_battery_add_schema(battery, number=number, user_input=user_input),
+            data_schema=_wrap_setup_wizard_schema(self, _battery_add_schema(battery, number=number, user_input=user_input)),
             errors=errors,
             description_placeholders={"battery_number": str(number)},
         )
@@ -824,15 +908,21 @@ class _BatteryWizardMixin(_StepLoggingMixin):
             return await self.async_step_battery_add(user_input)
         last_input: dict[str, Any] | None = None
         if user_input is not None:
+            back_coro = getattr(self, "_setup_flow_nav_back", None)
+            if callable(back_coro):
+                back_res = await back_coro(user_input)
+                if back_res is not None:
+                    return back_res
+            user_input = _strip_flow_nav(user_input)
             patch, errors = await _async_validate_step(self.hass, "battery_advanced", battery, user_input)
             if not errors:
                 _apply_patch(self._current_battery, patch)
-                return await self._commit_current_battery()
+                return await self._commit_current_battery(from_step="battery_advanced")
             last_input = user_input
         number = (self._edit_batt_index + 1) if self._edit_batt_index is not None else (len(self._batteries) + 1)
         return self.async_show_form(
             step_id="battery_advanced",
-            data_schema=_battery_advanced_data_schema(self, battery, last_input),
+            data_schema=_wrap_setup_wizard_schema(self, _battery_advanced_data_schema(self, battery, last_input)),
             errors=errors,
             description_placeholders={"battery_number": str(number)},
         )
@@ -841,16 +931,25 @@ class _BatteryWizardMixin(_StepLoggingMixin):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         if user_input is not None:
+            back_coro = getattr(self, "_setup_flow_nav_back", None)
+            if callable(back_coro):
+                back_res = await back_coro(user_input)
+                if back_res is not None:
+                    return back_res
+            user_input = _strip_flow_nav(user_input)
             if bool(user_input.get("add_another", False)):
                 self._edit_batt_index = None
                 self._current_battery = {BATTERY_ID: uuid.uuid4().hex[:8]}
-                return await self.async_step_battery_add()
+                return await _wizard_nav_forward(self, "battery_more", self.async_step_battery_add())
             return await self._after_batteries_finished()
         return self.async_show_form(
             step_id="battery_more",
-            data_schema=vol.Schema(
-                {vol.Required("add_another", default=False): BooleanSelector()},
-                extra=vol.ALLOW_EXTRA,
+            data_schema=_wrap_setup_wizard_schema(
+                self,
+                vol.Schema(
+                    {vol.Required("add_another", default=False): BooleanSelector()},
+                    extra=vol.ALLOW_EXTRA,
+                ),
             ),
             description_placeholders={"battery_count": str(len(self._batteries))},
         )
@@ -867,6 +966,15 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
         self._batteries: list[dict[str, Any]] = []
         self._current_battery: dict[str, Any] = {}
         self._edit_batt_index: int | None = None
+        self._nav_stack: list[str] = []
+
+    async def _setup_flow_nav_back(self, user_input: dict[str, Any] | None) -> ConfigFlowResult | None:
+        if user_input is None or user_input.get(CONF_FLOW_NAV) != FLOW_NAV_BACK:
+            return None
+        if not self._nav_stack:
+            return None
+        prev = self._nav_stack.pop()
+        return await getattr(self, f"async_step_{prev}")()
 
     @staticmethod
     @callback
@@ -876,14 +984,17 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     def _supplier_custom_show_form(self, errors: dict[str, str]) -> ConfigFlowResult:
         return self.async_show_form(
             step_id="supplier_custom",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_SUPPLIER_CUSTOM_NAME,
-                        default=self._data.get(CONF_SUPPLIER_CUSTOM_NAME, ""),
-                    ): text_selector(),
-                },
-                extra=vol.ALLOW_EXTRA,
+            data_schema=_wrap_setup_wizard_schema(
+                self,
+                vol.Schema(
+                    {
+                        vol.Required(
+                            CONF_SUPPLIER_CUSTOM_NAME,
+                            default=self._data.get(CONF_SUPPLIER_CUSTOM_NAME, ""),
+                        ): text_selector(),
+                    },
+                    extra=vol.ALLOW_EXTRA,
+                ),
             ),
             errors=errors,
         )
@@ -897,20 +1008,28 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = await _async_validate_step(self.hass, "user", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_SUPPLIER) == SUPPLIER_OTHER:
+                    self._nav_stack.append("user")
                     return self._supplier_custom_show_form({})
-                return await self.async_step_tariff_mode()
+                return await _wizard_nav_forward(self, "user", self.async_step_tariff_mode())
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_SUPPLIER, default=self._data.get(CONF_SUPPLIER, SUPPLIER_EDF)): supplier_selector(),
-                    vol.Required(CONF_PHASE_TYPE, default=self._data.get(CONF_PHASE_TYPE, PHASE_MONO)): phase_selector(),
-                },
-                extra=vol.ALLOW_EXTRA,
+            data_schema=_wrap_setup_wizard_schema(
+                self,
+                vol.Schema(
+                    {
+                        vol.Required(CONF_SUPPLIER, default=self._data.get(CONF_SUPPLIER, SUPPLIER_EDF)): supplier_selector(),
+                        vol.Required(CONF_PHASE_TYPE, default=self._data.get(CONF_PHASE_TYPE, PHASE_MONO)): phase_selector(),
+                    },
+                    extra=vol.ALLOW_EXTRA,
+                ),
             ),
             errors=errors,
         )
@@ -920,10 +1039,14 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = _validate_step("supplier_custom", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
-                return await self.async_step_tariff_mode_manual_only()
+                return await _wizard_nav_forward(self, "supplier_custom", self.async_step_tariff_mode_manual_only())
         return self._supplier_custom_show_form(errors)
 
     async def async_step_tariff_mode(
@@ -931,14 +1054,21 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = _validate_step("tariff_mode", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
-                return await self.async_step_contract()
+                return await _wizard_nav_forward(self, "tariff_mode", self.async_step_contract())
         return self.async_show_form(
             step_id="tariff_mode",
-            data_schema=vol.Schema(
-                {vol.Required(CONF_TARIFF_MODE, default=self._data.get(CONF_TARIFF_MODE, TARIFF_MODE_AUTO)): tariff_mode_selector()}
+            data_schema=_wrap_setup_wizard_schema(
+                self,
+                vol.Schema(
+                    {vol.Required(CONF_TARIFF_MODE, default=self._data.get(CONF_TARIFF_MODE, TARIFF_MODE_AUTO)): tariff_mode_selector()}
+                ),
             ),
             errors=errors,
         )
@@ -947,21 +1077,32 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             self._data[CONF_TARIFF_MODE] = TARIFF_MODE_MANUAL
-            return await self.async_step_contract()
-        return self.async_show_form(step_id="tariff_mode_manual_only", data_schema=vol.Schema({}))
+            return await _wizard_nav_forward(self, "tariff_mode_manual_only", self.async_step_contract())
+        return self.async_show_form(
+            step_id="tariff_mode_manual_only",
+            data_schema=_wrap_setup_wizard_schema(self, vol.Schema({})),
+        )
 
     async def async_step_contract(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = _validate_step("contract", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_TARIFF_MODE) == TARIFF_MODE_AUTO:
-                    return await self.async_step_edf_offer()
-                return await self.async_step_manual_pricing()
+                    return await _wizard_nav_forward(self, "contract", self.async_step_edf_offer())
+                return await _wizard_nav_forward(self, "contract", self.async_step_manual_pricing())
         is_edf = self._data.get(CONF_SUPPLIER) == SUPPLIER_EDF
         schema: dict[Any, Any] = {}
         if is_edf:
@@ -969,23 +1110,34 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
         else:
             schema[vol.Required(CONF_CONTRACT_POWER, default=int(self._data.get(CONF_CONTRACT_POWER, "9")))] = contract_power_selector_other()
         _add_optional(schema, CONF_CONTRACT_NAME, text_selector(), self._data.get(CONF_CONTRACT_NAME, ""))
-        return self.async_show_form(step_id="contract", data_schema=vol.Schema(schema), errors=errors)
+        return self.async_show_form(
+            step_id="contract",
+            data_schema=_wrap_setup_wizard_schema(self, vol.Schema(schema)),
+            errors=errors,
+        )
 
     async def async_step_edf_offer(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = _validate_step("edf_offer", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_TARIFF_OFFER) == TARIFF_OFFER_TEMPO:
-                    return await self.async_step_edf_tempo()
-                return await self._edf_fetch_and_continue()
+                    return await _wizard_nav_forward(self, "edf_offer", self.async_step_edf_tempo())
+                return await _wizard_nav_forward(self, "edf_offer", self._edf_fetch_and_continue())
         return self.async_show_form(
             step_id="edf_offer",
-            data_schema=vol.Schema(
-                {vol.Required(CONF_TARIFF_OFFER, default=self._data.get(CONF_TARIFF_OFFER, TARIFF_OFFER_TEMPO)): offer_selector()}
+            data_schema=_wrap_setup_wizard_schema(
+                self,
+                vol.Schema(
+                    {vol.Required(CONF_TARIFF_OFFER, default=self._data.get(CONF_TARIFF_OFFER, TARIFF_OFFER_TEMPO)): offer_selector()}
+                ),
             ),
             errors=errors,
         )
@@ -995,16 +1147,23 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = _validate_step("tempo_mode", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_TEMPO_MODE) == TEMPO_MODE_RTE:
-                    return await self.async_step_edf_tempo_rte()
-                return await self._edf_fetch_and_continue()
+                    return await _wizard_nav_forward(self, "edf_tempo", self.async_step_edf_tempo_rte())
+                return await _wizard_nav_forward(self, "edf_tempo", self._edf_fetch_and_continue())
         return self.async_show_form(
             step_id="edf_tempo",
-            data_schema=vol.Schema(
-                {vol.Required(CONF_TEMPO_MODE, default=self._data.get(CONF_TEMPO_MODE, TEMPO_MODE_RTE)): tempo_mode_selector()}
+            data_schema=_wrap_setup_wizard_schema(
+                self,
+                vol.Schema(
+                    {vol.Required(CONF_TEMPO_MODE, default=self._data.get(CONF_TEMPO_MODE, TEMPO_MODE_RTE)): tempo_mode_selector()}
+                ),
             ),
             errors=errors,
         )
@@ -1014,6 +1173,10 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = _validate_step("rte_credentials", self._data, user_input)
             if not errors:
                 client_id = patch.get(CONF_RTE_CLIENT_ID, self._data.get(CONF_RTE_CLIENT_ID))
@@ -1023,16 +1186,19 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
                     errors["base"] = auth_error
                 else:
                     _apply_patch(self._data, patch)
-                    return await self._edf_fetch_and_continue()
+                    return await _wizard_nav_forward(self, "edf_tempo_rte", self._edf_fetch_and_continue())
             elif errors == {"base": ERR_RTE_CREDS_REQUIRED}:
                 errors = {"base": ERR_RTE_CREDS_REQUIRED}
         return self.async_show_form(
             step_id="edf_tempo_rte",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_RTE_CLIENT_ID, default=self._data.get(CONF_RTE_CLIENT_ID, "")): text_selector(),
-                    vol.Required(CONF_RTE_CLIENT_SECRET, default=self._data.get(CONF_RTE_CLIENT_SECRET, "")): text_selector(password=True),
-                }
+            data_schema=_wrap_setup_wizard_schema(
+                self,
+                vol.Schema(
+                    {
+                        vol.Required(CONF_RTE_CLIENT_ID, default=self._data.get(CONF_RTE_CLIENT_ID, "")): text_selector(),
+                        vol.Required(CONF_RTE_CLIENT_SECRET, default=self._data.get(CONF_RTE_CLIENT_SECRET, "")): text_selector(password=True),
+                    }
+                ),
             ),
             errors=errors,
         )
@@ -1046,8 +1212,11 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
         if error:
             return self.async_show_form(
                 step_id="edf_offer",
-                data_schema=vol.Schema(
-                    {vol.Required(CONF_TARIFF_OFFER, default=self._data.get(CONF_TARIFF_OFFER, TARIFF_OFFER_TEMPO)): offer_selector()}
+                data_schema=_wrap_setup_wizard_schema(
+                    self,
+                    vol.Schema(
+                        {vol.Required(CONF_TARIFF_OFFER, default=self._data.get(CONF_TARIFF_OFFER, TARIFF_OFFER_TEMPO)): offer_selector()}
+                    ),
                 ),
                 errors={"base": error},
             )
@@ -1056,8 +1225,11 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
         if tariff_patch is None:
             return self.async_show_form(
                 step_id="edf_offer",
-                data_schema=vol.Schema(
-                    {vol.Required(CONF_TARIFF_OFFER, default=self._data.get(CONF_TARIFF_OFFER, TARIFF_OFFER_TEMPO)): offer_selector()}
+                data_schema=_wrap_setup_wizard_schema(
+                    self,
+                    vol.Schema(
+                        {vol.Required(CONF_TARIFF_OFFER, default=self._data.get(CONF_TARIFF_OFFER, TARIFF_OFFER_TEMPO)): offer_selector()}
+                    ),
                 ),
                 errors={"base": ERR_TARIFF_PAYLOAD_INCOMPLETE},
             )
@@ -1070,23 +1242,30 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = _validate_step("manual_pricing", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 structure = self._data.get(CONF_PRICING_STRUCTURE)
                 if structure == PRICING_FLAT:
-                    return await self.async_step_manual_flat()
+                    return await _wizard_nav_forward(self, "manual_pricing", self.async_step_manual_flat())
                 if structure == PRICING_TIME_OF_USE:
-                    return await self.async_step_manual_tou()
-                return await self.async_step_manual_schedule()
+                    return await _wizard_nav_forward(self, "manual_pricing", self.async_step_manual_tou())
+                return await _wizard_nav_forward(self, "manual_pricing", self.async_step_manual_schedule())
         return self.async_show_form(
             step_id="manual_pricing",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_PRICING_STRUCTURE, default=self._data.get(CONF_PRICING_STRUCTURE, PRICING_FLAT)): pricing_structure_selector(),
-                    vol.Required(CONF_PRICE_BASIS, default=self._data.get(CONF_PRICE_BASIS, PRICE_BASIS_TTC)): price_basis_selector(),
-                    vol.Optional(CONF_CURRENCY, default=self._data.get(CONF_CURRENCY, "EUR")): text_selector(),
-                }
+            data_schema=_wrap_setup_wizard_schema(
+                self,
+                vol.Schema(
+                    {
+                        vol.Required(CONF_PRICING_STRUCTURE, default=self._data.get(CONF_PRICING_STRUCTURE, PRICING_FLAT)): pricing_structure_selector(),
+                        vol.Required(CONF_PRICE_BASIS, default=self._data.get(CONF_PRICE_BASIS, PRICE_BASIS_TTC)): price_basis_selector(),
+                        vol.Optional(CONF_CURRENCY, default=self._data.get(CONF_CURRENCY, "EUR")): text_selector(),
+                    }
+                ),
             ),
             errors=errors,
         )
@@ -1096,22 +1275,34 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = _validate_step("manual_flat", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
-                return await self.async_step_grid()
+                return await _wizard_nav_forward(self, "manual_flat", self.async_step_grid())
         currency = self._data.get(CONF_CURRENCY, "EUR")
         return self.async_show_form(
             step_id="manual_flat",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_ENERGY_PRICE, default=self._data.get(CONF_ENERGY_PRICE, 0.0)): NumberSelector(
-                        NumberSelectorConfig(min=0, max=5, step=0.01, mode=NumberSelectorMode.BOX, unit_of_measurement=f"{currency}/kWh")
-                    ),
-                    vol.Optional(CONF_SUBSCRIPTION_PRICE, default=self._data.get(CONF_SUBSCRIPTION_PRICE, 0.0)): NumberSelector(
-                        NumberSelectorConfig(min=0, max=1000, mode=NumberSelectorMode.BOX, unit_of_measurement=f"{currency}/month")
-                    ),
-                }
+            data_schema=_wrap_setup_wizard_schema(
+                self,
+                vol.Schema(
+                    {
+                        vol.Required(CONF_ENERGY_PRICE, default=self._data.get(CONF_ENERGY_PRICE, 0.0)): NumberSelector(
+                            NumberSelectorConfig(min=0, max=5, step=0.01, mode=NumberSelectorMode.BOX, unit_of_measurement=f"{currency}/kWh")
+                        ),
+                        vol.Optional(CONF_SUBSCRIPTION_PRICE, default=self._data.get(CONF_SUBSCRIPTION_PRICE, 0.0)): NumberSelector(
+                            NumberSelectorConfig(
+                                min=0,
+                                max=1000,
+                                mode=NumberSelectorMode.BOX,
+                                unit_of_measurement=_subscription_price_uom(self.hass, currency),
+                            )
+                        ),
+                    }
+                ),
             ),
             errors=errors,
         )
@@ -1121,14 +1312,18 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = _validate_step("manual_tou", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
-                return await self.async_step_grid()
+                return await _wizard_nav_forward(self, "manual_tou", self.async_step_grid())
         currency = self._data.get(CONF_CURRENCY, "EUR")
         return self.async_show_form(
             step_id="manual_tou",
-            data_schema=_manual_tou_form_schema(self._data, currency),
+            data_schema=_manual_tou_form_schema(self.hass, self._data, currency, setup_flow=self),
             errors=errors,
         )
 
@@ -1137,23 +1332,37 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         return self.async_show_menu(
             step_id="manual_schedule",
-            menu_options=["manual_schedule_form", "manual_schedule_json"],
+            menu_options=["manual_schedule_form", "manual_schedule_json", "manual_schedule_prev"],
             description_placeholders={"doc_url": DOCUMENTATION_ADVANCED_SCHEDULE_SLOTS_URL},
         )
+
+    async def async_step_manual_schedule_prev(
+        self, _user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        if self._nav_stack:
+            self._nav_stack.pop()
+        return await self.async_step_manual_pricing()
 
     async def async_step_manual_schedule_form(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
+        if user_input is None:
+            if not self._nav_stack or self._nav_stack[-1] != "manual_schedule":
+                self._nav_stack.append("manual_schedule")
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = _validate_step("manual_schedule_form", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
-                return await self.async_step_grid()
+                return await _wizard_nav_forward(self, "manual_schedule_form", self.async_step_grid())
         currency = self._data.get(CONF_CURRENCY, "EUR")
         return self.async_show_form(
             step_id="manual_schedule_form",
-            data_schema=_manual_schedule_form_schema(self._data, currency),
+            data_schema=_manual_schedule_form_schema(self.hass, self._data, currency, setup_flow=self),
             errors=errors,
             description_placeholders={"doc_url": DOCUMENTATION_ADVANCED_SCHEDULE_SLOTS_URL},
         )
@@ -1162,24 +1371,39 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
+        if user_input is None:
+            if not self._nav_stack or self._nav_stack[-1] != "manual_schedule":
+                self._nav_stack.append("manual_schedule")
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = _validate_step("manual_schedule_json", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
-                return await self.async_step_grid()
+                return await _wizard_nav_forward(self, "manual_schedule_json", self.async_step_grid())
         currency = self._data.get(CONF_CURRENCY, "EUR")
         return self.async_show_form(
             step_id="manual_schedule_json",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_SCHEDULE_SLOTS,
-                        default=_json_default(self._data.get(CONF_SCHEDULE_SLOTS), default_schedule_json()),
-                    ): text_selector(multiline=True),
-                    vol.Optional(CONF_SUBSCRIPTION_PRICE, default=self._data.get(CONF_SUBSCRIPTION_PRICE, 0.0)): NumberSelector(
-                        NumberSelectorConfig(min=0, max=1000, mode=NumberSelectorMode.BOX, unit_of_measurement=f"{currency}/month")
-                    ),
-                }
+            data_schema=_wrap_setup_wizard_schema(
+                self,
+                vol.Schema(
+                    {
+                        vol.Required(
+                            CONF_SCHEDULE_SLOTS,
+                            default=_json_default(self._data.get(CONF_SCHEDULE_SLOTS), default_schedule_json()),
+                        ): text_selector(multiline=True),
+                        vol.Optional(CONF_SUBSCRIPTION_PRICE, default=self._data.get(CONF_SUBSCRIPTION_PRICE, 0.0)): NumberSelector(
+                            NumberSelectorConfig(
+                                min=0,
+                                max=1000,
+                                mode=NumberSelectorMode.BOX,
+                                unit_of_measurement=_subscription_price_uom(self.hass, currency),
+                            )
+                        ),
+                    }
+                ),
             ),
             errors=errors,
             description_placeholders={"doc_url": DOCUMENTATION_ADVANCED_SCHEDULE_SLOTS_URL},
@@ -1196,32 +1420,44 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
                 return await self.async_step_grid_tri_energy_mode()
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = await _async_validate_step(self.hass, "grid", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_PHASE_TYPE) == PHASE_TRI:
                     if self._data.get(CONF_GRID_TRI_ENERGY_MODE) == TRI_GRID_ENERGY_PER_PHASE:
-                        return await self.async_step_solar()
-                    return await self.async_step_grid_tri_layout()
-                return await self.async_step_solar()
-        return self.async_show_form(step_id="grid", data_schema=_grid_schema(self._data), errors=errors)
+                        return await _wizard_nav_forward(self, "grid", self.async_step_solar())
+                    return await _wizard_nav_forward(self, "grid", self.async_step_grid_tri_layout())
+                return await _wizard_nav_forward(self, "grid", self.async_step_solar())
+        return self.async_show_form(
+            step_id="grid",
+            data_schema=_wrap_setup_wizard_schema(self, _grid_schema(self._data)),
+            errors=errors,
+        )
 
     async def async_step_grid_tri_energy_mode(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = await _async_validate_step(
                 self.hass, "grid_tri_energy_mode", self._data, user_input
             )
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_GRID_TRI_ENERGY_MODE) == TRI_GRID_ENERGY_PER_PHASE:
-                    return await self.async_step_grid_tri_per_phase()
+                    return await _wizard_nav_forward(self, "grid_tri_energy_mode", self.async_step_grid_tri_per_phase())
                 return await self.async_step_grid()
         return self.async_show_form(
             step_id="grid_tri_energy_mode",
-            data_schema=_grid_tri_energy_mode_schema(self._data),
+            data_schema=_wrap_setup_wizard_schema(self, _grid_tri_energy_mode_schema(self._data)),
             errors=errors,
         )
 
@@ -1230,15 +1466,19 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = await _async_validate_step(
                 self.hass, "grid_tri_per_phase", self._data, user_input
             )
             if not errors:
                 _apply_patch(self._data, patch)
-                return await self.async_step_solar()
+                return await _wizard_nav_forward(self, "grid_tri_per_phase", self.async_step_solar())
         return self.async_show_form(
             step_id="grid_tri_per_phase",
-            data_schema=_grid_tri_per_phase_schema(self._data),
+            data_schema=_wrap_setup_wizard_schema(self, _grid_tri_per_phase_schema(self._data)),
             errors=errors,
         )
 
@@ -1247,15 +1487,19 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = await _async_validate_step(self.hass, "grid_tri_layout", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_GRID_TRI_SENSOR_LAYOUT) == TRI_GRID_SENSOR_PER_PHASE:
-                    return await self.async_step_tri_grid_phase_1()
-                return await self.async_step_grid_phases()
+                    return await _wizard_nav_forward(self, "grid_tri_layout", self.async_step_tri_grid_phase_1())
+                return await _wizard_nav_forward(self, "grid_tri_layout", self.async_step_grid_phases())
         return self.async_show_form(
             step_id="grid_tri_layout",
-            data_schema=_grid_tri_layout_schema(self._data),
+            data_schema=_wrap_setup_wizard_schema(self, _grid_tri_layout_schema(self._data)),
             errors=errors,
         )
 
@@ -1264,11 +1508,19 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = await _async_validate_step(self.hass, "grid_phases", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
-                return await self.async_step_solar()
-        return self.async_show_form(step_id="grid_phases", data_schema=_grid_phases_schema(self._data), errors=errors)
+                return await _wizard_nav_forward(self, "grid_phases", self.async_step_solar())
+        return self.async_show_form(
+            step_id="grid_phases",
+            data_schema=_wrap_setup_wizard_schema(self, _grid_phases_schema(self._data)),
+            errors=errors,
+        )
 
     async def async_step_tri_grid_phase_1(
         self, user_input: dict[str, Any] | None = None
@@ -1291,17 +1543,21 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         scope = f"tri_grid_phase_{phase}"
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = await _async_validate_step(self.hass, scope, self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 if phase == 1:
-                    return await self.async_step_tri_grid_phase_2()
+                    return await _wizard_nav_forward(self, scope, self.async_step_tri_grid_phase_2())
                 if phase == 2:
-                    return await self.async_step_tri_grid_phase_3()
-                return await self.async_step_solar()
+                    return await _wizard_nav_forward(self, scope, self.async_step_tri_grid_phase_3())
+                return await _wizard_nav_forward(self, scope, self.async_step_solar())
         return self.async_show_form(
             step_id=scope,
-            data_schema=_tri_phase_grid_schema(self._data, phase),
+            data_schema=_wrap_setup_wizard_schema(self, _tri_phase_grid_schema(self._data, phase)),
             errors=errors,
         )
 
@@ -1310,15 +1566,22 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = _validate_step("solar_toggle", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_HAS_SOLAR):
-                    return await self.async_step_solar_config()
-                return await self.async_step_battery()
+                    return await _wizard_nav_forward(self, "solar", self.async_step_solar_config())
+                return await _wizard_nav_forward(self, "solar", self.async_step_battery())
         return self.async_show_form(
             step_id="solar",
-            data_schema=vol.Schema({vol.Required(CONF_HAS_SOLAR, default=bool(self._data.get(CONF_HAS_SOLAR, False))): BooleanSelector()}),
+            data_schema=_wrap_setup_wizard_schema(
+                self,
+                vol.Schema({vol.Required(CONF_HAS_SOLAR, default=bool(self._data.get(CONF_HAS_SOLAR, False))): BooleanSelector()}),
+            ),
             errors=errors,
         )
 
@@ -1327,26 +1590,41 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = await _async_validate_step(self.hass, "solar_config", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
                 if self._data.get(CONF_SOLAR_ESTIMATION_ENABLED):
-                    return await self.async_step_solar_estimation()
-                return await self.async_step_battery()
-        return self.async_show_form(step_id="solar_config", data_schema=_solar_config_schema(self._data), errors=errors)
+                    return await _wizard_nav_forward(self, "solar_config", self.async_step_solar_estimation())
+                return await _wizard_nav_forward(self, "solar_config", self.async_step_battery())
+        return self.async_show_form(
+            step_id="solar_config",
+            data_schema=_wrap_setup_wizard_schema(self, _solar_config_schema(self._data)),
+            errors=errors,
+        )
 
     async def async_step_solar_estimation(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = _validate_step("solar_estimation", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
-                return await self.async_step_battery()
+                return await _wizard_nav_forward(self, "solar_estimation", self.async_step_battery())
         return self.async_show_form(
             step_id="solar_estimation",
-            data_schema=_solar_estimation_schema(self._data, self.hass.config.latitude, self.hass.config.longitude),
+            data_schema=_wrap_setup_wizard_schema(
+                self,
+                _solar_estimation_schema(self._data, self.hass.config.latitude, self.hass.config.longitude),
+            ),
             errors=errors,
         )
 
@@ -1355,6 +1633,10 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
             patch, errors = _validate_step("battery_toggle", self._data, user_input)
             if not errors:
                 _apply_patch(self._data, patch)
@@ -1362,18 +1644,21 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
                     self._batteries = []
                     self._current_battery = {BATTERY_ID: uuid.uuid4().hex[:8]}
                     self._edit_batt_index = None
-                    return await self.async_step_battery_add()
+                    return await _wizard_nav_forward(self, "battery", self.async_step_battery_add())
                 return await self._create_entry()
         return self.async_show_form(
             step_id="battery",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_HAS_BATTERIES,
-                        default=bool(self._data.get(CONF_HAS_BATTERIES, False)),
-                    ): BooleanSelector()
-                },
-                extra=vol.ALLOW_EXTRA,
+            data_schema=_wrap_setup_wizard_schema(
+                self,
+                vol.Schema(
+                    {
+                        vol.Required(
+                            CONF_HAS_BATTERIES,
+                            default=bool(self._data.get(CONF_HAS_BATTERIES, False)),
+                        ): BooleanSelector()
+                    },
+                    extra=vol.ALLOW_EXTRA,
+                ),
             ),
             errors=errors,
         )
@@ -1403,6 +1688,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
                 if step_id == "battery_more"
                 else None,
             )
+        self._nav_stack.clear()
         await self.async_set_unique_id(_flow_unique_id(self._data))
         self._abort_if_unique_id_configured()
         supplier_label = self._data.get(CONF_SUPPLIER_CUSTOM_NAME) or str(self._data.get(CONF_SUPPLIER, "")).upper()
@@ -1432,6 +1718,7 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
             options.append("tariff_refresh")
             if data.get(CONF_TARIFF_OFFER) == TARIFF_OFFER_TEMPO:
                 options.append("tempo")
+        options.append("advanced_energy")
         return options
 
     async def _persist(
@@ -1476,6 +1763,85 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         return self.async_show_menu(step_id="init", menu_options=self._menu_options())
+
+    async def async_step_advanced_energy(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        opts = dict(self.config_entry.options)
+
+        def eff(key: str, default: float) -> float:
+            raw = opts.get(key)
+            if raw is None:
+                return float(default)
+            try:
+                v = float(raw)
+            except (TypeError, ValueError):
+                return float(default)
+            if not math.isfinite(v):
+                return float(default)
+            return max(float(DELTA_CAP_KWH_MIN), min(float(DELTA_CAP_KWH_MAX), v))
+
+        defaults = {
+            OPT_MAX_DELTA_KWH_GRID: eff(OPT_MAX_DELTA_KWH_GRID, DEFAULT_MAX_DELTA_KWH_GRID),
+            OPT_MAX_DELTA_KWH_SOLAR: eff(OPT_MAX_DELTA_KWH_SOLAR, DEFAULT_MAX_DELTA_KWH_SOLAR),
+            OPT_MAX_DELTA_KWH_BATTERY: eff(OPT_MAX_DELTA_KWH_BATTERY, DEFAULT_MAX_DELTA_KWH_BATTERY),
+            OPT_MAX_DELTA_KWH_OTHER: eff(OPT_MAX_DELTA_KWH_OTHER, MAX_DELTA_KWH_DEFAULT),
+        }
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            try:
+                g = float(user_input[OPT_MAX_DELTA_KWH_GRID])
+                s = float(user_input[OPT_MAX_DELTA_KWH_SOLAR])
+                b = float(user_input[OPT_MAX_DELTA_KWH_BATTERY])
+                o = float(user_input[OPT_MAX_DELTA_KWH_OTHER])
+            except (TypeError, ValueError, KeyError):
+                errors["base"] = "invalid_delta_cap"
+            else:
+                caps = (g, s, b, o)
+                if not all(float(DELTA_CAP_KWH_MIN) <= x <= float(DELTA_CAP_KWH_MAX) for x in caps):
+                    errors["base"] = "invalid_delta_cap"
+                else:
+                    try:
+                        return await self._persist(
+                            options_patch={
+                                OPT_MAX_DELTA_KWH_GRID: g,
+                                OPT_MAX_DELTA_KWH_SOLAR: s,
+                                OPT_MAX_DELTA_KWH_BATTERY: b,
+                                OPT_MAX_DELTA_KWH_OTHER: o,
+                            },
+                        )
+                    except ValueError as err:
+                        errors = dict(err.args[0])
+        cap_selector = NumberSelector(
+            NumberSelectorConfig(
+                min=float(DELTA_CAP_KWH_MIN),
+                max=float(DELTA_CAP_KWH_MAX),
+                step=1,
+                mode=NumberSelectorMode.BOX,
+                unit_of_measurement="kWh",
+            )
+        )
+        schema = vol.Schema(
+            {
+                vol.Required(
+                    OPT_MAX_DELTA_KWH_GRID,
+                    default=defaults[OPT_MAX_DELTA_KWH_GRID],
+                ): cap_selector,
+                vol.Required(
+                    OPT_MAX_DELTA_KWH_SOLAR,
+                    default=defaults[OPT_MAX_DELTA_KWH_SOLAR],
+                ): cap_selector,
+                vol.Required(
+                    OPT_MAX_DELTA_KWH_BATTERY,
+                    default=defaults[OPT_MAX_DELTA_KWH_BATTERY],
+                ): cap_selector,
+                vol.Required(
+                    OPT_MAX_DELTA_KWH_OTHER,
+                    default=defaults[OPT_MAX_DELTA_KWH_OTHER],
+                ): cap_selector,
+            }
+        )
+        return self.async_show_form(step_id="advanced_energy", data_schema=schema, errors=errors)
 
     async def async_step_offer(
         self, user_input: dict[str, Any] | None = None

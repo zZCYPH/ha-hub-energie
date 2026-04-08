@@ -356,15 +356,34 @@ def _validate_time(value: Any, errors: dict[str, str], field: str) -> str | None
 
 
 def _flatten_schedule_form_input(user_input: Mapping[str, Any]) -> dict[str, Any]:
-    """Expand ``sched_slot_N`` section payloads to flat ``sched_r*`` keys (HA ``section()``)."""
+    """Expand ``sched_slot_N`` section payloads to flat ``sched_r*`` keys (HA ``section()``).
+
+    Each section uses short keys (``start``, ``end``, …) so the config-flow UI can resolve
+    ``sections.sched_slot_i.data.start`` translations; we remap to ``sched_r{i}_*`` here.
+    """
     if not any(f"{SCHEDULE_FORM_SECTION_PREFIX}{i}" in user_input for i in range(SCHEDULE_FORM_MAX_SLOTS)):
         return dict(user_input)
     flat: dict[str, Any] = {}
+    _SHORT_TO_SUFFIX: tuple[tuple[str, str], ...] = (
+        ("start", "start"),
+        ("end", "end"),
+        ("price", "price"),
+        ("day_type", "day_type"),
+        ("name", "name"),
+    )
     for i in range(SCHEDULE_FORM_MAX_SLOTS):
         key = f"{SCHEDULE_FORM_SECTION_PREFIX}{i}"
         block = user_input.get(key)
-        if isinstance(block, dict):
+        if not isinstance(block, dict):
+            continue
+        p = f"sched_r{i}_"
+        # Legacy payloads (per-row keys inside the section)
+        if any(k.startswith(p) for k in block if isinstance(k, str)):
             flat.update(block)
+            continue
+        for short, suffix in _SHORT_TO_SUFFIX:
+            if short in block:
+                flat[f"{p}{suffix}"] = block[short]
     for k, v in user_input.items():
         if isinstance(k, str) and k.startswith(SCHEDULE_FORM_SECTION_PREFIX):
             continue

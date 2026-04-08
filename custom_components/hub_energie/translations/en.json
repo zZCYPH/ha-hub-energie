@@ -18,7 +18,8 @@
         "title": "Custom supplier",
         "description": "You chose Other as your energy supplier. Enter a short name for dashboards and entity labels (for example the name on your bill). Tariffs are entered manually when there is no automatic feed for this provider.",
         "data": {
-          "supplier_custom_name": "Supplier display name"
+          "supplier_custom_name": "Supplier display name",
+          "flow_nav": "Wizard navigation"
         },
         "data_description": {
           "supplier_custom_name": "Required. A brand name or abbreviation is enough."
@@ -28,7 +29,8 @@
         "title": "Tariff retrieval mode",
         "description": "Choose how tariffs should be configured.",
         "data": {
-          "tariff_mode": "Tariff mode"
+          "tariff_mode": "Tariff mode",
+          "flow_nav": "Wizard navigation"
         },
         "data_description": {
           "tariff_mode": "Auto: fetch tariffs from provider API. Manual: enter rates yourself."
@@ -38,20 +40,23 @@
         "title": "Tariff configuration",
         "description": "Automatic tariff retrieval is not yet available for this supplier. Rates must be entered manually. If auto-retrieval becomes available later, a migration path will be provided without affecting historical data.",
         "data": {
-          "tariff_mode": "Tariff mode"
+          "tariff_mode": "Tariff mode",
+          "flow_nav": "Wizard navigation"
         }
       },
       "contract": {
         "title": "Contract details",
         "data": {
           "contract_power": "Contract power (kVA)",
-          "contract_name": "Contract name (optional)"
+          "contract_name": "Contract name (optional)",
+          "flow_nav": "Wizard navigation"
         }
       },
       "edf_offer": {
         "title": "EDF offer selection",
         "data": {
-          "tariff_offer": "Offer type"
+          "tariff_offer": "Offer type",
+          "flow_nav": "Wizard navigation"
         }
       },
       "edf_tempo": {
@@ -61,7 +66,8 @@
           "tempo_mode": "Signal source",
           "rte_client_id": "RTE API client ID",
           "rte_client_secret": "RTE API client secret",
-          "current_slot_sensor": "External slot sensor"
+          "current_slot_sensor": "External slot sensor",
+          "flow_nav": "Wizard navigation"
         }
       },
       "edf_tempo_rte": {
@@ -69,7 +75,8 @@
         "description": "Enter your RTE API credentials to fetch the Tempo calendar from the official source.",
         "data": {
           "rte_client_id": "RTE API client ID",
-          "rte_client_secret": "RTE API client secret"
+          "rte_client_secret": "RTE API client secret",
+          "flow_nav": "Wizard navigation"
         }
       },
       "manual_pricing": {
@@ -78,7 +85,8 @@
         "data": {
           "pricing_structure": "Pricing type",
           "price_basis": "Prices are",
-          "currency": "Currency"
+          "currency": "Currency",
+          "flow_nav": "Wizard navigation"
         },
         "data_description": {
           "pricing_structure": "Single rate: one kWh price. Peak/off-peak: time windows with different prices (e.g. off-peak nights). Advanced: slots per day type."
@@ -88,24 +96,34 @@
         "title": "Flat tariff",
         "data": {
           "energy_price": "Energy price (per kWh)",
-          "subscription_price": "Monthly subscription"
+          "subscription_price": "Monthly subscription",
+          "flow_nav": "Wizard navigation"
         }
       },
       "manual_tou": {
         "title": "Time-of-use tariff",
         "description": "Define off-peak (HC) and peak (HP) windows and their kWh prices. Use advanced schedule for more than two bands.",
         "sections": {
-          "tou_slot_0": {"name": "Off-peak (HC)"},
-          "tou_slot_1": {"name": "Peak (HP)"}
+          "tou_slot_0": {
+            "name": "Off-peak (HC)",
+            "data": {
+              "tou_r0_start": "Start",
+              "tou_r0_end": "End",
+              "tou_r0_price": "Energy price (per kWh)"
+            }
+          },
+          "tou_slot_1": {
+            "name": "Peak (HP)",
+            "data": {
+              "tou_r1_start": "Start",
+              "tou_r1_end": "End",
+              "tou_r1_price": "Energy price (per kWh)"
+            }
+          }
         },
         "data": {
-          "tou_r0_start": "Start",
-          "tou_r0_end": "End",
-          "tou_r0_price": "Energy price (per kWh)",
-          "tou_r1_start": "Start",
-          "tou_r1_end": "End",
-          "tou_r1_price": "Energy price (per kWh)",
-          "subscription_price": "Monthly subscription"
+          "subscription_price": "Monthly subscription",
+          "flow_nav": "Wizard navigation"
         }
       },
       "manual_schedule": {
@@ -113,52 +131,78 @@
         "description": "Choose how to enter your tariff slots. Full JSON format and examples: {doc_url}",
         "menu_options": {
           "manual_schedule_form": "Form (up to 6 slots)",
-          "manual_schedule_json": "JSON (advanced)"
+          "manual_schedule_json": "JSON (advanced)",
+          "manual_schedule_prev": "Back to tariff structure"
         }
       },
       "manual_schedule_form": {
         "title": "Advanced schedule — form",
         "description": "Fill one row per slot (up to 6). Leave unused rows empty. See {doc_url} for midnight ranges and day types.",
         "sections": {
-          "sched_slot_0": {"name": "Time slot 1"},
-          "sched_slot_1": {"name": "Time slot 2"},
-          "sched_slot_2": {"name": "Time slot 3"},
-          "sched_slot_3": {"name": "Time slot 4"},
-          "sched_slot_4": {"name": "Time slot 5"},
-          "sched_slot_5": {"name": "Time slot 6"}
+          "sched_slot_0": {
+            "name": "Time slot 1",
+            "data": {
+              "start": "Start",
+              "end": "End",
+              "price": "Energy price (per kWh)",
+              "day_type": "Day type",
+              "name": "Label (optional)"
+            }
+          },
+          "sched_slot_1": {
+            "name": "Time slot 2",
+            "data": {
+              "start": "Start",
+              "end": "End",
+              "price": "Energy price (per kWh)",
+              "day_type": "Day type",
+              "name": "Label (optional)"
+            }
+          },
+          "sched_slot_2": {
+            "name": "Time slot 3",
+            "data": {
+              "start": "Start",
+              "end": "End",
+              "price": "Energy price (per kWh)",
+              "day_type": "Day type",
+              "name": "Label (optional)"
+            }
+          },
+          "sched_slot_3": {
+            "name": "Time slot 4",
+            "data": {
+              "start": "Start",
+              "end": "End",
+              "price": "Energy price (per kWh)",
+              "day_type": "Day type",
+              "name": "Label (optional)"
+            }
+          },
+          "sched_slot_4": {
+            "name": "Time slot 5",
+            "data": {
+              "start": "Start",
+              "end": "End",
+              "price": "Energy price (per kWh)",
+              "day_type": "Day type",
+              "name": "Label (optional)"
+            }
+          },
+          "sched_slot_5": {
+            "name": "Time slot 6",
+            "data": {
+              "start": "Start",
+              "end": "End",
+              "price": "Energy price (per kWh)",
+              "day_type": "Day type",
+              "name": "Label (optional)"
+            }
+          }
         },
         "data": {
-          "sched_r0_start": "Start",
-          "sched_r0_end": "End",
-          "sched_r0_price": "Energy price (per kWh)",
-          "sched_r0_day_type": "Day type",
-          "sched_r0_name": "Label (optional)",
-          "sched_r1_start": "Start",
-          "sched_r1_end": "End",
-          "sched_r1_price": "Energy price (per kWh)",
-          "sched_r1_day_type": "Day type",
-          "sched_r1_name": "Label (optional)",
-          "sched_r2_start": "Start",
-          "sched_r2_end": "End",
-          "sched_r2_price": "Energy price (per kWh)",
-          "sched_r2_day_type": "Day type",
-          "sched_r2_name": "Label (optional)",
-          "sched_r3_start": "Start",
-          "sched_r3_end": "End",
-          "sched_r3_price": "Energy price (per kWh)",
-          "sched_r3_day_type": "Day type",
-          "sched_r3_name": "Label (optional)",
-          "sched_r4_start": "Start",
-          "sched_r4_end": "End",
-          "sched_r4_price": "Energy price (per kWh)",
-          "sched_r4_day_type": "Day type",
-          "sched_r4_name": "Label (optional)",
-          "sched_r5_start": "Start",
-          "sched_r5_end": "End",
-          "sched_r5_price": "Energy price (per kWh)",
-          "sched_r5_day_type": "Day type",
-          "sched_r5_name": "Label (optional)",
-          "subscription_price": "Monthly subscription"
+          "subscription_price": "Monthly subscription",
+          "flow_nav": "Wizard navigation"
         }
       },
       "manual_schedule_json": {
@@ -166,14 +210,16 @@
         "description": "Paste a JSON array of slots. Specification: {doc_url}",
         "data": {
           "schedule_slots": "Schedule slots (JSON)",
-          "subscription_price": "Monthly subscription"
+          "subscription_price": "Monthly subscription",
+          "flow_nav": "Wizard navigation"
         }
       },
       "grid_tri_energy_mode": {
         "title": "Three-phase grid import",
         "description": "Does your installation expose one total import counter for the whole grid, or one counter per phase?",
         "data": {
-          "grid_tri_energy_mode": "Grid import metering"
+          "grid_tri_energy_mode": "Grid import metering",
+          "flow_nav": "Wizard navigation"
         },
         "data_description": {
           "grid_tri_energy_mode": "One total: you will pick a single import sensor next. One per phase: the integration sums L1+L2+L3 for accounting."
@@ -193,7 +239,8 @@
           "tri_export_energy_p3": "Phase L3 — grid export energy (kWh, optional)",
           "tri_grid_power_p1": "Phase L1 — grid power (W, optional)",
           "tri_grid_power_p2": "Phase L2 — grid power (W, optional)",
-          "tri_grid_power_p3": "Phase L3 — grid power (W, optional)"
+          "tri_grid_power_p3": "Phase L3 — grid power (W, optional)",
+          "flow_nav": "Wizard navigation"
         },
         "data_description": {
           "grid_power_sign_mode": "Convention: is export negative or positive on your per-phase grid power sensors?",
@@ -211,7 +258,8 @@
           "grid_export_energy": "Grid export energy (kWh, optional)",
           "grid_power_sensor": "Grid power (W, optional)",
           "grid_power_sign_mode": "Grid power sign convention",
-          "load_power_sensor": "House load power (W, optional)"
+          "load_power_sensor": "House load power (W, optional)",
+          "flow_nav": "Wizard navigation"
         },
         "data_description": {
           "grid_import_energy": "Total increasing energy counter for grid import.",
@@ -224,7 +272,8 @@
         "title": "Three-phase sensor layout",
         "description": "Choose how you want to enter optional per-phase sensors (import/export energy and grid power). Your main grid sensors from the previous step stay as the primary totals.",
         "data": {
-          "grid_tri_sensor_layout": "Sensor layout"
+          "grid_tri_sensor_layout": "Sensor layout",
+          "flow_nav": "Wizard navigation"
         },
         "data_description": {
           "grid_tri_sensor_layout": "One for all phases: next step uses JSON lists (one total or multiple phases). One per phase: the next three steps ask for phase L1, L2, and L3 separately."
@@ -236,7 +285,8 @@
         "data": {
           "grid_import_energy_phases": "Import energy sensors (per-phase, JSON list)",
           "grid_export_energy_phases": "Export energy sensors (per-phase, JSON list)",
-          "grid_power_phases": "Grid power sensors (per-phase, JSON list)"
+          "grid_power_phases": "Grid power sensors (per-phase, JSON list)",
+          "flow_nav": "Wizard navigation"
         }
       },
       "tri_grid_phase_1": {
@@ -245,7 +295,8 @@
         "data": {
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
-          "tri_phase_step_grid_power": "Grid power (W, optional)"
+          "tri_phase_step_grid_power": "Grid power (W, optional)",
+          "flow_nav": "Wizard navigation"
         }
       },
       "tri_grid_phase_2": {
@@ -254,7 +305,8 @@
         "data": {
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
-          "tri_phase_step_grid_power": "Grid power (W, optional)"
+          "tri_phase_step_grid_power": "Grid power (W, optional)",
+          "flow_nav": "Wizard navigation"
         }
       },
       "tri_grid_phase_3": {
@@ -263,7 +315,8 @@
         "data": {
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
-          "tri_phase_step_grid_power": "Grid power (W, optional)"
+          "tri_phase_step_grid_power": "Grid power (W, optional)",
+          "flow_nav": "Wizard navigation"
         }
       },
       "solar": {
@@ -273,7 +326,8 @@
           "solar_energy": "Solar energy production (kWh)",
           "solar_power_sensor": "Solar power (W, optional)",
           "solar_resale_contract": "Solar export re-sale contract?",
-          "solar_export_tariff": "Export tariff (per kWh)"
+          "solar_export_tariff": "Export tariff (per kWh)",
+          "flow_nav": "Wizard navigation"
         },
         "data_description": {
           "solar_energy": "Total increasing energy counter for solar production.",
@@ -289,7 +343,8 @@
           "solar_power_sensor": "Solar power (W, optional)",
           "solar_resale_contract": "Solar export re-sale contract?",
           "solar_export_tariff": "Export tariff (per kWh)",
-          "solar_estimation_enabled": "Enable production estimation?"
+          "solar_estimation_enabled": "Enable production estimation?",
+          "flow_nav": "Wizard navigation"
         },
         "data_description": {
           "solar_energy": "Total increasing energy counter for solar production.",
@@ -310,13 +365,15 @@
           "solar_tilt": "Tilt angle (°)",
           "solar_tilt_mode": "Tilt mode",
           "solar_shading": "Shading level",
-          "solar_performance": "System performance"
+          "solar_performance": "System performance",
+          "flow_nav": "Wizard navigation"
         }
       },
       "battery": {
         "title": "Battery systems",
         "data": {
-          "has_batteries": "Do you have battery systems?"
+          "has_batteries": "Do you have battery systems?",
+          "flow_nav": "Wizard navigation"
         }
       },
       "battery_add": {
@@ -330,7 +387,8 @@
           "batt_power_out": "Discharging power sensor (W, optional)",
           "batt_power_net": "Net power sensor (W, optional, signed)",
           "batt_soc": "State of charge (%, optional)",
-          "batt_advanced": "Show advanced battery fields"
+          "batt_advanced": "Show advanced battery fields",
+          "flow_nav": "Wizard navigation"
         },
         "data_description": {
           "batt_power_in": "Instantaneous power currently going into the battery (not a max value).",
@@ -354,7 +412,8 @@
           "batt_soc_min_entity": "SOC minimum — sensor or helper",
           "batt_soc_min": "SOC minimum — manual entry",
           "batt_soc_max_entity": "SOC maximum — sensor or helper",
-          "batt_soc_max": "SOC maximum — manual entry"
+          "batt_soc_max": "SOC maximum — manual entry",
+          "flow_nav": "Wizard navigation"
         },
         "data_description": {
           "batt_capacity_kwh_entity": "Nominal capacity at 100% SOC (max storable energy, kWh). Numeric value in kWh (e.g. sensor, input_number). Use when the value comes from an entity.",
@@ -373,7 +432,8 @@
         "title": "More batteries?",
         "description": "You can add more battery systems or continue.",
         "data": {
-          "add_another": "Add another battery system?"
+          "add_another": "Add another battery system?",
+          "flow_nav": "Wizard navigation"
         }
       },
       "reinjection": {

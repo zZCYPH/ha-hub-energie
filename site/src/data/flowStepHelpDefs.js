@@ -1,0 +1,63 @@
+/**
+ * Config flow step ids for on-site help anchors.
+ * - Initial wizard: #flow-step-<step_id>
+ * - Post-setup options: #flow-step-options-<step_id> (avoids collisions e.g. solar / battery)
+ */
+
+export const FLOW_HELP_WIZARD_IDS = [
+  "user",
+  "supplier_custom",
+  "tariff_mode_manual_only",
+  "tariff_mode",
+  "contract",
+  "edf_offer",
+  "edf_tempo",
+  "edf_tempo_rte",
+  "manual_pricing",
+  "manual_flat",
+  "manual_tou",
+  "manual_schedule",
+  "manual_schedule_form",
+  "manual_schedule_json",
+  "grid_tri_energy_mode",
+  "grid_tri_per_phase",
+  "grid",
+  "grid_tri_layout",
+  "grid_phases",
+  "tri_grid_phase_1",
+  "tri_grid_phase_2",
+  "tri_grid_phase_3",
+  "solar",
+  "solar_config",
+  "solar_estimation",
+  "battery",
+  "battery_add",
+  "battery_advanced",
+  "battery_more",
+  "reinjection",
+];
+
+/** Options menu step_ids (HubEnergieOptionsFlow). */
+export const FLOW_HELP_OPTIONS_IDS = [
+  "init",
+  "offer",
+  "tariff_refresh",
+  "tempo",
+  "tempo_rte",
+  "advanced_energy",
+  "grid",
+  "grid_tri_energy_mode",
+  "grid_tri_per_phase",
+  "grid_tri_layout",
+  "grid_phases",
+  "tri_grid_phase_1",
+  "tri_grid_phase_2",
+  "tri_grid_phase_3",
+  "solar",
+  "solar_estimation",
+  "battery",
+  "battery_pick",
+  "battery_add",
+  "battery_advanced",
+  "battery_more",
+];

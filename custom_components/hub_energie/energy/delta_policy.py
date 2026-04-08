@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 from ..const import (
+    DEFAULT_MAX_DELTA_KWH_BATTERY,
+    DEFAULT_MAX_DELTA_KWH_GRID,
+    DEFAULT_MAX_DELTA_KWH_SOLAR,
     MAX_DELTA_KWH_DEFAULT,
     NEGATIVE_DELTA_NOISE_KWH,
     NEGATIVE_DELTA_REBASE_BAND_KWH,
@@ -17,18 +20,31 @@ __all__ = ("DeltaPolicy",)
 class DeltaPolicy:
     """Caps and reset heuristics for energy counter deltas."""
 
+    def __init__(
+        self,
+        *,
+        max_delta_grid_kwh: float = DEFAULT_MAX_DELTA_KWH_GRID,
+        max_delta_solar_kwh: float = DEFAULT_MAX_DELTA_KWH_SOLAR,
+        max_delta_battery_kwh: float = DEFAULT_MAX_DELTA_KWH_BATTERY,
+        max_delta_other_kwh: float = MAX_DELTA_KWH_DEFAULT,
+    ) -> None:
+        self._max_grid = float(max_delta_grid_kwh)
+        self._max_solar = float(max_delta_solar_kwh)
+        self._max_batt = float(max_delta_battery_kwh)
+        self._max_other = float(max_delta_other_kwh)
+
     def small_negative_rebase_band_kwh(self) -> float:
         """Max |negative delta| treated as noise: rebase last_raw, do not accumulate."""
         return float(NEGATIVE_DELTA_REBASE_BAND_KWH)
 
     def max_delta_kwh(self, source_key: str) -> float:
         if source_key.startswith("batt_"):
-            return 80.0
+            return self._max_batt
         if source_key == SOURCE_SOLAR:
-            return 120.0
+            return self._max_solar
         if source_key in (SOURCE_GRID, SOURCE_GRID_EXPORT):
-            return 300.0
-        return MAX_DELTA_KWH_DEFAULT
+            return self._max_grid
+        return self._max_other
 
     def is_plausible_reset(self, source_key: str, last_raw: float, new_raw: float) -> bool:
         drop = max(0.0, last_raw - new_raw)

@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import ConfigFlowHelpView from "../views/ConfigFlowHelpView.vue";
 import DocView from "../views/DocView.vue";
 import HomeView from "../views/HomeView.vue";
 import InternalsView from "../views/InternalsView.vue";
@@ -21,6 +22,7 @@ const router = createRouter({
   routes: [
     { path: "/", name: "home", component: HomeView },
     { path: "/doc", name: "doc", component: DocView },
+    { path: "/doc/setup-help", name: "flowhelp", component: ConfigFlowHelpView },
     { path: "/internals", name: "internals", component: InternalsView },
   ],
 });

@@ -51,6 +51,12 @@
           <a class="nav-link" href="#configure" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.configure">Configure in HA</span></a
           >
+          <a class="nav-link small py-1 ps-3" href="#configure-paths" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.configure_paths">Screenshot paths</span></a
+          >
+          <a class="nav-link small py-1 ps-3" href="#configure-delta-caps" data-bs-dismiss="offcanvas"
+            ><span data-i18n="toc.configure_delta_caps">Energy delta caps</span></a
+          >
           <a class="nav-link" href="#devices" data-bs-dismiss="offcanvas"
             ><span data-i18n="toc.devices">Devices</span></a
           >
@@ -113,7 +119,7 @@
                   <li class="d-flex align-items-start gap-2">
                     <i class="bi bi-tag-fill text-primary mt-1"></i>
                     <span data-i18n-html="glance.snapshot"
-                      >Doc snapshot <span class="badge bg-primary badge-doc">v0.2.5</span></span
+                      >Doc snapshot <span class="badge bg-primary badge-doc">v0.3.1</span></span
                     >
                   </li>
                   <li class="d-flex align-items-start gap-2">
@@ -149,6 +155,12 @@
                 ><span data-i18n="toc.lovelace_editor">Visual editor</span></a
               >
               <a class="nav-link" href="#configure"><span data-i18n="toc.configure">Configure in HA</span></a>
+              <a class="nav-link small py-1 ps-3" href="#configure-paths"
+                ><span data-i18n="toc.configure_paths">Screenshot paths</span></a
+              >
+              <a class="nav-link small py-1 ps-3" href="#configure-delta-caps"
+                ><span data-i18n="toc.configure_delta_caps">Energy delta caps</span></a
+              >
               <a class="nav-link" href="#devices"><span data-i18n="toc.devices">Devices</span></a>
               <a class="nav-link small py-1 ps-3" href="#devices-integration"
                 ><span data-i18n="toc.devices_integration">Integration device list</span></a
@@ -190,7 +202,7 @@
                     data-bs-target="#scopeStable"
                   >
                     <i class="bi bi-shield-check text-success me-2"></i>
-                    <span data-i18n="scope.stable_heading">Intended stable scope (v0.2.x)</span>
+                    <span data-i18n="scope.stable_heading">Intended stable scope (v0.3.x)</span>
                   </button>
                 </h3>
                 <div id="scopeStable" class="accordion-collapse collapse show" data-bs-parent="#accScope">
@@ -492,7 +504,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                   <code class="font-mono">npm</code> on your Home Assistant host for a normal install—restart HA
                   after updating the integration. For reproducible installs, match a Git tag to
                   <code class="font-mono">manifest.json</code> → <code class="font-mono">version</code> (e.g.
-                  <strong class="text-body">v0.2.5</strong>).
+                  <strong class="text-body">v0.3.1</strong>).
                 </p>
                 <p class="card-text small text-muted mb-0" data-i18n-html="install.lovelace_dev_html">
                   <strong class="text-body">Developers:</strong> to rebuild locally, from
@@ -628,14 +640,125 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
               >
             </h2>
             <p class="text-secondary mb-3" data-i18n-html="configure.flow_lead_html"></p>
+            <p class="small text-secondary mb-3 mb-lg-4" data-i18n-html="configure.flow_step_help_html"></p>
             <div class="card border mb-4 shadow-sm">
               <div class="card-body">
                 <h3 class="h6 card-title" data-i18n="configure.flow_map_title">How the config flow branches</h3>
                 <div class="small text-secondary" data-i18n-html="configure.flow_map_html"></div>
               </div>
             </div>
-            <p class="text-secondary small mb-2" data-i18n-html="configure.flow_example_path_html"></p>
-            <div class="row g-3">
+
+            <h3 class="h5 mt-2 mb-2 doc-subsection" id="configure-delta-caps">
+              <span data-i18n="configure.delta_caps_h">Energy delta caps (advanced)</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#configure-delta-caps"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h3>
+            <p class="text-secondary small mb-3" data-i18n-html="configure.delta_caps_intro_html"></p>
+            <div class="card border mb-4 shadow-sm">
+              <div class="card-body small text-secondary">
+                <h4 class="h6 text-uppercase text-secondary fw-semibold" data-i18n="configure.delta_caps_defaults_h">
+                  Default ceilings (kWh per coordinator update)
+                </h4>
+                <div class="mb-0" data-i18n-html="configure.delta_caps_defaults_html"></div>
+              </div>
+            </div>
+            <h4 class="h6 mb-2" data-i18n="configure.delta_caps_cases_h">Concrete cases</h4>
+            <div class="small text-secondary mb-4" data-i18n-html="configure.delta_caps_cases_html"></div>
+            <p class="text-secondary small mb-0" data-i18n-html="configure.delta_caps_ha_html"></p>
+
+            <h3 class="h5 mt-2 mb-2 doc-subsection" id="configure-paths">
+              <span data-i18n="configure.paths_h">Guided screenshot paths</span>
+              <a
+                class="doc-anchor text-secondary"
+                href="#configure-paths"
+                data-i18n-aria="section.link_aria"
+                aria-label="Link to section"
+                >#</a
+              >
+            </h3>
+            <p class="text-secondary small mb-3" data-i18n-html="configure.flow_paths_intro_html"></p>
+            <ul
+              class="nav nav-tabs flex-nowrap flex-md-wrap gap-1 gap-md-0 overflow-auto pb-0 px-1 doc-config-flow-tabs"
+              id="configFlowPathsTabs"
+              role="tablist"
+            >
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link active"
+                  id="config-flow-tab-rte"
+                  data-bs-toggle="tab"
+                  data-bs-target="#config-flow-pane-rte"
+                  type="button"
+                  role="tab"
+                  aria-controls="config-flow-pane-rte"
+                  aria-selected="true"
+                >
+                  <span data-i18n="configure.path_tab_rte">Tempo · RTE</span>
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link"
+                  id="config-flow-tab-api"
+                  data-bs-toggle="tab"
+                  data-bs-target="#config-flow-pane-api"
+                  type="button"
+                  role="tab"
+                  aria-controls="config-flow-pane-api"
+                  aria-selected="false"
+                  tabindex="-1"
+                >
+                  <span data-i18n="configure.path_tab_api">Tempo · API</span>
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link"
+                  id="config-flow-tab-manual"
+                  data-bs-toggle="tab"
+                  data-bs-target="#config-flow-pane-manual"
+                  type="button"
+                  role="tab"
+                  aria-controls="config-flow-pane-manual"
+                  aria-selected="false"
+                  tabindex="-1"
+                >
+                  <span data-i18n="configure.path_tab_manual">Manual tariffs</span>
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link"
+                  id="config-flow-tab-offers"
+                  data-bs-toggle="tab"
+                  data-bs-target="#config-flow-pane-offers"
+                  type="button"
+                  role="tab"
+                  aria-controls="config-flow-pane-offers"
+                  aria-selected="false"
+                  tabindex="-1"
+                >
+                  <span data-i18n="configure.path_tab_offers">EDF offers</span>
+                </button>
+              </li>
+            </ul>
+            <div
+              class="tab-content border border-top-0 rounded-bottom mb-2 px-2 py-3 px-lg-3 py-lg-4"
+              id="configFlowPathsTabContent"
+            >
+              <div
+                class="tab-pane fade show active"
+                id="config-flow-pane-rte"
+                role="tabpanel"
+                aria-labelledby="config-flow-tab-rte"
+                tabindex="0"
+              >
+                <div class="row g-3">
               <div class="col-lg-3">
                 <div class="doc-carousel-tree border rounded-3 p-2 sticky-lg-top">
                   <div class="small text-secondary text-uppercase fw-semibold mb-2" data-i18n="configure.flow_carousel_tree">
@@ -879,6 +1002,691 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
                   </button>
                 </div>
                 <p class="small text-secondary mt-2 mb-0" data-i18n-html="configure.flow_after_rte_html"></p>
+              </div>
+            </div>
+              </div>
+              <div
+                class="tab-pane fade"
+                id="config-flow-pane-api"
+                role="tabpanel"
+                aria-labelledby="config-flow-tab-api"
+                tabindex="0"
+              >
+                <div class="row g-3">
+                  <div class="col-lg-3">
+                    <div class="doc-carousel-tree border rounded-3 p-2 sticky-lg-top">
+                      <div
+                        class="small text-secondary text-uppercase fw-semibold mb-2"
+                        data-i18n="configure.flow_carousel_tree_api"
+                      >
+                        API Couleur path (5 steps)
+                      </div>
+                      <nav class="nav flex-column gap-1" id="configFlowTreeApi" aria-label="Config flow API">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary text-start doc-carousel-jump active"
+                          data-doc-carousel="#configFlowCarouselApi"
+                          data-doc-slide-to="0"
+                        >
+                          <span class="badge bg-primary me-1">1</span
+                          ><span class="fw-semibold" data-i18n="configure.flow_ex_1_t">User</span>
+                          <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.flow_ex_1_d"
+                            >Supplier &amp; phase</span
+                          >
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                          data-doc-carousel="#configFlowCarouselApi"
+                          data-doc-slide-to="1"
+                        >
+                          <span class="badge bg-primary me-1">2</span
+                          ><span class="fw-semibold" data-i18n="configure.flow_ex_2_t">Tariff mode</span>
+                          <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.flow_ex_2_d"
+                            >Automatic vs manual</span
+                          >
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                          data-doc-carousel="#configFlowCarouselApi"
+                          data-doc-slide-to="2"
+                        >
+                          <span class="badge bg-primary me-1">3</span
+                          ><span class="fw-semibold" data-i18n="configure.flow_ex_3_t">Contract</span>
+                          <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.flow_ex_3_d"
+                            >Subscribed power &amp; name</span
+                          >
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                          data-doc-carousel="#configFlowCarouselApi"
+                          data-doc-slide-to="3"
+                        >
+                          <span class="badge bg-primary me-1">4</span
+                          ><span class="fw-semibold" data-i18n="configure.flow_ex_4_t">EDF offer</span>
+                          <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.flow_ex_4_d"
+                            >BASE, HPHC, or TEMPO</span
+                          >
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                          data-doc-carousel="#configFlowCarouselApi"
+                          data-doc-slide-to="4"
+                        >
+                          <span class="badge bg-primary me-1">5</span
+                          ><span class="fw-semibold" data-i18n="configure.flow_api_5_t">Tempo source</span>
+                          <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.flow_api_5_d"
+                            >API Couleur Tempo</span
+                          >
+                        </button>
+                      </nav>
+                    </div>
+                  </div>
+                  <div class="col-lg-9">
+                    <div
+                      id="configFlowCarouselApi"
+                      class="carousel slide carousel-dark doc-doc-carousel card shadow-sm"
+                      data-bs-ride="false"
+                      data-i18n-aria="carousel.aria_config_api"
+                      aria-label="Config flow API Couleur"
+                    >
+                      <div class="carousel-inner">
+                        <div class="carousel-item active">
+                          <div
+                            class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
+                          >
+                            <img
+                              src="img/config-flow-edf-01-user.png"
+                              alt=""
+                              class="doc-carousel-img doc-zoomable"
+                              decoding="async"
+                              data-i18n-alt="configure.flow_ex_1_alt"
+                            />
+                            <div
+                              class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                            >
+                              <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                              <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                              <code class="font-mono small mt-1">public/img/config-flow-edf-01-user.png</code>
+                            </div>
+                          </div>
+                          <div class="border-top bg-body p-3">
+                            <div class="fw-semibold" data-i18n="configure.flow_ex_1_t">User</div>
+                            <div class="small text-secondary" data-i18n="configure.flow_ex_1_d">
+                              Supplier &amp; phase
+                            </div>
+                          </div>
+                        </div>
+                        <div class="carousel-item">
+                          <div
+                            class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
+                          >
+                            <img
+                              src="img/config-flow-edf-02-tariff-mode.png"
+                              alt=""
+                              class="doc-carousel-img doc-zoomable"
+                              decoding="async"
+                              data-i18n-alt="configure.flow_ex_2_alt"
+                            />
+                            <div
+                              class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                            >
+                              <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                              <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                              <code class="font-mono small mt-1">public/img/config-flow-edf-02-tariff-mode.png</code>
+                            </div>
+                          </div>
+                          <div class="border-top bg-body p-3">
+                            <div class="fw-semibold" data-i18n="configure.flow_ex_2_t">Tariff mode</div>
+                            <div class="small text-secondary" data-i18n="configure.flow_ex_2_d">
+                              Automatic vs manual
+                            </div>
+                          </div>
+                        </div>
+                        <div class="carousel-item">
+                          <div
+                            class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
+                          >
+                            <img
+                              src="img/config-flow-edf-03-contract.png"
+                              alt=""
+                              class="doc-carousel-img doc-zoomable"
+                              decoding="async"
+                              data-i18n-alt="configure.flow_ex_3_alt"
+                            />
+                            <div
+                              class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                            >
+                              <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                              <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                              <code class="font-mono small mt-1">public/img/config-flow-edf-03-contract.png</code>
+                            </div>
+                          </div>
+                          <div class="border-top bg-body p-3">
+                            <div class="fw-semibold" data-i18n="configure.flow_ex_3_t">Contract</div>
+                            <div class="small text-secondary" data-i18n="configure.flow_ex_3_d">
+                              Subscribed power &amp; name
+                            </div>
+                          </div>
+                        </div>
+                        <div class="carousel-item">
+                          <div
+                            class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
+                          >
+                            <img
+                              src="img/config-flow-edf-04-edf-offer.png"
+                              alt=""
+                              class="doc-carousel-img doc-zoomable"
+                              decoding="async"
+                              data-i18n-alt="configure.flow_ex_4_alt"
+                            />
+                            <div
+                              class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                            >
+                              <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                              <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                              <code class="font-mono small mt-1">public/img/config-flow-edf-04-edf-offer.png</code>
+                            </div>
+                          </div>
+                          <div class="border-top bg-body p-3">
+                            <div class="fw-semibold" data-i18n="configure.flow_ex_4_t">EDF offer</div>
+                            <div class="small text-secondary" data-i18n="configure.flow_ex_4_d">
+                              BASE, HPHC, or TEMPO
+                            </div>
+                          </div>
+                        </div>
+                        <div class="carousel-item">
+                          <div
+                            class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
+                          >
+                            <img
+                              src="img/config-flow-edf-tempo-api-couleur.png"
+                              alt=""
+                              class="doc-carousel-img doc-zoomable"
+                              decoding="async"
+                              data-i18n-alt="configure.flow_api_5_alt"
+                            />
+                            <div
+                              class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                            >
+                              <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                              <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                              <code class="font-mono small mt-1">public/img/config-flow-edf-tempo-api-couleur.png</code>
+                            </div>
+                          </div>
+                          <div class="border-top bg-body p-3">
+                            <div class="fw-semibold" data-i18n="configure.flow_api_5_t">Tempo source</div>
+                            <div class="small text-secondary" data-i18n="configure.flow_api_5_d">
+                              API Couleur Tempo
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        class="carousel-control-prev"
+                        type="button"
+                        data-bs-target="#configFlowCarouselApi"
+                        data-bs-slide="prev"
+                      >
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden" data-i18n="carousel.prev">Previous</span>
+                      </button>
+                      <button
+                        class="carousel-control-next"
+                        type="button"
+                        data-bs-target="#configFlowCarouselApi"
+                        data-bs-slide="next"
+                      >
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden" data-i18n="carousel.next">Next</span>
+                      </button>
+                    </div>
+                    <p class="small text-secondary mt-2 mb-0" data-i18n-html="configure.flow_after_api_html"></p>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="tab-pane fade"
+                id="config-flow-pane-manual"
+                role="tabpanel"
+                aria-labelledby="config-flow-tab-manual"
+                tabindex="0"
+              >
+                <div class="row g-3">
+                  <div class="col-lg-3">
+                    <div class="doc-carousel-tree border rounded-3 p-2 sticky-lg-top">
+                      <div
+                        class="small text-secondary text-uppercase fw-semibold mb-2"
+                        data-i18n="configure.flow_carousel_tree_manual"
+                      >
+                        Manual pricing (sample)
+                      </div>
+                      <nav class="nav flex-column gap-1" id="configFlowTreeManual" aria-label="Config flow manual">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary text-start doc-carousel-jump active"
+                          data-doc-carousel="#configFlowCarouselManual"
+                          data-doc-slide-to="0"
+                        >
+                          <span class="badge bg-primary me-1">1</span
+                          ><span class="fw-semibold" data-i18n="configure.flow_ex_1_t">User</span>
+                          <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.flow_ex_1_d"
+                            >Supplier &amp; phase</span
+                          >
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                          data-doc-carousel="#configFlowCarouselManual"
+                          data-doc-slide-to="1"
+                        >
+                          <span class="badge bg-primary me-1">2</span
+                          ><span class="fw-semibold" data-i18n="configure.flow_m_2_t">Tariff mode</span>
+                          <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.flow_m_2_d"
+                            >Manual pricing</span
+                          >
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                          data-doc-carousel="#configFlowCarouselManual"
+                          data-doc-slide-to="2"
+                        >
+                          <span class="badge bg-primary me-1">3</span
+                          ><span class="fw-semibold" data-i18n="configure.flow_ex_3_t">Contract</span>
+                          <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.flow_ex_3_d"
+                            >Subscribed power &amp; name</span
+                          >
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                          data-doc-carousel="#configFlowCarouselManual"
+                          data-doc-slide-to="3"
+                        >
+                          <span class="badge bg-primary me-1">4</span
+                          ><span class="fw-semibold" data-i18n="configure.flow_m_4_t">Manual pricing</span>
+                          <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.flow_m_4_d"
+                            >Structure &amp; basis</span
+                          >
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                          data-doc-carousel="#configFlowCarouselManual"
+                          data-doc-slide-to="4"
+                        >
+                          <span class="badge bg-primary me-1">5</span
+                          ><span class="fw-semibold" data-i18n="configure.flow_m_flat_t">Flat rate</span>
+                          <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.flow_m_flat_d"
+                            >kWh &amp; subscription</span
+                          >
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                          data-doc-carousel="#configFlowCarouselManual"
+                          data-doc-slide-to="5"
+                        >
+                          <span class="badge bg-primary me-1">6</span
+                          ><span class="fw-semibold" data-i18n="configure.flow_m_5_t">Grid</span>
+                          <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.flow_m_5_d"
+                            >Single-phase example</span
+                          >
+                        </button>
+                      </nav>
+                    </div>
+                  </div>
+                  <div class="col-lg-9">
+                    <div
+                      id="configFlowCarouselManual"
+                      class="carousel slide carousel-dark doc-doc-carousel card shadow-sm"
+                      data-bs-ride="false"
+                      data-i18n-aria="carousel.aria_config_manual"
+                      aria-label="Config flow manual"
+                    >
+                      <div class="carousel-inner">
+                        <div class="carousel-item active">
+                          <div
+                            class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
+                          >
+                            <img
+                              src="img/config-flow-edf-01-user.png"
+                              alt=""
+                              class="doc-carousel-img doc-zoomable"
+                              decoding="async"
+                              data-i18n-alt="configure.flow_ex_1_alt"
+                            />
+                            <div
+                              class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                            >
+                              <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                              <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                              <code class="font-mono small mt-1">public/img/config-flow-edf-01-user.png</code>
+                            </div>
+                          </div>
+                          <div class="border-top bg-body p-3">
+                            <div class="fw-semibold" data-i18n="configure.flow_ex_1_t">User</div>
+                            <div class="small text-secondary" data-i18n="configure.flow_ex_1_d">
+                              Supplier &amp; phase
+                            </div>
+                          </div>
+                        </div>
+                        <div class="carousel-item">
+                          <div
+                            class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
+                          >
+                            <img
+                              src="img/config-flow-tariff-mode-manual.png"
+                              alt=""
+                              class="doc-carousel-img doc-zoomable"
+                              decoding="async"
+                              data-i18n-alt="configure.flow_m_2_alt"
+                            />
+                            <div
+                              class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                            >
+                              <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                              <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                              <code class="font-mono small mt-1">public/img/config-flow-tariff-mode-manual.png</code>
+                            </div>
+                          </div>
+                          <div class="border-top bg-body p-3">
+                            <div class="fw-semibold" data-i18n="configure.flow_m_2_t">Tariff mode</div>
+                            <div class="small text-secondary" data-i18n="configure.flow_m_2_d">Manual pricing</div>
+                          </div>
+                        </div>
+                        <div class="carousel-item">
+                          <div
+                            class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
+                          >
+                            <img
+                              src="img/config-flow-edf-03-contract.png"
+                              alt=""
+                              class="doc-carousel-img doc-zoomable"
+                              decoding="async"
+                              data-i18n-alt="configure.flow_ex_3_alt"
+                            />
+                            <div
+                              class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                            >
+                              <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                              <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                              <code class="font-mono small mt-1">public/img/config-flow-edf-03-contract.png</code>
+                            </div>
+                          </div>
+                          <div class="border-top bg-body p-3">
+                            <div class="fw-semibold" data-i18n="configure.flow_ex_3_t">Contract</div>
+                            <div class="small text-secondary" data-i18n="configure.flow_ex_3_d">
+                              Subscribed power &amp; name
+                            </div>
+                          </div>
+                        </div>
+                        <div class="carousel-item">
+                          <div
+                            class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
+                          >
+                            <img
+                              src="img/config-flow-manual-pricing-flat.png"
+                              alt=""
+                              class="doc-carousel-img doc-zoomable"
+                              decoding="async"
+                              data-i18n-alt="configure.flow_m_4_alt"
+                            />
+                            <div
+                              class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                            >
+                              <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                              <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                              <code class="font-mono small mt-1">public/img/config-flow-manual-pricing-flat.png</code>
+                            </div>
+                          </div>
+                          <div class="border-top bg-body p-3">
+                            <div class="fw-semibold" data-i18n="configure.flow_m_4_t">Manual pricing</div>
+                            <div class="small text-secondary" data-i18n="configure.flow_m_4_d">
+                              Structure &amp; basis
+                            </div>
+                          </div>
+                        </div>
+                        <div class="carousel-item">
+                          <div
+                            class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
+                          >
+                            <img
+                              src="img/config-flow-manual-flat.png"
+                              alt=""
+                              class="doc-carousel-img doc-zoomable"
+                              decoding="async"
+                              data-i18n-alt="configure.flow_m_flat_alt"
+                            />
+                            <div
+                              class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                            >
+                              <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                              <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                              <code class="font-mono small mt-1">public/img/config-flow-manual-flat.png</code>
+                            </div>
+                          </div>
+                          <div class="border-top bg-body p-3">
+                            <div class="fw-semibold" data-i18n="configure.flow_m_flat_t">Flat rate</div>
+                            <div class="small text-secondary" data-i18n="configure.flow_m_flat_d">
+                              kWh &amp; subscription
+                            </div>
+                          </div>
+                        </div>
+                        <div class="carousel-item">
+                          <div
+                            class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
+                          >
+                            <img
+                              src="img/config-flow-grid-mono.png"
+                              alt=""
+                              class="doc-carousel-img doc-zoomable"
+                              decoding="async"
+                              data-i18n-alt="configure.flow_m_5_alt"
+                            />
+                            <div
+                              class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                            >
+                              <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                              <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                              <code class="font-mono small mt-1">public/img/config-flow-grid-mono.png</code>
+                            </div>
+                          </div>
+                          <div class="border-top bg-body p-3">
+                            <div class="fw-semibold" data-i18n="configure.flow_m_5_t">Grid</div>
+                            <div class="small text-secondary" data-i18n="configure.flow_m_5_d">
+                              Single-phase example
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        class="carousel-control-prev"
+                        type="button"
+                        data-bs-target="#configFlowCarouselManual"
+                        data-bs-slide="prev"
+                      >
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden" data-i18n="carousel.prev">Previous</span>
+                      </button>
+                      <button
+                        class="carousel-control-next"
+                        type="button"
+                        data-bs-target="#configFlowCarouselManual"
+                        data-bs-slide="next"
+                      >
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden" data-i18n="carousel.next">Next</span>
+                      </button>
+                    </div>
+                    <p class="small text-secondary mt-2 mb-0" data-i18n-html="configure.flow_after_manual_html"></p>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="tab-pane fade"
+                id="config-flow-pane-offers"
+                role="tabpanel"
+                aria-labelledby="config-flow-tab-offers"
+                tabindex="0"
+              >
+                <div class="row g-3">
+                  <div class="col-lg-3">
+                    <div class="doc-carousel-tree border rounded-3 p-2 sticky-lg-top">
+                      <div
+                        class="small text-secondary text-uppercase fw-semibold mb-2"
+                        data-i18n="configure.flow_carousel_tree_offers"
+                      >
+                        Offer screenshots
+                      </div>
+                      <nav class="nav flex-column gap-1" id="configFlowTreeOffers" aria-label="Config flow offers">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary text-start doc-carousel-jump active"
+                          data-doc-carousel="#configFlowCarouselOffers"
+                          data-doc-slide-to="0"
+                        >
+                          <span class="badge bg-primary me-1">1</span
+                          ><span class="fw-semibold" data-i18n="configure.flow_o_1_t">BASE</span>
+                          <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.flow_o_1_d"
+                            >Single rate</span
+                          >
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                          data-doc-carousel="#configFlowCarouselOffers"
+                          data-doc-slide-to="1"
+                        >
+                          <span class="badge bg-primary me-1">2</span
+                          ><span class="fw-semibold" data-i18n="configure.flow_o_2_t">HPHC</span>
+                          <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.flow_o_2_d"
+                            >Peak / off-peak</span
+                          >
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+                          data-doc-carousel="#configFlowCarouselOffers"
+                          data-doc-slide-to="2"
+                        >
+                          <span class="badge bg-primary me-1">3</span
+                          ><span class="fw-semibold" data-i18n="configure.flow_o_3_t">TEMPO</span>
+                          <span class="small text-secondary d-block ps-1 mt-1" data-i18n="configure.flow_o_3_d"
+                            >Offer picker</span
+                          >
+                        </button>
+                      </nav>
+                    </div>
+                  </div>
+                  <div class="col-lg-9">
+                    <div
+                      id="configFlowCarouselOffers"
+                      class="carousel slide carousel-dark doc-doc-carousel card shadow-sm"
+                      data-bs-ride="false"
+                      data-i18n-aria="carousel.aria_config_offers"
+                      aria-label="EDF offers"
+                    >
+                      <div class="carousel-inner">
+                        <div class="carousel-item active">
+                          <div
+                            class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
+                          >
+                            <img
+                              src="img/config-flow-edf-offer-base.png"
+                              alt=""
+                              class="doc-carousel-img doc-zoomable"
+                              decoding="async"
+                              data-i18n-alt="configure.flow_o_1_alt"
+                            />
+                            <div
+                              class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                            >
+                              <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                              <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                              <code class="font-mono small mt-1">public/img/config-flow-edf-offer-base.png</code>
+                            </div>
+                          </div>
+                          <div class="border-top bg-body p-3">
+                            <div class="fw-semibold" data-i18n="configure.flow_o_1_t">BASE</div>
+                            <div class="small text-secondary" data-i18n="configure.flow_o_1_d">Single rate</div>
+                          </div>
+                        </div>
+                        <div class="carousel-item">
+                          <div
+                            class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
+                          >
+                            <img
+                              src="img/config-flow-edf-offer-hphc.png"
+                              alt=""
+                              class="doc-carousel-img doc-zoomable"
+                              decoding="async"
+                              data-i18n-alt="configure.flow_o_2_alt"
+                            />
+                            <div
+                              class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                            >
+                              <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                              <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                              <code class="font-mono small mt-1">public/img/config-flow-edf-offer-hphc.png</code>
+                            </div>
+                          </div>
+                          <div class="border-top bg-body p-3">
+                            <div class="fw-semibold" data-i18n="configure.flow_o_2_t">HPHC</div>
+                            <div class="small text-secondary" data-i18n="configure.flow_o_2_d">Peak / off-peak</div>
+                          </div>
+                        </div>
+                        <div class="carousel-item">
+                          <div
+                            class="doc-screenshot-frame doc-screenshot-frame--carousel position-relative bg-body-secondary"
+                          >
+                            <img
+                              src="img/config-flow-edf-04-edf-offer.png"
+                              alt=""
+                              class="doc-carousel-img doc-zoomable"
+                              decoding="async"
+                              data-i18n-alt="configure.flow_o_3_alt"
+                            />
+                            <div
+                              class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
+                            >
+                              <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
+                              <span data-i18n="common.img_placeholder">Add screenshot to</span>
+                              <code class="font-mono small mt-1">public/img/config-flow-edf-04-edf-offer.png</code>
+                            </div>
+                          </div>
+                          <div class="border-top bg-body p-3">
+                            <div class="fw-semibold" data-i18n="configure.flow_o_3_t">TEMPO</div>
+                            <div class="small text-secondary" data-i18n="configure.flow_o_3_d">Offer picker</div>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        class="carousel-control-prev"
+                        type="button"
+                        data-bs-target="#configFlowCarouselOffers"
+                        data-bs-slide="prev"
+                      >
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden" data-i18n="carousel.prev">Previous</span>
+                      </button>
+                      <button
+                        class="carousel-control-next"
+                        type="button"
+                        data-bs-target="#configFlowCarouselOffers"
+                        data-bs-slide="next"
+                      >
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden" data-i18n="carousel.next">Next</span>
+                      </button>
+                    </div>
+                    <p class="small text-secondary mt-2 mb-0" data-i18n-html="configure.flow_after_offers_html"></p>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -1367,7 +2175,7 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
 
           <footer class="border-top pt-4 mt-2 small text-secondary">
             <p class="mb-2" data-i18n-html="footer.p1_html">
-              Hub Énergie — documentation snapshot <strong class="text-body">v0.2.5</strong>. Canonical detail:
+              Hub Énergie — documentation snapshot <strong class="text-body">v0.3.1</strong>. Canonical detail:
               README and <code class="font-mono">docs/</code> in the
               <a href="https://gitlab.com/zzcyph1/home-assistant/hub-energie">GitLab project</a>.
             </p>

@@ -1,6 +1,6 @@
 # Hub Énergie — configuration flow reference
 
-This document describes the **initial setup** wizard (`HubEnergieConfigFlow`) in code: branch points, `step_id` values, and how they map to UI strings. It also tracks **documentation screenshots** (stored at the **repository root** in `site/public/img/` for GitLab Pages) and lists **what is still missing**.
+This document describes the **initial setup** wizard (`HubEnergieConfigFlow`) in code: branch points, `step_id` values, and how they map to UI strings. It also tracks **documentation screenshots** under `site/public/img/` (GitLab Pages). **`config-flow-*.png` files were cleared** so you can re-capture after a full config-flow redesign; the site still references the same filenames — carousels show placeholders until you add PNGs again. For the **guided tour** (tabs), see §6 (`#/doc#configure-paths`).
 
 - **Implementation:** `config_flow.py` → class `HubEnergieConfigFlow` (flow `VERSION = 2`).
 - **Dialog titles/descriptions (EN):** `translations/en.json` under `config.step.<step_id>`.
@@ -126,40 +126,59 @@ Post-setup changes use `HubEnergieOptionsFlow` (menu entries depend on config: o
 
 ## 4. Screenshot inventory (`site/public/img/`)
 
-These files live at the **repository root** (`site/public/img/`), not inside `custom_components/`. They are referenced by the static doc site (Vue app under `site/`; HTML chunk `site/src/assets/doc-fragment.html`, strings in `site/public/i18n.js`).
+**Status:** there are **no** `config-flow-*.png` files in the tree right now (removed so you can re-shot the whole flow). The filenames below are what **`site/src/assets/doc-fragment.html`** and §5 still expect — commit new PNGs with these exact names unless you intentionally rename and update the HTML.
 
-### 4.1 Covered today (initial flow — one path)
+**Internal step with no success dialog:** `_edf_fetch_and_continue` goes straight to `grid` on success. On failure, `edf_offer` may reappear with an error — optional capture.
 
-The following **six** files document a single happy path: **EDF · mono · automatic tariffs · TEMPO · RTE**.
+### 4.1 Filenames wired on the doc site (carousels)
 
-| File | Maps to `step_id` | Notes |
-|------|-------------------|--------|
-| `site/public/img/config-flow-edf-01-user.png` | `user` | Supplier + phase on one form |
-| `site/public/img/config-flow-edf-02-tariff-mode.png` | `tariff_mode` | Automatic vs manual |
-| `site/public/img/config-flow-edf-03-contract.png` | `contract` | kVA + optional name |
-| `site/public/img/config-flow-edf-04-edf-offer.png` | `edf_offer` | BASE / HPHC / TEMPO |
-| `site/public/img/config-flow-edf-05-tempo-source.png` | `edf_tempo` | RTE vs API Couleur Tempo |
-| `site/public/img/config-flow-edf-06-rte-credentials.png` | `edf_tempo_rte` | Client ID + secret |
+| File | Maps to `step_id` (intent) | Used in tab |
+|------|---------------------------|-------------|
+| `site/public/img/config-flow-edf-01-user.png` | `user` | RTE, API, Manual |
+| `site/public/img/config-flow-edf-02-tariff-mode.png` | `tariff_mode` | RTE, API |
+| `site/public/img/config-flow-edf-03-contract.png` | `contract` | RTE, API, Manual |
+| `site/public/img/config-flow-edf-04-edf-offer.png` | `edf_offer` | RTE, API, EDF offers |
+| `site/public/img/config-flow-edf-05-tempo-source.png` | `edf_tempo` | RTE, API (slide before API Couleur or RTE creds) |
+| `site/public/img/config-flow-edf-06-rte-credentials.png` | `edf_tempo_rte` | RTE only |
+| `site/public/img/config-flow-edf-tempo-api-couleur.png` | `edf_tempo` | API only (last slide) |
+| `site/public/img/config-flow-edf-offer-base.png` | `edf_offer` | EDF offers |
+| `site/public/img/config-flow-edf-offer-hphc.png` | `edf_offer` | EDF offers |
+| `site/public/img/config-flow-tariff-mode-manual.png` | `tariff_mode` | Manual |
+| `site/public/img/config-flow-manual-pricing-flat.png` | `manual_pricing` | Manual |
+| `site/public/img/config-flow-manual-flat.png` | `manual_flat` | Manual |
+| `site/public/img/config-flow-grid-mono.png` | `grid` | Manual |
 
-**Not shown as a separate screen (by design):** `_edf_fetch_and_continue` has **no dedicated dialog** on success—it immediately continues to `grid`. A fetch **failure** can re-show `edf_offer` with a form error (optional screenshot for troubleshooting docs).
+If your new UI **no longer matches** these steps (extra screens, merged dialogs, renamed flow), update `doc-fragment.html` + `i18n.js` to match reality.
 
-### 4.1b Additional captures (other branches)
+### 4.2 Extra filenames (checklist / future carousels — not all in HTML today)
 
-These supplement §4.1; they are **in repo** under `site/public/img/`.
+| File | Maps to `step_id` |
+|------|-------------------|
+| `site/public/img/config-flow-other-supplier-custom.png` | `supplier_custom` |
+| `site/public/img/config-flow-tariff-manual-only-info.png` | `tariff_mode_manual_only` |
+| `site/public/img/config-flow-manual-pricing-tou.png` | `manual_pricing` (TOU branch) |
+| `site/public/img/config-flow-manual-tou.png` | `manual_tou` |
+| `site/public/img/config-flow-manual-schedule-menu.png` | `manual_schedule` |
+| `site/public/img/config-flow-manual-schedule-form.png` | `manual_schedule_form` |
+| `site/public/img/config-flow-manual-schedule-json.png` | `manual_schedule_json` |
+| `site/public/img/config-flow-edf-fetch-error.png` | `edf_offer` (after failed fetch), optional |
+| `site/public/img/config-flow-grid-tri-energy-mode.png` | `grid_tri_energy_mode` |
+| `site/public/img/config-flow-grid-tri-per-phase.png` | `grid_tri_per_phase` |
+| `site/public/img/config-flow-grid-mono-or-tri-total.png` | `grid` (tri total) |
+| `site/public/img/config-flow-grid-tri-layout.png` | `grid_tri_layout` |
+| `site/public/img/config-flow-grid-phases-json.png` | `grid_phases` |
+| `site/public/img/config-flow-grid-tri-phase-l1.png` | `tri_grid_phase_1` |
+| `site/public/img/config-flow-solar-toggle.png` | `solar` |
+| `site/public/img/config-flow-solar-config.png` | `solar_config` |
+| `site/public/img/config-flow-solar-estimation.png` | `solar_estimation` |
+| `site/public/img/config-flow-battery-toggle.png` | `battery` |
+| `site/public/img/config-flow-battery-add.png` | `battery_add` |
+| `site/public/img/config-flow-battery-advanced.png` | `battery_advanced` |
+| `site/public/img/config-flow-battery-more.png` | `battery_more` |
+| `site/public/img/config-options-menu.png` | options menu |
+| `site/public/img/config-options-tempo.png` | options tempo / RTE |
 
-| File | Maps to `step_id` | Notes |
-|------|-------------------|--------|
-| `site/public/img/config-flow-edf-tempo-api-couleur.png` | `edf_tempo` | **API Couleur Tempo** selected (no RTE credentials step after **Valider**). |
-| `site/public/img/config-flow-edf-offer-base.png` | `edf_offer` | Offer type **BASE** selected. |
-| `site/public/img/config-flow-edf-offer-hphc.png` | `edf_offer` | Offer type **HPHC** selected. |
-| `site/public/img/config-flow-tariff-mode-manual.png` | `tariff_mode` | **Manual** tariff mode (EDF path before `contract` then manual pricing). |
-| `site/public/img/config-flow-manual-pricing-flat.png` | `manual_pricing` | Structure = **single flat** rate (`PRICING_FLAT`); next step would be `manual_flat` (not captured here). |
-| `site/public/img/config-flow-manual-pricing-tou.png` | `manual_pricing` | Structure = **peak/off-peak (TOU)** (`PRICING_TIME_OF_USE`); next step would be `manual_tou` (not captured here). |
-| `site/public/img/config-flow-grid-mono.png` | `grid` | Single-phase **grid** sensors (sign convention, import/export/power/load). Example: entities still “select entity”. |
-
-**Still missing for a full “BASE/HPHC” story:** screen **after** successful tariff fetch (either no visible step, or error on `edf_offer`); first kWh price entry (`manual_flat` / `manual_tou` forms) after the two `manual_pricing` shots above.
-
-### 4.2 Not part of config flow (other doc assets)
+### 4.3 Not part of config flow (other doc assets)
 
 These are useful for the same documentation site but are **not** config-flow steps:
 
@@ -170,81 +189,94 @@ These are useful for the same documentation site but are **not** config-flow ste
 | `site/public/img/integration-devices-overview.png` | Integration entry + device list |
 | `site/public/img/device-ui-01-offre.png` | Device **Offre** detail (post-setup) |
 
-### 4.3 Per-device gallery placeholders (still mostly missing)
+### 4.4 Device UI captures (doc carousel)
 
-The site expects `site/public/img/device-ui-02-reseau.png` … `device-ui-08-diagnostics.png` for the device carousel; only **Offre** is filled (`device-ui-01-offre.png`). That gap is **device UI**, not config flow—listed here only so you do not confuse it with setup steps.
+The doc site uses `site/public/img/device-ui-01-offre.png` … `device-ui-08-diagnostics.png` for the per-device gallery (**not** config-flow steps).
 
 ---
 
-## 5. Missing screenshots checklist (for you)
+## 5. Missing screenshots checklist (reset)
 
-Use consistent naming under `site/public/img/` when you capture them. Grouped by branch.
+Tick items as you drop files into `site/public/img/`. After a **flow redesign**, verify §4.1 still matches `doc-fragment.html`.
 
-### A. EDF automatic — alternatives to the documented path
+### Priority — doc carousels (§4.1)
 
-- [x] **`config-flow-edf-tempo-api-couleur.png`** — `edf_tempo` with **API Couleur Tempo** selected.
-- [x] **`config-flow-edf-offer-base.png`** / **`config-flow-edf-offer-hphc.png`** — `edf_offer` with **BASE** and **HPHC** respectively (two files).
-- [ ] _(Optional)_ **`config-flow-edf-fetch-error.png`** — `edf_offer` with `errors.base` after a failed `_edf_fetch_and_continue`.
-- [ ] _(Optional)_ Screen **immediately after** successful BASE/HPHC submit (usually invisible fetch, then `grid`) — you already have a generic **`config-flow-grid-mono.png`** for `grid`; consider a caption tying it to “after BASE/HPHC” in the site copy if useful.
+- [ ] **`config-flow-edf-01-user.png`** — `user`
+- [ ] **`config-flow-edf-02-tariff-mode.png`** — `tariff_mode`
+- [ ] **`config-flow-edf-03-contract.png`** — `contract`
+- [ ] **`config-flow-edf-04-edf-offer.png`** — `edf_offer`
+- [ ] **`config-flow-edf-05-tempo-source.png`** — `edf_tempo`
+- [ ] **`config-flow-edf-06-rte-credentials.png`** — `edf_tempo_rte`
+- [ ] **`config-flow-edf-tempo-api-couleur.png`** — `edf_tempo` (API Couleur branch)
+- [ ] **`config-flow-edf-offer-base.png`** / **`config-flow-edf-offer-hphc.png`** — `edf_offer` variants
+- [ ] **`config-flow-tariff-mode-manual.png`** — `tariff_mode` (manual)
+- [ ] **`config-flow-manual-pricing-flat.png`** — `manual_pricing` (flat)
+- [ ] **`config-flow-manual-flat.png`** — `manual_flat`
+- [ ] **`config-flow-grid-mono.png`** — `grid` (mono)
 
-### B. Other supplier + manual-only path
+### A. EDF automatic — optional / extra
 
-- [ ] **`config-flow-other-supplier-custom.png`** — `supplier_custom` (name field).
-- [ ] **`config-flow-tariff-manual-only-info.png`** — `tariff_mode_manual_only` (informational step before contract).
-- [x] **`manual_pricing` variants** — covered by **`config-flow-manual-pricing-flat.png`** and **`config-flow-manual-pricing-tou.png`** (pricing type + basis + currency). Still need the **next** steps below.
-- [ ] **`config-flow-manual-flat.png`** — `manual_flat` (kWh price + subscription).
-- [ ] **`config-flow-manual-tou.png`** — `manual_tou` (HP/HC slot form).
-- [ ] **`config-flow-manual-schedule-menu.png`** — `manual_schedule` (menu: form vs JSON).
-- [ ] **`config-flow-manual-schedule-form.png`** — `manual_schedule_form`.
-- [ ] **`config-flow-manual-schedule-json.png`** — `manual_schedule_json`.
+- [ ] **`config-flow-edf-fetch-error.png`** — failed `_edf_fetch_and_continue` / error on offer step (optional).
 
-### C. EDF + manual tariffs
+### B. Other supplier + manual-only
 
-- [x] **`config-flow-tariff-mode-manual.png`** — `tariff_mode` with **Manual** selected.
-- [x] First **`manual_pricing`** screens — see **`config-flow-manual-pricing-flat.png`** / **`config-flow-manual-pricing-tou.png`** (same as §B).
-- [ ] **`config-flow-edf-manual-contract.png`** _(optional)_ — `contract` in the same walk-through for clarity (kVA screen right after manual mode).
-- [ ] Follow-through: **`manual_flat`** / **`manual_tou`** / schedule steps as in §B.
+- [ ] **`config-flow-other-supplier-custom.png`** — `supplier_custom`
+- [ ] **`config-flow-tariff-manual-only-info.png`** — `tariff_mode_manual_only`
+- [ ] **`config-flow-manual-pricing-tou.png`** — `manual_pricing` (TOU)
+- [ ] **`config-flow-manual-tou.png`** — `manual_tou`
+- [ ] **`config-flow-manual-schedule-menu.png`** — `manual_schedule`
+- [ ] **`config-flow-manual-schedule-form.png`** — `manual_schedule_form`
+- [ ] **`config-flow-manual-schedule-json.png`** — `manual_schedule_json`
 
-### D. Grid — single-phase
+### C. EDF + manual (overlap with §B for pricing steps)
 
-- [x] **`config-flow-grid-mono.png`** — `grid` (import required, optional export/power/sign convention/load power).
+- [ ] **`config-flow-edf-manual-contract.png`** _(optional)_ — `contract` in the same walk-through as manual mode.
 
-### E. Grid — three-phase
+### D. Grid — three-phase
 
-Capture the branches you want to document (users only see one path per install):
-
-- [ ] **`config-flow-grid-tri-energy-mode.png`** — `grid_tri_energy_mode`.
-- [ ] **`config-flow-grid-tri-per-phase.png`** — `grid_tri_per_phase`.
-- [ ] **`config-flow-grid-mono-or-tri-total.png`** — `grid` for tri with **single total** import (if distinct from mono visually).
-- [ ] **`config-flow-grid-tri-layout.png`** — `grid_tri_layout`.
-- [ ] **`config-flow-grid-phases-json.png`** — `grid_phases`.
-- [ ] **`config-flow-grid-tri-phase-l1.png`** — `tri_grid_phase_1` (and optionally L2/L3 or a note that they look the same).
+- [ ] **`config-flow-grid-tri-energy-mode.png`** — `grid_tri_energy_mode`
+- [ ] **`config-flow-grid-tri-per-phase.png`** — `grid_tri_per_phase`
+- [ ] **`config-flow-grid-mono-or-tri-total.png`** — `grid` (tri + single total), if useful
+- [ ] **`config-flow-grid-tri-layout.png`** — `grid_tri_layout`
+- [ ] **`config-flow-grid-phases-json.png`** — `grid_phases`
+- [ ] **`config-flow-grid-tri-phase-l1.png`** — `tri_grid_phase_1` (+ L2/L3 if needed)
 
 ### F. Solar
 
-- [ ] **`config-flow-solar-toggle.png`** — `solar` (yes/no).
-- [ ] **`config-flow-solar-config.png`** — `solar_config` (entities, resale, estimation toggle, etc.).
-- [ ] **`config-flow-solar-estimation.png`** — `solar_estimation` (only if estimation enabled).
+- [ ] **`config-flow-solar-toggle.png`** — `solar`
+- [ ] **`config-flow-solar-config.png`** — `solar_config`
+- [ ] **`config-flow-solar-estimation.png`** — `solar_estimation`
 
 ### G. Batteries
 
-- [ ] **`config-flow-battery-toggle.png`** — `battery`.
-- [ ] **`config-flow-battery-add.png`** — `battery_add` (first battery).
-- [ ] **`config-flow-battery-advanced.png`** — `battery_advanced` (if you enable advanced).
-- [ ] **`config-flow-battery-more.png`** — `battery_more` (“add another”).
+- [ ] **`config-flow-battery-toggle.png`** — `battery`
+- [ ] **`config-flow-battery-add.png`** — `battery_add`
+- [ ] **`config-flow-battery-advanced.png`** — `battery_advanced`
+- [ ] **`config-flow-battery-more.png`** — `battery_more`
 
-### H. Options flow (optional)
+### H. Options (post-setup)
 
-- [ ] **`config-options-menu.png`** — main options menu for a representative entry (EDF Tempo tri + solar + batteries).
-- [ ] **`config-options-tempo.png`** — `tempo` / `tempo_rte` steps in options if different from initial setup.
+- [ ] **`config-options-menu.png`**
+- [ ] **`config-options-tempo.png`**
 
 ---
 
-## 6. Suggested next actions
+## 6. Guided doc site vs this file
 
-1. **Commit** new PNGs under `site/public/img/` with the names above (or rename to match what `site/src/assets/doc-fragment.html` / future sections expect).
-2. **Extend** `site/src/assets/doc-fragment.html` + `site/public/i18n.js` with extra carousels or accordions per branch (e.g. “Manual pricing”, “Three-phase grid”) so readers are not forced through one linear slideshow.
-3. Keep **`config-flow-edf-*.png`** as the **canonical EDF auto TEMPO RTE** story; add parallel filenames for other branches instead of overwriting.
+**End users (GitLab Pages / showcase site)** — Under **Configure in Home Assistant**, open **Guided screenshot paths** (`#configure-paths`). Bootstrap **tabs** switch between screenshot carousels (**placeholders** until §5 priority files exist):
+
+| Tab | Purpose |
+|-----|---------|
+| **Tempo · RTE** | Six-step path: `config-flow-edf-01-user.png` … `config-flow-edf-06-rte-credentials.png`. |
+| **Tempo · API** | Same through offer, then `config-flow-edf-tempo-api-couleur.png` (no RTE credentials slide). |
+| **Manual tariffs** | `user` → manual `tariff_mode` → `contract` → `manual_pricing` (flat) → `manual_flat` → mono `grid`. |
+| **EDF offers** | `config-flow-edf-offer-base.png`, `config-flow-edf-offer-hphc.png`, `config-flow-edf-04-edf-offer.png`. |
+
+Strings live in `site/public/i18n.js`; layout in `site/src/assets/doc-fragment.html`. After changing i18n, run `node site/scripts/sync-public.mjs` (or `npm run build` in `site/`, which runs it in `prebuild`).
+
+**This markdown file** stays the **developer reference**: `step_id` table, mermaid graph, screenshot inventory, and missing checklist (§5).
+
+**Next assets** — Commit new PNGs under `site/public/img/` using the names in §5. Prefer **extra** files per branch rather than overwriting the canonical RTE set. Further tabs (e.g. three-phase grid only) can follow the same pattern as in `DocView.vue` (`wireCarouselPair`).
 
 ---
 

@@ -39,8 +39,13 @@ from .const import (
     CONF_SUPPLIER,
     CONF_TARIFF_OFFER,
     CONF_TEMPO_MODE,
+    DEFAULT_MAX_DELTA_KWH_BATTERY,
+    DEFAULT_MAX_DELTA_KWH_GRID,
+    DEFAULT_MAX_DELTA_KWH_SOLAR,
     DEFAULT_TARIFF_AUTO_REFRESH,
     DEFAULT_TARIFF_REFRESH_HOURS,
+    DELTA_CAP_KWH_MAX,
+    DELTA_CAP_KWH_MIN,
     DATA_BATT_CHARGE_POWER_W,
     DATA_BATT_DISCHARGE_POWER_W,
     DATA_BATTERY_CARD,
@@ -144,6 +149,7 @@ from .const import (
     DIAG_CAUSE_UNATTRIBUTED,
     DOMAIN,
     ENERGY_ROUND_DECIMALS,
+    MAX_DELTA_KWH_DEFAULT,
     GRID_POWER_SIGN_EXPORT_NEGATIVE,
     INPUT_STATUS_ERROR,
     INPUT_STATUS_NO_INPUT,
@@ -160,6 +166,10 @@ from .const import (
     TEMPO_MODE_RTE,
     TEMPO_MODE_SENSOR,
     TRI_GRID_ENERGY_PER_PHASE,
+    OPT_MAX_DELTA_KWH_BATTERY,
+    OPT_MAX_DELTA_KWH_GRID,
+    OPT_MAX_DELTA_KWH_OTHER,
+    OPT_MAX_DELTA_KWH_SOLAR,
     OPT_TARIFF_AUTO_REFRESH,
     OPT_TARIFF_REFRESH_HOURS,
 )
@@ -197,6 +207,30 @@ _LOGGER = logging.getLogger(__name__)
 
 SAVE_DEBOUNCE_S = 2.0
 STORE_MODEL_VERSION = 1
+
+
+def _delta_policy_from_entry(entry: ConfigEntry) -> DeltaPolicy:
+    opts = entry.options
+
+    def resolved(key: str, default: float) -> float:
+        raw = opts.get(key)
+        if raw is None:
+            return float(default)
+        try:
+            v = float(raw)
+        except (TypeError, ValueError):
+            return float(default)
+        if not math.isfinite(v):
+            return float(default)
+        return max(float(DELTA_CAP_KWH_MIN), min(float(DELTA_CAP_KWH_MAX), v))
+
+    return DeltaPolicy(
+        max_delta_grid_kwh=resolved(OPT_MAX_DELTA_KWH_GRID, DEFAULT_MAX_DELTA_KWH_GRID),
+        max_delta_solar_kwh=resolved(OPT_MAX_DELTA_KWH_SOLAR, DEFAULT_MAX_DELTA_KWH_SOLAR),
+        max_delta_battery_kwh=resolved(OPT_MAX_DELTA_KWH_BATTERY, DEFAULT_MAX_DELTA_KWH_BATTERY),
+        max_delta_other_kwh=resolved(OPT_MAX_DELTA_KWH_OTHER, MAX_DELTA_KWH_DEFAULT),
+    )
+
 
 _DIAG_CAUSES: tuple[str, ...] = (
     DIAG_CAUSE_SOLAR_SURPLUS,
@@ -363,7 +397,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             slots=ATTRIBUTION_SLOTS,
             reinjection_state=self._reinjection_state,
         )
-        self._delta_policy = DeltaPolicy()
+        self._delta_policy = _delta_policy_from_entry(entry)
         self._trust_rebuilding_after_recorder = False
         self._tariff_refresh_rejected_incomplete = False
         self._first_input_probe_logged = False

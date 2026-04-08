@@ -218,16 +218,26 @@ h2:hover .doc-anchor {
 
 /* Device + config-flow carousels: slightly smaller in-frame (“zoom out”) so HA UI chrome isn’t so tight */
 #devicesGalleryCarousel .doc-screenshot-frame,
-#configFlowCarousel .doc-screenshot-frame {
+#configFlowCarousel .doc-screenshot-frame,
+#configFlowCarouselApi .doc-screenshot-frame,
+#configFlowCarouselManual .doc-screenshot-frame,
+#configFlowCarouselOffers .doc-screenshot-frame {
   padding: 0.65rem 1rem 0.85rem;
 }
 
 #devicesGalleryCarousel .doc-screenshot-frame .doc-carousel-img,
-#configFlowCarousel .doc-screenshot-frame .doc-carousel-img {
+#configFlowCarousel .doc-screenshot-frame .doc-carousel-img,
+#configFlowCarouselApi .doc-screenshot-frame .doc-carousel-img,
+#configFlowCarouselManual .doc-screenshot-frame .doc-carousel-img,
+#configFlowCarouselOffers .doc-screenshot-frame .doc-carousel-img {
   width: auto;
   max-width: 86%;
   margin-left: auto;
   margin-right: auto;
+}
+
+.doc-config-flow-tabs .nav-link {
+  white-space: nowrap;
 }
 
 .doc-carousel-img {
@@ -423,6 +433,46 @@ pre.doc-code {
   background: rgba(242, 244, 249, 0.96);
   padding: 0.4rem 0.9rem;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.site-landing-kicker {
+  letter-spacing: 0.04em;
+}
+
+.landing-hero-brand-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.landing-integration-badge {
+  line-height: 1.25;
+  border-radius: 9999px;
+  padding: 0.5rem 1.15rem 0.5rem 0.65rem;
+  max-width: 100%;
+  border: 1px solid var(--bs-border-color);
+  background: var(--bs-body-bg);
+  box-shadow: 0 0.05rem 0.35rem rgba(0, 0, 0, 0.06);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.landing-integration-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="dark"] .landing-integration-badge {
+  background: rgba(242, 244, 249, 0.96);
+  border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+[data-bs-theme="dark"] .landing-integration-badge .landing-hero-badge-title {
+  color: #1a1d20 !important;
+}
+
+[data-bs-theme="dark"] .landing-integration-badge .landing-hero-badge-sub {
+  color: #495057 !important;
 }
 
 .nav-ha-wordmark {

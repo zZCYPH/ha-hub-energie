@@ -16,6 +16,9 @@
       "meta.title.internals": "Hub Énergie — Behind the scenes",
       "meta.description.internals":
         "How Hub Énergie assigns kWh to tariff slots, persists state, and writes Home Assistant long-term statistics.",
+      "meta.title.flowhelp": "Hub Énergie — Config step help",
+      "meta.description.flowhelp":
+        "Short on-page help for each Home Assistant setup and Configure dialog step (Hub Énergie), with stable links from the integration UI.",
 
       "nav.home": "Home",
       "nav.documentation": "Documentation",
@@ -27,15 +30,20 @@
       "doc.hero_internals_hint":
         "Slot attribution, per-day buckets, the Store file, and long-term statistics — for readers who want the full pipeline.",
 
-      "landing.kicker": "Home Assistant · Energy intelligence",
+      "landing.kicker": "Hub Énergie · Home Assistant custom integration",
       "landing.ha_logo_alt": "Home Assistant",
+      "landing.hero_badge_title": "Hub Énergie",
+      "landing.hero_badge_sub":
+        "Custom integration for Home Assistant — tariff, meters, solar, batteries & costs",
+      "landing.hero_badge_alt": "Hub Énergie",
+      "landing.hero_badge_aria": "Open Hub Énergie documentation",
       "landing.headline": "Centralize your home’s energy data",
       "landing.lead_html":
         "One integration ties your tariff, meters, solar, batteries, costs, and diagnostics together — configure once and get a consistent view in Home Assistant.",
       "landing.cta_discover": "Discover",
       "landing.cta_internals": "How it works internally",
       "landing.cta_discover_footer": "Discover the documentation",
-      "landing.version_note": "Documentation snapshot v0.2.5",
+      "landing.version_note": "Documentation snapshot v0.3.1",
       "landing.f1_title": "True centralization",
       "landing.f1_body":
         "Tariff, grid, solar, per-battery devices, energy balance, costs, and diagnostics live under one integration instead of scattered helpers and templates.",
@@ -143,6 +151,8 @@
       "toc.install": "Install",
       "toc.lovelace": "Lovelace card",
       "toc.configure": "Configure in HA",
+      "toc.configure_paths": "Screenshot paths",
+      "toc.configure_delta_caps": "Energy delta caps",
       "toc.devices": "Devices",
       "toc.devices_integration": "Integration device list",
       "toc.services": "Services",
@@ -162,6 +172,9 @@
       "carousel.prev": "Previous",
       "carousel.next": "Next",
       "carousel.aria_config": "Config flow screenshots",
+      "carousel.aria_config_api": "Config flow — API Couleur Tempo path",
+      "carousel.aria_config_manual": "Config flow — manual tariffs sample",
+      "carousel.aria_config_offers": "EDF offer type screenshots",
       "carousel.aria_editor": "Lovelace card editor screenshots",
       "carousel.aria_devices": "Device list screenshots",
 
@@ -172,14 +185,14 @@
 
       "glance.title": "At a glance",
       "glance.ha": "<strong class=\"text-body\">HA</strong> 2024.10.0 or newer",
-      "glance.snapshot": "Doc snapshot <span class=\"badge bg-primary badge-doc\">v0.2.5</span>",
+      "glance.snapshot": "Doc snapshot <span class=\"badge bg-primary badge-doc\">v0.3.1</span>",
       "glance.issues": "Issues & feedback",
 
       "overview.title": "Overview",
       "overview.intro":
         "This page complements the README. Follow the steps below in order for a first-time setup.",
 
-      "scope.stable_heading": "Intended stable scope (v0.2.x)",
+      "scope.stable_heading": "Intended stable scope (v0.3.x)",
       "scope.stable_li1_html":
         "<strong class=\"text-body\">Config flow:</strong> supplier (EDF vs custom), tariff (flat, HP–HC, multi-slot, EDF Tempo + RTE/API/sensor), grid and optional solar/battery wiring.",
       "scope.stable_li2_html":
@@ -290,14 +303,85 @@
       "configure.flow_lead_html":
         "After a <strong class=\"text-body\">full restart</strong>, add the integration under <strong class=\"text-body\">Settings → Devices &amp; services → Add integration</strong>. The flow is <strong class=\"text-body\">not linear</strong>: screens depend on supplier, automatic vs manual tariffs, EDF offer (BASE / HPHC / TEMPO), Tempo data source, single- vs three-phase grid wiring, solar, and batteries.",
 
+      "configure.flow_step_help_html":
+        "<strong class=\"text-body\">Deep links from Home Assistant:</strong> each dialog can link to a short explainer on a <strong class=\"text-body\">separate page</strong> so the main documentation stays light for casual readers. Open <a href=\"#/doc/setup-help\">Setup &amp; options — step help</a> (anchors such as <code class=\"font-mono\">#/doc/setup-help#flow-step-grid</code> or <code class=\"font-mono\">#flow-step-options-advanced_energy</code>).",
+
+      "flowhelp.kicker": "Home Assistant — config dialogs",
+      "flowhelp.title": "Setup &amp; options — step help",
+      "flowhelp.intro_html":
+        "This page is meant to be opened from Hub Énergie itself: each section matches a <code class=\"font-mono\">step_id</code> in the integration config or options flow. Text stays out of the main documentation scroll path unless you choose to come here.",
+      "flowhelp.link_convention_html":
+        "<strong class=\"text-body\">Anchor convention:</strong> initial wizard → <code class=\"font-mono\">#flow-step-&lt;step_id&gt;</code>; post-setup <em>Configure</em> menu → <code class=\"font-mono\">#flow-step-options-&lt;step_id&gt;</code> (for example <code class=\"font-mono\">options advanced_energy</code> → <code class=\"font-mono\">#flow-step-options-advanced_energy</code>).",
+      "flowhelp.toc_setup": "Initial setup",
+      "flowhelp.toc_options": "Configure menu",
+      "flowhelp.back_doc": "Back to documentation",
+      "flowhelp.setup_heading": "Initial setup wizard",
+      "flowhelp.options_heading": "Settings → Hub Énergie → Configure",
+      "flowhelp.footer_html":
+        "Full branch graph and <code class=\"font-mono\">step_id</code> table: <code class=\"font-mono\">custom_components/hub_energie/docs/config-flow.md</code> in GitLab. Main guided doc (screenshots): <a href=\"#/doc#configure\">Configure in HA</a> on this site.",
+
       "configure.flow_map_title": "How the config flow branches",
       "configure.flow_map_html":
         "<ul class=\"mb-0 ps-3\"><li><strong class=\"text-body\">Start</strong> · <em>user</em> — supplier (EDF or other) and phase type on the same form.</li><li><strong class=\"text-body\">Other supplier</strong> · <em>supplier_custom</em> (name) → tariff mode is forced to <strong class=\"text-body\">manual</strong> → <em>contract</em> → manual pricing wizard (flat / time-of-use / schedule) → <strong class=\"text-body\">grid → solar → batteries → finish</strong>.</li><li><strong class=\"text-body\">EDF + automatic tariffs</strong> · <em>tariff_mode</em> (provider API vs manual) → <em>contract</em> (kVA, optional name) → <em>edf_offer</em> (BASE, HPHC, or TEMPO). If <strong class=\"text-body\">TEMPO</strong>: <em>edf_tempo</em> choose <strong class=\"text-body\">RTE</strong> (OAuth API) or <strong class=\"text-body\">API Couleur Tempo</strong> (no credentials). RTE adds <em>edf_tempo_rte</em> (client id + secret, validated against the API). Then EDF prices are fetched and you continue to <strong class=\"text-body\">grid → solar → batteries → finish</strong>.</li><li><strong class=\"text-body\">EDF + manual tariffs</strong> · skips EDF offer/Tempo; after <em>contract</em> you enter the same manual pricing branch as “other supplier”.</li><li><strong class=\"text-body\">After pricing is resolved</strong> · <em>grid</em> picks import (and optional export / power); <strong class=\"text-body\">three-phase</strong> adds sub-steps (per-phase vs combined sensors). Then <em>solar</em> (optional production / resale / estimation), then <em>battery</em> wizard (0..N systems), then create entry.</li></ul>",
 
-      "configure.flow_example_path_html":
-        "The carousel below follows one <strong class=\"text-body\">documented path</strong>: <strong class=\"text-body\">EDF · mono · automatic tariffs · TEMPO · RTE</strong> (screens <code class=\"font-mono\">config-flow-edf-01-user.png</code> … <code class=\"font-mono\">06-rte-credentials.png</code>).",
+      "configure.delta_caps_h": "Energy delta caps (advanced)",
+      "configure.delta_caps_intro_html":
+        "Hub Énergie moves your <code class=\"font-mono\">total_increasing</code> kWh meters in <strong class=\"text-body\">steps</strong>. On each coordinator cycle it compares the current reading to the last one it stored: the <strong class=\"text-body\">positive difference</strong> is a candidate delta. If that delta is <strong class=\"text-body\">within the cap</strong> for its source class (grid, solar, battery, or other), those kWh are booked into internal totals and the current tariff slot. If it is <strong class=\"text-body\">above the cap</strong>, the integration flags the jump as <strong class=\"text-body\">unrealistic</strong>: those kWh are <strong class=\"text-body\">not</strong> added to internal SSOT, but the stored “last raw” value still advances to the new meter reading so future deltas are computed from a sane baseline. Physical meters and Recorder history remain the reference for raw totals; these caps protect internal slot/cost accounting from spikes and from accidental huge catch-up after downtime.",
+      "configure.delta_caps_defaults_h": "Default ceilings (kWh per update)",
+      "configure.delta_caps_defaults_html":
+        "<ul class=\"mb-0 ps-3\"><li><strong class=\"text-body\">Grid import &amp; export</strong> — 300 kWh (shared cap for both)</li><li><strong class=\"text-body\">Solar production</strong> — 120 kWh</li><li><strong class=\"text-body\">Battery</strong> charge &amp; discharge — 80 kWh per counter</li><li><strong class=\"text-body\">Any other</strong> configured source — 200 kWh</li></ul><p class=\"mb-0 mt-2\">Override all four values under <strong class=\"text-body\">Settings → Hub Énergie → Configure → Advanced: energy delta caps</strong>.</p>",
+      "configure.delta_caps_cases_h": "Concrete cases",
+      "configure.delta_caps_cases_html":
+        "<ul class=\"mb-0 ps-3\"><li class=\"mb-2\"><strong class=\"text-body\">Short outage.</strong> Home Assistant was off for one night; the grid import meter increased by 12 kWh before the next poll. With the default 300 kWh grid cap, the full 12 kWh is applied once, attributed to the <em>current</em> Paris day and tariff slot (the integration does not reconstruct hour-by-hour consumption across the gap).</li><li class=\"mb-2\"><strong class=\"text-body\">Very long outage or heavy catch-up.</strong> The same meter is 400 kWh higher when HA returns. A single delta of 400 exceeds the default 300 kWh grid cap: internal SSOT <strong class=\"text-body\">skips</strong> that chunk; logs / discard telemetry explain why. If your site often sees big jumps, raise the grid cap (for example 800–1500 kWh) or ensure HA stays up so deltas stay smaller.</li><li class=\"mb-2\"><strong class=\"text-body\">PV inverter over-reporting for one tick.</strong> The solar kWh entity jumps by 30 kWh while actual production was tiny. A tighter solar cap (e.g. 40 kWh) caps how much of that spike can enter internal totals in one go; choose a value above the realistic maximum you expect <em>between two hub polls</em> under sunny conditions.</li><li class=\"mb-0\"><strong class=\"text-body\">Large batteries or off-grid.</strong> Domestic lithium systems often move only a few kWh between updates; 80 kWh is already generous. A large stack cycling tens of kWh every few minutes might need a higher battery cap so legitimate fast ramps are not discarded.</li></ul>",
+      "configure.delta_caps_ha_html":
+        "These fields are optional post-install tuning: they are <strong class=\"text-body\">not</strong> shown in the first-time wizard, only in <strong class=\"text-body\">Configure</strong>. The dialog description links back to this site for the longer explanation.",
+
+      "configure.paths_h": "Guided screenshot paths",
+      "configure.flow_paths_intro_html":
+        "Pick the tab that matches your setup. Each tab is a <strong class=\"text-body\">real Home Assistant dialog sequence</strong> (screenshots only — not a simulator). For <code class=\"font-mono\">step_id</code> names and the full branch map, see <code class=\"font-mono\">custom_components/hub_energie/docs/config-flow.md</code> in the repository.",
+
+      "configure.path_tab_rte": "Tempo · RTE",
+      "configure.path_tab_api": "Tempo · API",
+      "configure.path_tab_manual": "Manual tariffs",
+      "configure.path_tab_offers": "EDF offers",
 
       "configure.flow_carousel_tree": "This path (6 steps)",
+      "configure.flow_carousel_tree_api": "API Couleur path (5 steps)",
+      "configure.flow_carousel_tree_manual": "Manual pricing (sample)",
+      "configure.flow_carousel_tree_offers": "Offer screenshots",
+
+      "configure.flow_api_5_t": "Tempo source",
+      "configure.flow_api_5_d": "API Couleur Tempo — no RTE step",
+      "configure.flow_api_5_alt": "Hub Énergie config — API Couleur Tempo selected",
+      "configure.flow_after_api_html":
+        "After you submit, EDF tariffs are fetched in the background (no extra dialog on success). The flow continues with <strong class=\"text-body\">grid</strong> sensors, then <strong class=\"text-body\">solar</strong> and <strong class=\"text-body\">batteries</strong> — not illustrated in this doc yet.",
+
+      "configure.flow_m_2_t": "Tariff mode",
+      "configure.flow_m_2_d": "Manual pricing",
+      "configure.flow_m_2_alt": "Hub Énergie config — manual tariff mode",
+      "configure.flow_m_4_t": "Manual pricing",
+      "configure.flow_m_4_d": "Structure, basis, currency",
+      "configure.flow_m_4_alt": "Hub Énergie config — manual pricing (flat example)",
+      "configure.flow_m_5_t": "Grid",
+      "configure.flow_m_5_d": "Single-phase example",
+      "configure.flow_m_5_alt": "Hub Énergie config — grid sensors (mono)",
+      "configure.flow_m_flat_t": "Flat rate",
+      "configure.flow_m_flat_d": "kWh price & subscription",
+      "configure.flow_m_flat_alt": "Hub Énergie config — manual flat tariff (per kWh + subscription)",
+      "configure.flow_after_manual_html":
+        "Six steps: after <strong class=\"text-body\">flat</strong> pricing structure you enter <strong class=\"text-body\">per-kWh and subscription</strong>, then <strong class=\"text-body\">grid</strong>. Peak/off-peak or an advanced schedule would replace the flat-rate pair with longer branches. Three-phase grid adds sub-steps. <strong class=\"text-body\">Solar</strong> / <strong class=\"text-body\">batteries</strong> are still not shown here.",
+
+      "configure.flow_o_1_t": "BASE",
+      "configure.flow_o_1_d": "Single-rate offer",
+      "configure.flow_o_1_alt": "Hub Énergie config — EDF BASE offer",
+      "configure.flow_o_2_t": "HPHC",
+      "configure.flow_o_2_d": "Peak / off-peak",
+      "configure.flow_o_2_alt": "Hub Énergie config — EDF HPHC offer",
+      "configure.flow_o_3_t": "TEMPO (picker)",
+      "configure.flow_o_3_d": "Same step as other paths",
+      "configure.flow_o_3_alt": "Hub Énergie config — EDF offer with TEMPO selected",
+      "configure.flow_after_offers_html":
+        "These slides are <strong class=\"text-body\">side-by-side references</strong> for how each offer type looks. In a real run you pick one option, then automatic paths fetch prices (when applicable) and continue to <strong class=\"text-body\">grid</strong>.",
 
       "configure.flow_ex_1_t": "User",
       "configure.flow_ex_1_d": "Supplier & phase",
@@ -400,7 +484,7 @@
       "glossary.est_d": "Heuristic or model-based values when no direct energy meter exists — e.g. clear-sky PV, splits inferred from power sensors.",
 
       "footer.p1_html":
-        "Hub Énergie — documentation snapshot <strong class=\"text-body\">v0.2.5</strong>. Authoritative detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>. Official platform: <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
+        "Hub Énergie — documentation snapshot <strong class=\"text-body\">v0.3.1</strong>. Authoritative detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>. Official platform: <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
       "footer.license": "License: see the repository.",
       "footer.brand_name": "Hub Énergie",
       "footer.brand_aria": "Hub Énergie",
@@ -424,6 +508,9 @@
       "meta.title.internals": "Hub Énergie — Coulisses techniques",
       "meta.description.internals":
         "Comment Hub Énergie ventile les kWh par créneau tarifaire, persiste l’état et enregistre les statistiques long terme dans Home Assistant.",
+      "meta.title.flowhelp": "Hub Énergie — Aide par étape (configuration)",
+      "meta.description.flowhelp":
+        "Textes courts pour chaque écran de l’assistant Hub Énergie et du menu Configurer, avec ancres stables depuis l’intégration.",
 
       "nav.home": "Accueil",
       "nav.documentation": "Documentation",
@@ -435,15 +522,20 @@
       "doc.hero_internals_hint":
         "Attribution des créneaux, compartiments par jour civil, fichier Store et statistiques long terme — pour suivre toute la chaîne de traitement.",
 
-      "landing.kicker": "Home Assistant · Pilotage énergétique",
+      "landing.kicker": "Hub Énergie · intégration personnalisée Home Assistant",
       "landing.ha_logo_alt": "Home Assistant",
+      "landing.hero_badge_title": "Hub Énergie",
+      "landing.hero_badge_sub":
+        "Intégration personnalisée pour Home Assistant — tarif, compteurs, solaire, batteries et coûts",
+      "landing.hero_badge_alt": "Hub Énergie",
+      "landing.hero_badge_aria": "Ouvrir la documentation Hub Énergie",
       "landing.headline": "Centralisez l’énergie de votre logement",
       "landing.lead_html":
         "Une seule intégration relie tarif, compteurs, solaire, batteries, coûts et diagnostics : configurez une fois, puis consultez une vue cohérente dans Home Assistant.",
       "landing.cta_discover": "Découvrir",
       "landing.cta_internals": "Fonctionnement interne",
       "landing.cta_discover_footer": "Voir la documentation",
-      "landing.version_note": "Documentation figée v0.2.5",
+      "landing.version_note": "Documentation figée v0.3.1",
       "landing.f1_title": "Centralisation réelle",
       "landing.f1_body":
         "Offre, réseau, solaire, appareils par batterie, bilan énergétique, coûts et diagnostics sont regroupés dans une même intégration, au lieu d’être éclatés entre helpers et modèles.",
@@ -551,6 +643,8 @@
       "toc.install": "Installation",
       "toc.lovelace": "Carte Lovelace",
       "toc.configure": "Configurer dans HA",
+      "toc.configure_paths": "Parcours captures",
+      "toc.configure_delta_caps": "Plafonds de delta",
       "toc.devices": "Appareils",
       "toc.devices_integration": "Liste sous l’intégration",
       "toc.services": "Services",
@@ -570,6 +664,9 @@
       "carousel.prev": "Précédent",
       "carousel.next": "Suivant",
       "carousel.aria_config": "Captures de l’assistant de configuration",
+      "carousel.aria_config_api": "Assistant de config — parcours API Couleur Tempo",
+      "carousel.aria_config_manual": "Assistant de config — exemple tarifs manuels",
+      "carousel.aria_config_offers": "Captures des types d’offre EDF",
       "carousel.aria_editor": "Captures de l’éditeur de carte Lovelace",
       "carousel.aria_devices": "Captures des appareils",
 
@@ -580,14 +677,14 @@
 
       "glance.title": "En bref",
       "glance.ha": "<strong class=\"text-body\">HA</strong> 2024.10.0 ou plus récent",
-      "glance.snapshot": "Doc figée <span class=\"badge bg-primary badge-doc\">v0.2.5</span>",
+      "glance.snapshot": "Doc figée <span class=\"badge bg-primary badge-doc\">v0.3.1</span>",
       "glance.issues": "Tickets & retours",
 
       "overview.title": "Vue d’ensemble",
       "overview.intro":
         "Cette page prolonge le README. Pour une première installation, suivez les étapes ci-dessous dans l’ordre.",
 
-      "scope.stable_heading": "Périmètre stable visé (v0.2.x)",
+      "scope.stable_heading": "Périmètre stable visé (v0.3.x)",
       "scope.stable_li1_html":
         "<strong class=\"text-body\">Assistant de configuration :</strong> fournisseur (EDF ou personnalisé), tarif (prix unique, HP/HC, multi-creuses, Tempo EDF + RTE/API/capteur), réseau et câblage solaire ou batteries optionnel.",
       "scope.stable_li2_html":
@@ -700,15 +797,85 @@
       "configure.title": "Configurer dans Home Assistant",
       "configure.flow_lead_html":
         "Après un <strong class=\"text-body\">redémarrage complet</strong>, ajoutez l’intégration via <strong class=\"text-body\">Réglages → Appareils et services → Ajouter une intégration</strong>. Le parcours n’est <strong class=\"text-body\">pas linéaire</strong> : les écrans dépendent du fournisseur, du mode auto ou manuel des tarifs, du type d’offre EDF (BASE / HPHC / TEMPO), de la source Tempo, du câblage réseau mono ou triphasé, du solaire et des batteries.",
+      "configure.flow_step_help_html":
+        "<strong class=\"text-body\">Liens profonds depuis Home Assistant :</strong> chaque boîte de dialogue peut renvoyer vers un <strong class=\"text-body\">complément court</strong> sur une page dédiée, pour ne pas alourdir la documentation principale si vous la parcourez seul. Ouvrir <a href=\"#/doc/setup-help\">Assistant &amp; options — aide par étape</a> (ex. <code class=\"font-mono\">#/doc/setup-help#flow-step-grid</code> ou <code class=\"font-mono\">#flow-step-options-advanced_energy</code>).",
+
+      "flowhelp.kicker": "Home Assistant — boîtes de configuration",
+      "flowhelp.title": "Assistant &amp; options — aide par étape",
+      "flowhelp.intro_html":
+        "Cette page est pensée pour être ouverte depuis Hub Énergie : chaque section correspond à un <code class=\"font-mono\">step_id</code> du flux initial ou du menu <em>Configurer</em>. Le contenu n’apparaît pas dans le fil principal de la documentation tant que vous ne suivez pas un lien.",
+      "flowhelp.link_convention_html":
+        "<strong class=\"text-body\">Convention d’ancre :</strong> assistant initial → <code class=\"font-mono\">#flow-step-&lt;step_id&gt;</code> ; menu <em>Configurer</em> après installation → <code class=\"font-mono\">#flow-step-options-&lt;step_id&gt;</code> (ex. <code class=\"font-mono\">advanced_energy</code> → <code class=\"font-mono\">#flow-step-options-advanced_energy</code>).",
+      "flowhelp.toc_setup": "Assistant initial",
+      "flowhelp.toc_options": "Menu Configurer",
+      "flowhelp.back_doc": "Retour à la documentation",
+      "flowhelp.setup_heading": "Assistant de première installation",
+      "flowhelp.options_heading": "Réglages → Hub Énergie → Configurer",
+      "flowhelp.footer_html":
+        "Graphe de branches et tableau des <code class=\"font-mono\">step_id</code> : <code class=\"font-mono\">custom_components/hub_energie/docs/config-flow.md</code> sur GitLab. Documentation guidée (captures) : <a href=\"#/doc#configure\">Configurer dans HA</a> sur ce site.",
 
       "configure.flow_map_title": "Arborescence du flux de configuration",
       "configure.flow_map_html":
         "<ul class=\"mb-0 ps-3\"><li><strong class=\"text-body\">Départ</strong> · <em>user</em> — fournisseur (EDF ou autre) et type de phase sur le même formulaire.</li><li><strong class=\"text-body\">Autre fournisseur</strong> · <em>supplier_custom</em> (nom) → tarif forcé en <strong class=\"text-body\">manuel</strong> → <em>contract</em> → assistant prix manuel (prix unique / heures creuses / calendrier) → <strong class=\"text-body\">réseau → solaire → batteries → fin</strong>.</li><li><strong class=\"text-body\">EDF + tarifs automatiques</strong> · <em>tariff_mode</em> (API fournisseur ou manuel) → <em>contract</em> (kVA, nom optionnel) → <em>edf_offer</em> (BASE, HPHC ou TEMPO). Si <strong class=\"text-body\">TEMPO</strong> : <em>edf_tempo</em> — <strong class=\"text-body\">RTE</strong> (API OAuth) ou <strong class=\"text-body\">API Couleur Tempo</strong> (sans identifiants). RTE ajoute <em>edf_tempo_rte</em> (id + secret, validés). Puis récupération des tarifs EDF et enchaînement <strong class=\"text-body\">réseau → solaire → batteries → fin</strong>.</li><li><strong class=\"text-body\">EDF + tarifs manuels</strong> · pas d’écran offre/Tempo ; après <em>contract</em>, même branche prix manuel que « autre fournisseur ».</li><li><strong class=\"text-body\">Après résolution des prix</strong> · <em>grid</em> (import obligatoire ; export / puissance optionnels) ; le <strong class=\"text-body\">triphasé</strong> ajoute des sous-étapes. Puis <em>solar</em> (production, revente, estimation), puis assistant <em>batterie</em> (0..N), puis création de l’entrée.</li></ul>",
 
-      "configure.flow_example_path_html":
-        "Le carrousel ci-dessous suit un <strong class=\"text-body\">chemin documenté</strong> : <strong class=\"text-body\">EDF · mono · tarifs auto · TEMPO · RTE</strong> (fichiers <code class=\"font-mono\">config-flow-edf-01-user.png</code> … <code class=\"font-mono\">06-rte-credentials.png</code>).",
+      "configure.delta_caps_h": "Plafonds de delta (avancé)",
+      "configure.delta_caps_intro_html":
+        "Hub Énergie fait avancer vos compteurs kWh <code class=\"font-mono\">total_increasing</code> par <strong class=\"text-body\">bonds</strong>. À chaque cycle, il compare la lecture courante à la dernière mémorisée : la <strong class=\"text-body\">différence positive</strong> est un delta candidat. S’il est <strong class=\"text-body\">sous le plafond</strong> de sa classe (réseau, solaire, batterie, autre), ces kWh sont comptabilisés dans les totaux internes et le créneau tarifaire actif. S’il est <strong class=\"text-body\">au-dessus du plafond</strong>, l’intégration traite le bond comme <strong class=\"text-body\">irréaliste</strong> : ces kWh ne sont <strong class=\"text-body\">pas</strong> ajoutés à la SSOT interne, mais la dernière lecture brute stockée est quand même mise à jour pour que les deltas suivants repartent d’une base cohérente. Les compteurs physiques et l’historique Recorder restent la référence pour les totaux bruts ; ces plafonds protègent la ventilation par créneau et les coûts contre les pics et les rattrapages aberrants après une coupure.",
+      "configure.delta_caps_defaults_h": "Plafonds par défaut (kWh par mise à jour)",
+      "configure.delta_caps_defaults_html":
+        "<ul class=\"mb-0 ps-3\"><li><strong class=\"text-body\">Réseau import &amp; export</strong> — 300 kWh (même plafond pour les deux)</li><li><strong class=\"text-body\">Production solaire</strong> — 120 kWh</li><li><strong class=\"text-body\">Batterie</strong> charge &amp; décharge — 80 kWh par compteur</li><li><strong class=\"text-body\">Toute autre</strong> source configurée — 200 kWh</li></ul><p class=\"mb-0 mt-2\">Vous pouvez remplacer ces quatre valeurs sous <strong class=\"text-body\">Réglages → Hub Énergie → Configurer → Avancé : plafonds de delta (kWh)</strong>.</p>",
+      "configure.delta_caps_cases_h": "Cas concrets",
+      "configure.delta_caps_cases_html":
+        "<ul class=\"mb-0 ps-3\"><li class=\"mb-2\"><strong class=\"text-body\">Coupure courte.</strong> Home Assistant est resté éteint une nuit ; le compteur d’import a pris 12 kWh avant le prochain relevé. Avec le plafond réseau par défaut (300 kWh), les 12 kWh sont appliqués d’un coup, affectés au <em>jour</em> Paris et au <em>créneau</em> courants (pas de reconstitution heure par heure de la coupure).</li><li class=\"mb-2\"><strong class=\"text-body\">Coupure longue ou gros rattrapage.</strong> Le même compteur a bondi de 400 kWh pendant l’arrêt. Un seul delta de 400 dépasse le plafond 300 kWh : la SSOT interne <strong class=\"text-body\">ignore</strong> ce bloc ; journaux / télémétrie de rejet expliquent pourquoi. Si c’est fréquent sur votre site, augmentez le plafond réseau (par ex. 800–1500 kWh) ou faites en sorte que HA reste disponible pour garder des deltas plus petits.</li><li class=\"mb-2\"><strong class=\"text-body\">Pic erroné d’onduleur PV.</strong> L’entité kWh solaire saute de 30 kWh en une lecture alors que la production réelle était faible. Un plafond solaire plus serré (ex. 40 kWh) limite ce qui peut entrer en une fois ; restez au-dessus du maximum <em>réaliste</em> que vous attendez entre deux cycles du hub par beau temps.</li><li class=\"mb-0\"><strong class=\"text-body\">Grosses batteries ou site isolé.</strong> Un pack résidentiel bouge souvent de quelques kWh entre deux mises à jour ; 80 kWh est déjà large. Un gros stockage qui enchaîne des cycles rapides peut exiger un plafond batterie plus haut pour ne pas rejeter de vraies rampes.</li></ul>",
+      "configure.delta_caps_ha_html":
+        "Ces champs sont un réglage optionnel après installation : ils n’apparaissent <strong class=\"text-body\">pas</strong> dans l’assistant initial, seulement dans <strong class=\"text-body\">Configurer</strong>. La description de la boîte de dialogue renvoie vers ce site pour l’explication détaillée.",
+
+      "configure.paths_h": "Parcours guidés (captures)",
+      "configure.flow_paths_intro_html":
+        "Choisissez l’onglet qui correspond à votre cas. Chaque onglet montre une <strong class=\"text-body\">suite réelle de boîtes de dialogue Home Assistant</strong> (captures seulement — pas de simulateur). Pour les noms d’étapes <code class=\"font-mono\">step_id</code> et le graphe complet des branches, voir <code class=\"font-mono\">custom_components/hub_energie/docs/config-flow.md</code> dans le dépôt.",
+
+      "configure.path_tab_rte": "Tempo · RTE",
+      "configure.path_tab_api": "Tempo · API",
+      "configure.path_tab_manual": "Tarifs manuels",
+      "configure.path_tab_offers": "Offres EDF",
 
       "configure.flow_carousel_tree": "Ce parcours (6 étapes)",
+      "configure.flow_carousel_tree_api": "Parcours API Couleur (5 étapes)",
+      "configure.flow_carousel_tree_manual": "Tarification manuelle (exemple)",
+      "configure.flow_carousel_tree_offers": "Captures d’offres",
+
+      "configure.flow_api_5_t": "Source Tempo",
+      "configure.flow_api_5_d": "API Couleur Tempo — pas d’étape RTE",
+      "configure.flow_api_5_alt": "Hub Énergie — API Couleur Tempo sélectionnée",
+      "configure.flow_after_api_html":
+        "Après validation, les tarifs EDF sont récupérés en arrière-plan (pas d’écran supplémentaire en cas de succès). Le flux continue avec les <strong class=\"text-body\">capteurs réseau</strong>, puis le <strong class=\"text-body\">solaire</strong> et les <strong class=\"text-body\">batteries</strong> — non illustrés ici pour l’instant.",
+
+      "configure.flow_m_2_t": "Mode tarifaire",
+      "configure.flow_m_2_d": "Tarification manuelle",
+      "configure.flow_m_2_alt": "Hub Énergie — mode tarifaire manuel",
+      "configure.flow_m_4_t": "Tarification manuelle",
+      "configure.flow_m_4_d": "Structure, base, devise",
+      "configure.flow_m_4_alt": "Hub Énergie — tarification manuelle (exemple prix unique)",
+      "configure.flow_m_5_t": "Réseau",
+      "configure.flow_m_5_d": "Exemple monophasé",
+      "configure.flow_m_5_alt": "Hub Énergie — capteurs réseau (mono)",
+      "configure.flow_m_flat_t": "Tarif fixe",
+      "configure.flow_m_flat_d": "Prix kWh & abonnement",
+      "configure.flow_m_flat_alt": "Hub Énergie — tarif manuel prix unique (kWh + abonnement)",
+      "configure.flow_after_manual_html":
+        "Six étapes : après la <strong class=\"text-body\">structure</strong> tarifaire prix unique viennent le <strong class=\"text-body\">prix au kWh et l’abonnement</strong>, puis le <strong class=\"text-body\">réseau</strong>. Les modes HP/HC ou calendrier avancé remplaceraient la paire « prix unique » par des branches plus longues. Le triphasé ajoute des sous-étapes. Le <strong class=\"text-body\">solaire</strong> / les <strong class=\"text-body\">batteries</strong> ne sont toujours pas montrés ici.",
+
+      "configure.flow_o_1_t": "BASE",
+      "configure.flow_o_1_d": "Offre prix unique",
+      "configure.flow_o_1_alt": "Hub Énergie — offre EDF BASE",
+      "configure.flow_o_2_t": "HPHC",
+      "configure.flow_o_2_d": "Heures pleines / creuses",
+      "configure.flow_o_2_alt": "Hub Énergie — offre EDF HPHC",
+      "configure.flow_o_3_t": "TEMPO (choix)",
+      "configure.flow_o_3_d": "Même écran que sur les autres parcours",
+      "configure.flow_o_3_alt": "Hub Énergie — offre EDF avec TEMPO sélectionné",
+      "configure.flow_after_offers_html":
+        "Ces vues servent de <strong class=\"text-body\">références côte à côte</strong> pour l’apparence de chaque type d’offre. Dans un vrai assistant, vous n’en choisissez qu’une ; les parcours automatiques récupèrent ensuite les tarifs (si applicable) et passent au <strong class=\"text-body\">réseau</strong>.",
 
       "configure.flow_ex_1_t": "Utilisateur",
       "configure.flow_ex_1_d": "Fournisseur & phase",
@@ -814,7 +981,7 @@
         "Valeurs heuristiques ou modélisées sans compteur d’énergie direct — ex. PV « ciel clair », ventilations déduites des capteurs de puissance.",
 
       "footer.p1_html":
-        "Hub Énergie — documentation figée <strong class=\"text-body\">v0.2.5</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>. Plateforme officielle : <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
+        "Hub Énergie — documentation figée <strong class=\"text-body\">v0.3.1</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>. Plateforme officielle : <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
       "footer.license": "Licence : voir le dépôt.",
       "footer.brand_name": "Hub Énergie",
       "footer.brand_aria": "Hub Énergie",

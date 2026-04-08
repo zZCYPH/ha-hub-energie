@@ -4,6 +4,10 @@ All notable changes to **Hub Énergie** are documented in this file.
 
 ## Unreleased
 
+Nothing yet.
+
+## [0.3.1] — 2026-04-08
+
 ### Diagnostics / trust
 
 - **Breaking:** The diagnostic **`…_health`** sensor no longer uses state `warning`. It is now an **enum** with **`ok`**, **`degraded`**, **`rebuilding`**, and **`inconsistent`**. Update automations and dashboards accordingly.

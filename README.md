@@ -8,7 +8,7 @@ It targets generic supplier and tariff setups, multi-battery systems, solar PV e
 
 **Home Assistant:** 2024.10.0 or newer (see `custom_components/hub_energie/manifest.json`). **Install today:** download a **[GitLab release ZIP](https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/releases)** and extract it so `custom_components/hub_energie/` sits under your config, or use **git clone** / **copy** of that folder tree (see [Installation](#installation)). Hub Énergie is **not in the default HACS catalogue** yet—the project lives on **GitLab**, while HACS is largely built around **GitHub**, so there is **no one-click store install** for now. The repo still includes `hacs.json` and `brand/` for a possible future listing; treat them as preparatory, not as a supported install path. The **`site/`** folder is the **Vue + Vite** static documentation built in CI for **GitLab Pages** (same content as the showcase above); it is not loaded by Home Assistant.
 
-## Supported scope (v0.2.x)
+## Supported scope (v0.3.x)
 
 **Intended to be stable**
 
@@ -103,7 +103,7 @@ The Lovelace bundles in `frontend/dist/` are committed (rebuilt in CI), so you d
 
 **Card frontend:** `frontend/dist/` is included in the repository. You only need `npm ci` / `npm run build` under `custom_components/hub_energie/frontend/` if you change the card source locally.
 
-**Version:** see `custom_components/hub_energie/manifest.json` (`version` field). For reproducible installs, use the Git tag matching that version (e.g. **v0.2.5**).
+**Version:** see `custom_components/hub_energie/manifest.json` (`version` field). For reproducible installs, use the Git tag matching that version (e.g. **v0.3.1**).
 
 ## Lovelace Card
 

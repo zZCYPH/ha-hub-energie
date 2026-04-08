@@ -116,6 +116,11 @@ CONF_CURRENCY: Final = "currency"
 CONF_ENERGY_PRICE: Final = "energy_price"
 CONF_SUBSCRIPTION_PRICE: Final = "subscription_price"
 
+# Config-flow UI: bottom-of-form navigation (initial setup wizard only)
+CONF_FLOW_NAV: Final = "flow_nav"
+FLOW_NAV_CONTINUE: Final = "continue"
+FLOW_NAV_BACK: Final = "back"
+
 # Time-of-use tariff
 CONF_TOU_PERIODS: Final = "tou_periods"
 # Fixed rows in ``manual_tou`` (HP/HC — two slots).
@@ -411,6 +416,18 @@ NEGATIVE_DELTA_NOISE_KWH: Final = 0.01
 # Negative deltas with magnitude below this rebaseline last_raw without counting energy (meter jitter).
 NEGATIVE_DELTA_REBASE_BAND_KWH: Final = 0.1
 MAX_DELTA_KWH_DEFAULT: Final = 200.0
+# Built-in caps for one delta tick (grid import/export share the grid cap in DeltaPolicy).
+DEFAULT_MAX_DELTA_KWH_GRID: Final = 300.0
+DEFAULT_MAX_DELTA_KWH_SOLAR: Final = 120.0
+DEFAULT_MAX_DELTA_KWH_BATTERY: Final = 80.0
+# Config entry options: override delta caps (Configure → Advanced: energy delta caps).
+OPT_MAX_DELTA_KWH_GRID: Final = "max_delta_kwh_grid"
+OPT_MAX_DELTA_KWH_SOLAR: Final = "max_delta_kwh_solar"
+OPT_MAX_DELTA_KWH_BATTERY: Final = "max_delta_kwh_battery"
+OPT_MAX_DELTA_KWH_OTHER: Final = "max_delta_kwh_other"
+# Sanity bounds when reading options or showing the options form.
+DELTA_CAP_KWH_MIN: Final = 0.01
+DELTA_CAP_KWH_MAX: Final = 500_000.0
 
 # ---------------------------------------------------------------------------
 # Energy sources (accumulator keys)

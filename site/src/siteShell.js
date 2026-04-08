@@ -64,6 +64,9 @@ export function applyLang(lang, page) {
   } else if (page === "doc") {
     titleKey = "meta.title";
     descKey = "meta.description";
+  } else if (page === "flowhelp") {
+    titleKey = "meta.title.flowhelp";
+    descKey = "meta.description.flowhelp";
   } else if (page === "internals") {
     titleKey = "meta.title.internals";
     descKey = "meta.description.internals";
@@ -156,6 +159,7 @@ function readStoredTheme() {
 function pageFromRouteName(name) {
   if (name === "home") return "landing";
   if (name === "doc") return "doc";
+  if (name === "flowhelp") return "flowhelp";
   if (name === "internals") return "internals";
   return "landing";
 }
