@@ -6,7 +6,12 @@
 /** @typedef {'sensor' | 'number' | 'input_number'} ShowcaseDomain */
 /** @typedef {'energy' | 'power' | 'percent' | 'numeric'} ShowcaseIcon */
 
-/** @type {ReadonlyArray<{ value: string, nameEn: string, nameFr: string, pathEn: string, pathFr: string, domain: ShowcaseDomain, icon: ShowcaseIcon }>} */
+/**
+ * Dummy entity row — `icon` drives FlowsimEntityPicker filtering (parity with HA device class / domains).
+ * @typedef {{ value: string, nameEn: string, nameFr: string, pathEn: string, pathFr: string, domain: ShowcaseDomain, icon: ShowcaseIcon }} ShowcaseDummyEntity
+ */
+
+/** @type {ReadonlyArray<ShowcaseDummyEntity>} */
 export const SHOWCASE_DUMMY_ENTITIES = [
   {
     value: "input_number.showcase_battery_capacity_kwh",

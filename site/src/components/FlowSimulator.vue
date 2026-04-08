@@ -515,6 +515,26 @@ function fieldKind(key) {
   return "text";
 }
 
+/**
+ * Narrows dummy entity list to match real HA selectors (`energy_entity_selector`, `power_entity_selector`,
+ * `optional_number_entity`, `optional_soc_entity`). Must stay in sync with `isEntityKey` + `config_flow_selectors.py`.
+ * @returns {"all" | "energy" | "power" | "numeric" | "soc"}
+ */
+function entityFieldFilterKind(key) {
+  if (key === "batt_soc" || key.startsWith("batt_soc_")) return "soc";
+  if (
+    key === "batt_capacity_kwh_entity" ||
+    key === "batt_max_charge_w_entity" ||
+    key === "batt_max_discharge_w_entity"
+  )
+    return "numeric";
+  if (key.includes("_energy") || key === "solar_energy" || key === "solar_energy_sensors") return "energy";
+  if (key.includes("_power") || key.includes("load_power")) return "power";
+  /** Vitrine: single dummy `sensor.showcase_edf_tempo_external_slot_sensor` uses `energy` icon. */
+  if (key === "current_slot_sensor") return "energy";
+  return "all";
+}
+
 function boolFieldModelChecked(key) {
   const v = formState[key];
   return v === true || v === "true";
@@ -730,7 +750,11 @@ onUnmounted(() => {
                         />
                       </template>
                       <template v-else-if="fieldKind(fieldFormKey(sec, f)) === 'entity'">
-                        <FlowsimEntityPicker v-model="formState[fieldFormKey(sec, f)]" :aria-label="f.label" />
+                        <FlowsimEntityPicker
+                          v-model="formState[fieldFormKey(sec, f)]"
+                          :aria-label="f.label"
+                          :filter-kind="entityFieldFilterKind(fieldFormKey(sec, f))"
+                        />
                       </template>
                       <template v-else-if="hasSelectRows(fieldKind(fieldFormKey(sec, f)))">
                         <select v-model="formState[fieldFormKey(sec, f)]" class="flow-sim-ha__control" :aria-label="f.label">
@@ -828,7 +852,11 @@ onUnmounted(() => {
                   />
                 </template>
                 <template v-else-if="fieldKind(f.key) === 'entity'">
-                  <FlowsimEntityPicker v-model="formState[f.key]" :aria-label="f.label" />
+                  <FlowsimEntityPicker
+                    v-model="formState[f.key]"
+                    :aria-label="f.label"
+                    :filter-kind="entityFieldFilterKind(f.key)"
+                  />
                 </template>
                 <template v-else-if="hasSelectRows(fieldKind(f.key))">
                   <select v-model="formState[f.key]" class="flow-sim-ha__control" :aria-label="f.label">

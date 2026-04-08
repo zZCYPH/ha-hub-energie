@@ -3,9 +3,35 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { SHOWCASE_DUMMY_ENTITIES } from "../data/flowsimShowcaseEntities.js";
 import { getLang } from "../siteShell";
 
+/** Mirrors HA EntitySelector narrowing (energy / power / numeric domains / SOC). See `config_flow_selectors.py`. */
+const FILTER_KINDS = /** @type {const} */ (["all", "energy", "power", "numeric", "soc"]);
+
+/**
+ * @param {{ icon: string, domain: string, value: string }} e
+ * @param {(typeof FILTER_KINDS)[number]} kind
+ */
+function matchesEntityFilter(e, kind) {
+  if (!kind || kind === "all") return true;
+  if (kind === "energy") return e.icon === "energy";
+  if (kind === "power") return e.icon === "power";
+  if (kind === "numeric") return e.icon === "numeric" || e.domain === "number";
+  if (kind === "soc") {
+    if (e.icon === "percent") return true;
+    if (e.icon === "numeric" && /soc/i.test(e.value)) return true;
+    return false;
+  }
+  return true;
+}
+
 const props = defineProps({
   modelValue: { type: String, default: "" },
   ariaLabel: { type: String, default: "" },
+  /** When not `all`, only dummy entities matching this role are listed (aligned with real HA selectors). */
+  filterKind: {
+    type: String,
+    default: "all",
+    validator: (v) => FILTER_KINDS.includes(v),
+  },
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -41,7 +67,9 @@ const selectedMeta = computed(() => SHOWCASE_DUMMY_ENTITIES.find((e) => e.value 
 const filteredEntities = computed(() => {
   const q = query.value.trim().toLowerCase();
   const loc = locale.value;
+  const fk = props.filterKind || "all";
   return SHOWCASE_DUMMY_ENTITIES.filter((e) => {
+    if (!matchesEntityFilter(e, fk)) return false;
     if (!q) return true;
     const name = loc === "fr" ? e.nameFr : e.nameEn;
     const path = loc === "fr" ? e.pathFr : e.pathEn;
@@ -91,6 +119,13 @@ function selectEntity(value) {
   query.value = "";
 }
 
+function focusSearchInput() {
+  const el = searchRef.value;
+  if (!el || typeof el.focus !== "function") return;
+  /** Teleported input is under `body`; default focus scrolls the main document to “find” it — jumps the page. */
+  el.focus({ preventScroll: true });
+}
+
 function toggleOpen(ev) {
   ev?.stopPropagation?.();
   const next = !open.value;
@@ -99,7 +134,9 @@ function toggleOpen(ev) {
     query.value = "";
     nextTick(() => {
       updatePanelPosition();
-      searchRef.value?.focus?.();
+      requestAnimationFrame(() => {
+        focusSearchInput();
+      });
     });
   }
 }

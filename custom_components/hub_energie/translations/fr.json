@@ -64,9 +64,6 @@
         "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})",
         "data": {
           "tempo_mode": "Source du signal",
-          "rte_client_id": "Client ID API RTE",
-          "rte_client_secret": "Client secret API RTE",
-          "current_slot_sensor": "Capteur de créneau externe",
           "flow_nav": "Navigation dans l’assistant"
         }
       },

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-08T18:25:33.539283+00:00",
+  "generated_at": "2026-04-08T19:10:20.128343+00:00",
   "source_files": {
     "config_flow": "custom_components/hub_energie/config_flow.py",
     "strings_en": "custom_components/hub_energie/strings.json",
@@ -666,21 +666,6 @@
               "key": "tempo_mode",
               "label": "Signal source",
               "description": ""
-            },
-            {
-              "key": "rte_client_id",
-              "label": "RTE API client ID",
-              "description": ""
-            },
-            {
-              "key": "rte_client_secret",
-              "label": "RTE API client secret",
-              "description": ""
-            },
-            {
-              "key": "current_slot_sensor",
-              "label": "External slot sensor",
-              "description": ""
             }
           ],
           "menu_choices": [],
@@ -693,21 +678,6 @@
             {
               "key": "tempo_mode",
               "label": "Source du signal",
-              "description": ""
-            },
-            {
-              "key": "rte_client_id",
-              "label": "Client ID API RTE",
-              "description": ""
-            },
-            {
-              "key": "rte_client_secret",
-              "label": "Client secret API RTE",
-              "description": ""
-            },
-            {
-              "key": "current_slot_sensor",
-              "label": "Capteur de créneau externe",
               "description": ""
             }
           ],

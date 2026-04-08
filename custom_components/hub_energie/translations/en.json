@@ -66,9 +66,6 @@
         "description": "[I need help with this step]({step_help_url})",
         "data": {
           "tempo_mode": "Signal source",
-          "rte_client_id": "RTE API client ID",
-          "rte_client_secret": "RTE API client secret",
-          "current_slot_sensor": "External slot sensor",
           "flow_nav": "Wizard navigation"
         }
       },
