@@ -153,6 +153,54 @@ const navActive = (name) => route.name === name;
       </div>
     </nav>
 
-    <router-view />
+    <div class="d-flex flex-column flex-grow-1 min-vh-0">
+      <router-view />
+    </div>
+
+    <footer class="site-app-footer border-top py-4 mt-auto small text-secondary">
+      <div class="container-xxl px-3">
+        <div
+          class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 text-center text-md-start"
+        >
+          <p class="mb-0" data-i18n="footer.social_note">
+            Community links — coming soon.
+          </p>
+          <div
+            class="d-flex flex-wrap align-items-center justify-content-center gap-2"
+            role="group"
+            data-i18n-aria="footer.social_group_aria"
+            aria-label="Social links and newsletter"
+          >
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+              disabled
+              data-i18n-disabled-title="social.coming_soon"
+            >
+              <i class="bi bi-facebook me-1" aria-hidden="true"></i
+              ><span data-i18n="social.facebook">Facebook</span>
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+              disabled
+              data-i18n-disabled-title="social.coming_soon"
+            >
+              <i class="bi bi-discord me-1" aria-hidden="true"></i
+              ><span data-i18n="social.discord">Discord</span>
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+              disabled
+              data-i18n-disabled-title="social.coming_soon"
+            >
+              <i class="bi bi-envelope me-1" aria-hidden="true"></i
+              ><span data-i18n="social.newsletter">Newsletter</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>

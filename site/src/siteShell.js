@@ -46,6 +46,10 @@ export function applyLang(lang, page) {
     const va = tr(lang, el.getAttribute("data-i18n-alt"));
     if (va !== "") el.setAttribute("alt", va);
   });
+  document.querySelectorAll("[data-i18n-disabled-title]").forEach((el) => {
+    const vt = tr(lang, el.getAttribute("data-i18n-disabled-title"));
+    if (vt !== "") el.setAttribute("title", vt);
+  });
   document.querySelectorAll("img.doc-zoomable").forEach((el) => {
     const vt = tr(lang, "common.image_open_full");
     if (vt !== "") el.setAttribute("title", vt);

@@ -337,6 +337,12 @@ pre.doc-code {
   flex-direction: column;
 }
 
+.site-app-footer .btn:disabled {
+  pointer-events: auto;
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .landing-body .container-xxl:last-of-type {
   flex: 1;
 }

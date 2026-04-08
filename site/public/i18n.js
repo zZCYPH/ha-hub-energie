@@ -402,6 +402,12 @@
       "footer.p1_html":
         "Hub Énergie — documentation snapshot <strong class=\"text-body\">v0.2.3</strong>. Authoritative detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>.",
       "footer.license": "License: see the repository.",
+      "footer.social_note": "Community links — coming soon.",
+      "footer.social_group_aria": "Social links and newsletter signup",
+      "social.facebook": "Facebook",
+      "social.discord": "Discord",
+      "social.newsletter": "Newsletter",
+      "social.coming_soon": "Coming soon",
     },
 
     fr: {
@@ -806,6 +812,12 @@
       "footer.p1_html":
         "Hub Énergie — documentation figée <strong class=\"text-body\">v0.2.3</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>.",
       "footer.license": "Licence : voir le dépôt.",
+      "footer.social_note": "Liens communautaires — bientôt disponibles.",
+      "footer.social_group_aria": "Réseaux sociaux et inscription à la newsletter",
+      "social.facebook": "Facebook",
+      "social.discord": "Discord",
+      "social.newsletter": "Newsletter",
+      "social.coming_soon": "Bientôt disponible",
     },
   };
 })(typeof window !== "undefined" ? window : this);
