@@ -9,6 +9,8 @@
 # Permissions: enable API access for the CI job token (Settings → CI/CD → Job token permissions),
 # or set a project access token as CI variable GITLAB_RELEASE_TOKEN (api scope).
 
+# release (integration_release) before deploy (pages) within a single pipeline; dual v* + site-v* tag
+# pushes still spawn separate tag pipelines — see pages: wait-for-release block below.
 stages:
   - verify
   - release
@@ -180,6 +182,8 @@ integration_release:
 pages:
   stage: deploy
   image: node:22-alpine
+  before_script:
+    - apk add --no-cache curl jq
   script:
     - |
       set -euo pipefail
@@ -192,6 +196,36 @@ pages:
       MANIFEST_VER="$(node -p "JSON.parse(require('fs').readFileSync('custom_components/hub_energie/manifest.json','utf8')).version")"
       if [ "$TAG_VER" != "$MANIFEST_VER" ]; then
         echo "pages: tag base version ${TAG_VER} must match manifest.json version ${MANIFEST_VER} (tag ${TAG})"
+        exit 1
+      fi
+      # Pushing vX.Y.Z and site-vX.Y.Z-i on the same commit creates two tag pipelines in parallel;
+      # stages cannot order jobs across pipelines. Wait until the semver release (integration_release)
+      # exists with a hub-energie ZIP asset before fetch-releases so /releases.json lists the new version.
+      if [ -n "${GITLAB_RELEASE_TOKEN:-}" ]; then
+        AUTH_HEADER="PRIVATE-TOKEN: ${GITLAB_RELEASE_TOKEN}"
+      else
+        AUTH_HEADER="JOB-TOKEN: ${CI_JOB_TOKEN}"
+      fi
+      SEMVER_TAG="v${MANIFEST_VER}"
+      REL_ENC="$(printf '%s' "$SEMVER_TAG" | jq -sRr @uri)"
+      RELEASE_API="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/${REL_ENC}"
+      READY=""
+      for _try in $(seq 1 90); do
+        HTTP_CODE="$(curl -sS -o /tmp/gitlab_release.json -w "%{http_code}" \
+          --header "${AUTH_HEADER}" "$RELEASE_API")"
+        if [ "$HTTP_CODE" = "200" ] && \
+           jq -e 'any(.assets.links[]?; (.name // "") | test("^hub-energie-.*\\.zip$"))' \
+             /tmp/gitlab_release.json >/dev/null 2>&1; then
+          echo "pages: release ${SEMVER_TAG} is ready (ZIP asset present)."
+          READY=1
+          break
+        fi
+        echo "pages: waiting for release ${SEMVER_TAG} + ZIP asset (${_try}/90, HTTP ${HTTP_CODE})…"
+        sleep 5
+      done
+      if [ -z "$READY" ]; then
+        echo "pages: timed out waiting for ${SEMVER_TAG}. Push the v*.*.* tag before or with site-v*," \
+             "or set GITLAB_RELEASE_TOKEN if JOB-TOKEN cannot read releases/assets."
         exit 1
       fi
       # GitLab Releases API → site/public/releases.json (bundled as /releases.json on the site)
