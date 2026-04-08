@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-08T19:10:20.128343+00:00",
+  "generated_at": "2026-04-08T19:53:02.016709+00:00",
   "source_files": {
     "config_flow": "custom_components/hub_energie/config_flow.py",
     "strings_en": "custom_components/hub_energie/strings.json",
@@ -1995,11 +1995,6 @@
           "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_estimation)",
           "fields": [
             {
-              "key": "solar_estimation_enabled",
-              "label": "Enable production estimation?",
-              "description": ""
-            },
-            {
               "key": "solar_lat",
               "label": "Latitude",
               "description": ""
@@ -2020,13 +2015,13 @@
               "description": ""
             },
             {
-              "key": "solar_tilt",
-              "label": "Tilt angle (°)",
+              "key": "solar_tilt_mode",
+              "label": "Tilt mode",
               "description": ""
             },
             {
-              "key": "solar_tilt_mode",
-              "label": "Tilt mode",
+              "key": "solar_tilt",
+              "label": "Tilt angle (°)",
               "description": ""
             },
             {
@@ -2048,11 +2043,6 @@
           "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_estimation)",
           "fields": [
             {
-              "key": "solar_estimation_enabled",
-              "label": "Activer l'estimation de production ?",
-              "description": ""
-            },
-            {
               "key": "solar_lat",
               "label": "Latitude",
               "description": ""
@@ -2073,13 +2063,13 @@
               "description": ""
             },
             {
-              "key": "solar_tilt",
-              "label": "Angle d'inclinaison (°)",
+              "key": "solar_tilt_mode",
+              "label": "Mode d'inclinaison",
               "description": ""
             },
             {
-              "key": "solar_tilt_mode",
-              "label": "Mode d'inclinaison",
+              "key": "solar_tilt",
+              "label": "Angle d'inclinaison (°)",
               "description": ""
             },
             {

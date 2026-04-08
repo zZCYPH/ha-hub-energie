@@ -382,13 +382,12 @@
       "solar_estimation": {
         "title": "Estimation de production solaire",
         "data": {
-          "solar_estimation_enabled": "Activer l'estimation de production ?",
           "solar_lat": "Latitude",
           "solar_lon": "Longitude",
           "solar_peak_power": "Puissance crête (kWc)",
           "solar_orientation": "Orientation des panneaux",
-          "solar_tilt": "Angle d'inclinaison (°)",
           "solar_tilt_mode": "Mode d'inclinaison",
+          "solar_tilt": "Angle d'inclinaison (°)",
           "solar_shading": "Niveau d'ombrage",
           "solar_performance": "Performance du système",
           "flow_nav": "Navigation dans l’assistant"
@@ -733,8 +732,8 @@
           "solar_lon": "Longitude",
           "solar_peak_power": "Puissance crête (kWc)",
           "solar_orientation": "Orientation des panneaux",
-          "solar_tilt": "Angle d'inclinaison (°)",
           "solar_tilt_mode": "Mode d'inclinaison",
+          "solar_tilt": "Angle d'inclinaison (°)",
           "solar_shading": "Niveau d'ombrage",
           "solar_performance": "Performance du système"
         }

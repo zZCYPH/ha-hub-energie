@@ -393,13 +393,12 @@
       "solar_estimation": {
         "title": "Solar production estimation",
         "data": {
-          "solar_estimation_enabled": "Enable production estimation?",
           "solar_lat": "Latitude",
           "solar_lon": "Longitude",
           "solar_peak_power": "Peak power (kWc)",
           "solar_orientation": "Panel orientation",
-          "solar_tilt": "Tilt angle (°)",
           "solar_tilt_mode": "Tilt mode",
+          "solar_tilt": "Tilt angle (°)",
           "solar_shading": "Shading level",
           "solar_performance": "System performance",
           "flow_nav": "Wizard navigation"
@@ -713,8 +712,8 @@
           "solar_lon": "Longitude",
           "solar_peak_power": "Peak power (kWc)",
           "solar_orientation": "Panel orientation",
-          "solar_tilt": "Tilt angle (°)",
           "solar_tilt_mode": "Tilt mode",
+          "solar_tilt": "Tilt angle (°)",
           "solar_shading": "Shading level",
           "solar_performance": "System performance"
         }

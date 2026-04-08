@@ -33,6 +33,15 @@ const INITIAL_FORM = {
   grid_tri_sensor_layout: "total",
   has_solar: "false",
   solar_estimation_enabled: "false",
+  /** Pre-filled when reaching `solar_estimation` (defaults match `config_flow._solar_estimation_schema`). */
+  solar_lat: "48.8566",
+  solar_lon: "2.3522",
+  solar_peak_power: "1",
+  solar_orientation: "180",
+  solar_tilt_mode: "auto",
+  solar_tilt: "35",
+  solar_shading: "none",
+  solar_performance: "standard",
   has_batteries: "false",
   batt_advanced: "false",
   add_another: "false",
@@ -399,13 +408,25 @@ function flowsimCurrency() {
 function suffixForNumberField(key) {
   if (finished.value) return "";
   const step = currentStepId.value;
+  const cur = flowsimCurrency();
+  if (step === "manual_flat" && (key === "energy_price" || key === "subscription_price")) return cur;
   if (key === "subscription_price" && (step === "manual_tou" || step === "manual_schedule_form"))
-    return tr("flowsim.suffix_per_month").replace("{currency}", flowsimCurrency());
+    return tr("flowsim.suffix_per_month").replace("{currency}", cur);
   if (/^tou_r\d+_price$/.test(key) && step === "manual_tou")
-    return tr("flowsim.suffix_per_kwh").replace("{currency}", flowsimCurrency());
+    return tr("flowsim.suffix_per_kwh").replace("{currency}", cur);
   if (/^sched_r\d+_price$/.test(key) && step === "manual_schedule_form")
-    return tr("flowsim.suffix_per_kwh").replace("{currency}", flowsimCurrency());
+    return tr("flowsim.suffix_per_kwh").replace("{currency}", cur);
+  /** Parity with HA `NumberSelector` `unit_of_measurement` on `solar_estimation`. */
+  if (key === "solar_peak_power") return "kWc";
+  if (key === "solar_orientation" || key === "solar_tilt") return "°";
   return "";
+}
+
+/** Step attribute for `<input type="number">` when a unit suffix is shown (HA schema steps). */
+function numberInputStepForKey(key) {
+  if (key === "solar_peak_power") return "0.01";
+  if (key === "solar_orientation" || key === "solar_tilt") return "1";
+  return "0.0001";
 }
 
 function textKeysExcludeEntity(key) {
@@ -431,6 +452,8 @@ function isEntityKey(key) {
   )
     return false;
   if (
+    key === "solar_lat" ||
+    key === "solar_lon" ||
     key === "solar_peak_power" ||
     key === "solar_orientation" ||
     key === "solar_tilt" ||
@@ -504,6 +527,8 @@ function fieldKind(key) {
     (key.includes("capacity") && !key.endsWith("_entity")) ||
     key === "batt_max_charge_w" ||
     key === "batt_max_discharge_w" ||
+    key === "solar_lat" ||
+    key === "solar_lon" ||
     key === "solar_peak_power" ||
     key === "solar_orientation" ||
     key === "solar_tilt" ||
@@ -786,7 +811,7 @@ onUnmounted(() => {
                             v-model="formState[fieldFormKey(sec, f)]"
                             class="flow-sim-ha__control flow-sim-ha__control--suffix-in"
                             type="number"
-                            step="0.0001"
+                            :step="numberInputStepForKey(fieldFormKey(sec, f))"
                             :aria-label="f.label"
                           />
                           <span class="flow-sim-ha__suffix">{{ suffixForNumberField(fieldFormKey(sec, f)) }}</span>
@@ -886,7 +911,7 @@ onUnmounted(() => {
                       v-model="formState[f.key]"
                       class="flow-sim-ha__control flow-sim-ha__control--suffix-in"
                       type="number"
-                      step="0.0001"
+                      :step="numberInputStepForKey(f.key)"
                       :aria-label="f.label"
                     />
                     <span class="flow-sim-ha__suffix">{{ suffixForNumberField(f.key) }}</span>

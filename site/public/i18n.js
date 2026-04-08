@@ -194,8 +194,6 @@
       "flowsim.next": "Next",
       "flowsim.close_aria": "Close",
       "flowsim.help_aria": "Help",
-      "flowsim.dummy_entity_picker":
-        "Showcase-only entity list — layout mimics Home Assistant (search, friendly name, area path, domain).",
       "flowsim.suffix_per_kwh": "{currency}/kWh",
       "flowsim.suffix_per_month": "{currency}/month",
       "flowsim.time_placeholder": "--:--",
@@ -726,8 +724,6 @@
       "flowsim.next": "Suivant",
       "flowsim.close_aria": "Fermer",
       "flowsim.help_aria": "Aide",
-      "flowsim.dummy_entity_picker":
-        "Liste d’entités factice pour la vitrine — présentation proche de Home Assistant (recherche, nom, chemin, domaine).",
       "flowsim.suffix_per_kwh": "{currency}/kWh",
       "flowsim.suffix_per_month": "{currency}/mois",
       "flowsim.time_placeholder": "--:--",

@@ -24,6 +24,10 @@ from .coordinator import HubEnergieCoordinator
 from .utils.startup_failure import log_first_refresh_failure
 from .migration import async_migrate_entry  # noqa: F401 — entry point for HA
 
+# Preload config flow with the package so loader.import_module("…config_flow") is cheap on the
+# event loop during entry setup (see https://developers.home-assistant.io/docs/asyncio_imports).
+from . import config_flow as _hub_energie_config_flow  # noqa: F401
+
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.BINARY_SENSOR]

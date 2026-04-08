@@ -241,8 +241,6 @@ onUnmounted(() => {
         </div>
       </div>
     </Teleport>
-
-    <p class="flow-sim-ha__hint flow-sim-ha__hint--muted mb-0">{{ tr("flowsim.dummy_entity_picker") }}</p>
   </div>
 </template>
 
