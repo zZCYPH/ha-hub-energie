@@ -21,12 +21,14 @@
       "nav.documentation": "Documentation",
       "nav.internals": "Implementation details",
       "nav.internals_short": "Internals",
+      "nav.home_assistant_site_aria": "Home Assistant — official website (opens in a new tab)",
 
       "doc.hero_internals_cta": "Implementation details",
       "doc.hero_internals_hint":
         "Slot attribution, per-day buckets, the Store file, and long-term statistics — for readers who want the full pipeline.",
 
       "landing.kicker": "Home Assistant · Energy intelligence",
+      "landing.ha_logo_alt": "Home Assistant",
       "landing.headline": "Centralize your home’s energy data",
       "landing.lead_html":
         "One integration ties your tariff, meters, solar, batteries, costs, and diagnostics together — configure once and get a consistent view in Home Assistant.",
@@ -53,7 +55,7 @@
       "landing.f6_body":
         "Health, data quality, delta telemetry, and trust indicators show when inputs are incomplete or the integration is rebuilding state.",
       "landing.footer_html":
-        "Hub Énergie · <a href=\"#/doc\">Documentation</a> · <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab</a>",
+        "Hub Énergie · <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a> · <a href=\"#/doc\">Documentation</a> · <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab</a>",
 
       "toc.internals_title": "On this page",
       "toc.internals_overview": "Pipeline",
@@ -123,7 +125,7 @@
       "internals.s_tel_p2_html":
         "The health / trust sensor rolls these signals into coarse states such as <code class=\"font-mono\">ok</code>, <code class=\"font-mono\">degraded</code>, <code class=\"font-mono\">rebuilding</code>, or <code class=\"font-mono\">inconsistent</code> with human-readable causes — the same signals the Lovelace card can show in diagnostics.",
       "internals.footer_html":
-        "For user-facing setup, return to the <a href=\"#/doc\">main documentation</a> or the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab repository</a>.",
+        "For user-facing setup, return to the <a href=\"#/doc\">main documentation</a>, visit <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">home-assistant.io</a>, or open the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab repository</a>.",
 
       "nav.contents": "Contents",
       "theme.group_aria": "Display theme",
@@ -400,7 +402,7 @@
       "glossary.est_d": "Heuristic or model-based values when no direct energy meter exists — e.g. clear-sky PV, splits inferred from power sensors.",
 
       "footer.p1_html":
-        "Hub Énergie — documentation snapshot <strong class=\"text-body\">v0.2.3</strong>. Authoritative detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>.",
+        "Hub Énergie — documentation snapshot <strong class=\"text-body\">v0.2.3</strong>. Authoritative detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>. Official platform: <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
       "footer.license": "License: see the repository.",
     },
 
@@ -419,12 +421,14 @@
       "nav.documentation": "Documentation",
       "nav.internals": "Détails d’implémentation",
       "nav.internals_short": "Technique",
+      "nav.home_assistant_site_aria": "Home Assistant — site officiel (s’ouvre dans un nouvel onglet)",
 
       "doc.hero_internals_cta": "Détails d’implémentation",
       "doc.hero_internals_hint":
         "Attribution des créneaux, compartiments par jour civil, fichier Store et statistiques long terme — pour suivre toute la chaîne de traitement.",
 
       "landing.kicker": "Home Assistant · Pilotage énergétique",
+      "landing.ha_logo_alt": "Home Assistant",
       "landing.headline": "Centralisez l’énergie de votre logement",
       "landing.lead_html":
         "Une seule intégration relie tarif, compteurs, solaire, batteries, coûts et diagnostics : configurez une fois, puis consultez une vue cohérente dans Home Assistant.",
@@ -451,7 +455,7 @@
       "landing.f6_body":
         "Santé, qualité des données, télémétrie des deltas et indicateurs de confiance signalent les entrées incomplètes ou une reconstruction d’état en cours.",
       "landing.footer_html":
-        "Hub Énergie · <a href=\"#/doc\">Documentation</a> · <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab</a>",
+        "Hub Énergie · <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a> · <a href=\"#/doc\">Documentation</a> · <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab</a>",
 
       "toc.internals_title": "Sur cette page",
       "toc.internals_overview": "Chaîne de traitement",
@@ -521,7 +525,7 @@
       "internals.s_tel_p2_html":
         "Le capteur santé / confiance agrège ces signaux en états simples (<code class=\"font-mono\">ok</code>, <code class=\"font-mono\">degraded</code>, <code class=\"font-mono\">rebuilding</code>, <code class=\"font-mono\">inconsistent</code>) avec des causes lisibles — les mêmes informations que la carte Lovelace peut afficher dans les vues de diagnostic.",
       "internals.footer_html":
-        "Pour la mise en service côté utilisateur, revenez à la <a href=\"#/doc\">documentation principale</a> ou au <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">dépôt GitLab</a>.",
+        "Pour la mise en service côté utilisateur, revenez à la <a href=\"#/doc\">documentation principale</a>, consultez <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">home-assistant.io</a>, ou ouvrez le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">dépôt GitLab</a>.",
 
       "nav.contents": "Sommaire",
       "theme.group_aria": "Thème d’affichage",
@@ -804,7 +808,7 @@
         "Valeurs heuristiques ou modélisées sans compteur d’énergie direct — ex. PV « ciel clair », ventilations déduites des capteurs de puissance.",
 
       "footer.p1_html":
-        "Hub Énergie — documentation figée <strong class=\"text-body\">v0.2.3</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>.",
+        "Hub Énergie — documentation figée <strong class=\"text-body\">v0.2.3</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>. Plateforme officielle : <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
       "footer.license": "Licence : voir le dépôt.",
     },
   };

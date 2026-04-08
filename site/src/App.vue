@@ -141,6 +141,22 @@ const navActive = (name) => route.name === name;
             </div>
             <a
               class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+              href="https://www.home-assistant.io/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                :src="`${base}img/home-assistant-logo.svg`"
+                alt=""
+                width="120"
+                height="18"
+                class="nav-ha-wordmark align-middle"
+                decoding="async"
+                data-i18n-alt="landing.ha_logo_alt"
+              />
+            </a>
+            <a
+              class="btn btn-outline-secondary btn-sm rounded-pill px-3"
               href="https://gitlab.com/zzcyph1/home-assistant/hub-energie"
               target="_blank"
               rel="noopener noreferrer"

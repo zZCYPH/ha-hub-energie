@@ -368,6 +368,36 @@ pre.doc-code {
   pointer-events: none;
 }
 
+.landing-ha-logo-link {
+  line-height: 0;
+  border-radius: 0.5rem;
+}
+
+.landing-ha-logo {
+  height: 2.75rem;
+  width: auto;
+  max-width: min(100%, 22rem);
+  vertical-align: middle;
+}
+
+[data-bs-theme="dark"] .landing-ha-logo-link {
+  background: rgba(242, 244, 249, 0.96);
+  padding: 0.4rem 0.9rem;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.nav-ha-wordmark {
+  height: 1.1rem;
+  width: auto;
+  max-width: 7.5rem;
+  object-fit: contain;
+  object-position: left center;
+}
+
+[data-bs-theme="dark"] .nav-ha-wordmark {
+  filter: brightness(0) invert(1);
+}
+
 .landing-title {
   letter-spacing: -0.03em;
   line-height: 1.15;
