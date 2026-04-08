@@ -140,20 +140,22 @@ const navActive = (name) => route.name === name;
               </button>
             </div>
             <a
-              class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+              class="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-2"
               href="https://www.home-assistant.io/"
               target="_blank"
               rel="noopener noreferrer"
+              data-i18n-aria="nav.home_assistant_site_aria"
             >
               <img
-                :src="`${base}img/home-assistant-logo.svg`"
+                :src="`${base}img/homeassistant.svg`"
                 alt=""
-                width="120"
-                height="18"
-                class="nav-ha-wordmark align-middle"
+                width="20"
+                height="20"
+                class="nav-ha-mark flex-shrink-0"
                 decoding="async"
                 data-i18n-alt="landing.ha_logo_alt"
               />
+              <span class="d-none d-sm-inline fw-semibold" data-i18n="landing.ha_logo_alt">Home Assistant</span>
             </a>
             <a
               class="btn btn-outline-secondary btn-sm rounded-pill px-3"
@@ -175,57 +177,119 @@ const navActive = (name) => route.name === name;
 
     <footer class="site-app-footer border-top py-4 mt-auto small text-secondary">
       <div class="container-xxl px-3">
-        <div
-          class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 text-center text-md-start"
-        >
-          <p class="mb-0" data-i18n="footer.social_note">
-            Community links — coming soon.
-          </p>
-          <div
-            class="d-flex flex-wrap align-items-center justify-content-center gap-2"
-            role="group"
-            data-i18n-aria="footer.social_group_aria"
-            aria-label="Social links and newsletter"
-          >
-            <span
-              class="d-inline-block site-social-tooltip-host"
-              tabindex="0"
-              data-bs-toggle="tooltip"
-              data-i18n-bs-title="social.coming_soon"
-              data-bs-title=""
+        <div class="row g-4 align-items-start justify-content-between">
+          <div class="col-12 col-md-6 text-center text-md-start">
+            <div
+              class="d-inline-flex align-items-center gap-2 mb-3 site-footer-brand"
+              data-i18n-aria="footer.brand_aria"
             >
-              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" disabled>
-                <i class="bi bi-facebook me-1" aria-hidden="true"></i
-                ><span data-i18n="social.facebook">Facebook</span>
-              </button>
-            </span>
-            <span
-              class="d-inline-block site-social-tooltip-host"
-              tabindex="0"
-              data-bs-toggle="tooltip"
-              data-i18n-bs-title="social.coming_soon"
-              data-bs-title=""
+              <img
+                :src="`${base}img/icon.png`"
+                alt=""
+                width="24"
+                height="24"
+                class="site-footer-brand-icon rounded-1 flex-shrink-0"
+                decoding="async"
+              />
+              <span class="site-footer-brand-title text-body fw-bold mb-0" data-i18n="footer.brand_name"
+                >Hub Énergie</span
+              >
+            </div>
+            <nav class="site-footer-nav" data-i18n-aria="footer.primary_links_aria">
+              <ul class="list-unstyled mb-0 d-flex flex-column gap-1 align-items-center align-items-md-start">
+                <li>
+                  <a
+                    class="link-secondary text-decoration-none"
+                    href="https://www.home-assistant.io/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-i18n="landing.ha_logo_alt"
+                    >Home Assistant</a
+                  >
+                </li>
+                <li>
+                  <router-link class="link-secondary text-decoration-none" to="/doc">
+                    <span data-i18n="nav.documentation">Documentation</span>
+                  </router-link>
+                </li>
+                <li>
+                  <a
+                    class="link-secondary text-decoration-none"
+                    href="https://gitlab.com/zzcyph1/home-assistant/hub-energie"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-i18n="footer.link_gitlab"
+                    >GitLab</a
+                  >
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div class="col-12 col-md-5 col-lg-4">
+            <div
+              class="site-footer-social-panel border rounded-3 px-3 py-3 bg-body-secondary bg-opacity-10 text-center text-md-end"
             >
-              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" disabled>
-                <i class="bi bi-discord me-1" aria-hidden="true"></i
-                ><span data-i18n="social.discord">Discord</span>
-              </button>
-            </span>
-            <span
-              class="d-inline-block site-social-tooltip-host"
-              tabindex="0"
-              data-bs-toggle="tooltip"
-              data-i18n-bs-title="social.coming_soon"
-              data-bs-title=""
-            >
-              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" disabled>
-                <i class="bi bi-envelope me-1" aria-hidden="true"></i
-                ><span data-i18n="social.newsletter">Newsletter</span>
-              </button>
-            </span>
+              <p class="mb-2 mb-md-3 text-secondary" data-i18n="footer.social_note">
+                Community links — coming soon.
+              </p>
+              <div
+                class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-end gap-2"
+                role="group"
+                data-i18n-aria="footer.social_group_aria"
+              >
+                <span
+                  class="d-inline-block site-social-tooltip-host"
+                  tabindex="0"
+                  data-bs-toggle="tooltip"
+                  data-i18n-bs-title="social.coming_soon"
+                  data-bs-title=""
+                >
+                  <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" disabled>
+                    <i class="bi bi-facebook me-1" aria-hidden="true"></i
+                    ><span data-i18n="social.facebook">Facebook</span>
+                  </button>
+                </span>
+                <span
+                  class="d-inline-block site-social-tooltip-host"
+                  tabindex="0"
+                  data-bs-toggle="tooltip"
+                  data-i18n-bs-title="social.coming_soon"
+                  data-bs-title=""
+                >
+                  <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" disabled>
+                    <i class="bi bi-discord me-1" aria-hidden="true"></i
+                    ><span data-i18n="social.discord">Discord</span>
+                  </button>
+                </span>
+                <span
+                  class="d-inline-block site-social-tooltip-host"
+                  tabindex="0"
+                  data-bs-toggle="tooltip"
+                  data-i18n-bs-title="social.coming_soon"
+                  data-bs-title=""
+                >
+                  <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" disabled>
+                    <i class="bi bi-envelope me-1" aria-hidden="true"></i
+                    ><span data-i18n="social.newsletter">Newsletter</span>
+                  </button>
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </footer>
   </div>
 </template>
+
+<style scoped>
+.site-footer-brand-title {
+  font-size: 1.125rem;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+}
+
+.nav-ha-mark {
+  display: block;
+}
+</style>

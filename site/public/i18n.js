@@ -54,8 +54,6 @@
       "landing.f6_title": "Honest diagnostics",
       "landing.f6_body":
         "Health, data quality, delta telemetry, and trust indicators show when inputs are incomplete or the integration is rebuilding state.",
-      "landing.footer_html":
-        "Hub Énergie · <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a> · <a href=\"#/doc\">Documentation</a> · <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab</a>",
 
       "toc.internals_title": "On this page",
       "toc.internals_overview": "Pipeline",
@@ -404,6 +402,10 @@
       "footer.p1_html":
         "Hub Énergie — documentation snapshot <strong class=\"text-body\">v0.2.5</strong>. Authoritative detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>. Official platform: <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
       "footer.license": "License: see the repository.",
+      "footer.brand_name": "Hub Énergie",
+      "footer.brand_aria": "Hub Énergie",
+      "footer.primary_links_aria": "Project links",
+      "footer.link_gitlab": "GitLab",
       "footer.social_note": "Community links — coming soon.",
       "footer.social_group_aria": "Social links and newsletter signup",
       "social.facebook": "Facebook",
@@ -460,8 +462,6 @@
       "landing.f6_title": "Diagnostics transparents",
       "landing.f6_body":
         "Santé, qualité des données, télémétrie des deltas et indicateurs de confiance signalent les entrées incomplètes ou une reconstruction d’état en cours.",
-      "landing.footer_html":
-        "Hub Énergie · <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a> · <a href=\"#/doc\">Documentation</a> · <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab</a>",
 
       "toc.internals_title": "Sur cette page",
       "toc.internals_overview": "Chaîne de traitement",
@@ -816,6 +816,10 @@
       "footer.p1_html":
         "Hub Énergie — documentation figée <strong class=\"text-body\">v0.2.5</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>. Plateforme officielle : <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
       "footer.license": "Licence : voir le dépôt.",
+      "footer.brand_name": "Hub Énergie",
+      "footer.brand_aria": "Hub Énergie",
+      "footer.primary_links_aria": "Liens du projet",
+      "footer.link_gitlab": "GitLab",
       "footer.social_note": "Liens communautaires — bientôt disponibles.",
       "footer.social_group_aria": "Réseaux sociaux et inscription à la newsletter",
       "social.facebook": "Facebook",
