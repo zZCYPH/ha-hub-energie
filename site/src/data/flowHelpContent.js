@@ -191,7 +191,7 @@ export const FLOW_HELP_EN = {
   },
   tariff_mode_manual_only: {
     title: "Manual tariffs (other supplier)",
-    body_html: `<p>Confirms that pricing is <strong>manual-only</strong> for your “other” supplier path, then continues to contract / pricing forms.</p>`,
+    body_html: `<p>For non-EDF suppliers, <strong>automatic tariff retrieval is not available yet</strong>. This step confirms the manual path; choose <strong>Continue</strong> to enter contract details and then your prices yourself.</p>`,
   },
   tariff_mode: {
     title: "Tariff mode (EDF)",
@@ -232,12 +232,28 @@ export const FLOW_HELP_EN = {
   <li><strong>Form</strong> — up to <strong>6</strong> slots with time pickers, price, day type, and optional name (no raw JSON).</li>
   <li><strong>JSON</strong> — paste a full array (same object shape as the form); use this for more than six slots or bulk edits.</li>
 </ul>
-<p class="mb-0">The <strong>slot format</strong>, JSON examples, and validation rules are documented in the <strong>Schedule (form)</strong> and <strong>Schedule (JSON)</strong> sections below on this page — the reference is the same for both modes.</p>`,
+<p class="mb-0">The <strong>Schedule (form)</strong> section below explains how to fill the time-slot sections. The <strong>Schedule (JSON)</strong> section has the full field reference, examples, and validation details for advanced or bulk edits.</p>`,
   },
   manual_schedule_form: {
     title: "Manual — schedule (form)",
-    body_html: `<p class="text-secondary mb-3">Use the <strong>form</strong> for up to six slots: start/end, price per kWh, <code class="font-mono">day_type</code>, and optional label. Values are stored as <code class="font-mono">schedule_slots</code> with the same JSON shape as below.</p>
-${FLOWHELP_ADV_SCHEDULE_REFERENCE_EN}`,
+    body_html: `<p>This step is a <strong>form</strong> (no raw JSON). You get up to <strong>six</strong> collapsible sections — typically labelled like <em>Time slot 1</em> … <em>Time slot 6</em> — plus an optional <strong>monthly subscription</strong> field at the bottom.</p>
+
+<h4 class="h6 fw-semibold mt-3 mb-2">Per slot</h4>
+<ul class="ps-3 mb-3">
+  <li><strong>Start</strong> and <strong>End</strong> — use the time controls; format is 24&nbsp;h (<code class="font-mono">HH:MM</code>). For a range that crosses midnight, set the end to <code class="font-mono">00:00</code>: in this integration that means <strong>midnight at the end of the day</strong> (not the start), e.g. <code class="font-mono">22:00</code> → <code class="font-mono">00:00</code> for an overnight band.</li>
+  <li><strong>Energy price</strong> — price per kWh in your configured currency (non-negative).</li>
+  <li><strong>Day type</strong> — <em>All days</em>, <em>Weekdays</em> (Mon–Fri), or <em>Weekends</em> (Sat–Sun).</li>
+  <li><strong>Label</strong> — optional short name (e.g. “Peak”, “Night”) for clarity in the UI or logs.</li>
+</ul>
+
+<h4 class="h6 fw-semibold mt-3 mb-2">How rows are used</h4>
+<ul class="ps-3 mb-3">
+  <li>A section with <strong>both</strong> start and end left empty is <strong>ignored</strong> — you do not need to fill every slot.</li>
+  <li>If you enter only one of start or end, the form will show an error (incomplete row).</li>
+  <li>You need <strong>at least one</strong> complete slot (start, end, and a valid price) for validation to succeed.</li>
+</ul>
+
+<p class="text-secondary mb-0">Need <strong>more than six</strong> slots, or a copy-paste JSON workflow? Use the <strong>Schedule (JSON)</strong> step instead — see that section below for the exact stored field names and examples.</p>`,
   },
   manual_schedule_json: {
     title: "Manual — schedule (JSON)",
@@ -379,7 +395,7 @@ ${FLOWHELP_ADV_SCHEDULE_REFERENCE_EN}`,
   },
   options_battery_pick: {
     title: "Options — pick battery",
-    body_html: `<p>Shown when at least one battery exists: choose which system to edit, set <strong>Add a new battery</strong> to <em>Yes</em> in the dropdown to start a blank row, or set <strong>Delete the selected battery</strong> to <em>Yes</em> to remove the highlighted entry and save (you cannot combine delete and add-new on the same submit). Removing the last battery also turns battery support off.</p>`,
+    body_html: `<p>Shown when at least one battery exists: choose which system to edit, turn on <strong>Add a new battery</strong> to start a blank row, or turn on <strong>Delete the selected battery</strong> to remove the highlighted entry and save (you cannot combine delete and add-new on the same submit). Removing the last battery also turns battery support off.</p>`,
   },
   options_battery_add: {
     title: "Options — add / edit battery",
@@ -407,7 +423,7 @@ export const FLOW_HELP_FR = {
   },
   tariff_mode_manual_only: {
     title: "Tarifs manuels (autre fournisseur)",
-    body_html: `<p>Confirme le mode <strong>uniquement manuel</strong> puis enchaîne vers le contrat / grilles de prix.</p>`,
+    body_html: `<p>Pour les fournisseurs autres qu’EDF, <strong>la récupération automatique des tarifs n’est pas encore disponible</strong>. Cette étape confirme le parcours manuel : choisissez <strong>Continuer</strong> pour le contrat puis la saisie des prix.</p>`,
   },
   tariff_mode: {
     title: "Mode tarifaire (EDF)",
@@ -448,12 +464,28 @@ export const FLOW_HELP_FR = {
   <li><strong>Formulaire</strong> — jusqu’à <strong>6</strong> créneaux : heures début/fin, prix, type de jour, nom optionnel (sans JSON brut).</li>
   <li><strong>JSON</strong> — collez un tableau complet (même structure d’objets que le formulaire) ; utile au-delà de six créneaux ou pour copier/coller en masse.</li>
 </ul>
-<p class="mb-0">Le <strong>format des créneaux</strong>, les exemples JSON et les règles de validation sont détaillés dans les sections <strong>Calendrier (formulaire)</strong> et <strong>Calendrier (JSON)</strong> ci-dessous sur cette page — la référence est la même pour les deux modes.</p>`,
+<p class="mb-0">La section <strong>Calendrier (formulaire)</strong> ci-dessous explique comment remplir les créneaux. La section <strong>Calendrier (JSON)</strong> contient la référence complète des champs, des exemples et le détail des règles de validation pour les cas avancés ou les gros copier-coller.</p>`,
   },
   manual_schedule_form: {
     title: "Manuel — calendrier (formulaire)",
-    body_html: `<p class="text-secondary mb-3">Le <strong>formulaire</strong> couvre jusqu’à six créneaux : début/fin, prix au kWh, <code class="font-mono">day_type</code> et libellé optionnel. Les valeurs sont enregistrées dans <code class="font-mono">schedule_slots</code> avec la même forme JSON que ci-dessous.</p>
-${FLOWHELP_ADV_SCHEDULE_REFERENCE_FR}`,
+    body_html: `<p>Cette étape est un <strong>formulaire</strong> (pas de JSON brut). Vous avez jusqu’à <strong>six</strong> blocs repliables — en général intitulés du type <em>Créneau horaire 1</em> … <em>Créneau horaire 6</em> — et en bas un champ optionnel d’<strong>abonnement mensuel</strong>.</p>
+
+<h4 class="h6 fw-semibold mt-3 mb-2">Pour chaque créneau</h4>
+<ul class="ps-3 mb-3">
+  <li><strong>Début</strong> et <strong>Fin</strong> — sélecteurs d’heure au format 24&nbsp;h (<code class="font-mono">HH:MM</code>). Pour une plage qui passe minuit, mettez la fin à <code class="font-mono">00:00</code> : ici cela signifie <strong>minuit en fin de journée</strong> (et non le début du jour), par ex. <code class="font-mono">22:00</code> → <code class="font-mono">00:00</code> pour une plage de nuit.</li>
+  <li><strong>Prix de l’énergie</strong> — prix au kWh dans votre devise (≥ 0).</li>
+  <li><strong>Type de jour</strong> — <em>Tous les jours</em>, <em>Jours de semaine</em> (lun–ven) ou <em>Week-ends</em> (sam–dim).</li>
+  <li><strong>Libellé</strong> — nom court optionnel (ex. « Heures pleines », « Nuit »).</li>
+</ul>
+
+<h4 class="h6 fw-semibold mt-3 mb-2">Utilisation des lignes</h4>
+<ul class="ps-3 mb-3">
+  <li>Un bloc où <strong>début et fin sont vides</strong> est <strong>ignoré</strong> — inutile de remplir les six.</li>
+  <li>Si vous ne renseignez qu’une seule des deux heures, le formulaire signale une erreur (ligne incomplète).</li>
+  <li>Il faut <strong>au moins un</strong> créneau complet (début, fin et prix valide) pour valider.</li>
+</ul>
+
+<p class="text-secondary mb-0">Au-delà de <strong>six</strong> créneaux ou pour travailler en JSON copier-coller, utilisez l’étape <strong>Calendrier (JSON)</strong> — voir la section correspondante ci-dessous pour les noms de champs stockés et des exemples.</p>`,
   },
   manual_schedule_json: {
     title: "Manuel — calendrier (JSON)",
@@ -595,7 +627,7 @@ ${FLOWHELP_ADV_SCHEDULE_REFERENCE_FR}`,
   },
   options_battery_pick: {
     title: "Options — choix de batterie",
-    body_html: `<p>Affiché dès qu’au moins une batterie existe : choisissez la ligne à modifier, mettez <strong>Ajouter une nouvelle batterie</strong> sur <em>Oui</em> dans la liste pour une saisie vide, ou <strong>Supprimer la batterie sélectionnée</strong> sur <em>Oui</em> pour retirer l’entrée choisie et enregistrer (suppression et ajout ne peuvent pas être validés ensemble). Si vous supprimez la dernière batterie, le suivi batteries est désactivé.</p>`,
+    body_html: `<p>Affiché dès qu’au moins une batterie existe : choisissez la ligne à modifier, activez <strong>Ajouter une nouvelle batterie</strong> pour une saisie vide, ou activez <strong>Supprimer la batterie sélectionnée</strong> pour retirer l’entrée choisie et enregistrer (suppression et ajout ne peuvent pas être validés ensemble). Si vous supprimez la dernière batterie, le suivi batteries est désactivé.</p>`,
   },
   options_battery_add: {
     title: "Options — ajouter / éditer batterie",

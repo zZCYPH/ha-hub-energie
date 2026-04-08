@@ -49,7 +49,6 @@ from .config_flow_selectors import (
     phase_selector,
     tri_grid_energy_mode_selector,
     tri_grid_sensor_layout_selector,
-    yes_no_dropdown_selector,
     price_basis_selector,
     pricing_structure_selector,
     schedule_day_type_selector,
@@ -269,19 +268,6 @@ def _strip_flow_nav(user_input: dict[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in user_input.items() if k != CONF_FLOW_NAV}
 
 
-def _schema_allow_back_without_fields(forward: vol.Schema) -> vol.Schema:
-    """HA validates ``data_schema`` before ``async_step``; allow *Back* without filling required fields.
-
-    First branch: user chose *Revenir à l'étape précédente* — only ``flow_nav`` must be valid; other keys ignored.
-    Second branch: normal forward validation (continue / submit).
-    """
-    back_only = vol.Schema(
-        {vol.Required(CONF_FLOW_NAV): vol.In([FLOW_NAV_BACK])},
-        extra=vol.ALLOW_EXTRA,
-    )
-    return vol.Any(back_only, forward)
-
-
 def _vol_schema_to_dict(schema: vol.Schema) -> dict[Any, Any]:
     """Copy a dict-shaped ``vol.Schema`` mapping (keys may be markers or plain strings)."""
     for attr in ("schema", "_schema"):
@@ -299,14 +285,21 @@ def _vol_schema_extra(schema: vol.Schema) -> int:
 
 
 def _wrap_setup_wizard_schema(flow: object, schema: vol.Schema) -> vol.Schema:
+    """Always include ``flow_nav`` with a default so HA validation accepts missing keys from the UI.
+
+    Do not wrap in ``vol.Any``: ``voluptuous_serialize`` cannot convert that for the config-flow JSON API.
+
+    * First setup step: only *Continue* is offered (no *Back*).
+    * After at least one forward navigation: *Back* is offered; other fields use schema defaults when omitted.
+    """
     nav_stack = getattr(flow, "_nav_stack", None)
-    if not isinstance(nav_stack, list) or not nav_stack:
-        return schema
+    if not isinstance(nav_stack, list):
+        nav_stack = []
+    allow_back = bool(nav_stack)
     d = _vol_schema_to_dict(schema)
     hass = getattr(flow, "hass", None)
-    d[vol.Optional(CONF_FLOW_NAV, default=FLOW_NAV_CONTINUE)] = flow_nav_selector(hass)
-    forward = vol.Schema(d, extra=_vol_schema_extra(schema))
-    return _schema_allow_back_without_fields(forward)
+    d[vol.Required(CONF_FLOW_NAV, default=FLOW_NAV_CONTINUE)] = flow_nav_selector(hass, allow_back=allow_back)
+    return vol.Schema(d, extra=_vol_schema_extra(schema))
 
 
 async def _wizard_nav_forward(flow: object, from_step: str, coroutine: Any) -> ConfigFlowResult:
@@ -385,11 +378,16 @@ def _add_optional(
     schema[vol.Optional(key, default=default)] = selector
 
 
-def _required_energy_entity(key: str, stored: Any) -> dict[Any, Any]:
-    """Required energy entity field: only set Voluptuous default when value is a non-empty entity id."""
+def _wizard_step_energy_entity(key: str, stored: Any) -> dict[Any, Any]:
+    """Energy entity optional in Voluptuous so *Back* can submit without filling the picker.
+
+    HA validates ``data_schema`` before ``async_step_*``; ``vol.Required`` would block that.
+    Step validators (``validate_step`` for ``grid``, ``grid_tri_per_phase``, ``solar_config``)
+    still require the entity when continuing forward.
+    """
     if isinstance(stored, str) and stored.strip():
-        return {vol.Required(key, default=stored): energy_entity_selector()}
-    return {vol.Required(key): energy_entity_selector()}
+        return {vol.Optional(key, default=stored.strip()): energy_entity_selector()}
+    return {vol.Optional(key): energy_entity_selector()}
 
 
 def _battery_add_form_energy_entity(key: str, stored: Any) -> dict[Any, Any]:
@@ -503,8 +501,7 @@ def _manual_tou_form_schema(
     )
     nav_stack = getattr(setup_flow, "_nav_stack", None) if setup_flow is not None else None
     if isinstance(nav_stack, list) and nav_stack:
-        fields[vol.Optional(CONF_FLOW_NAV, default=FLOW_NAV_CONTINUE)] = flow_nav_selector(hass)
-        return _schema_allow_back_without_fields(vol.Schema(fields))
+        fields[vol.Required(CONF_FLOW_NAV, default=FLOW_NAV_CONTINUE)] = flow_nav_selector(hass, allow_back=True)
     return vol.Schema(fields)
 
 
@@ -548,8 +545,7 @@ def _manual_schedule_form_schema(
     )
     nav_stack = getattr(setup_flow, "_nav_stack", None) if setup_flow is not None else None
     if isinstance(nav_stack, list) and nav_stack:
-        fields[vol.Optional(CONF_FLOW_NAV, default=FLOW_NAV_CONTINUE)] = flow_nav_selector(hass)
-        return _schema_allow_back_without_fields(vol.Schema(fields))
+        fields[vol.Required(CONF_FLOW_NAV, default=FLOW_NAV_CONTINUE)] = flow_nav_selector(hass, allow_back=True)
     return vol.Schema(fields)
 
 
@@ -751,7 +747,7 @@ def _grid_schema(data: dict[str, Any]) -> vol.Schema:
     schema: dict[Any, Any] = {
         vol.Required(CONF_GRID_POWER_SIGN_MODE, default=data.get(CONF_GRID_POWER_SIGN_MODE, GRID_POWER_SIGN_EXPORT_NEGATIVE)): grid_power_sign_selector(),
     }
-    schema.update(_required_energy_entity(CONF_GRID_IMPORT_ENERGY, data.get(CONF_GRID_IMPORT_ENERGY)))
+    schema.update(_wizard_step_energy_entity(CONF_GRID_IMPORT_ENERGY, data.get(CONF_GRID_IMPORT_ENERGY)))
     _add_optional(schema, CONF_GRID_EXPORT_ENERGY, optional_energy_entity(), data.get(CONF_GRID_EXPORT_ENERGY))
     _add_optional(schema, CONF_GRID_POWER_SENSOR, optional_power_entity(), data.get(CONF_GRID_POWER_SENSOR))
     _add_optional(schema, CONF_LOAD_POWER_SENSOR, optional_power_entity(), data.get(CONF_LOAD_POWER_SENSOR))
@@ -832,7 +828,7 @@ def _grid_tri_per_phase_schema(data: dict[str, Any]) -> vol.Schema:
     }
     for phase_idx, (sec_key, imp_k, ex_k, pw_k) in enumerate(_GRID_TRI_PER_PHASE_PHASE_SPECS, start=1):
         inner: dict[Any, Any] = {}
-        inner.update(_required_energy_entity(imp_k, _tri_per_phase_import_default(data, phase_idx)))
+        inner.update(_wizard_step_energy_entity(imp_k, _tri_per_phase_import_default(data, phase_idx)))
         _add_optional(inner, ex_k, optional_energy_entity(), _tri_per_phase_export_default(data, phase_idx))
         _add_optional(inner, pw_k, optional_power_entity(), _tri_per_phase_grid_power_default(data, phase_idx))
         schema[vol.Required(sec_key)] = section(vol.Schema(inner), {"collapsed": False})
@@ -879,7 +875,7 @@ def _solar_config_schema(data: dict[str, Any]) -> vol.Schema:
         vol.Required(CONF_SOLAR_RESALE_CONTRACT, default=bool(data.get(CONF_SOLAR_RESALE_CONTRACT, False))): BooleanSelector(),
         vol.Required(CONF_SOLAR_ESTIMATION_ENABLED, default=bool(data.get(CONF_SOLAR_ESTIMATION_ENABLED, False))): BooleanSelector(),
     }
-    schema.update(_required_energy_entity(CONF_SOLAR_ENERGY, data.get(CONF_SOLAR_ENERGY)))
+    schema.update(_wizard_step_energy_entity(CONF_SOLAR_ENERGY, data.get(CONF_SOLAR_ENERGY)))
     _add_optional(schema, CONF_SOLAR_POWER_SENSOR, optional_power_entity(), data.get(CONF_SOLAR_POWER_SENSOR))
     _add_optional(
         schema,
@@ -2270,8 +2266,8 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
                     vol.Required("battery_index", default="0"): SelectSelector(
                         SelectSelectorConfig(options=options, mode=SelectSelectorMode.DROPDOWN)
                     ),
-                    vol.Optional(CONF_BATT_REMOVE_SELECTED, default="false"): yes_no_dropdown_selector(),
-                    vol.Optional("add_new", default="false"): yes_no_dropdown_selector(),
+                    vol.Optional(CONF_BATT_REMOVE_SELECTED, default=False): BooleanSelector(),
+                    vol.Optional("add_new", default=False): BooleanSelector(),
                 },
                 extra=vol.ALLOW_EXTRA,
             ),

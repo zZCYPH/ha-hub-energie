@@ -269,7 +269,7 @@ def time_slot_selector() -> TextSelector:
     return TextSelector(TextSelectorConfig(type=TextSelectorType.TIME))
 
 
-def flow_nav_selector(hass: HomeAssistant | None) -> SelectSelector:
+def flow_nav_selector(hass: HomeAssistant | None, *, allow_back: bool = True) -> SelectSelector:
     """Bottom-of-form continue / back (setup wizard). Localized labels; no ``translation_key`` so the field title uses ``config.step.*.data.flow_nav``."""
     lang = ((hass.config.language if hass else None) or "").lower()
     if lang.startswith("fr"):
@@ -278,12 +278,12 @@ def flow_nav_selector(hass: HomeAssistant | None) -> SelectSelector:
     else:
         lbl_continue = "Continue"
         lbl_back = "Back to previous step"
+    opts: list[SelectOptionDict] = [SelectOptionDict(value=FLOW_NAV_CONTINUE, label=lbl_continue)]
+    if allow_back:
+        opts.append(SelectOptionDict(value=FLOW_NAV_BACK, label=lbl_back))
     return SelectSelector(
         SelectSelectorConfig(
-            options=[
-                SelectOptionDict(value=FLOW_NAV_CONTINUE, label=lbl_continue),
-                SelectOptionDict(value=FLOW_NAV_BACK, label=lbl_back),
-            ],
+            options=opts,
             mode=SelectSelectorMode.DROPDOWN,
         )
     )

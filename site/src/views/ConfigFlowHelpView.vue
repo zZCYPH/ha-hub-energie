@@ -2,6 +2,7 @@
 import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { FLOW_HELP_EN, FLOW_HELP_FR } from "../data/flowHelpContent";
+import fieldGuideDoc from "../data/flowHelpFieldGuide.generated.json";
 import { FLOW_HELP_OPTIONS_IDS, FLOW_HELP_WIZARD_IDS } from "../data/flowStepHelpDefs";
 import { attachInPageNav } from "../inPageNav";
 import { applyLang, teardownScrollSpy } from "../siteShell";
@@ -31,6 +32,32 @@ function sectionHtml(id) {
 function sectionTitle(id) {
   const b = bag.value[id];
   return b ? b.title : id;
+}
+
+function fgTr(key) {
+  const I = globalThis.HubEnergieI18n;
+  const bagI = I?.[langCode.value] || I?.en;
+  const s = bagI?.[key];
+  return s !== undefined && s !== "" ? s : key;
+}
+
+function wizardFieldGuide(stepId) {
+  const lang = langCode.value === "fr" ? "fr" : "en";
+  return fieldGuideDoc.wizard?.[stepId]?.[lang] ?? null;
+}
+
+function optionsFieldGuide(stepId) {
+  const lang = langCode.value === "fr" ? "fr" : "en";
+  return fieldGuideDoc.options?.[stepId]?.[lang] ?? null;
+}
+
+function fieldGuideHasContent(b) {
+  if (!b) return false;
+  return Boolean(
+    (b.fields && b.fields.length > 0) ||
+      (b.sections && b.sections.length > 0) ||
+      (b.menu_choices && b.menu_choices.length > 0),
+  );
 }
 
 function onLangEvt(e) {
@@ -112,6 +139,37 @@ onUnmounted(() => {
             >
               <h3 class="h5 mb-2">{{ sectionTitle(rid) }}</h3>
               <div class="small text-secondary flowhelp-body" v-html="sectionHtml(rid)"></div>
+              <div
+                v-if="fieldGuideHasContent(wizardFieldGuide(rid))"
+                class="flowhelp-fieldguide mt-3 pt-3 border-top border-secondary border-opacity-10"
+              >
+                <h4 class="h6 fw-semibold text-body mb-3">{{ fgTr("flowhelp.fieldguide_heading") }}</h4>
+                <template v-if="wizardFieldGuide(rid).menu_choices?.length">
+                  <p class="small fw-semibold text-body mb-1">{{ fgTr("flowhelp.fieldguide_menu_heading") }}</p>
+                  <ul class="small ps-3 mb-3">
+                    <li v-for="c in wizardFieldGuide(rid).menu_choices" :key="rid + '-m-' + c.key">{{ c.label }}</li>
+                  </ul>
+                </template>
+                <template v-for="f in wizardFieldGuide(rid).fields" :key="rid + '-f-' + f.key">
+                  <div class="mb-2 small">
+                    <div class="fw-semibold text-body">{{ f.label }}</div>
+                    <div class="text-secondary">
+                      {{ f.description || fgTr("flowhelp.fieldguide_no_hint") }}
+                    </div>
+                  </div>
+                </template>
+                <template v-for="sec in wizardFieldGuide(rid).sections" :key="rid + '-s-' + sec.id">
+                  <div class="mt-3 small">
+                    <div class="fw-semibold text-body mb-2">{{ sec.name }}</div>
+                    <div v-for="sf in sec.fields" :key="rid + '-' + sec.id + '-' + sf.key" class="mb-2 ps-0 ps-sm-2">
+                      <div class="fw-semibold text-body">{{ sf.label }}</div>
+                      <div class="text-secondary">
+                        {{ sf.description || fgTr("flowhelp.fieldguide_no_hint") }}
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
             </article>
           </section>
 
@@ -125,6 +183,43 @@ onUnmounted(() => {
             >
               <h3 class="h5 mb-2">{{ sectionTitle("options_" + rid) }}</h3>
               <div class="small text-secondary flowhelp-body" v-html="sectionHtml('options_' + rid)"></div>
+              <div
+                v-if="fieldGuideHasContent(optionsFieldGuide(rid))"
+                class="flowhelp-fieldguide mt-3 pt-3 border-top border-secondary border-opacity-10"
+              >
+                <h4 class="h6 fw-semibold text-body mb-3">{{ fgTr("flowhelp.fieldguide_heading") }}</h4>
+                <template v-if="optionsFieldGuide(rid).menu_choices?.length">
+                  <p class="small fw-semibold text-body mb-1">{{ fgTr("flowhelp.fieldguide_menu_heading") }}</p>
+                  <ul class="small ps-3 mb-3">
+                    <li v-for="c in optionsFieldGuide(rid).menu_choices" :key="'o-' + rid + '-m-' + c.key">
+                      {{ c.label }}
+                    </li>
+                  </ul>
+                </template>
+                <template v-for="f in optionsFieldGuide(rid).fields" :key="'o-' + rid + '-f-' + f.key">
+                  <div class="mb-2 small">
+                    <div class="fw-semibold text-body">{{ f.label }}</div>
+                    <div class="text-secondary">
+                      {{ f.description || fgTr("flowhelp.fieldguide_no_hint") }}
+                    </div>
+                  </div>
+                </template>
+                <template v-for="sec in optionsFieldGuide(rid).sections" :key="'o-' + rid + '-s-' + sec.id">
+                  <div class="mt-3 small">
+                    <div class="fw-semibold text-body mb-2">{{ sec.name }}</div>
+                    <div
+                      v-for="sf in sec.fields"
+                      :key="'o-' + rid + '-' + sec.id + '-' + sf.key"
+                      class="mb-2 ps-0 ps-sm-2"
+                    >
+                      <div class="fw-semibold text-body">{{ sf.label }}</div>
+                      <div class="text-secondary">
+                        {{ sf.description || fgTr("flowhelp.fieldguide_no_hint") }}
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
             </article>
           </section>
 
@@ -134,3 +229,9 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.flowhelp-fieldguide {
+  max-width: 52rem;
+}
+</style>

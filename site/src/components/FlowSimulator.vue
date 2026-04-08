@@ -507,7 +507,6 @@ function fieldKind(key) {
   if (key === "solar_performance") return "solar_performance";
   if (key === "batt_power_net_sign") return "batt_net_sign";
   if (key === "battery_index") return "battery_index_select";
-  if (key === "batt_remove_selected" || key === "add_new") return "boolean_dropdown";
   if (
     key === "has_solar" ||
     key === "has_batteries" ||
@@ -516,7 +515,9 @@ function fieldKind(key) {
     key === "simulate_existing_batteries" ||
     key === "solar_estimation_enabled" ||
     key === "solar_advanced" ||
-    key === "solar_resale_contract"
+    key === "solar_resale_contract" ||
+    key === "batt_remove_selected" ||
+    key === "add_new"
   )
     return "boolean";
   if (isEntityKey(key)) return "entity";

@@ -7,7 +7,8 @@
         "data": {
           "supplier": "Energy supplier",
           "supplier_custom_name": "Supplier name",
-          "phase_type": "Phase type"
+          "phase_type": "Phase type",
+          "flow_nav": "Wizard navigation"
         },
         "data_description": {
           "supplier": "Select your energy supplier. Choose 'Other' for non-EDF providers.",
@@ -38,9 +39,8 @@
       },
       "tariff_mode_manual_only": {
         "title": "Tariff configuration",
-        "description": "[I need help with this step]({step_help_url})",
+        "description": "For suppliers other than EDF, automatic tariff retrieval is not available yet. You will enter your rates manually in the following steps.\n\n[I need help with this step]({step_help_url})",
         "data": {
-          "tariff_mode": "Tariff mode",
           "flow_nav": "Wizard navigation"
         }
       },
@@ -51,7 +51,11 @@
           "contract_name": "Contract name (optional)",
           "flow_nav": "Wizard navigation"
         },
-        "description": "[I need help with this step]({step_help_url})"
+        "description": "[I need help with this step]({step_help_url})",
+        "data_description": {
+          "contract_power": "Subscribed power in kVA from your contract (dropdown values match common EDF tiers; pick the closest match).",
+          "contract_name": "Optional label to recognize this Hub Énergie entry in Settings (not sent to the supplier)."
+        }
       },
       "edf_offer": {
         "title": "EDF offer selection",
@@ -59,7 +63,10 @@
           "tariff_offer": "Offer type",
           "flow_nav": "Wizard navigation"
         },
-        "description": "[I need help with this step]({step_help_url})"
+        "description": "[I need help with this step]({step_help_url})",
+        "data_description": {
+          "tariff_offer": "BASE (single rate), HPHC (peak/off-peak), or TEMPO (blue/white/red days). Must match your real subscription for automatic prices."
+        }
       },
       "edf_tempo": {
         "title": "Tempo signal source",
@@ -67,6 +74,9 @@
         "data": {
           "tempo_mode": "Signal source",
           "flow_nav": "Wizard navigation"
+        },
+        "data_description": {
+          "tempo_mode": "RTE needs OAuth API credentials; API Couleur Tempo works without an RTE account."
         }
       },
       "edf_tempo_rte": {
@@ -76,6 +86,10 @@
           "rte_client_id": "RTE API client ID",
           "rte_client_secret": "RTE API client secret",
           "flow_nav": "Wizard navigation"
+        },
+        "data_description": {
+          "rte_client_id": "OAuth client identifier from your RTE developer / app registration.",
+          "rte_client_secret": "OAuth client secret. Leave empty later in options if you only rotate the id and want to keep the stored secret."
         }
       },
       "manual_pricing": {
@@ -88,7 +102,9 @@
           "flow_nav": "Wizard navigation"
         },
         "data_description": {
-          "pricing_structure": "Single rate: one kWh price. Peak/off-peak: time windows with different prices (e.g. off-peak nights). Advanced: slots per day type."
+          "pricing_structure": "Single rate: one kWh price. Peak/off-peak: time windows with different prices (e.g. off-peak nights). Advanced: slots per day type.",
+          "price_basis": "Whether manual kWh prices you enter include tax (TTC) or exclude tax (HT).",
+          "currency": "ISO currency code used for labels and manual tariffs (e.g. EUR)."
         }
       },
       "manual_flat": {
@@ -98,7 +114,11 @@
           "subscription_price": "Monthly subscription",
           "flow_nav": "Wizard navigation"
         },
-        "description": "[I need help with this step]({step_help_url})"
+        "description": "[I need help with this step]({step_help_url})",
+        "data_description": {
+          "energy_price": "Single energy price per kWh for the whole day, before subscription.",
+          "subscription_price": "Fixed monthly subscription part (same currency as energy); enter 0 if none."
+        }
       },
       "manual_tou": {
         "title": "Time-of-use tariff",
@@ -110,6 +130,11 @@
               "tou_r0_start": "Start",
               "tou_r0_end": "End",
               "tou_r0_price": "Energy price (per kWh)"
+            },
+            "data_description": {
+              "tou_r0_start": "Start of this price band (24 h, HH:MM).",
+              "tou_r0_end": "End of this price band. Use 00:00 for midnight at the end of the day when spanning overnight.",
+              "tou_r0_price": "Energy price for this band, per kWh, in your selected currency."
             }
           },
           "tou_slot_1": {
@@ -118,12 +143,20 @@
               "tou_r1_start": "Start",
               "tou_r1_end": "End",
               "tou_r1_price": "Energy price (per kWh)"
+            },
+            "data_description": {
+              "tou_r1_start": "Start of this price band (24 h, HH:MM).",
+              "tou_r1_end": "End of this price band. Use 00:00 for midnight at the end of the day when spanning overnight.",
+              "tou_r1_price": "Energy price for this band, per kWh, in your selected currency."
             }
           }
         },
         "data": {
           "subscription_price": "Monthly subscription",
           "flow_nav": "Wizard navigation"
+        },
+        "data_description": {
+          "subscription_price": "Fixed monthly subscription; applied on top of time-of-use energy prices."
         }
       },
       "manual_schedule": {
@@ -147,6 +180,13 @@
               "sched_r0_price": "Energy price (per kWh)",
               "sched_r0_day_type": "Day type",
               "sched_r0_name": "Label (optional)"
+            },
+            "data_description": {
+              "sched_r0_start": "Start of this schedule band (24 h).",
+              "sched_r0_end": "End of this band. 00:00 means end of the calendar day (use for overnight ranges).",
+              "sched_r0_price": "Energy price per kWh for this band.",
+              "sched_r0_day_type": "Whether the band applies every day, only weekdays, or only weekends.",
+              "sched_r0_name": "Optional short label (dashboards / logs)."
             }
           },
           "sched_slot_1": {
@@ -157,6 +197,13 @@
               "sched_r1_price": "Energy price (per kWh)",
               "sched_r1_day_type": "Day type",
               "sched_r1_name": "Label (optional)"
+            },
+            "data_description": {
+              "sched_r1_start": "Start of this schedule band (24 h).",
+              "sched_r1_end": "End of this band. 00:00 means end of the calendar day (use for overnight ranges).",
+              "sched_r1_price": "Energy price per kWh for this band.",
+              "sched_r1_day_type": "Whether the band applies every day, only weekdays, or only weekends.",
+              "sched_r1_name": "Optional short label (dashboards / logs)."
             }
           },
           "sched_slot_2": {
@@ -167,6 +214,13 @@
               "sched_r2_price": "Energy price (per kWh)",
               "sched_r2_day_type": "Day type",
               "sched_r2_name": "Label (optional)"
+            },
+            "data_description": {
+              "sched_r2_start": "Start of this schedule band (24 h).",
+              "sched_r2_end": "End of this band. 00:00 means end of the calendar day (use for overnight ranges).",
+              "sched_r2_price": "Energy price per kWh for this band.",
+              "sched_r2_day_type": "Whether the band applies every day, only weekdays, or only weekends.",
+              "sched_r2_name": "Optional short label (dashboards / logs)."
             }
           },
           "sched_slot_3": {
@@ -177,6 +231,13 @@
               "sched_r3_price": "Energy price (per kWh)",
               "sched_r3_day_type": "Day type",
               "sched_r3_name": "Label (optional)"
+            },
+            "data_description": {
+              "sched_r3_start": "Start of this schedule band (24 h).",
+              "sched_r3_end": "End of this band. 00:00 means end of the calendar day (use for overnight ranges).",
+              "sched_r3_price": "Energy price per kWh for this band.",
+              "sched_r3_day_type": "Whether the band applies every day, only weekdays, or only weekends.",
+              "sched_r3_name": "Optional short label (dashboards / logs)."
             }
           },
           "sched_slot_4": {
@@ -187,6 +248,13 @@
               "sched_r4_price": "Energy price (per kWh)",
               "sched_r4_day_type": "Day type",
               "sched_r4_name": "Label (optional)"
+            },
+            "data_description": {
+              "sched_r4_start": "Start of this schedule band (24 h).",
+              "sched_r4_end": "End of this band. 00:00 means end of the calendar day (use for overnight ranges).",
+              "sched_r4_price": "Energy price per kWh for this band.",
+              "sched_r4_day_type": "Whether the band applies every day, only weekdays, or only weekends.",
+              "sched_r4_name": "Optional short label (dashboards / logs)."
             }
           },
           "sched_slot_5": {
@@ -197,12 +265,22 @@
               "sched_r5_price": "Energy price (per kWh)",
               "sched_r5_day_type": "Day type",
               "sched_r5_name": "Label (optional)"
+            },
+            "data_description": {
+              "sched_r5_start": "Start of this schedule band (24 h).",
+              "sched_r5_end": "End of this band. 00:00 means end of the calendar day (use for overnight ranges).",
+              "sched_r5_price": "Energy price per kWh for this band.",
+              "sched_r5_day_type": "Whether the band applies every day, only weekdays, or only weekends.",
+              "sched_r5_name": "Optional short label (dashboards / logs)."
             }
           }
         },
         "data": {
           "subscription_price": "Monthly subscription",
           "flow_nav": "Wizard navigation"
+        },
+        "data_description": {
+          "subscription_price": "Fixed monthly subscription added to scheduled energy costs."
         }
       },
       "manual_schedule_json": {
@@ -212,6 +290,10 @@
           "schedule_slots": "Schedule slots (JSON)",
           "subscription_price": "Monthly subscription",
           "flow_nav": "Wizard navigation"
+        },
+        "data_description": {
+          "schedule_slots": "JSON array of slot objects (start, end, price, optional day_type and name). Use when you need more than six slots or copy/paste between instances.",
+          "subscription_price": "Fixed monthly subscription; same meaning as on the form step."
         }
       },
       "grid_tri_energy_mode": {
@@ -246,7 +328,9 @@
               "tri_grid_power_p1": "Grid power (W, optional)"
             },
             "data_description": {
-              "tri_grid_power_p1": "Instantaneous power on L1; the integration sums whichever phases you set for real-time display. For a single total sensor, fill only one phase."
+              "tri_grid_power_p1": "Instantaneous power on L1; the integration sums whichever phases you set for real-time display. For a single total sensor, fill only one phase.",
+              "tri_import_energy_p1": "Total increasing kWh counter for grid import on phase L1.",
+              "tri_export_energy_p1": "Optional export counter for L1; leave empty if unused."
             }
           },
           "tri_phase_l2": {
@@ -257,7 +341,9 @@
               "tri_grid_power_p2": "Grid power (W, optional)"
             },
             "data_description": {
-              "tri_grid_power_p2": "Instantaneous power on L2."
+              "tri_grid_power_p2": "Instantaneous power on L2.",
+              "tri_import_energy_p2": "Total increasing kWh counter for grid import on phase L2.",
+              "tri_export_energy_p2": "Optional export counter for L2; leave empty if unused."
             }
           },
           "tri_phase_l3": {
@@ -268,7 +354,9 @@
               "tri_grid_power_p3": "Grid power (W, optional)"
             },
             "data_description": {
-              "tri_grid_power_p3": "Instantaneous power on L3."
+              "tri_grid_power_p3": "Instantaneous power on L3.",
+              "tri_import_energy_p3": "Total increasing kWh counter for grid import on phase L3.",
+              "tri_export_energy_p3": "Optional export counter for L3; leave empty if unused."
             }
           },
           "tri_phase_load": {
@@ -300,7 +388,8 @@
           "grid_import_energy": "Total increasing energy counter for grid import.",
           "grid_export_energy": "Total increasing energy counter for grid export (if separate from import).",
           "grid_power_sensor": "Instantaneous grid power for real-time display.",
-          "grid_power_sign_mode": "Convention: is export negative or positive on this sensor?"
+          "grid_power_sign_mode": "Convention: is export negative or positive on this sensor?",
+          "load_power_sensor": "Optional household consumption (W) for load-side diagnostics and balance checks."
         }
       },
       "grid_tri_layout": {
@@ -322,6 +411,11 @@
           "grid_export_energy_phases": "Export energy sensors (per-phase, JSON list)",
           "grid_power_phases": "Grid power sensors (per-phase, JSON list)",
           "flow_nav": "Wizard navigation"
+        },
+        "data_description": {
+          "grid_import_energy_phases": "JSON list of {phase, entity_id} for per-phase import kWh (total_increasing).",
+          "grid_export_energy_phases": "Same shape for export counters; leave empty if you do not export.",
+          "grid_power_phases": "Optional JSON list for per-phase grid power (W) used for summed real-time display."
         }
       },
       "tri_grid_phase_1": {
@@ -332,6 +426,11 @@
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
           "tri_phase_step_grid_power": "Grid power (W, optional)",
           "flow_nav": "Wizard navigation"
+        },
+        "data_description": {
+          "tri_phase_step_import_energy": "Optional import kWh entity for L1 when you chose per-phase layout after a single combined meter.",
+          "tri_phase_step_export_energy": "Optional export kWh for L1.",
+          "tri_phase_step_grid_power": "Optional grid power (W) for L1; integration sums configured phases."
         }
       },
       "tri_grid_phase_2": {
@@ -342,6 +441,11 @@
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
           "tri_phase_step_grid_power": "Grid power (W, optional)",
           "flow_nav": "Wizard navigation"
+        },
+        "data_description": {
+          "tri_phase_step_import_energy": "Optional import kWh entity for L2.",
+          "tri_phase_step_export_energy": "Optional export kWh for L2.",
+          "tri_phase_step_grid_power": "Optional grid power (W) for L2."
         }
       },
       "tri_grid_phase_3": {
@@ -352,6 +456,11 @@
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
           "tri_phase_step_grid_power": "Grid power (W, optional)",
           "flow_nav": "Wizard navigation"
+        },
+        "data_description": {
+          "tri_phase_step_import_energy": "Optional import kWh entity for L3.",
+          "tri_phase_step_export_energy": "Optional export kWh for L3.",
+          "tri_phase_step_grid_power": "Optional grid power (W) for L3."
         }
       },
       "solar": {
@@ -367,7 +476,8 @@
         "data_description": {
           "solar_energy": "Total increasing energy counter for solar production.",
           "solar_power_sensor": "Improves real-time power display and power-balance diagnostics.",
-          "solar_export_tariff": "Re-sale price per kWh for exported solar energy."
+          "solar_export_tariff": "Re-sale price per kWh for exported solar energy.",
+          "has_solar": "Turn off to skip solar entities and accounting for this entry."
         },
         "description": "[I need help with this step]({step_help_url})"
       },
@@ -403,7 +513,17 @@
           "solar_performance": "System performance",
           "flow_nav": "Wizard navigation"
         },
-        "description": "[I need help with this step]({step_help_url})"
+        "description": "[I need help with this step]({step_help_url})",
+        "data_description": {
+          "solar_lat": "Site latitude (decimal degrees); defaults may be prefilled from Home Assistant zone.",
+          "solar_lon": "Site longitude (decimal degrees).",
+          "solar_peak_power": "Installed DC peak power (kWc) of the PV array.",
+          "solar_orientation": "Azimuth in degrees (0–360); 180° is south in the northern hemisphere.",
+          "solar_tilt_mode": "Auto uses a typical roof tilt from latitude; manual unlocks the tilt field.",
+          "solar_tilt": "Panel tilt from horizontal (°); used only when tilt mode is manual.",
+          "solar_shading": "Rough shading level for the clear-sky model.",
+          "solar_performance": "Performance class (standard vs optimistic vs conservative) for the estimation model."
+        }
       },
       "battery": {
         "title": "Battery systems",
@@ -411,7 +531,10 @@
           "has_batteries": "Do you have battery systems?",
           "flow_nav": "Wizard navigation"
         },
-        "description": "[I need help with this step]({step_help_url})"
+        "description": "[I need help with this step]({step_help_url})",
+        "data_description": {
+          "has_batteries": "Disable to remove battery devices until you enable the feature again."
+        }
       },
       "battery_add": {
         "title": "Add battery system",
@@ -433,7 +556,10 @@
           "batt_power_net": "Use this if you have a single signed sensor instead of separate charge/discharge. If you set charge + discharge sensors, you can leave this empty.",
           "batt_power_net_sign": "Only needed if you use a net power sensor.",
           "batt_soc": "Optional percentage sensor (0–100). Used for the SOC bar and ETA.",
-          "batt_advanced": "Opens a separate step for nominal capacity (kWh), charge/discharge limits (W), and SOC min/max."
+          "batt_advanced": "Opens a separate step for nominal capacity (kWh), charge/discharge limits (W), and SOC min/max.",
+          "batt_name": "Display name for this pack in Hub Énergie entities and UI.",
+          "batt_energy_in": "total_increasing kWh counter for energy charged into the battery.",
+          "batt_energy_out": "total_increasing kWh counter for energy discharged from the battery."
         }
       },
       "battery_advanced": {
@@ -471,6 +597,9 @@
         "data": {
           "add_another": "Add another battery system?",
           "flow_nav": "Wizard navigation"
+        },
+        "data_description": {
+          "add_another": "Turn on to define another battery after saving the current one."
         }
       },
       "reinjection": {
@@ -485,6 +614,16 @@
           "reinjection_export_min_abs_w": "Min export for classification (W)",
           "reinjection_export_vs_solar_fraction": "Export/solar ratio threshold",
           "reinjection_batt_full_min_soc_frac": "Battery full SOC threshold (0-1)"
+        },
+        "data_description": {
+          "reinjection_export_ignore_below_w": "Ignore small grid export readings below this power (reduces flicker).",
+          "reinjection_batt_charge_significant_w": "Treat battery charge above this threshold as “significant” for classification heuristics.",
+          "reinjection_short_export_max_s": "Maximum duration (s) for short export spikes before treating them as latency noise.",
+          "reinjection_short_export_max_w": "Power ceiling (W) for those short export spikes.",
+          "reinjection_min_solar_for_classify_w": "Minimum solar production (W) before solar-heavy classification applies.",
+          "reinjection_export_min_abs_w": "Minimum absolute export (W) required to classify as export-led.",
+          "reinjection_export_vs_solar_fraction": "Ratio threshold between export and solar power for mixed states.",
+          "reinjection_batt_full_min_soc_frac": "SOC fraction (0–1) above which the pack is treated as “full” for heuristics."
         }
       }
     },
@@ -527,6 +666,9 @@
         "description": "[I need help with this step]({step_help_url})",
         "data": {
           "tempo_mode": "Signal source"
+        },
+        "data_description": {
+          "tempo_mode": "Switch between RTE API colours and API Couleur Tempo after install."
         }
       },
       "tempo_rte": {
@@ -535,6 +677,10 @@
         "data": {
           "rte_client_id": "RTE API client ID",
           "rte_client_secret": "RTE API client secret"
+        },
+        "data_description": {
+          "rte_client_id": "Update the RTE OAuth client id; secret can stay blank to keep the stored value.",
+          "rte_client_secret": "New secret when rotating credentials; leave empty to keep the previous secret on save."
         }
       },
       "offer": {
@@ -549,7 +695,8 @@
         "data_description": {
           "supplier": "EDF or another supplier.",
           "contract_power": "Your subscription tier (e.g. 6, 9, 12 kVA for EDF).",
-          "contract_name": "Free text to recognize this setup (optional)."
+          "contract_name": "Free text to recognize this setup (optional).",
+          "supplier_custom_name": "Required when supplier is “Other”; short display name only."
         }
       },
       "grid": {
@@ -655,6 +802,11 @@
           "grid_import_energy_phases": "Import energy (JSON)",
           "grid_export_energy_phases": "Export energy (JSON)",
           "grid_power_phases": "Grid power (JSON)"
+        },
+        "data_description": {
+          "grid_import_energy_phases": "JSON list of {phase, entity_id} objects for per-phase import kWh.",
+          "grid_export_energy_phases": "Optional export list with the same JSON shape.",
+          "grid_power_phases": "Optional per-phase grid power entities for summed live power."
         }
       },
       "tri_grid_phase_1": {
@@ -664,6 +816,11 @@
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
           "tri_phase_step_grid_power": "Grid power (W, optional)"
+        },
+        "data_description": {
+          "tri_phase_step_import_energy": "Optional import kWh entity for L1 when you chose per-phase layout after a single combined meter.",
+          "tri_phase_step_export_energy": "Optional export kWh for L1.",
+          "tri_phase_step_grid_power": "Optional grid power (W) for L1; integration sums configured phases."
         }
       },
       "tri_grid_phase_2": {
@@ -673,6 +830,11 @@
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
           "tri_phase_step_grid_power": "Grid power (W, optional)"
+        },
+        "data_description": {
+          "tri_phase_step_import_energy": "Optional import kWh entity for L2.",
+          "tri_phase_step_export_energy": "Optional export kWh for L2.",
+          "tri_phase_step_grid_power": "Optional grid power (W) for L2."
         }
       },
       "tri_grid_phase_3": {
@@ -682,6 +844,11 @@
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
           "tri_phase_step_grid_power": "Grid power (W, optional)"
+        },
+        "data_description": {
+          "tri_phase_step_import_energy": "Optional import kWh entity for L3.",
+          "tri_phase_step_export_energy": "Optional export kWh for L3.",
+          "tri_phase_step_grid_power": "Optional grid power (W) for L3."
         }
       },
       "solar": {
@@ -716,6 +883,16 @@
           "solar_tilt": "Tilt angle (°)",
           "solar_shading": "Shading level",
           "solar_performance": "System performance"
+        },
+        "data_description": {
+          "solar_lat": "Site latitude (decimal degrees); defaults may be prefilled from Home Assistant zone.",
+          "solar_lon": "Site longitude (decimal degrees).",
+          "solar_peak_power": "Installed DC peak power (kWc) of the PV array.",
+          "solar_orientation": "Azimuth in degrees (0–360); 180° is south in the northern hemisphere.",
+          "solar_tilt_mode": "Auto uses a typical roof tilt from latitude; manual unlocks the tilt field.",
+          "solar_tilt": "Panel tilt from horizontal (°); used only when tilt mode is manual.",
+          "solar_shading": "Rough shading level for the clear-sky model.",
+          "solar_performance": "Performance class (standard vs optimistic vs conservative) for the estimation model."
         }
       },
       "battery": {
@@ -737,7 +914,9 @@
           "add_new": "Add a new battery"
         },
         "data_description": {
-          "batt_remove_selected": "Removes the battery chosen above and saves. If this was the last one, battery support is turned off."
+          "batt_remove_selected": "Turn on to remove the highlighted battery and save; last battery disables support.",
+          "battery_index": "Pick which saved battery to edit when you are not deleting or adding in the same submit.",
+          "add_new": "Turn on to open a blank battery form. Cannot be combined with delete on the same submit."
         }
       },
       "battery_add": {
@@ -759,7 +938,10 @@
           "batt_power_net": "Use this if you have a single signed sensor instead of separate charge/discharge. If you set charge + discharge sensors, you can leave this empty.",
           "batt_power_net_sign": "Only needed if you use a net power sensor.",
           "batt_soc": "Optional percentage sensor (0–100). Used for the SOC bar and ETA.",
-          "batt_advanced": "Opens a separate step for nominal capacity (kWh), charge/discharge limits (W), and SOC min/max."
+          "batt_advanced": "Opens a separate step for nominal capacity (kWh), charge/discharge limits (W), and SOC min/max.",
+          "batt_name": "Display name for this pack in Hub Énergie entities and UI.",
+          "batt_energy_in": "total_increasing kWh counter for energy charged into the battery.",
+          "batt_energy_out": "total_increasing kWh counter for energy discharged from the battery."
         }
       },
       "battery_advanced": {
@@ -795,6 +977,9 @@
         "description": "[I need help with this step]({step_help_url})",
         "data": {
           "add_another": "Add another battery system?"
+        },
+        "data_description": {
+          "add_another": "Turn on to define another battery after saving the current one."
         }
       },
       "tariff_refresh": {

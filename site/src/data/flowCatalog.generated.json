@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-08T19:53:02.016709+00:00",
+  "generated_at": "2026-04-08T21:07:44.065378+00:00",
   "source_files": {
     "config_flow": "custom_components/hub_energie/config_flow.py",
     "strings_en": "custom_components/hub_energie/strings.json",
@@ -230,7 +230,7 @@
             {
               "key": "has_batteries",
               "label": "Do you have battery systems?",
-              "description": ""
+              "description": "Disable to remove battery devices until you enable the feature again."
             }
           ],
           "menu_choices": [],
@@ -243,7 +243,7 @@
             {
               "key": "has_batteries",
               "label": "Avez-vous des systèmes de batterie ?",
-              "description": ""
+              "description": "Désactiver pour masquer les entités batterie jusqu’à réactivation."
             }
           ],
           "menu_choices": [],
@@ -265,17 +265,17 @@
             {
               "key": "batt_name",
               "label": "Battery name",
-              "description": ""
+              "description": "Display name for this pack in Hub Énergie entities and UI."
             },
             {
               "key": "batt_energy_in",
               "label": "Charge energy (kWh, total increasing)",
-              "description": ""
+              "description": "total_increasing kWh counter for energy charged into the battery."
             },
             {
               "key": "batt_energy_out",
               "label": "Discharge energy (kWh, total increasing)",
-              "description": ""
+              "description": "total_increasing kWh counter for energy discharged from the battery."
             },
             {
               "key": "batt_power_in",
@@ -313,17 +313,17 @@
             {
               "key": "batt_name",
               "label": "Nom de la batterie",
-              "description": ""
+              "description": "Nom affiché du pack dans Hub Énergie."
             },
             {
               "key": "batt_energy_in",
               "label": "Capteur énergie de charge (kWh, total croissant)",
-              "description": ""
+              "description": "Compteur kWh total_increasing d’énergie chargée dans la batterie."
             },
             {
               "key": "batt_energy_out",
               "label": "Capteur énergie de décharge (kWh, total croissant)",
-              "description": ""
+              "description": "Compteur kWh total_increasing d’énergie déchargée."
             },
             {
               "key": "batt_power_in",
@@ -495,7 +495,7 @@
             {
               "key": "add_another",
               "label": "Add another battery system?",
-              "description": ""
+              "description": "Turn on to define another battery after saving the current one."
             }
           ],
           "menu_choices": [],
@@ -508,7 +508,7 @@
             {
               "key": "add_another",
               "label": "Ajouter un autre système de batterie ?",
-              "description": ""
+              "description": "Activez pour enchaîner sur une autre batterie après celle-ci."
             }
           ],
           "menu_choices": [],
@@ -530,17 +530,17 @@
             {
               "key": "battery_index",
               "label": "Battery to edit",
-              "description": ""
+              "description": "Pick which saved battery to edit when you are not deleting or adding in the same submit."
             },
             {
               "key": "batt_remove_selected",
               "label": "Delete the selected battery",
-              "description": "Removes the battery chosen above and saves. If this was the last one, battery support is turned off."
+              "description": "Turn on to remove the highlighted battery and save; last battery disables support."
             },
             {
               "key": "add_new",
               "label": "Add a new battery",
-              "description": ""
+              "description": "Turn on to open a blank battery form. Cannot be combined with delete on the same submit."
             }
           ],
           "menu_choices": [],
@@ -553,17 +553,17 @@
             {
               "key": "battery_index",
               "label": "Batterie à modifier",
-              "description": ""
+              "description": "Choisir quelle batterie éditer si vous ne supprimez ni n’ajoutez sur la même validation."
             },
             {
               "key": "batt_remove_selected",
               "label": "Supprimer la batterie sélectionnée",
-              "description": "Supprime la batterie choisie ci-dessus et enregistre. S'il s'agissait de la dernière, la prise en charge batterie est désactivée."
+              "description": "Active pour supprimer la ligne choisie ; si c’était la dernière, le suivi batterie s’arrête."
             },
             {
               "key": "add_new",
               "label": "Ajouter une nouvelle batterie",
-              "description": ""
+              "description": "Active pour ouvrir une saisie vide ; incompatible avec la suppression sur la même validation."
             }
           ],
           "menu_choices": [],
@@ -585,12 +585,12 @@
             {
               "key": "contract_power",
               "label": "Contract power (kVA)",
-              "description": ""
+              "description": "Subscribed power in kVA from your contract (dropdown values match common EDF tiers; pick the closest match)."
             },
             {
               "key": "contract_name",
               "label": "Contract name (optional)",
-              "description": ""
+              "description": "Optional label to recognize this Hub Énergie entry in Settings (not sent to the supplier)."
             }
           ],
           "menu_choices": [],
@@ -603,12 +603,12 @@
             {
               "key": "contract_power",
               "label": "Puissance souscrite (kVA)",
-              "description": ""
+              "description": "Puissance souscrite en kVA (valeurs proches des paliers EDF courants)."
             },
             {
               "key": "contract_name",
               "label": "Nom du contrat (optionnel)",
-              "description": ""
+              "description": "Libellé optionnel pour reconnaître cette entrée dans les réglages (non transmis au fournisseur)."
             }
           ],
           "menu_choices": [],
@@ -630,7 +630,7 @@
             {
               "key": "tariff_offer",
               "label": "Offer type",
-              "description": ""
+              "description": "BASE (single rate), HPHC (peak/off-peak), or TEMPO (blue/white/red days). Must match your real subscription for automatic prices."
             }
           ],
           "menu_choices": [],
@@ -643,7 +643,7 @@
             {
               "key": "tariff_offer",
               "label": "Type d'offre",
-              "description": ""
+              "description": "BASE (prix unique), HPHC (heures pleines / creuses) ou TEMPO. Doit correspondre à votre contrat pour les tarifs automatiques."
             }
           ],
           "menu_choices": [],
@@ -665,7 +665,7 @@
             {
               "key": "tempo_mode",
               "label": "Signal source",
-              "description": ""
+              "description": "RTE needs OAuth API credentials; API Couleur Tempo works without an RTE account."
             }
           ],
           "menu_choices": [],
@@ -678,7 +678,7 @@
             {
               "key": "tempo_mode",
               "label": "Source du signal",
-              "description": ""
+              "description": "RTE exige des identifiants OAuth ; API Couleur Tempo fonctionne sans compte RTE."
             }
           ],
           "menu_choices": [],
@@ -700,12 +700,12 @@
             {
               "key": "rte_client_id",
               "label": "RTE API client ID",
-              "description": ""
+              "description": "OAuth client identifier from your RTE developer / app registration."
             },
             {
               "key": "rte_client_secret",
               "label": "RTE API client secret",
-              "description": ""
+              "description": "OAuth client secret. Leave empty later in options if you only rotate the id and want to keep the stored secret."
             }
           ],
           "menu_choices": [],
@@ -718,12 +718,12 @@
             {
               "key": "rte_client_id",
               "label": "Client ID API RTE",
-              "description": ""
+              "description": "Identifiant client OAuth de votre application RTE."
             },
             {
               "key": "rte_client_secret",
               "label": "Client secret API RTE",
-              "description": ""
+              "description": "Secret client. Laissez vide en options si vous ne faites que faire tourner l’identifiant."
             }
           ],
           "menu_choices": [],
@@ -765,7 +765,7 @@
             {
               "key": "load_power_sensor",
               "label": "House load power (W, optional)",
-              "description": ""
+              "description": "Optional household consumption (W) for load-side diagnostics and balance checks."
             }
           ],
           "menu_choices": [],
@@ -798,7 +798,7 @@
             {
               "key": "load_power_sensor",
               "label": "Puissance consommation maison (W, optionnel)",
-              "description": ""
+              "description": "Puissance consommation maison (W) optionnelle pour diagnostics côté charge."
             }
           ],
           "menu_choices": [],
@@ -820,17 +820,17 @@
             {
               "key": "grid_import_energy_phases",
               "label": "Import energy sensors (per-phase, JSON list)",
-              "description": ""
+              "description": "JSON list of {phase, entity_id} for per-phase import kWh (total_increasing)."
             },
             {
               "key": "grid_export_energy_phases",
               "label": "Export energy sensors (per-phase, JSON list)",
-              "description": ""
+              "description": "Same shape for export counters; leave empty if you do not export."
             },
             {
               "key": "grid_power_phases",
               "label": "Grid power sensors (per-phase, JSON list)",
-              "description": ""
+              "description": "Optional JSON list for per-phase grid power (W) used for summed real-time display."
             }
           ],
           "menu_choices": [],
@@ -843,17 +843,17 @@
             {
               "key": "grid_import_energy_phases",
               "label": "Import énergie (liste JSON)",
-              "description": ""
+              "description": "Liste JSON {phase, entity_id} pour les compteurs kWh d’import par phase (total_increasing)."
             },
             {
               "key": "grid_export_energy_phases",
               "label": "Export énergie (liste JSON)",
-              "description": ""
+              "description": "Même format pour l’export ; vide si pas d’export."
             },
             {
               "key": "grid_power_phases",
               "label": "Puissance réseau (liste JSON)",
-              "description": ""
+              "description": "Liste JSON optionnelle pour la puissance (W) par phase (somme pour l’affichage temps réel)."
             }
           ],
           "menu_choices": [],
@@ -962,12 +962,12 @@
                 {
                   "key": "tri_import_energy_p1",
                   "label": "Grid import energy (kWh)",
-                  "description": ""
+                  "description": "Total increasing kWh counter for grid import on phase L1."
                 },
                 {
                   "key": "tri_export_energy_p1",
                   "label": "Grid export energy (kWh, optional)",
-                  "description": ""
+                  "description": "Optional export counter for L1; leave empty if unused."
                 },
                 {
                   "key": "tri_grid_power_p1",
@@ -983,12 +983,12 @@
                 {
                   "key": "tri_import_energy_p2",
                   "label": "Grid import energy (kWh)",
-                  "description": ""
+                  "description": "Total increasing kWh counter for grid import on phase L2."
                 },
                 {
                   "key": "tri_export_energy_p2",
                   "label": "Grid export energy (kWh, optional)",
-                  "description": ""
+                  "description": "Optional export counter for L2; leave empty if unused."
                 },
                 {
                   "key": "tri_grid_power_p2",
@@ -1004,12 +1004,12 @@
                 {
                   "key": "tri_import_energy_p3",
                   "label": "Grid import energy (kWh)",
-                  "description": ""
+                  "description": "Total increasing kWh counter for grid import on phase L3."
                 },
                 {
                   "key": "tri_export_energy_p3",
                   "label": "Grid export energy (kWh, optional)",
-                  "description": ""
+                  "description": "Optional export counter for L3; leave empty if unused."
                 },
                 {
                   "key": "tri_grid_power_p3",
@@ -1055,12 +1055,12 @@
                 {
                   "key": "tri_import_energy_p1",
                   "label": "Import réseau (kWh)",
-                  "description": ""
+                  "description": "Compteur kWh total_increasing d’import réseau sur la phase L1."
                 },
                 {
                   "key": "tri_export_energy_p1",
                   "label": "Export réseau (kWh, optionnel)",
-                  "description": ""
+                  "description": "Compteur d’export L1 optionnel ; vide si inutilisé."
                 },
                 {
                   "key": "tri_grid_power_p1",
@@ -1076,12 +1076,12 @@
                 {
                   "key": "tri_import_energy_p2",
                   "label": "Import réseau (kWh)",
-                  "description": ""
+                  "description": "Compteur kWh total_increasing d’import réseau sur la phase L2."
                 },
                 {
                   "key": "tri_export_energy_p2",
                   "label": "Export réseau (kWh, optionnel)",
-                  "description": ""
+                  "description": "Compteur d’export L2 optionnel ; vide si inutilisé."
                 },
                 {
                   "key": "tri_grid_power_p2",
@@ -1097,12 +1097,12 @@
                 {
                   "key": "tri_import_energy_p3",
                   "label": "Import réseau (kWh)",
-                  "description": ""
+                  "description": "Compteur kWh total_increasing d’import réseau sur la phase L3."
                 },
                 {
                   "key": "tri_export_energy_p3",
                   "label": "Export réseau (kWh, optionnel)",
-                  "description": ""
+                  "description": "Compteur d’export L3 optionnel ; vide si inutilisé."
                 },
                 {
                   "key": "tri_grid_power_p3",
@@ -1140,12 +1140,12 @@
             {
               "key": "energy_price",
               "label": "Energy price (per kWh)",
-              "description": ""
+              "description": "Single energy price per kWh for the whole day, before subscription."
             },
             {
               "key": "subscription_price",
               "label": "Monthly subscription",
-              "description": ""
+              "description": "Fixed monthly subscription part (same currency as energy); enter 0 if none."
             }
           ],
           "menu_choices": [],
@@ -1158,12 +1158,12 @@
             {
               "key": "energy_price",
               "label": "Prix de l'énergie (par kWh)",
-              "description": ""
+              "description": "Prix unique au kWh pour toute la journée, hors abonnement."
             },
             {
               "key": "subscription_price",
               "label": "Abonnement mensuel",
-              "description": ""
+              "description": "Part fixe d’abonnement mensuel (même devise) ; 0 si aucune."
             }
           ],
           "menu_choices": [],
@@ -1190,12 +1190,12 @@
             {
               "key": "price_basis",
               "label": "Prices are",
-              "description": ""
+              "description": "Whether manual kWh prices you enter include tax (TTC) or exclude tax (HT)."
             },
             {
               "key": "currency",
               "label": "Currency",
-              "description": ""
+              "description": "ISO currency code used for labels and manual tariffs (e.g. EUR)."
             }
           ],
           "menu_choices": [],
@@ -1213,12 +1213,12 @@
             {
               "key": "price_basis",
               "label": "Les prix sont",
-              "description": ""
+              "description": "Les prix kWh saisis sont-ils TTC ou HT ?"
             },
             {
               "key": "currency",
               "label": "Devise",
-              "description": ""
+              "description": "Code devise (ex. EUR) pour les libellés et tarifs manuels."
             }
           ],
           "menu_choices": [],
@@ -1289,7 +1289,7 @@
             {
               "key": "subscription_price",
               "label": "Monthly subscription",
-              "description": ""
+              "description": "Fixed monthly subscription added to scheduled energy costs."
             }
           ],
           "menu_choices": [],
@@ -1301,27 +1301,27 @@
                 {
                   "key": "sched_r0_start",
                   "label": "Start",
-                  "description": ""
+                  "description": "Start of this schedule band (24 h)."
                 },
                 {
                   "key": "sched_r0_end",
                   "label": "End",
-                  "description": ""
+                  "description": "End of this band. 00:00 means end of the calendar day (use for overnight ranges)."
                 },
                 {
                   "key": "sched_r0_price",
                   "label": "Energy price (per kWh)",
-                  "description": ""
+                  "description": "Energy price per kWh for this band."
                 },
                 {
                   "key": "sched_r0_day_type",
                   "label": "Day type",
-                  "description": ""
+                  "description": "Whether the band applies every day, only weekdays, or only weekends."
                 },
                 {
                   "key": "sched_r0_name",
                   "label": "Label (optional)",
-                  "description": ""
+                  "description": "Optional short label (dashboards / logs)."
                 }
               ]
             },
@@ -1332,27 +1332,27 @@
                 {
                   "key": "sched_r1_start",
                   "label": "Start",
-                  "description": ""
+                  "description": "Start of this schedule band (24 h)."
                 },
                 {
                   "key": "sched_r1_end",
                   "label": "End",
-                  "description": ""
+                  "description": "End of this band. 00:00 means end of the calendar day (use for overnight ranges)."
                 },
                 {
                   "key": "sched_r1_price",
                   "label": "Energy price (per kWh)",
-                  "description": ""
+                  "description": "Energy price per kWh for this band."
                 },
                 {
                   "key": "sched_r1_day_type",
                   "label": "Day type",
-                  "description": ""
+                  "description": "Whether the band applies every day, only weekdays, or only weekends."
                 },
                 {
                   "key": "sched_r1_name",
                   "label": "Label (optional)",
-                  "description": ""
+                  "description": "Optional short label (dashboards / logs)."
                 }
               ]
             },
@@ -1363,27 +1363,27 @@
                 {
                   "key": "sched_r2_start",
                   "label": "Start",
-                  "description": ""
+                  "description": "Start of this schedule band (24 h)."
                 },
                 {
                   "key": "sched_r2_end",
                   "label": "End",
-                  "description": ""
+                  "description": "End of this band. 00:00 means end of the calendar day (use for overnight ranges)."
                 },
                 {
                   "key": "sched_r2_price",
                   "label": "Energy price (per kWh)",
-                  "description": ""
+                  "description": "Energy price per kWh for this band."
                 },
                 {
                   "key": "sched_r2_day_type",
                   "label": "Day type",
-                  "description": ""
+                  "description": "Whether the band applies every day, only weekdays, or only weekends."
                 },
                 {
                   "key": "sched_r2_name",
                   "label": "Label (optional)",
-                  "description": ""
+                  "description": "Optional short label (dashboards / logs)."
                 }
               ]
             },
@@ -1394,27 +1394,27 @@
                 {
                   "key": "sched_r3_start",
                   "label": "Start",
-                  "description": ""
+                  "description": "Start of this schedule band (24 h)."
                 },
                 {
                   "key": "sched_r3_end",
                   "label": "End",
-                  "description": ""
+                  "description": "End of this band. 00:00 means end of the calendar day (use for overnight ranges)."
                 },
                 {
                   "key": "sched_r3_price",
                   "label": "Energy price (per kWh)",
-                  "description": ""
+                  "description": "Energy price per kWh for this band."
                 },
                 {
                   "key": "sched_r3_day_type",
                   "label": "Day type",
-                  "description": ""
+                  "description": "Whether the band applies every day, only weekdays, or only weekends."
                 },
                 {
                   "key": "sched_r3_name",
                   "label": "Label (optional)",
-                  "description": ""
+                  "description": "Optional short label (dashboards / logs)."
                 }
               ]
             },
@@ -1425,27 +1425,27 @@
                 {
                   "key": "sched_r4_start",
                   "label": "Start",
-                  "description": ""
+                  "description": "Start of this schedule band (24 h)."
                 },
                 {
                   "key": "sched_r4_end",
                   "label": "End",
-                  "description": ""
+                  "description": "End of this band. 00:00 means end of the calendar day (use for overnight ranges)."
                 },
                 {
                   "key": "sched_r4_price",
                   "label": "Energy price (per kWh)",
-                  "description": ""
+                  "description": "Energy price per kWh for this band."
                 },
                 {
                   "key": "sched_r4_day_type",
                   "label": "Day type",
-                  "description": ""
+                  "description": "Whether the band applies every day, only weekdays, or only weekends."
                 },
                 {
                   "key": "sched_r4_name",
                   "label": "Label (optional)",
-                  "description": ""
+                  "description": "Optional short label (dashboards / logs)."
                 }
               ]
             },
@@ -1456,27 +1456,27 @@
                 {
                   "key": "sched_r5_start",
                   "label": "Start",
-                  "description": ""
+                  "description": "Start of this schedule band (24 h)."
                 },
                 {
                   "key": "sched_r5_end",
                   "label": "End",
-                  "description": ""
+                  "description": "End of this band. 00:00 means end of the calendar day (use for overnight ranges)."
                 },
                 {
                   "key": "sched_r5_price",
                   "label": "Energy price (per kWh)",
-                  "description": ""
+                  "description": "Energy price per kWh for this band."
                 },
                 {
                   "key": "sched_r5_day_type",
                   "label": "Day type",
-                  "description": ""
+                  "description": "Whether the band applies every day, only weekdays, or only weekends."
                 },
                 {
                   "key": "sched_r5_name",
                   "label": "Label (optional)",
-                  "description": ""
+                  "description": "Optional short label (dashboards / logs)."
                 }
               ]
             }
@@ -1489,7 +1489,7 @@
             {
               "key": "subscription_price",
               "label": "Abonnement mensuel",
-              "description": ""
+              "description": "Abonnement mensuel fixe, comme sur l’étape formulaire."
             }
           ],
           "menu_choices": [],
@@ -1501,27 +1501,27 @@
                 {
                   "key": "sched_r0_start",
                   "label": "Début",
-                  "description": ""
+                  "description": "Début du créneau (24 h)."
                 },
                 {
                   "key": "sched_r0_end",
                   "label": "Fin",
-                  "description": ""
+                  "description": "Fin du créneau ; 00:00 = minuit en fin de journée (plages overnight)."
                 },
                 {
                   "key": "sched_r0_price",
                   "label": "Prix énergie (par kWh)",
-                  "description": ""
+                  "description": "Prix de l’énergie au kWh pour ce créneau."
                 },
                 {
                   "key": "sched_r0_day_type",
                   "label": "Type de jour",
-                  "description": ""
+                  "description": "Jours concernés : tous, semaine uniquement ou week-end uniquement."
                 },
                 {
                   "key": "sched_r0_name",
                   "label": "Libellé (optionnel)",
-                  "description": ""
+                  "description": "Libellé optionnel (tableaux de bord / journaux)."
                 }
               ]
             },
@@ -1532,27 +1532,27 @@
                 {
                   "key": "sched_r1_start",
                   "label": "Début",
-                  "description": ""
+                  "description": "Début du créneau (24 h)."
                 },
                 {
                   "key": "sched_r1_end",
                   "label": "Fin",
-                  "description": ""
+                  "description": "Fin du créneau ; 00:00 = minuit en fin de journée (plages overnight)."
                 },
                 {
                   "key": "sched_r1_price",
                   "label": "Prix énergie (par kWh)",
-                  "description": ""
+                  "description": "Prix de l’énergie au kWh pour ce créneau."
                 },
                 {
                   "key": "sched_r1_day_type",
                   "label": "Type de jour",
-                  "description": ""
+                  "description": "Jours concernés : tous, semaine uniquement ou week-end uniquement."
                 },
                 {
                   "key": "sched_r1_name",
                   "label": "Libellé (optionnel)",
-                  "description": ""
+                  "description": "Libellé optionnel (tableaux de bord / journaux)."
                 }
               ]
             },
@@ -1563,27 +1563,27 @@
                 {
                   "key": "sched_r2_start",
                   "label": "Début",
-                  "description": ""
+                  "description": "Début du créneau (24 h)."
                 },
                 {
                   "key": "sched_r2_end",
                   "label": "Fin",
-                  "description": ""
+                  "description": "Fin du créneau ; 00:00 = minuit en fin de journée (plages overnight)."
                 },
                 {
                   "key": "sched_r2_price",
                   "label": "Prix énergie (par kWh)",
-                  "description": ""
+                  "description": "Prix de l’énergie au kWh pour ce créneau."
                 },
                 {
                   "key": "sched_r2_day_type",
                   "label": "Type de jour",
-                  "description": ""
+                  "description": "Jours concernés : tous, semaine uniquement ou week-end uniquement."
                 },
                 {
                   "key": "sched_r2_name",
                   "label": "Libellé (optionnel)",
-                  "description": ""
+                  "description": "Libellé optionnel (tableaux de bord / journaux)."
                 }
               ]
             },
@@ -1594,27 +1594,27 @@
                 {
                   "key": "sched_r3_start",
                   "label": "Début",
-                  "description": ""
+                  "description": "Début du créneau (24 h)."
                 },
                 {
                   "key": "sched_r3_end",
                   "label": "Fin",
-                  "description": ""
+                  "description": "Fin du créneau ; 00:00 = minuit en fin de journée (plages overnight)."
                 },
                 {
                   "key": "sched_r3_price",
                   "label": "Prix énergie (par kWh)",
-                  "description": ""
+                  "description": "Prix de l’énergie au kWh pour ce créneau."
                 },
                 {
                   "key": "sched_r3_day_type",
                   "label": "Type de jour",
-                  "description": ""
+                  "description": "Jours concernés : tous, semaine uniquement ou week-end uniquement."
                 },
                 {
                   "key": "sched_r3_name",
                   "label": "Libellé (optionnel)",
-                  "description": ""
+                  "description": "Libellé optionnel (tableaux de bord / journaux)."
                 }
               ]
             },
@@ -1625,27 +1625,27 @@
                 {
                   "key": "sched_r4_start",
                   "label": "Début",
-                  "description": ""
+                  "description": "Début du créneau (24 h)."
                 },
                 {
                   "key": "sched_r4_end",
                   "label": "Fin",
-                  "description": ""
+                  "description": "Fin du créneau ; 00:00 = minuit en fin de journée (plages overnight)."
                 },
                 {
                   "key": "sched_r4_price",
                   "label": "Prix énergie (par kWh)",
-                  "description": ""
+                  "description": "Prix de l’énergie au kWh pour ce créneau."
                 },
                 {
                   "key": "sched_r4_day_type",
                   "label": "Type de jour",
-                  "description": ""
+                  "description": "Jours concernés : tous, semaine uniquement ou week-end uniquement."
                 },
                 {
                   "key": "sched_r4_name",
                   "label": "Libellé (optionnel)",
-                  "description": ""
+                  "description": "Libellé optionnel (tableaux de bord / journaux)."
                 }
               ]
             },
@@ -1656,27 +1656,27 @@
                 {
                   "key": "sched_r5_start",
                   "label": "Début",
-                  "description": ""
+                  "description": "Début du créneau (24 h)."
                 },
                 {
                   "key": "sched_r5_end",
                   "label": "Fin",
-                  "description": ""
+                  "description": "Fin du créneau ; 00:00 = minuit en fin de journée (plages overnight)."
                 },
                 {
                   "key": "sched_r5_price",
                   "label": "Prix énergie (par kWh)",
-                  "description": ""
+                  "description": "Prix de l’énergie au kWh pour ce créneau."
                 },
                 {
                   "key": "sched_r5_day_type",
                   "label": "Type de jour",
-                  "description": ""
+                  "description": "Jours concernés : tous, semaine uniquement ou week-end uniquement."
                 },
                 {
                   "key": "sched_r5_name",
                   "label": "Libellé (optionnel)",
-                  "description": ""
+                  "description": "Libellé optionnel (tableaux de bord / journaux)."
                 }
               ]
             }
@@ -1698,12 +1698,12 @@
             {
               "key": "schedule_slots",
               "label": "Schedule slots (JSON)",
-              "description": ""
+              "description": "JSON array of slot objects (start, end, price, optional day_type and name). Use when you need more than six slots or copy/paste between instances."
             },
             {
               "key": "subscription_price",
               "label": "Monthly subscription",
-              "description": ""
+              "description": "Fixed monthly subscription; same meaning as on the form step."
             }
           ],
           "menu_choices": [],
@@ -1716,12 +1716,12 @@
             {
               "key": "schedule_slots",
               "label": "Créneaux horaires (JSON)",
-              "description": ""
+              "description": "Tableau JSON d’objets créneau (début, fin, prix, day_type et nom optionnels). À utiliser au-delà de six créneaux ou pour copier/coller."
             },
             {
               "key": "subscription_price",
               "label": "Abonnement mensuel",
-              "description": ""
+              "description": "Abonnement mensuel fixe ; même sens que sur le formulaire."
             }
           ],
           "menu_choices": [],
@@ -1766,7 +1766,7 @@
             {
               "key": "subscription_price",
               "label": "Monthly subscription",
-              "description": ""
+              "description": "Fixed monthly subscription; applied on top of time-of-use energy prices."
             }
           ],
           "menu_choices": [],
@@ -1778,17 +1778,17 @@
                 {
                   "key": "tou_r0_start",
                   "label": "Start",
-                  "description": ""
+                  "description": "Start of this price band (24 h, HH:MM)."
                 },
                 {
                   "key": "tou_r0_end",
                   "label": "End",
-                  "description": ""
+                  "description": "End of this price band. Use 00:00 for midnight at the end of the day when spanning overnight."
                 },
                 {
                   "key": "tou_r0_price",
                   "label": "Energy price (per kWh)",
-                  "description": ""
+                  "description": "Energy price for this band, per kWh, in your selected currency."
                 }
               ]
             },
@@ -1799,17 +1799,17 @@
                 {
                   "key": "tou_r1_start",
                   "label": "Start",
-                  "description": ""
+                  "description": "Start of this price band (24 h, HH:MM)."
                 },
                 {
                   "key": "tou_r1_end",
                   "label": "End",
-                  "description": ""
+                  "description": "End of this price band. Use 00:00 for midnight at the end of the day when spanning overnight."
                 },
                 {
                   "key": "tou_r1_price",
                   "label": "Energy price (per kWh)",
-                  "description": ""
+                  "description": "Energy price for this band, per kWh, in your selected currency."
                 }
               ]
             }
@@ -1822,7 +1822,7 @@
             {
               "key": "subscription_price",
               "label": "Abonnement mensuel",
-              "description": ""
+              "description": "Abonnement mensuel fixe, en complément des prix par plage horaire."
             }
           ],
           "menu_choices": [],
@@ -1834,17 +1834,17 @@
                 {
                   "key": "tou_r0_start",
                   "label": "Début",
-                  "description": ""
+                  "description": "Début de la plage tarifaire (24 h, HH:MM)."
                 },
                 {
                   "key": "tou_r0_end",
                   "label": "Fin",
-                  "description": ""
+                  "description": "Fin de la plage. Utilisez 00:00 pour minuit en fin de journée si la plage passe la nuit."
                 },
                 {
                   "key": "tou_r0_price",
                   "label": "Prix de l'énergie (par kWh)",
-                  "description": ""
+                  "description": "Prix de l’énergie pour cette plage, au kWh, dans votre devise."
                 }
               ]
             },
@@ -1855,17 +1855,17 @@
                 {
                   "key": "tou_r1_start",
                   "label": "Début",
-                  "description": ""
+                  "description": "Début de la plage tarifaire (24 h, HH:MM)."
                 },
                 {
                   "key": "tou_r1_end",
                   "label": "Fin",
-                  "description": ""
+                  "description": "Fin de la plage. Utilisez 00:00 pour minuit en fin de journée si la plage passe la nuit."
                 },
                 {
                   "key": "tou_r1_price",
                   "label": "Prix de l'énergie (par kWh)",
-                  "description": ""
+                  "description": "Prix de l’énergie pour cette plage, au kWh, dans votre devise."
                 }
               ]
             }
@@ -1887,7 +1887,7 @@
             {
               "key": "has_solar",
               "label": "Do you have solar panels?",
-              "description": ""
+              "description": "Turn off to skip solar entities and accounting for this entry."
             }
           ],
           "menu_choices": [],
@@ -1900,7 +1900,7 @@
             {
               "key": "has_solar",
               "label": "Avez-vous des panneaux solaires ?",
-              "description": ""
+              "description": "Désactiver pour retirer le solaire de la comptabilité de cette entrée."
             }
           ],
           "menu_choices": [],
@@ -1997,42 +1997,42 @@
             {
               "key": "solar_lat",
               "label": "Latitude",
-              "description": ""
+              "description": "Site latitude (decimal degrees); defaults may be prefilled from Home Assistant zone."
             },
             {
               "key": "solar_lon",
               "label": "Longitude",
-              "description": ""
+              "description": "Site longitude (decimal degrees)."
             },
             {
               "key": "solar_peak_power",
               "label": "Peak power (kWc)",
-              "description": ""
+              "description": "Installed DC peak power (kWc) of the PV array."
             },
             {
               "key": "solar_orientation",
               "label": "Panel orientation",
-              "description": ""
+              "description": "Azimuth in degrees (0–360); 180° is south in the northern hemisphere."
             },
             {
               "key": "solar_tilt_mode",
               "label": "Tilt mode",
-              "description": ""
+              "description": "Auto uses a typical roof tilt from latitude; manual unlocks the tilt field."
             },
             {
               "key": "solar_tilt",
               "label": "Tilt angle (°)",
-              "description": ""
+              "description": "Panel tilt from horizontal (°); used only when tilt mode is manual."
             },
             {
               "key": "solar_shading",
               "label": "Shading level",
-              "description": ""
+              "description": "Rough shading level for the clear-sky model."
             },
             {
               "key": "solar_performance",
               "label": "System performance",
-              "description": ""
+              "description": "Performance class (standard vs optimistic vs conservative) for the estimation model."
             }
           ],
           "menu_choices": [],
@@ -2045,42 +2045,42 @@
             {
               "key": "solar_lat",
               "label": "Latitude",
-              "description": ""
+              "description": "Latitude du site (degrés décimaux) ; peut être préremplie depuis la zone Home Assistant."
             },
             {
               "key": "solar_lon",
               "label": "Longitude",
-              "description": ""
+              "description": "Longitude du site (degrés décimaux)."
             },
             {
               "key": "solar_peak_power",
               "label": "Puissance crête (kWc)",
-              "description": ""
+              "description": "Puissance crête DC installée (kWc)."
             },
             {
               "key": "solar_orientation",
               "label": "Orientation des panneaux",
-              "description": ""
+              "description": "Azimut en degrés (0–360) ; 180° ≈ plein sud (hémisphère nord)."
             },
             {
               "key": "solar_tilt_mode",
               "label": "Mode d'inclinaison",
-              "description": ""
+              "description": "Auto estime une inclinaison type ; manuel déverrouille le champ d’inclinaison."
             },
             {
               "key": "solar_tilt",
               "label": "Angle d'inclinaison (°)",
-              "description": ""
+              "description": "Inclinaison des modules par rapport à l’horizontale (°), si mode manuel."
             },
             {
               "key": "solar_shading",
               "label": "Niveau d'ombrage",
-              "description": ""
+              "description": "Niveau d’ombrage approximatif pour le modèle « ciel clair »."
             },
             {
               "key": "solar_performance",
               "label": "Performance du système",
-              "description": ""
+              "description": "Classe de performance (standard / optimiste / prudent) pour le modèle."
             }
           ],
           "menu_choices": [],
@@ -2167,14 +2167,14 @@
       "strings": {
         "en": {
           "title": "Tariff configuration",
-          "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode_manual_only)",
+          "description": "For suppliers other than EDF, automatic tariff retrieval is not available yet. You will enter your rates manually in the following steps.\n\n[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode_manual_only)",
           "fields": [],
           "menu_choices": [],
           "sections": []
         },
         "fr": {
           "title": "Configuration tarifaire",
-          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode_manual_only)",
+          "description": "Pour les fournisseurs autres qu'EDF, la récupération automatique des tarifs n'est pas encore disponible. Vous saisirez vos prix manuellement aux étapes suivantes.\n\n[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode_manual_only)",
           "fields": [],
           "menu_choices": [],
           "sections": []
@@ -2195,17 +2195,17 @@
             {
               "key": "tri_phase_step_import_energy",
               "label": "Import energy (kWh, optional)",
-              "description": ""
+              "description": "Optional import kWh entity for L1 when you chose per-phase layout after a single combined meter."
             },
             {
               "key": "tri_phase_step_export_energy",
               "label": "Export energy (kWh, optional)",
-              "description": ""
+              "description": "Optional export kWh for L1."
             },
             {
               "key": "tri_phase_step_grid_power",
               "label": "Grid power (W, optional)",
-              "description": ""
+              "description": "Optional grid power (W) for L1; integration sums configured phases."
             }
           ],
           "menu_choices": [],
@@ -2218,17 +2218,17 @@
             {
               "key": "tri_phase_step_import_energy",
               "label": "Import énergie (kWh, optionnel)",
-              "description": ""
+              "description": "Entité kWh d’import L1 optionnelle (disposition par phase après compteur combiné)."
             },
             {
               "key": "tri_phase_step_export_energy",
               "label": "Export énergie (kWh, optionnel)",
-              "description": ""
+              "description": "Export kWh L1 optionnel."
             },
             {
               "key": "tri_phase_step_grid_power",
               "label": "Puissance réseau (W, optionnel)",
-              "description": ""
+              "description": "Puissance réseau (W) L1 optionnelle ; somme des phases renseignées."
             }
           ],
           "menu_choices": [],
@@ -2250,17 +2250,17 @@
             {
               "key": "tri_phase_step_import_energy",
               "label": "Import energy (kWh, optional)",
-              "description": ""
+              "description": "Optional import kWh entity for L2."
             },
             {
               "key": "tri_phase_step_export_energy",
               "label": "Export energy (kWh, optional)",
-              "description": ""
+              "description": "Optional export kWh for L2."
             },
             {
               "key": "tri_phase_step_grid_power",
               "label": "Grid power (W, optional)",
-              "description": ""
+              "description": "Optional grid power (W) for L2."
             }
           ],
           "menu_choices": [],
@@ -2273,17 +2273,17 @@
             {
               "key": "tri_phase_step_import_energy",
               "label": "Import énergie (kWh, optionnel)",
-              "description": ""
+              "description": "Entité kWh d’import L2 optionnelle."
             },
             {
               "key": "tri_phase_step_export_energy",
               "label": "Export énergie (kWh, optionnel)",
-              "description": ""
+              "description": "Export kWh L2 optionnel."
             },
             {
               "key": "tri_phase_step_grid_power",
               "label": "Puissance réseau (W, optionnel)",
-              "description": ""
+              "description": "Puissance réseau (W) L2 optionnelle."
             }
           ],
           "menu_choices": [],
@@ -2305,17 +2305,17 @@
             {
               "key": "tri_phase_step_import_energy",
               "label": "Import energy (kWh, optional)",
-              "description": ""
+              "description": "Optional import kWh entity for L3."
             },
             {
               "key": "tri_phase_step_export_energy",
               "label": "Export energy (kWh, optional)",
-              "description": ""
+              "description": "Optional export kWh for L3."
             },
             {
               "key": "tri_phase_step_grid_power",
               "label": "Grid power (W, optional)",
-              "description": ""
+              "description": "Optional grid power (W) for L3."
             }
           ],
           "menu_choices": [],
@@ -2328,17 +2328,17 @@
             {
               "key": "tri_phase_step_import_energy",
               "label": "Import énergie (kWh, optionnel)",
-              "description": ""
+              "description": "Entité kWh d’import L3 optionnelle."
             },
             {
               "key": "tri_phase_step_export_energy",
               "label": "Export énergie (kWh, optionnel)",
-              "description": ""
+              "description": "Export kWh L3 optionnel."
             },
             {
               "key": "tri_phase_step_grid_power",
               "label": "Puissance réseau (W, optionnel)",
-              "description": ""
+              "description": "Puissance réseau (W) L3 optionnelle."
             }
           ],
           "menu_choices": [],

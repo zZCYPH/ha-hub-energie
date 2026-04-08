@@ -1,0 +1,3101 @@
+{
+  "generated_at": "2026-04-08T21:07:44.068376+00:00",
+  "source_files": {
+    "strings_en": "custom_components/hub_energie/strings.json",
+    "strings_fr": "custom_components/hub_energie/translations/fr.json"
+  },
+  "wizard": {
+    "user": {
+      "en": {
+        "fields": [
+          {
+            "key": "supplier",
+            "label": "Energy supplier",
+            "description": "Select your energy supplier. Choose 'Other' for non-EDF providers."
+          },
+          {
+            "key": "phase_type",
+            "label": "Phase type",
+            "description": "Single-phase (mono) or three-phase (tri) installation."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "supplier",
+            "label": "Fournisseur d'énergie",
+            "description": "Sélectionnez votre fournisseur. Choisissez 'Autre' pour les fournisseurs non-EDF."
+          },
+          {
+            "key": "phase_type",
+            "label": "Type de phase",
+            "description": "Installation monophasée ou triphasée."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "supplier_custom": {
+      "en": {
+        "fields": [
+          {
+            "key": "supplier_custom_name",
+            "label": "Supplier display name",
+            "description": "Required. A brand name or abbreviation is enough."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "supplier_custom_name",
+            "label": "Nom affiché du fournisseur",
+            "description": "Obligatoire. Le nom commercial ou une abréviation suffisent."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "tariff_mode_manual_only": {
+      "en": {
+        "fields": [],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "tariff_mode": {
+      "en": {
+        "fields": [
+          {
+            "key": "tariff_mode",
+            "label": "Tariff mode",
+            "description": "Auto: fetch tariffs from provider API. Manual: enter rates yourself."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "tariff_mode",
+            "label": "Mode tarifaire",
+            "description": "Auto : récupération depuis l'API du fournisseur. Manuel : saisie manuelle."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "contract": {
+      "en": {
+        "fields": [
+          {
+            "key": "contract_power",
+            "label": "Contract power (kVA)",
+            "description": "Subscribed power in kVA from your contract (dropdown values match common EDF tiers; pick the closest match)."
+          },
+          {
+            "key": "contract_name",
+            "label": "Contract name (optional)",
+            "description": "Optional label to recognize this Hub Énergie entry in Settings (not sent to the supplier)."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "contract_power",
+            "label": "Puissance souscrite (kVA)",
+            "description": "Puissance souscrite en kVA (valeurs proches des paliers EDF courants)."
+          },
+          {
+            "key": "contract_name",
+            "label": "Nom du contrat (optionnel)",
+            "description": "Libellé optionnel pour reconnaître cette entrée dans les réglages (non transmis au fournisseur)."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "edf_offer": {
+      "en": {
+        "fields": [
+          {
+            "key": "tariff_offer",
+            "label": "Offer type",
+            "description": "BASE (single rate), HPHC (peak/off-peak), or TEMPO (blue/white/red days). Must match your real subscription for automatic prices."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "tariff_offer",
+            "label": "Type d'offre",
+            "description": "BASE (prix unique), HPHC (heures pleines / creuses) ou TEMPO. Doit correspondre à votre contrat pour les tarifs automatiques."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "edf_tempo": {
+      "en": {
+        "fields": [
+          {
+            "key": "tempo_mode",
+            "label": "Signal source",
+            "description": "RTE needs OAuth API credentials; API Couleur Tempo works without an RTE account."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "tempo_mode",
+            "label": "Source du signal",
+            "description": "RTE exige des identifiants OAuth ; API Couleur Tempo fonctionne sans compte RTE."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "edf_tempo_rte": {
+      "en": {
+        "fields": [
+          {
+            "key": "rte_client_id",
+            "label": "RTE API client ID",
+            "description": "OAuth client identifier from your RTE developer / app registration."
+          },
+          {
+            "key": "rte_client_secret",
+            "label": "RTE API client secret",
+            "description": "OAuth client secret. Leave empty later in options if you only rotate the id and want to keep the stored secret."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "rte_client_id",
+            "label": "Client ID API RTE",
+            "description": "Identifiant client OAuth de votre application RTE."
+          },
+          {
+            "key": "rte_client_secret",
+            "label": "Client secret API RTE",
+            "description": "Secret client. Laissez vide en options si vous ne faites que faire tourner l’identifiant."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "manual_pricing": {
+      "en": {
+        "fields": [
+          {
+            "key": "pricing_structure",
+            "label": "Pricing type",
+            "description": "Single rate: one kWh price. Peak/off-peak: time windows with different prices (e.g. off-peak nights). Advanced: slots per day type."
+          },
+          {
+            "key": "price_basis",
+            "label": "Prices are",
+            "description": "Whether manual kWh prices you enter include tax (TTC) or exclude tax (HT)."
+          },
+          {
+            "key": "currency",
+            "label": "Currency",
+            "description": "ISO currency code used for labels and manual tariffs (e.g. EUR)."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "pricing_structure",
+            "label": "Type de tarification",
+            "description": "Tarif unique : un seul prix au kWh. Heures creuses / pleines : plages horaires avec prix différents (comme HC/HP). Avancé : créneaux selon le type de jour."
+          },
+          {
+            "key": "price_basis",
+            "label": "Les prix sont",
+            "description": "Les prix kWh saisis sont-ils TTC ou HT ?"
+          },
+          {
+            "key": "currency",
+            "label": "Devise",
+            "description": "Code devise (ex. EUR) pour les libellés et tarifs manuels."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "manual_flat": {
+      "en": {
+        "fields": [
+          {
+            "key": "energy_price",
+            "label": "Energy price (per kWh)",
+            "description": "Single energy price per kWh for the whole day, before subscription."
+          },
+          {
+            "key": "subscription_price",
+            "label": "Monthly subscription",
+            "description": "Fixed monthly subscription part (same currency as energy); enter 0 if none."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "energy_price",
+            "label": "Prix de l'énergie (par kWh)",
+            "description": "Prix unique au kWh pour toute la journée, hors abonnement."
+          },
+          {
+            "key": "subscription_price",
+            "label": "Abonnement mensuel",
+            "description": "Part fixe d’abonnement mensuel (même devise) ; 0 si aucune."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "manual_tou": {
+      "en": {
+        "fields": [
+          {
+            "key": "subscription_price",
+            "label": "Monthly subscription",
+            "description": "Fixed monthly subscription; applied on top of time-of-use energy prices."
+          }
+        ],
+        "sections": [
+          {
+            "id": "tou_slot_0",
+            "name": "Off-peak (HC)",
+            "fields": [
+              {
+                "key": "tou_r0_start",
+                "label": "Start",
+                "description": "Start of this price band (24 h, HH:MM)."
+              },
+              {
+                "key": "tou_r0_end",
+                "label": "End",
+                "description": "End of this price band. Use 00:00 for midnight at the end of the day when spanning overnight."
+              },
+              {
+                "key": "tou_r0_price",
+                "label": "Energy price (per kWh)",
+                "description": "Energy price for this band, per kWh, in your selected currency."
+              }
+            ]
+          },
+          {
+            "id": "tou_slot_1",
+            "name": "Peak (HP)",
+            "fields": [
+              {
+                "key": "tou_r1_start",
+                "label": "Start",
+                "description": "Start of this price band (24 h, HH:MM)."
+              },
+              {
+                "key": "tou_r1_end",
+                "label": "End",
+                "description": "End of this price band. Use 00:00 for midnight at the end of the day when spanning overnight."
+              },
+              {
+                "key": "tou_r1_price",
+                "label": "Energy price (per kWh)",
+                "description": "Energy price for this band, per kWh, in your selected currency."
+              }
+            ]
+          }
+        ],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "subscription_price",
+            "label": "Abonnement mensuel",
+            "description": "Abonnement mensuel fixe, en complément des prix par plage horaire."
+          }
+        ],
+        "sections": [
+          {
+            "id": "tou_slot_0",
+            "name": "Heures creuses (HC)",
+            "fields": [
+              {
+                "key": "tou_r0_start",
+                "label": "Début",
+                "description": "Début de la plage tarifaire (24 h, HH:MM)."
+              },
+              {
+                "key": "tou_r0_end",
+                "label": "Fin",
+                "description": "Fin de la plage. Utilisez 00:00 pour minuit en fin de journée si la plage passe la nuit."
+              },
+              {
+                "key": "tou_r0_price",
+                "label": "Prix de l'énergie (par kWh)",
+                "description": "Prix de l’énergie pour cette plage, au kWh, dans votre devise."
+              }
+            ]
+          },
+          {
+            "id": "tou_slot_1",
+            "name": "Heures pleines (HP)",
+            "fields": [
+              {
+                "key": "tou_r1_start",
+                "label": "Début",
+                "description": "Début de la plage tarifaire (24 h, HH:MM)."
+              },
+              {
+                "key": "tou_r1_end",
+                "label": "Fin",
+                "description": "Fin de la plage. Utilisez 00:00 pour minuit en fin de journée si la plage passe la nuit."
+              },
+              {
+                "key": "tou_r1_price",
+                "label": "Prix de l'énergie (par kWh)",
+                "description": "Prix de l’énergie pour cette plage, au kWh, dans votre devise."
+              }
+            ]
+          }
+        ],
+        "menu_choices": []
+      }
+    },
+    "manual_schedule": {
+      "en": {
+        "fields": [],
+        "sections": [],
+        "menu_choices": [
+          {
+            "key": "manual_schedule_form",
+            "label": "Form (up to 6 slots)"
+          },
+          {
+            "key": "manual_schedule_json",
+            "label": "JSON (advanced)"
+          },
+          {
+            "key": "manual_schedule_prev",
+            "label": "Back to tariff structure"
+          }
+        ]
+      },
+      "fr": {
+        "fields": [],
+        "sections": [],
+        "menu_choices": [
+          {
+            "key": "manual_schedule_form",
+            "label": "Formulaire (jusqu'à 6 créneaux)"
+          },
+          {
+            "key": "manual_schedule_json",
+            "label": "JSON (avancé)"
+          },
+          {
+            "key": "manual_schedule_prev",
+            "label": "Retour à la structure tarifaire"
+          }
+        ]
+      }
+    },
+    "manual_schedule_form": {
+      "en": {
+        "fields": [
+          {
+            "key": "subscription_price",
+            "label": "Monthly subscription",
+            "description": "Fixed monthly subscription added to scheduled energy costs."
+          }
+        ],
+        "sections": [
+          {
+            "id": "sched_slot_0",
+            "name": "Time slot 1",
+            "fields": [
+              {
+                "key": "sched_r0_start",
+                "label": "Start",
+                "description": "Start of this schedule band (24 h)."
+              },
+              {
+                "key": "sched_r0_end",
+                "label": "End",
+                "description": "End of this band. 00:00 means end of the calendar day (use for overnight ranges)."
+              },
+              {
+                "key": "sched_r0_price",
+                "label": "Energy price (per kWh)",
+                "description": "Energy price per kWh for this band."
+              },
+              {
+                "key": "sched_r0_day_type",
+                "label": "Day type",
+                "description": "Whether the band applies every day, only weekdays, or only weekends."
+              },
+              {
+                "key": "sched_r0_name",
+                "label": "Label (optional)",
+                "description": "Optional short label (dashboards / logs)."
+              }
+            ]
+          },
+          {
+            "id": "sched_slot_1",
+            "name": "Time slot 2",
+            "fields": [
+              {
+                "key": "sched_r1_start",
+                "label": "Start",
+                "description": "Start of this schedule band (24 h)."
+              },
+              {
+                "key": "sched_r1_end",
+                "label": "End",
+                "description": "End of this band. 00:00 means end of the calendar day (use for overnight ranges)."
+              },
+              {
+                "key": "sched_r1_price",
+                "label": "Energy price (per kWh)",
+                "description": "Energy price per kWh for this band."
+              },
+              {
+                "key": "sched_r1_day_type",
+                "label": "Day type",
+                "description": "Whether the band applies every day, only weekdays, or only weekends."
+              },
+              {
+                "key": "sched_r1_name",
+                "label": "Label (optional)",
+                "description": "Optional short label (dashboards / logs)."
+              }
+            ]
+          },
+          {
+            "id": "sched_slot_2",
+            "name": "Time slot 3",
+            "fields": [
+              {
+                "key": "sched_r2_start",
+                "label": "Start",
+                "description": "Start of this schedule band (24 h)."
+              },
+              {
+                "key": "sched_r2_end",
+                "label": "End",
+                "description": "End of this band. 00:00 means end of the calendar day (use for overnight ranges)."
+              },
+              {
+                "key": "sched_r2_price",
+                "label": "Energy price (per kWh)",
+                "description": "Energy price per kWh for this band."
+              },
+              {
+                "key": "sched_r2_day_type",
+                "label": "Day type",
+                "description": "Whether the band applies every day, only weekdays, or only weekends."
+              },
+              {
+                "key": "sched_r2_name",
+                "label": "Label (optional)",
+                "description": "Optional short label (dashboards / logs)."
+              }
+            ]
+          },
+          {
+            "id": "sched_slot_3",
+            "name": "Time slot 4",
+            "fields": [
+              {
+                "key": "sched_r3_start",
+                "label": "Start",
+                "description": "Start of this schedule band (24 h)."
+              },
+              {
+                "key": "sched_r3_end",
+                "label": "End",
+                "description": "End of this band. 00:00 means end of the calendar day (use for overnight ranges)."
+              },
+              {
+                "key": "sched_r3_price",
+                "label": "Energy price (per kWh)",
+                "description": "Energy price per kWh for this band."
+              },
+              {
+                "key": "sched_r3_day_type",
+                "label": "Day type",
+                "description": "Whether the band applies every day, only weekdays, or only weekends."
+              },
+              {
+                "key": "sched_r3_name",
+                "label": "Label (optional)",
+                "description": "Optional short label (dashboards / logs)."
+              }
+            ]
+          },
+          {
+            "id": "sched_slot_4",
+            "name": "Time slot 5",
+            "fields": [
+              {
+                "key": "sched_r4_start",
+                "label": "Start",
+                "description": "Start of this schedule band (24 h)."
+              },
+              {
+                "key": "sched_r4_end",
+                "label": "End",
+                "description": "End of this band. 00:00 means end of the calendar day (use for overnight ranges)."
+              },
+              {
+                "key": "sched_r4_price",
+                "label": "Energy price (per kWh)",
+                "description": "Energy price per kWh for this band."
+              },
+              {
+                "key": "sched_r4_day_type",
+                "label": "Day type",
+                "description": "Whether the band applies every day, only weekdays, or only weekends."
+              },
+              {
+                "key": "sched_r4_name",
+                "label": "Label (optional)",
+                "description": "Optional short label (dashboards / logs)."
+              }
+            ]
+          },
+          {
+            "id": "sched_slot_5",
+            "name": "Time slot 6",
+            "fields": [
+              {
+                "key": "sched_r5_start",
+                "label": "Start",
+                "description": "Start of this schedule band (24 h)."
+              },
+              {
+                "key": "sched_r5_end",
+                "label": "End",
+                "description": "End of this band. 00:00 means end of the calendar day (use for overnight ranges)."
+              },
+              {
+                "key": "sched_r5_price",
+                "label": "Energy price (per kWh)",
+                "description": "Energy price per kWh for this band."
+              },
+              {
+                "key": "sched_r5_day_type",
+                "label": "Day type",
+                "description": "Whether the band applies every day, only weekdays, or only weekends."
+              },
+              {
+                "key": "sched_r5_name",
+                "label": "Label (optional)",
+                "description": "Optional short label (dashboards / logs)."
+              }
+            ]
+          }
+        ],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "subscription_price",
+            "label": "Abonnement mensuel",
+            "description": "Abonnement mensuel fixe, comme sur l’étape formulaire."
+          }
+        ],
+        "sections": [
+          {
+            "id": "sched_slot_0",
+            "name": "Créneau 1",
+            "fields": [
+              {
+                "key": "sched_r0_start",
+                "label": "Début",
+                "description": "Début du créneau (24 h)."
+              },
+              {
+                "key": "sched_r0_end",
+                "label": "Fin",
+                "description": "Fin du créneau ; 00:00 = minuit en fin de journée (plages overnight)."
+              },
+              {
+                "key": "sched_r0_price",
+                "label": "Prix énergie (par kWh)",
+                "description": "Prix de l’énergie au kWh pour ce créneau."
+              },
+              {
+                "key": "sched_r0_day_type",
+                "label": "Type de jour",
+                "description": "Jours concernés : tous, semaine uniquement ou week-end uniquement."
+              },
+              {
+                "key": "sched_r0_name",
+                "label": "Libellé (optionnel)",
+                "description": "Libellé optionnel (tableaux de bord / journaux)."
+              }
+            ]
+          },
+          {
+            "id": "sched_slot_1",
+            "name": "Créneau 2",
+            "fields": [
+              {
+                "key": "sched_r1_start",
+                "label": "Début",
+                "description": "Début du créneau (24 h)."
+              },
+              {
+                "key": "sched_r1_end",
+                "label": "Fin",
+                "description": "Fin du créneau ; 00:00 = minuit en fin de journée (plages overnight)."
+              },
+              {
+                "key": "sched_r1_price",
+                "label": "Prix énergie (par kWh)",
+                "description": "Prix de l’énergie au kWh pour ce créneau."
+              },
+              {
+                "key": "sched_r1_day_type",
+                "label": "Type de jour",
+                "description": "Jours concernés : tous, semaine uniquement ou week-end uniquement."
+              },
+              {
+                "key": "sched_r1_name",
+                "label": "Libellé (optionnel)",
+                "description": "Libellé optionnel (tableaux de bord / journaux)."
+              }
+            ]
+          },
+          {
+            "id": "sched_slot_2",
+            "name": "Créneau 3",
+            "fields": [
+              {
+                "key": "sched_r2_start",
+                "label": "Début",
+                "description": "Début du créneau (24 h)."
+              },
+              {
+                "key": "sched_r2_end",
+                "label": "Fin",
+                "description": "Fin du créneau ; 00:00 = minuit en fin de journée (plages overnight)."
+              },
+              {
+                "key": "sched_r2_price",
+                "label": "Prix énergie (par kWh)",
+                "description": "Prix de l’énergie au kWh pour ce créneau."
+              },
+              {
+                "key": "sched_r2_day_type",
+                "label": "Type de jour",
+                "description": "Jours concernés : tous, semaine uniquement ou week-end uniquement."
+              },
+              {
+                "key": "sched_r2_name",
+                "label": "Libellé (optionnel)",
+                "description": "Libellé optionnel (tableaux de bord / journaux)."
+              }
+            ]
+          },
+          {
+            "id": "sched_slot_3",
+            "name": "Créneau 4",
+            "fields": [
+              {
+                "key": "sched_r3_start",
+                "label": "Début",
+                "description": "Début du créneau (24 h)."
+              },
+              {
+                "key": "sched_r3_end",
+                "label": "Fin",
+                "description": "Fin du créneau ; 00:00 = minuit en fin de journée (plages overnight)."
+              },
+              {
+                "key": "sched_r3_price",
+                "label": "Prix énergie (par kWh)",
+                "description": "Prix de l’énergie au kWh pour ce créneau."
+              },
+              {
+                "key": "sched_r3_day_type",
+                "label": "Type de jour",
+                "description": "Jours concernés : tous, semaine uniquement ou week-end uniquement."
+              },
+              {
+                "key": "sched_r3_name",
+                "label": "Libellé (optionnel)",
+                "description": "Libellé optionnel (tableaux de bord / journaux)."
+              }
+            ]
+          },
+          {
+            "id": "sched_slot_4",
+            "name": "Créneau 5",
+            "fields": [
+              {
+                "key": "sched_r4_start",
+                "label": "Début",
+                "description": "Début du créneau (24 h)."
+              },
+              {
+                "key": "sched_r4_end",
+                "label": "Fin",
+                "description": "Fin du créneau ; 00:00 = minuit en fin de journée (plages overnight)."
+              },
+              {
+                "key": "sched_r4_price",
+                "label": "Prix énergie (par kWh)",
+                "description": "Prix de l’énergie au kWh pour ce créneau."
+              },
+              {
+                "key": "sched_r4_day_type",
+                "label": "Type de jour",
+                "description": "Jours concernés : tous, semaine uniquement ou week-end uniquement."
+              },
+              {
+                "key": "sched_r4_name",
+                "label": "Libellé (optionnel)",
+                "description": "Libellé optionnel (tableaux de bord / journaux)."
+              }
+            ]
+          },
+          {
+            "id": "sched_slot_5",
+            "name": "Créneau 6",
+            "fields": [
+              {
+                "key": "sched_r5_start",
+                "label": "Début",
+                "description": "Début du créneau (24 h)."
+              },
+              {
+                "key": "sched_r5_end",
+                "label": "Fin",
+                "description": "Fin du créneau ; 00:00 = minuit en fin de journée (plages overnight)."
+              },
+              {
+                "key": "sched_r5_price",
+                "label": "Prix énergie (par kWh)",
+                "description": "Prix de l’énergie au kWh pour ce créneau."
+              },
+              {
+                "key": "sched_r5_day_type",
+                "label": "Type de jour",
+                "description": "Jours concernés : tous, semaine uniquement ou week-end uniquement."
+              },
+              {
+                "key": "sched_r5_name",
+                "label": "Libellé (optionnel)",
+                "description": "Libellé optionnel (tableaux de bord / journaux)."
+              }
+            ]
+          }
+        ],
+        "menu_choices": []
+      }
+    },
+    "manual_schedule_json": {
+      "en": {
+        "fields": [
+          {
+            "key": "schedule_slots",
+            "label": "Schedule slots (JSON)",
+            "description": "JSON array of slot objects (start, end, price, optional day_type and name). Use when you need more than six slots or copy/paste between instances."
+          },
+          {
+            "key": "subscription_price",
+            "label": "Monthly subscription",
+            "description": "Fixed monthly subscription; same meaning as on the form step."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "schedule_slots",
+            "label": "Créneaux horaires (JSON)",
+            "description": "Tableau JSON d’objets créneau (début, fin, prix, day_type et nom optionnels). À utiliser au-delà de six créneaux ou pour copier/coller."
+          },
+          {
+            "key": "subscription_price",
+            "label": "Abonnement mensuel",
+            "description": "Abonnement mensuel fixe ; même sens que sur le formulaire."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "grid_tri_energy_mode": {
+      "en": {
+        "fields": [
+          {
+            "key": "grid_tri_energy_mode",
+            "label": "Grid import metering",
+            "description": "One total: you will pick a single import sensor next. One per phase: the integration sums L1+L2+L3 for accounting."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "grid_tri_energy_mode",
+            "label": "Mesure de l'import réseau",
+            "description": "Total unique : vous choisirez un capteur d'import à l'étape suivante. Un par phase : l'intégration additionne L1+L2+L3."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "grid_tri_per_phase": {
+      "en": {
+        "fields": [],
+        "sections": [
+          {
+            "id": "tri_grid_sign",
+            "name": "Grid power",
+            "fields": [
+              {
+                "key": "grid_power_sign_mode",
+                "label": "Grid power sign convention",
+                "description": "Convention: is export negative or positive on your per-phase grid power sensors?"
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_l1",
+            "name": "Phase L1",
+            "fields": [
+              {
+                "key": "tri_import_energy_p1",
+                "label": "Grid import energy (kWh)",
+                "description": "Total increasing kWh counter for grid import on phase L1."
+              },
+              {
+                "key": "tri_export_energy_p1",
+                "label": "Grid export energy (kWh, optional)",
+                "description": "Optional export counter for L1; leave empty if unused."
+              },
+              {
+                "key": "tri_grid_power_p1",
+                "label": "Grid power (W, optional)",
+                "description": "Instantaneous power on L1; the integration sums whichever phases you set for real-time display. For a single total sensor, fill only one phase."
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_l2",
+            "name": "Phase L2",
+            "fields": [
+              {
+                "key": "tri_import_energy_p2",
+                "label": "Grid import energy (kWh)",
+                "description": "Total increasing kWh counter for grid import on phase L2."
+              },
+              {
+                "key": "tri_export_energy_p2",
+                "label": "Grid export energy (kWh, optional)",
+                "description": "Optional export counter for L2; leave empty if unused."
+              },
+              {
+                "key": "tri_grid_power_p2",
+                "label": "Grid power (W, optional)",
+                "description": "Instantaneous power on L2."
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_l3",
+            "name": "Phase L3",
+            "fields": [
+              {
+                "key": "tri_import_energy_p3",
+                "label": "Grid import energy (kWh)",
+                "description": "Total increasing kWh counter for grid import on phase L3."
+              },
+              {
+                "key": "tri_export_energy_p3",
+                "label": "Grid export energy (kWh, optional)",
+                "description": "Optional export counter for L3; leave empty if unused."
+              },
+              {
+                "key": "tri_grid_power_p3",
+                "label": "Grid power (W, optional)",
+                "description": "Instantaneous power on L3."
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_load",
+            "name": "House load",
+            "fields": [
+              {
+                "key": "load_power_sensor",
+                "label": "House load power (W, optional)",
+                "description": "Optional house consumption for load-side diagnostics."
+              }
+            ]
+          }
+        ],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [],
+        "sections": [
+          {
+            "id": "tri_grid_sign",
+            "name": "Puissance réseau",
+            "fields": [
+              {
+                "key": "grid_power_sign_mode",
+                "label": "Convention de signe puissance réseau",
+                "description": "L'export est-il négatif ou positif sur vos capteurs de puissance réseau (par phase) ?"
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_l1",
+            "name": "Phase L1",
+            "fields": [
+              {
+                "key": "tri_import_energy_p1",
+                "label": "Import réseau (kWh)",
+                "description": "Compteur kWh total_increasing d’import réseau sur la phase L1."
+              },
+              {
+                "key": "tri_export_energy_p1",
+                "label": "Export réseau (kWh, optionnel)",
+                "description": "Compteur d’export L1 optionnel ; vide si inutilisé."
+              },
+              {
+                "key": "tri_grid_power_p1",
+                "label": "Puissance réseau (W, optionnel)",
+                "description": "Puissance instantanée L1 ; l'intégration additionne les phases renseignées pour le temps réel. Un seul capteur « total » : ne renseignez qu'une phase."
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_l2",
+            "name": "Phase L2",
+            "fields": [
+              {
+                "key": "tri_import_energy_p2",
+                "label": "Import réseau (kWh)",
+                "description": "Compteur kWh total_increasing d’import réseau sur la phase L2."
+              },
+              {
+                "key": "tri_export_energy_p2",
+                "label": "Export réseau (kWh, optionnel)",
+                "description": "Compteur d’export L2 optionnel ; vide si inutilisé."
+              },
+              {
+                "key": "tri_grid_power_p2",
+                "label": "Puissance réseau (W, optionnel)",
+                "description": "Puissance instantanée L2."
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_l3",
+            "name": "Phase L3",
+            "fields": [
+              {
+                "key": "tri_import_energy_p3",
+                "label": "Import réseau (kWh)",
+                "description": "Compteur kWh total_increasing d’import réseau sur la phase L3."
+              },
+              {
+                "key": "tri_export_energy_p3",
+                "label": "Export réseau (kWh, optionnel)",
+                "description": "Compteur d’export L3 optionnel ; vide si inutilisé."
+              },
+              {
+                "key": "tri_grid_power_p3",
+                "label": "Puissance réseau (W, optionnel)",
+                "description": "Puissance instantanée L3."
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_load",
+            "name": "Consommation maison",
+            "fields": [
+              {
+                "key": "load_power_sensor",
+                "label": "Puissance consommation maison (W, optionnel)",
+                "description": "Consommation maison optionnelle pour le diagnostic."
+              }
+            ]
+          }
+        ],
+        "menu_choices": []
+      }
+    },
+    "grid": {
+      "en": {
+        "fields": [
+          {
+            "key": "grid_import_energy",
+            "label": "Grid import energy (kWh)",
+            "description": "Total increasing energy counter for grid import."
+          },
+          {
+            "key": "grid_export_energy",
+            "label": "Grid export energy (kWh, optional)",
+            "description": "Total increasing energy counter for grid export (if separate from import)."
+          },
+          {
+            "key": "grid_power_sensor",
+            "label": "Grid power (W, optional)",
+            "description": "Instantaneous grid power for real-time display."
+          },
+          {
+            "key": "grid_power_sign_mode",
+            "label": "Grid power sign convention",
+            "description": "Convention: is export negative or positive on this sensor?"
+          },
+          {
+            "key": "load_power_sensor",
+            "label": "House load power (W, optional)",
+            "description": "Optional household consumption (W) for load-side diagnostics and balance checks."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "grid_import_energy",
+            "label": "Énergie importée (kWh)",
+            "description": "Compteur d'énergie total croissant pour l'import réseau."
+          },
+          {
+            "key": "grid_export_energy",
+            "label": "Énergie exportée (kWh, optionnel)",
+            "description": "Compteur d'énergie total croissant pour l'export réseau."
+          },
+          {
+            "key": "grid_power_sensor",
+            "label": "Puissance réseau (W, optionnel)",
+            "description": "Puissance instantanée du réseau pour l'affichage temps réel."
+          },
+          {
+            "key": "grid_power_sign_mode",
+            "label": "Convention de signe puissance réseau",
+            "description": "L'export est-il négatif ou positif sur ce capteur ?"
+          },
+          {
+            "key": "load_power_sensor",
+            "label": "Puissance consommation maison (W, optionnel)",
+            "description": "Puissance consommation maison (W) optionnelle pour diagnostics côté charge."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "grid_tri_layout": {
+      "en": {
+        "fields": [
+          {
+            "key": "grid_tri_sensor_layout",
+            "label": "Sensor layout",
+            "description": "One for all phases: next step uses JSON lists (one total or multiple phases). One per phase: the next three steps ask for phase L1, L2, and L3 separately."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "grid_tri_sensor_layout",
+            "label": "Mode de saisie",
+            "description": "Un pour toutes les phases : étape JSON (total ou liste par phase). Un par phase : trois étapes pour L1, L2 et L3."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "grid_phases": {
+      "en": {
+        "fields": [
+          {
+            "key": "grid_import_energy_phases",
+            "label": "Import energy sensors (per-phase, JSON list)",
+            "description": "JSON list of {phase, entity_id} for per-phase import kWh (total_increasing)."
+          },
+          {
+            "key": "grid_export_energy_phases",
+            "label": "Export energy sensors (per-phase, JSON list)",
+            "description": "Same shape for export counters; leave empty if you do not export."
+          },
+          {
+            "key": "grid_power_phases",
+            "label": "Grid power sensors (per-phase, JSON list)",
+            "description": "Optional JSON list for per-phase grid power (W) used for summed real-time display."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "grid_import_energy_phases",
+            "label": "Import énergie (liste JSON)",
+            "description": "Liste JSON {phase, entity_id} pour les compteurs kWh d’import par phase (total_increasing)."
+          },
+          {
+            "key": "grid_export_energy_phases",
+            "label": "Export énergie (liste JSON)",
+            "description": "Même format pour l’export ; vide si pas d’export."
+          },
+          {
+            "key": "grid_power_phases",
+            "label": "Puissance réseau (liste JSON)",
+            "description": "Liste JSON optionnelle pour la puissance (W) par phase (somme pour l’affichage temps réel)."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "tri_grid_phase_1": {
+      "en": {
+        "fields": [
+          {
+            "key": "tri_phase_step_import_energy",
+            "label": "Import energy (kWh, optional)",
+            "description": "Optional import kWh entity for L1 when you chose per-phase layout after a single combined meter."
+          },
+          {
+            "key": "tri_phase_step_export_energy",
+            "label": "Export energy (kWh, optional)",
+            "description": "Optional export kWh for L1."
+          },
+          {
+            "key": "tri_phase_step_grid_power",
+            "label": "Grid power (W, optional)",
+            "description": "Optional grid power (W) for L1; integration sums configured phases."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "tri_phase_step_import_energy",
+            "label": "Import énergie (kWh, optionnel)",
+            "description": "Entité kWh d’import L1 optionnelle (disposition par phase après compteur combiné)."
+          },
+          {
+            "key": "tri_phase_step_export_energy",
+            "label": "Export énergie (kWh, optionnel)",
+            "description": "Export kWh L1 optionnel."
+          },
+          {
+            "key": "tri_phase_step_grid_power",
+            "label": "Puissance réseau (W, optionnel)",
+            "description": "Puissance réseau (W) L1 optionnelle ; somme des phases renseignées."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "tri_grid_phase_2": {
+      "en": {
+        "fields": [
+          {
+            "key": "tri_phase_step_import_energy",
+            "label": "Import energy (kWh, optional)",
+            "description": "Optional import kWh entity for L2."
+          },
+          {
+            "key": "tri_phase_step_export_energy",
+            "label": "Export energy (kWh, optional)",
+            "description": "Optional export kWh for L2."
+          },
+          {
+            "key": "tri_phase_step_grid_power",
+            "label": "Grid power (W, optional)",
+            "description": "Optional grid power (W) for L2."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "tri_phase_step_import_energy",
+            "label": "Import énergie (kWh, optionnel)",
+            "description": "Entité kWh d’import L2 optionnelle."
+          },
+          {
+            "key": "tri_phase_step_export_energy",
+            "label": "Export énergie (kWh, optionnel)",
+            "description": "Export kWh L2 optionnel."
+          },
+          {
+            "key": "tri_phase_step_grid_power",
+            "label": "Puissance réseau (W, optionnel)",
+            "description": "Puissance réseau (W) L2 optionnelle."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "tri_grid_phase_3": {
+      "en": {
+        "fields": [
+          {
+            "key": "tri_phase_step_import_energy",
+            "label": "Import energy (kWh, optional)",
+            "description": "Optional import kWh entity for L3."
+          },
+          {
+            "key": "tri_phase_step_export_energy",
+            "label": "Export energy (kWh, optional)",
+            "description": "Optional export kWh for L3."
+          },
+          {
+            "key": "tri_phase_step_grid_power",
+            "label": "Grid power (W, optional)",
+            "description": "Optional grid power (W) for L3."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "tri_phase_step_import_energy",
+            "label": "Import énergie (kWh, optionnel)",
+            "description": "Entité kWh d’import L3 optionnelle."
+          },
+          {
+            "key": "tri_phase_step_export_energy",
+            "label": "Export énergie (kWh, optionnel)",
+            "description": "Export kWh L3 optionnel."
+          },
+          {
+            "key": "tri_phase_step_grid_power",
+            "label": "Puissance réseau (W, optionnel)",
+            "description": "Puissance réseau (W) L3 optionnelle."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "solar": {
+      "en": {
+        "fields": [
+          {
+            "key": "has_solar",
+            "label": "Do you have solar panels?",
+            "description": "Turn off to skip solar entities and accounting for this entry."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "has_solar",
+            "label": "Avez-vous des panneaux solaires ?",
+            "description": "Désactiver pour retirer le solaire de la comptabilité de cette entrée."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "solar_config": {
+      "en": {
+        "fields": [
+          {
+            "key": "solar_energy",
+            "label": "Solar energy production (kWh)",
+            "description": "Total increasing energy counter for solar production."
+          },
+          {
+            "key": "solar_power_sensor",
+            "label": "Solar power (W, optional)",
+            "description": "Improves real-time power display and power-balance diagnostics."
+          },
+          {
+            "key": "solar_resale_contract",
+            "label": "Solar export re-sale contract?",
+            "description": "Enable if you have a contract that pays you for exported solar energy."
+          },
+          {
+            "key": "solar_export_tariff",
+            "label": "Export tariff (per kWh)",
+            "description": "Re-sale price per kWh for exported solar energy."
+          },
+          {
+            "key": "solar_estimation_enabled",
+            "label": "Enable production estimation?",
+            "description": "Adds an estimation model to complement real solar measurements."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "solar_energy",
+            "label": "Production d'énergie solaire (kWh)",
+            "description": "Compteur d'énergie total croissant pour la production solaire."
+          },
+          {
+            "key": "solar_power_sensor",
+            "label": "Puissance solaire (W, optionnel)",
+            "description": "Améliore l'affichage temps réel et les diagnostics."
+          },
+          {
+            "key": "solar_resale_contract",
+            "label": "Contrat de revente solaire ?",
+            "description": "Activez si vous avez un contrat qui rémunère l'énergie solaire exportée."
+          },
+          {
+            "key": "solar_export_tariff",
+            "label": "Tarif de revente (par kWh)",
+            "description": "Prix de revente par kWh de l'énergie solaire exportée."
+          },
+          {
+            "key": "solar_estimation_enabled",
+            "label": "Activer l'estimation de production ?",
+            "description": "Ajoute un modèle d'estimation en complément des mesures réelles."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "solar_estimation": {
+      "en": {
+        "fields": [
+          {
+            "key": "solar_lat",
+            "label": "Latitude",
+            "description": "Site latitude (decimal degrees); defaults may be prefilled from Home Assistant zone."
+          },
+          {
+            "key": "solar_lon",
+            "label": "Longitude",
+            "description": "Site longitude (decimal degrees)."
+          },
+          {
+            "key": "solar_peak_power",
+            "label": "Peak power (kWc)",
+            "description": "Installed DC peak power (kWc) of the PV array."
+          },
+          {
+            "key": "solar_orientation",
+            "label": "Panel orientation",
+            "description": "Azimuth in degrees (0–360); 180° is south in the northern hemisphere."
+          },
+          {
+            "key": "solar_tilt_mode",
+            "label": "Tilt mode",
+            "description": "Auto uses a typical roof tilt from latitude; manual unlocks the tilt field."
+          },
+          {
+            "key": "solar_tilt",
+            "label": "Tilt angle (°)",
+            "description": "Panel tilt from horizontal (°); used only when tilt mode is manual."
+          },
+          {
+            "key": "solar_shading",
+            "label": "Shading level",
+            "description": "Rough shading level for the clear-sky model."
+          },
+          {
+            "key": "solar_performance",
+            "label": "System performance",
+            "description": "Performance class (standard vs optimistic vs conservative) for the estimation model."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "solar_lat",
+            "label": "Latitude",
+            "description": "Latitude du site (degrés décimaux) ; peut être préremplie depuis la zone Home Assistant."
+          },
+          {
+            "key": "solar_lon",
+            "label": "Longitude",
+            "description": "Longitude du site (degrés décimaux)."
+          },
+          {
+            "key": "solar_peak_power",
+            "label": "Puissance crête (kWc)",
+            "description": "Puissance crête DC installée (kWc)."
+          },
+          {
+            "key": "solar_orientation",
+            "label": "Orientation des panneaux",
+            "description": "Azimut en degrés (0–360) ; 180° ≈ plein sud (hémisphère nord)."
+          },
+          {
+            "key": "solar_tilt_mode",
+            "label": "Mode d'inclinaison",
+            "description": "Auto estime une inclinaison type ; manuel déverrouille le champ d’inclinaison."
+          },
+          {
+            "key": "solar_tilt",
+            "label": "Angle d'inclinaison (°)",
+            "description": "Inclinaison des modules par rapport à l’horizontale (°), si mode manuel."
+          },
+          {
+            "key": "solar_shading",
+            "label": "Niveau d'ombrage",
+            "description": "Niveau d’ombrage approximatif pour le modèle « ciel clair »."
+          },
+          {
+            "key": "solar_performance",
+            "label": "Performance du système",
+            "description": "Classe de performance (standard / optimiste / prudent) pour le modèle."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "battery": {
+      "en": {
+        "fields": [
+          {
+            "key": "has_batteries",
+            "label": "Do you have battery systems?",
+            "description": "Disable to remove battery devices until you enable the feature again."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "has_batteries",
+            "label": "Avez-vous des systèmes de batterie ?",
+            "description": "Désactiver pour masquer les entités batterie jusqu’à réactivation."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "battery_add": {
+      "en": {
+        "fields": [
+          {
+            "key": "batt_name",
+            "label": "Battery name",
+            "description": "Display name for this pack in Hub Énergie entities and UI."
+          },
+          {
+            "key": "batt_energy_in",
+            "label": "Charge energy (kWh, total increasing)",
+            "description": "total_increasing kWh counter for energy charged into the battery."
+          },
+          {
+            "key": "batt_energy_out",
+            "label": "Discharge energy (kWh, total increasing)",
+            "description": "total_increasing kWh counter for energy discharged from the battery."
+          },
+          {
+            "key": "batt_power_in",
+            "label": "Charging power sensor (W, optional)",
+            "description": "Instantaneous power currently going into the battery (not a max value)."
+          },
+          {
+            "key": "batt_power_out",
+            "label": "Discharging power sensor (W, optional)",
+            "description": "Instantaneous power currently drawn from the battery (not a max value)."
+          },
+          {
+            "key": "batt_power_net",
+            "label": "Net power sensor (W, optional, signed)",
+            "description": "Use this if you have a single signed sensor instead of separate charge/discharge. If you set charge + discharge sensors, you can leave this empty."
+          },
+          {
+            "key": "batt_soc",
+            "label": "State of charge (%, optional)",
+            "description": "Optional percentage sensor (0–100). Used for the SOC bar and ETA."
+          },
+          {
+            "key": "batt_advanced",
+            "label": "Show advanced battery fields",
+            "description": "Opens a separate step for nominal capacity (kWh), charge/discharge limits (W), and SOC min/max."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "batt_name",
+            "label": "Nom de la batterie",
+            "description": "Nom affiché du pack dans Hub Énergie."
+          },
+          {
+            "key": "batt_energy_in",
+            "label": "Capteur énergie de charge (kWh, total croissant)",
+            "description": "Compteur kWh total_increasing d’énergie chargée dans la batterie."
+          },
+          {
+            "key": "batt_energy_out",
+            "label": "Capteur énergie de décharge (kWh, total croissant)",
+            "description": "Compteur kWh total_increasing d’énergie déchargée."
+          },
+          {
+            "key": "batt_power_in",
+            "label": "Capteur puissance en charge (W, optionnel)",
+            "description": "Puissance instantanée qui entre dans la batterie (ce n'est pas une valeur max)."
+          },
+          {
+            "key": "batt_power_out",
+            "label": "Capteur puissance en décharge (W, optionnel)",
+            "description": "Puissance instantanée qui sort de la batterie (ce n'est pas une valeur max)."
+          },
+          {
+            "key": "batt_power_net",
+            "label": "Capteur puissance nette (W, optionnel, signé)",
+            "description": "À utiliser si vous avez un seul capteur signé au lieu de deux capteurs séparés. Si vous renseignez charge + décharge, vous pouvez laisser ce champ vide."
+          },
+          {
+            "key": "batt_soc",
+            "label": "État de charge (%, optionnel)",
+            "description": "Capteur % optionnel (0–100). Utilisé pour la barre SOC et l'estimation."
+          },
+          {
+            "key": "batt_advanced",
+            "label": "Afficher les champs avancés batterie",
+            "description": "Ouvre une étape séparée pour la capacité nominale (kWh), les limites charge/décharge (W) et le SOC min/max."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "battery_advanced": {
+      "en": {
+        "fields": [
+          {
+            "key": "batt_capacity_kwh_entity",
+            "label": "Nominal capacity — sensor or helper",
+            "description": "Nominal capacity at 100% SOC (max storable energy, kWh). Numeric value in kWh (e.g. sensor, input_number). Use when the value comes from an entity."
+          },
+          {
+            "key": "batt_capacity_kwh",
+            "label": "Nominal capacity — manual entry",
+            "description": "Nominal capacity at 100% SOC (max storable energy, kWh). Enter here or use the entity above — only one of the two."
+          },
+          {
+            "key": "batt_max_charge_w_entity",
+            "label": "Max charge power — sensor or helper",
+            "description": "Technical limit in W read from an entity."
+          },
+          {
+            "key": "batt_max_charge_w",
+            "label": "Max charge power — manual entry",
+            "description": "Technical limit in W (not your instantaneous measured power)."
+          },
+          {
+            "key": "batt_max_discharge_w_entity",
+            "label": "Max discharge power — sensor or helper",
+            "description": "Technical limit in W read from an entity."
+          },
+          {
+            "key": "batt_max_discharge_w",
+            "label": "Max discharge power — manual entry",
+            "description": "Technical limit in W (not your instantaneous measured power)."
+          },
+          {
+            "key": "batt_soc_min_entity",
+            "label": "SOC minimum — sensor or helper",
+            "description": "Percent 0–100 from an entity."
+          },
+          {
+            "key": "batt_soc_min",
+            "label": "SOC minimum — manual entry",
+            "description": "Use if the battery never reaches 0%."
+          },
+          {
+            "key": "batt_soc_max_entity",
+            "label": "SOC maximum — sensor or helper",
+            "description": "Percent 0–100 from an entity."
+          },
+          {
+            "key": "batt_soc_max",
+            "label": "SOC maximum — manual entry",
+            "description": "Use if the battery never reaches 100%."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "batt_capacity_kwh_entity",
+            "label": "Capacité nominale — capteur ou helper",
+            "description": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Nombre en kWh (ex. capteur, input_number). Utile si la valeur est exposée par une entité."
+          },
+          {
+            "key": "batt_capacity_kwh",
+            "label": "Capacité nominale — saisie manuelle",
+            "description": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Saisie directe ou via l'entité ci-dessus — une seule des deux."
+          },
+          {
+            "key": "batt_max_charge_w_entity",
+            "label": "Puissance max. de charge — capteur ou helper",
+            "description": "Limite technique en W lue depuis une entité."
+          },
+          {
+            "key": "batt_max_charge_w",
+            "label": "Puissance max. de charge — saisie manuelle",
+            "description": "Limite technique en W (pas la puissance instantanée mesurée)."
+          },
+          {
+            "key": "batt_max_discharge_w_entity",
+            "label": "Puissance max. de décharge — capteur ou helper",
+            "description": "Limite technique en W lue depuis une entité."
+          },
+          {
+            "key": "batt_max_discharge_w",
+            "label": "Puissance max. de décharge — saisie manuelle",
+            "description": "Limite technique en W (pas la puissance instantanée mesurée)."
+          },
+          {
+            "key": "batt_soc_min_entity",
+            "label": "SOC minimum — capteur ou helper",
+            "description": "Pourcentage 0–100 depuis une entité."
+          },
+          {
+            "key": "batt_soc_min",
+            "label": "SOC minimum — saisie manuelle",
+            "description": "Réserve basse si la batterie ne descend jamais à 0 %."
+          },
+          {
+            "key": "batt_soc_max_entity",
+            "label": "SOC maximum — capteur ou helper",
+            "description": "Pourcentage 0–100 depuis une entité."
+          },
+          {
+            "key": "batt_soc_max",
+            "label": "SOC maximum — saisie manuelle",
+            "description": "Réserve haute si la batterie ne charge jamais à 100 %."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "battery_more": {
+      "en": {
+        "fields": [
+          {
+            "key": "add_another",
+            "label": "Add another battery system?",
+            "description": "Turn on to define another battery after saving the current one."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "add_another",
+            "label": "Ajouter un autre système de batterie ?",
+            "description": "Activez pour enchaîner sur une autre batterie après celle-ci."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "reinjection": {
+      "en": {
+        "fields": [
+          {
+            "key": "reinjection_export_ignore_below_w",
+            "label": "Ignore export below (W)",
+            "description": "Ignore small grid export readings below this power (reduces flicker)."
+          },
+          {
+            "key": "reinjection_batt_charge_significant_w",
+            "label": "Battery charge significant above (W)",
+            "description": "Treat battery charge above this threshold as “significant” for classification heuristics."
+          },
+          {
+            "key": "reinjection_short_export_max_s",
+            "label": "Switch latency max duration (s)",
+            "description": "Maximum duration (s) for short export spikes before treating them as latency noise."
+          },
+          {
+            "key": "reinjection_short_export_max_w",
+            "label": "Switch latency max power (W)",
+            "description": "Power ceiling (W) for those short export spikes."
+          },
+          {
+            "key": "reinjection_min_solar_for_classify_w",
+            "label": "Min solar for classification (W)",
+            "description": "Minimum solar production (W) before solar-heavy classification applies."
+          },
+          {
+            "key": "reinjection_export_min_abs_w",
+            "label": "Min export for classification (W)",
+            "description": "Minimum absolute export (W) required to classify as export-led."
+          },
+          {
+            "key": "reinjection_export_vs_solar_fraction",
+            "label": "Export/solar ratio threshold",
+            "description": "Ratio threshold between export and solar power for mixed states."
+          },
+          {
+            "key": "reinjection_batt_full_min_soc_frac",
+            "label": "Battery full SOC threshold (0-1)",
+            "description": "SOC fraction (0–1) above which the pack is treated as “full” for heuristics."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "reinjection_export_ignore_below_w",
+            "label": "Ignorer export en dessous de (W)",
+            "description": "Ignore les petites injections réseau sous ce seuil (W) pour limiter le scintillement."
+          },
+          {
+            "key": "reinjection_batt_charge_significant_w",
+            "label": "Charge batterie significative au-dessus de (W)",
+            "description": "Au-delà de cette puissance (W), la charge batterie est jugée « significative » pour les heuristiques."
+          },
+          {
+            "key": "reinjection_short_export_max_s",
+            "label": "Durée max latence switch (s)",
+            "description": "Durée max (s) des courts pics d’export considérés comme bruit de latence."
+          },
+          {
+            "key": "reinjection_short_export_max_w",
+            "label": "Puissance max latence switch (W)",
+            "description": "Plafond de puissance (W) pour ces courts pics."
+          },
+          {
+            "key": "reinjection_min_solar_for_classify_w",
+            "label": "Solaire min pour classification (W)",
+            "description": "Production PV minimale (W) avant classification « fort solaire »."
+          },
+          {
+            "key": "reinjection_export_min_abs_w",
+            "label": "Export min pour classification (W)",
+            "description": "Export minimal (W) pour considérer un état export dominant."
+          },
+          {
+            "key": "reinjection_export_vs_solar_fraction",
+            "label": "Seuil ratio export/solaire",
+            "description": "Seuil de ratio export / solaire pour les états mixtes."
+          },
+          {
+            "key": "reinjection_batt_full_min_soc_frac",
+            "label": "Seuil SOC batterie pleine (0-1)",
+            "description": "Fraction de SOC (0–1) au-dessus de laquelle la batterie est considérée comme pleine."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    }
+  },
+  "options": {
+    "init": {
+      "en": {
+        "fields": [],
+        "sections": [],
+        "menu_choices": [
+          {
+            "key": "offer",
+            "label": "Offer & tariffs"
+          },
+          {
+            "key": "grid",
+            "label": "Grid sensors"
+          },
+          {
+            "key": "grid_tri",
+            "label": "Three-phase grid (optional)"
+          },
+          {
+            "key": "solar",
+            "label": "Solar configuration"
+          },
+          {
+            "key": "battery",
+            "label": "Battery systems"
+          },
+          {
+            "key": "tariff_refresh",
+            "label": "EDF tariffs: refresh from API"
+          },
+          {
+            "key": "tempo",
+            "label": "Tempo source (API vs RTE)"
+          },
+          {
+            "key": "advanced_energy",
+            "label": "Advanced: energy delta caps"
+          }
+        ]
+      },
+      "fr": {
+        "fields": [],
+        "sections": [],
+        "menu_choices": [
+          {
+            "key": "offer",
+            "label": "Offre & tarifs"
+          },
+          {
+            "key": "grid",
+            "label": "Capteurs réseau"
+          },
+          {
+            "key": "grid_tri",
+            "label": "Réseau triphasé (optionnel)"
+          },
+          {
+            "key": "solar",
+            "label": "Configuration solaire"
+          },
+          {
+            "key": "battery",
+            "label": "Systèmes de batterie"
+          },
+          {
+            "key": "tariff_refresh",
+            "label": "Tarifs EDF : actualiser via l'API"
+          },
+          {
+            "key": "tempo",
+            "label": "Tempo : source (API vs RTE)"
+          },
+          {
+            "key": "advanced_energy",
+            "label": "Avancé : plafonds de delta (kWh)"
+          }
+        ]
+      }
+    },
+    "offer": {
+      "en": {
+        "fields": [
+          {
+            "key": "supplier",
+            "label": "Energy supplier",
+            "description": "EDF or another supplier."
+          },
+          {
+            "key": "supplier_custom_name",
+            "label": "Supplier name",
+            "description": "Required when supplier is “Other”; short display name only."
+          },
+          {
+            "key": "contract_power",
+            "label": "Subscribed power (kVA)",
+            "description": "Your subscription tier (e.g. 6, 9, 12 kVA for EDF)."
+          },
+          {
+            "key": "contract_name",
+            "label": "Contract name (optional)",
+            "description": "Free text to recognize this setup (optional)."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "supplier",
+            "label": "Fournisseur d'énergie",
+            "description": "EDF ou autre fournisseur."
+          },
+          {
+            "key": "supplier_custom_name",
+            "label": "Nom du fournisseur",
+            "description": "Obligatoire si fournisseur « Autre » ; nom court d’affichage."
+          },
+          {
+            "key": "contract_power",
+            "label": "Puissance souscrite (kVA)",
+            "description": "Votre puissance (par ex. 6, 9, 12 avec EDF)."
+          },
+          {
+            "key": "contract_name",
+            "label": "Nom du contrat (optionnel)",
+            "description": "Libellé libre pour retrouver ce réglage (optionnel)."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "tariff_refresh": {
+      "en": {
+        "fields": [
+          {
+            "key": "tariff_offer",
+            "label": "Offer type",
+            "description": "Base, HPHC, or Tempo — must match your contract."
+          },
+          {
+            "key": "contract_power",
+            "label": "Subscribed power (kVA)",
+            "description": "Must match your subscription for correct prices."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "tariff_offer",
+            "label": "Type d'offre",
+            "description": "Base, HPHC ou Tempo — doit correspondre à votre contrat."
+          },
+          {
+            "key": "contract_power",
+            "label": "Puissance souscrite (kVA)",
+            "description": "Doit correspondre à votre abonnement pour des prix corrects."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "tempo": {
+      "en": {
+        "fields": [
+          {
+            "key": "tempo_mode",
+            "label": "Signal source",
+            "description": "Switch between RTE API colours and API Couleur Tempo after install."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "tempo_mode",
+            "label": "Source du signal",
+            "description": "Basculer entre couleurs via API RTE et API Couleur Tempo après installation."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "tempo_rte": {
+      "en": {
+        "fields": [
+          {
+            "key": "rte_client_id",
+            "label": "RTE API client ID",
+            "description": "Update the RTE OAuth client id; secret can stay blank to keep the stored value."
+          },
+          {
+            "key": "rte_client_secret",
+            "label": "RTE API client secret",
+            "description": "New secret when rotating credentials; leave empty to keep the previous secret on save."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "rte_client_id",
+            "label": "Client ID API RTE",
+            "description": "Mettre à jour l’identifiant client OAuth RTE ; le secret peut rester vide pour conserver l’existant."
+          },
+          {
+            "key": "rte_client_secret",
+            "label": "Client secret API RTE",
+            "description": "Nouveau secret lors d’une rotation ; laisser vide pour garder l’ancien à l’enregistrement."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "advanced_energy": {
+      "en": {
+        "fields": [
+          {
+            "key": "max_delta_kwh_grid",
+            "label": "Grid import & export",
+            "description": "Ceiling for one update on grid counters. Raise it if Home Assistant was off and the meter moved more than this before the next poll."
+          },
+          {
+            "key": "max_delta_kwh_solar",
+            "label": "Solar production",
+            "description": "Same for the PV kWh meter—stops one bad spike from booking a huge amount at once."
+          },
+          {
+            "key": "max_delta_kwh_battery",
+            "label": "Battery in & out",
+            "description": "Applies to each battery charge/discharge counter configured in the integration."
+          },
+          {
+            "key": "max_delta_kwh_other",
+            "label": "Other energy meters",
+            "description": "Fallback cap for any other hub energy source not covered above."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "max_delta_kwh_grid",
+            "label": "Réseau import & export",
+            "description": "Plafond pour une mise à jour des compteurs réseau. Augmentez-le si HA était arrêté et que le compteur a gagné plus de kWh que ça entre deux cycles."
+          },
+          {
+            "key": "max_delta_kwh_solar",
+            "label": "Production solaire",
+            "description": "Idem pour le compteur kWh PV : évite qu'une valeur aberrante crédite d'un coup trop d'énergie."
+          },
+          {
+            "key": "max_delta_kwh_battery",
+            "label": "Batteries (charge & décharge)",
+            "description": "S'applique aux compteurs charge/décharge de chaque batterie configurée ici."
+          },
+          {
+            "key": "max_delta_kwh_other",
+            "label": "Autres compteurs d'énergie",
+            "description": "Valeur de repli pour toute autre source d'énergie du hub non couverte par les lignes ci-dessus."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "grid": {
+      "en": {
+        "fields": [
+          {
+            "key": "grid_import_energy",
+            "label": "Grid import energy (kWh)",
+            "description": "Total increasing energy counter for grid import."
+          },
+          {
+            "key": "grid_export_energy",
+            "label": "Grid export energy (kWh, optional)",
+            "description": "Total increasing energy counter for grid export (if separate)."
+          },
+          {
+            "key": "grid_power_sign_mode",
+            "label": "Grid power sign convention",
+            "description": "Convention: is export negative or positive on this sensor?"
+          },
+          {
+            "key": "grid_power_sensor",
+            "label": "Grid power (W, optional)",
+            "description": "Instantaneous grid power for real-time display."
+          },
+          {
+            "key": "load_power_sensor",
+            "label": "House load power (W, optional)",
+            "description": "Optional house consumption for load-side diagnostics."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "grid_import_energy",
+            "label": "Énergie importée réseau (kWh)",
+            "description": "Compteur d'énergie total croissant pour l'import."
+          },
+          {
+            "key": "grid_export_energy",
+            "label": "Énergie exportée réseau (kWh, optionnel)",
+            "description": "Compteur d'export (si compteur séparé)."
+          },
+          {
+            "key": "grid_power_sign_mode",
+            "label": "Convention de signe puissance réseau",
+            "description": "L'export est-il négatif ou positif sur ce capteur ?"
+          },
+          {
+            "key": "grid_power_sensor",
+            "label": "Puissance réseau (W, optionnel)",
+            "description": "Puissance instantanée pour l'affichage temps réel."
+          },
+          {
+            "key": "load_power_sensor",
+            "label": "Puissance maison (W, optionnel)",
+            "description": "Consommation maison optionnelle pour le diagnostic."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "grid_tri_energy_mode": {
+      "en": {
+        "fields": [
+          {
+            "key": "grid_tri_energy_mode",
+            "label": "Grid import metering",
+            "description": "One total: unchanged vs. “Grid sensors”. Per phase: summed by the integration."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "grid_tri_energy_mode",
+            "label": "Mesure de l'import réseau",
+            "description": "Total : inchangé par rapport à « Capteurs réseau ». Par phase : sommé par l'intégration."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "grid_tri_per_phase": {
+      "en": {
+        "fields": [],
+        "sections": [
+          {
+            "id": "tri_grid_sign",
+            "name": "Grid power",
+            "fields": [
+              {
+                "key": "grid_power_sign_mode",
+                "label": "Grid power sign convention",
+                "description": "Convention: is export negative or positive on your per-phase grid power sensors?"
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_l1",
+            "name": "Phase L1",
+            "fields": [
+              {
+                "key": "tri_import_energy_p1",
+                "label": "Grid import energy (kWh)",
+                "description": ""
+              },
+              {
+                "key": "tri_export_energy_p1",
+                "label": "Grid export energy (kWh, optional)",
+                "description": ""
+              },
+              {
+                "key": "tri_grid_power_p1",
+                "label": "Grid power (W, optional)",
+                "description": "Instantaneous power on L1; the integration sums whichever phases you set for real-time display. For a single total sensor, fill only one phase."
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_l2",
+            "name": "Phase L2",
+            "fields": [
+              {
+                "key": "tri_import_energy_p2",
+                "label": "Grid import energy (kWh)",
+                "description": ""
+              },
+              {
+                "key": "tri_export_energy_p2",
+                "label": "Grid export energy (kWh, optional)",
+                "description": ""
+              },
+              {
+                "key": "tri_grid_power_p2",
+                "label": "Grid power (W, optional)",
+                "description": "Instantaneous power on L2."
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_l3",
+            "name": "Phase L3",
+            "fields": [
+              {
+                "key": "tri_import_energy_p3",
+                "label": "Grid import energy (kWh)",
+                "description": ""
+              },
+              {
+                "key": "tri_export_energy_p3",
+                "label": "Grid export energy (kWh, optional)",
+                "description": ""
+              },
+              {
+                "key": "tri_grid_power_p3",
+                "label": "Grid power (W, optional)",
+                "description": "Instantaneous power on L3."
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_load",
+            "name": "House load",
+            "fields": [
+              {
+                "key": "load_power_sensor",
+                "label": "House load power (W, optional)",
+                "description": "Optional house consumption for load-side diagnostics."
+              }
+            ]
+          }
+        ],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [],
+        "sections": [
+          {
+            "id": "tri_grid_sign",
+            "name": "Puissance réseau",
+            "fields": [
+              {
+                "key": "grid_power_sign_mode",
+                "label": "Convention de signe puissance réseau",
+                "description": "L'export est-il négatif ou positif sur vos capteurs de puissance réseau (par phase) ?"
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_l1",
+            "name": "Phase L1",
+            "fields": [
+              {
+                "key": "tri_import_energy_p1",
+                "label": "Import réseau (kWh)",
+                "description": ""
+              },
+              {
+                "key": "tri_export_energy_p1",
+                "label": "Export réseau (kWh, optionnel)",
+                "description": ""
+              },
+              {
+                "key": "tri_grid_power_p1",
+                "label": "Puissance réseau (W, optionnel)",
+                "description": "Puissance instantanée L1 ; l'intégration additionne les phases renseignées pour le temps réel. Un seul capteur « total » : ne renseignez qu'une phase."
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_l2",
+            "name": "Phase L2",
+            "fields": [
+              {
+                "key": "tri_import_energy_p2",
+                "label": "Import réseau (kWh)",
+                "description": ""
+              },
+              {
+                "key": "tri_export_energy_p2",
+                "label": "Export réseau (kWh, optionnel)",
+                "description": ""
+              },
+              {
+                "key": "tri_grid_power_p2",
+                "label": "Puissance réseau (W, optionnel)",
+                "description": "Puissance instantanée L2."
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_l3",
+            "name": "Phase L3",
+            "fields": [
+              {
+                "key": "tri_import_energy_p3",
+                "label": "Import réseau (kWh)",
+                "description": ""
+              },
+              {
+                "key": "tri_export_energy_p3",
+                "label": "Export réseau (kWh, optionnel)",
+                "description": ""
+              },
+              {
+                "key": "tri_grid_power_p3",
+                "label": "Puissance réseau (W, optionnel)",
+                "description": "Puissance instantanée L3."
+              }
+            ]
+          },
+          {
+            "id": "tri_phase_load",
+            "name": "Consommation maison",
+            "fields": [
+              {
+                "key": "load_power_sensor",
+                "label": "Puissance maison (W, optionnel)",
+                "description": "Consommation maison optionnelle pour le diagnostic."
+              }
+            ]
+          }
+        ],
+        "menu_choices": []
+      }
+    },
+    "grid_tri_layout": {
+      "en": {
+        "fields": [
+          {
+            "key": "grid_tri_sensor_layout",
+            "label": "Sensor layout",
+            "description": "One for all phases: JSON step next. One per phase: three steps for L1, L2, L3."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "grid_tri_sensor_layout",
+            "label": "Mode de saisie",
+            "description": "Un pour toutes les phases : étape JSON. Un par phase : trois étapes L1, L2, L3."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "grid_phases": {
+      "en": {
+        "fields": [
+          {
+            "key": "grid_import_energy_phases",
+            "label": "Import energy (JSON)",
+            "description": "JSON list of {phase, entity_id} objects for per-phase import kWh."
+          },
+          {
+            "key": "grid_export_energy_phases",
+            "label": "Export energy (JSON)",
+            "description": "Optional export list with the same JSON shape."
+          },
+          {
+            "key": "grid_power_phases",
+            "label": "Grid power (JSON)",
+            "description": "Optional per-phase grid power entities for summed live power."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "grid_import_energy_phases",
+            "label": "Import énergie (JSON)",
+            "description": "Liste JSON {phase, entity_id} pour les compteurs kWh d’import par phase."
+          },
+          {
+            "key": "grid_export_energy_phases",
+            "label": "Export énergie (JSON)",
+            "description": "Liste export optionnelle, même format JSON."
+          },
+          {
+            "key": "grid_power_phases",
+            "label": "Puissance réseau (JSON)",
+            "description": "Entités de puissance (W) par phase optionnelles pour la somme temps réel."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "tri_grid_phase_1": {
+      "en": {
+        "fields": [
+          {
+            "key": "tri_phase_step_import_energy",
+            "label": "Import energy (kWh, optional)",
+            "description": "Optional import kWh entity for L1 when you chose per-phase layout after a single combined meter."
+          },
+          {
+            "key": "tri_phase_step_export_energy",
+            "label": "Export energy (kWh, optional)",
+            "description": "Optional export kWh for L1."
+          },
+          {
+            "key": "tri_phase_step_grid_power",
+            "label": "Grid power (W, optional)",
+            "description": "Optional grid power (W) for L1; integration sums configured phases."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "tri_phase_step_import_energy",
+            "label": "Import énergie (kWh, optionnel)",
+            "description": "Entité kWh d’import L1 optionnelle (disposition par phase après compteur combiné)."
+          },
+          {
+            "key": "tri_phase_step_export_energy",
+            "label": "Export énergie (kWh, optionnel)",
+            "description": "Export kWh L1 optionnel."
+          },
+          {
+            "key": "tri_phase_step_grid_power",
+            "label": "Puissance réseau (W, optionnel)",
+            "description": "Puissance réseau (W) L1 optionnelle ; somme des phases renseignées."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "tri_grid_phase_2": {
+      "en": {
+        "fields": [
+          {
+            "key": "tri_phase_step_import_energy",
+            "label": "Import energy (kWh, optional)",
+            "description": "Optional import kWh entity for L2."
+          },
+          {
+            "key": "tri_phase_step_export_energy",
+            "label": "Export energy (kWh, optional)",
+            "description": "Optional export kWh for L2."
+          },
+          {
+            "key": "tri_phase_step_grid_power",
+            "label": "Grid power (W, optional)",
+            "description": "Optional grid power (W) for L2."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "tri_phase_step_import_energy",
+            "label": "Import énergie (kWh, optionnel)",
+            "description": "Entité kWh d’import L2 optionnelle."
+          },
+          {
+            "key": "tri_phase_step_export_energy",
+            "label": "Export énergie (kWh, optionnel)",
+            "description": "Export kWh L2 optionnel."
+          },
+          {
+            "key": "tri_phase_step_grid_power",
+            "label": "Puissance réseau (W, optionnel)",
+            "description": "Puissance réseau (W) L2 optionnelle."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "tri_grid_phase_3": {
+      "en": {
+        "fields": [
+          {
+            "key": "tri_phase_step_import_energy",
+            "label": "Import energy (kWh, optional)",
+            "description": "Optional import kWh entity for L3."
+          },
+          {
+            "key": "tri_phase_step_export_energy",
+            "label": "Export energy (kWh, optional)",
+            "description": "Optional export kWh for L3."
+          },
+          {
+            "key": "tri_phase_step_grid_power",
+            "label": "Grid power (W, optional)",
+            "description": "Optional grid power (W) for L3."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "tri_phase_step_import_energy",
+            "label": "Import énergie (kWh, optionnel)",
+            "description": "Entité kWh d’import L3 optionnelle."
+          },
+          {
+            "key": "tri_phase_step_export_energy",
+            "label": "Export énergie (kWh, optionnel)",
+            "description": "Export kWh L3 optionnel."
+          },
+          {
+            "key": "tri_phase_step_grid_power",
+            "label": "Puissance réseau (W, optionnel)",
+            "description": "Puissance réseau (W) L3 optionnelle."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "solar": {
+      "en": {
+        "fields": [
+          {
+            "key": "has_solar",
+            "label": "Do you have solar panels?",
+            "description": "Disable to remove solar from energy accounting."
+          },
+          {
+            "key": "solar_energy",
+            "label": "Solar energy production (kWh)",
+            "description": "Total increasing energy counter for solar production."
+          },
+          {
+            "key": "solar_power_sensor",
+            "label": "Solar power (W, optional)",
+            "description": "Improves real-time power display and diagnostics."
+          },
+          {
+            "key": "solar_resale_contract",
+            "label": "Solar export re-sale contract?",
+            "description": "Enable if you are paid for exported energy."
+          },
+          {
+            "key": "solar_export_tariff",
+            "label": "Export tariff (per kWh)",
+            "description": "Re-sale price per kWh for exported solar energy."
+          },
+          {
+            "key": "solar_estimation_enabled",
+            "label": "Enable production estimation?",
+            "description": "If enabled, you will be asked for PV system parameters."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "has_solar",
+            "label": "Avez-vous des panneaux solaires ?",
+            "description": "Désactiver retire le solaire du bilan énergétique."
+          },
+          {
+            "key": "solar_energy",
+            "label": "Énergie produite solaire (kWh)",
+            "description": "Compteur total croissant de production."
+          },
+          {
+            "key": "solar_power_sensor",
+            "label": "Puissance solaire (W, optionnel)",
+            "description": "Améliore l'affichage temps réel et le diagnostic."
+          },
+          {
+            "key": "solar_resale_contract",
+            "label": "Contrat de rachat de l'injection ?",
+            "description": "À activer si vous êtes payé sur l'injection."
+          },
+          {
+            "key": "solar_export_tariff",
+            "label": "Tarif de rachat (par kWh)",
+            "description": "Prix de rachat par kWh injecté."
+          },
+          {
+            "key": "solar_estimation_enabled",
+            "label": "Activer l'estimation de production ?",
+            "description": "Si activé, des paramètres PV seront demandés."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "solar_estimation": {
+      "en": {
+        "fields": [
+          {
+            "key": "solar_lat",
+            "label": "Latitude",
+            "description": "Site latitude (decimal degrees); defaults may be prefilled from Home Assistant zone."
+          },
+          {
+            "key": "solar_lon",
+            "label": "Longitude",
+            "description": "Site longitude (decimal degrees)."
+          },
+          {
+            "key": "solar_peak_power",
+            "label": "Peak power (kWc)",
+            "description": "Installed DC peak power (kWc) of the PV array."
+          },
+          {
+            "key": "solar_orientation",
+            "label": "Panel orientation",
+            "description": "Azimuth in degrees (0–360); 180° is south in the northern hemisphere."
+          },
+          {
+            "key": "solar_tilt_mode",
+            "label": "Tilt mode",
+            "description": "Auto uses a typical roof tilt from latitude; manual unlocks the tilt field."
+          },
+          {
+            "key": "solar_tilt",
+            "label": "Tilt angle (°)",
+            "description": "Panel tilt from horizontal (°); used only when tilt mode is manual."
+          },
+          {
+            "key": "solar_shading",
+            "label": "Shading level",
+            "description": "Rough shading level for the clear-sky model."
+          },
+          {
+            "key": "solar_performance",
+            "label": "System performance",
+            "description": "Performance class (standard vs optimistic vs conservative) for the estimation model."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "solar_lat",
+            "label": "Latitude",
+            "description": "Latitude du site (degrés décimaux) ; peut être préremplie depuis la zone Home Assistant."
+          },
+          {
+            "key": "solar_lon",
+            "label": "Longitude",
+            "description": "Longitude du site (degrés décimaux)."
+          },
+          {
+            "key": "solar_peak_power",
+            "label": "Puissance crête (kWc)",
+            "description": "Puissance crête DC installée (kWc)."
+          },
+          {
+            "key": "solar_orientation",
+            "label": "Orientation des panneaux",
+            "description": "Azimut en degrés (0–360) ; 180° ≈ plein sud (hémisphère nord)."
+          },
+          {
+            "key": "solar_tilt_mode",
+            "label": "Mode d'inclinaison",
+            "description": "Auto estime une inclinaison type ; manuel déverrouille le champ d’inclinaison."
+          },
+          {
+            "key": "solar_tilt",
+            "label": "Angle d'inclinaison (°)",
+            "description": "Inclinaison des modules par rapport à l’horizontale (°), si mode manuel."
+          },
+          {
+            "key": "solar_shading",
+            "label": "Niveau d'ombrage",
+            "description": "Niveau d’ombrage approximatif pour le modèle « ciel clair »."
+          },
+          {
+            "key": "solar_performance",
+            "label": "Performance du système",
+            "description": "Classe de performance (standard / optimiste / prudent) pour le modèle."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "battery": {
+      "en": {
+        "fields": [
+          {
+            "key": "has_batteries",
+            "label": "Do you have battery systems?",
+            "description": "Turn off to hide battery entities until you enable again."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "has_batteries",
+            "label": "Avez-vous des batteries ?",
+            "description": "Désactiver masque les entités batteries jusqu'au prochain réactivation."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "battery_pick": {
+      "en": {
+        "fields": [
+          {
+            "key": "battery_index",
+            "label": "Battery to edit",
+            "description": "Pick which saved battery to edit when you are not deleting or adding in the same submit."
+          },
+          {
+            "key": "batt_remove_selected",
+            "label": "Delete the selected battery",
+            "description": "Turn on to remove the highlighted battery and save; last battery disables support."
+          },
+          {
+            "key": "add_new",
+            "label": "Add a new battery",
+            "description": "Turn on to open a blank battery form. Cannot be combined with delete on the same submit."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "battery_index",
+            "label": "Batterie à modifier",
+            "description": "Choisir quelle batterie éditer si vous ne supprimez ni n’ajoutez sur la même validation."
+          },
+          {
+            "key": "batt_remove_selected",
+            "label": "Supprimer la batterie sélectionnée",
+            "description": "Active pour supprimer la ligne choisie ; si c’était la dernière, le suivi batterie s’arrête."
+          },
+          {
+            "key": "add_new",
+            "label": "Ajouter une nouvelle batterie",
+            "description": "Active pour ouvrir une saisie vide ; incompatible avec la suppression sur la même validation."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "battery_add": {
+      "en": {
+        "fields": [
+          {
+            "key": "batt_name",
+            "label": "Battery name",
+            "description": "Display name for this pack in Hub Énergie entities and UI."
+          },
+          {
+            "key": "batt_energy_in",
+            "label": "Charge energy (kWh, total increasing)",
+            "description": "total_increasing kWh counter for energy charged into the battery."
+          },
+          {
+            "key": "batt_energy_out",
+            "label": "Discharge energy (kWh, total increasing)",
+            "description": "total_increasing kWh counter for energy discharged from the battery."
+          },
+          {
+            "key": "batt_power_in",
+            "label": "Charging power sensor (W, optional)",
+            "description": "Instantaneous power currently going into the battery (not a max value)."
+          },
+          {
+            "key": "batt_power_out",
+            "label": "Discharging power sensor (W, optional)",
+            "description": "Instantaneous power currently drawn from the battery (not a max value)."
+          },
+          {
+            "key": "batt_power_net",
+            "label": "Net power sensor (W, optional, signed)",
+            "description": "Use this if you have a single signed sensor instead of separate charge/discharge. If you set charge + discharge sensors, you can leave this empty."
+          },
+          {
+            "key": "batt_soc",
+            "label": "State of charge (%, optional)",
+            "description": "Optional percentage sensor (0–100). Used for the SOC bar and ETA."
+          },
+          {
+            "key": "batt_advanced",
+            "label": "Show advanced battery fields",
+            "description": "Opens a separate step for nominal capacity (kWh), charge/discharge limits (W), and SOC min/max."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "batt_name",
+            "label": "Nom de la batterie",
+            "description": "Nom affiché du pack dans Hub Énergie."
+          },
+          {
+            "key": "batt_energy_in",
+            "label": "Capteur énergie de charge (kWh, total croissant)",
+            "description": "Compteur kWh total_increasing d’énergie chargée dans la batterie."
+          },
+          {
+            "key": "batt_energy_out",
+            "label": "Capteur énergie de décharge (kWh, total croissant)",
+            "description": "Compteur kWh total_increasing d’énergie déchargée."
+          },
+          {
+            "key": "batt_power_in",
+            "label": "Capteur puissance en charge (W, optionnel)",
+            "description": "Puissance instantanée qui entre dans la batterie (ce n'est pas une valeur max)."
+          },
+          {
+            "key": "batt_power_out",
+            "label": "Capteur puissance en décharge (W, optionnel)",
+            "description": "Puissance instantanée qui sort de la batterie (ce n'est pas une valeur max)."
+          },
+          {
+            "key": "batt_power_net",
+            "label": "Capteur puissance nette (W, optionnel, signé)",
+            "description": "À utiliser si vous avez un seul capteur signé au lieu de deux capteurs séparés. Si vous renseignez charge + décharge, vous pouvez laisser ce champ vide."
+          },
+          {
+            "key": "batt_soc",
+            "label": "État de charge (%, optionnel)",
+            "description": "Capteur % optionnel (0–100). Utilisé pour la barre SOC et l'estimation."
+          },
+          {
+            "key": "batt_advanced",
+            "label": "Afficher les champs avancés batterie",
+            "description": "Ouvre une étape séparée pour la capacité nominale (kWh), les limites charge/décharge (W) et le SOC min/max."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "battery_advanced": {
+      "en": {
+        "fields": [
+          {
+            "key": "batt_capacity_kwh_entity",
+            "label": "Nominal capacity — sensor or helper",
+            "description": "Nominal capacity at 100% SOC (max storable energy, kWh). Numeric value in kWh (e.g. sensor, input_number). Use when the value comes from an entity."
+          },
+          {
+            "key": "batt_capacity_kwh",
+            "label": "Nominal capacity — manual entry",
+            "description": "Nominal capacity at 100% SOC (max storable energy, kWh). Enter here or use the entity above — only one of the two."
+          },
+          {
+            "key": "batt_max_charge_w_entity",
+            "label": "Max charge power — sensor or helper",
+            "description": "Technical limit in W read from an entity."
+          },
+          {
+            "key": "batt_max_charge_w",
+            "label": "Max charge power — manual entry",
+            "description": "Technical limit in W (not your instantaneous measured power)."
+          },
+          {
+            "key": "batt_max_discharge_w_entity",
+            "label": "Max discharge power — sensor or helper",
+            "description": "Technical limit in W read from an entity."
+          },
+          {
+            "key": "batt_max_discharge_w",
+            "label": "Max discharge power — manual entry",
+            "description": "Technical limit in W (not your instantaneous measured power)."
+          },
+          {
+            "key": "batt_soc_min_entity",
+            "label": "SOC minimum — sensor or helper",
+            "description": "Percent 0–100 from an entity."
+          },
+          {
+            "key": "batt_soc_min",
+            "label": "SOC minimum — manual entry",
+            "description": "Use if the battery never reaches 0%."
+          },
+          {
+            "key": "batt_soc_max_entity",
+            "label": "SOC maximum — sensor or helper",
+            "description": "Percent 0–100 from an entity."
+          },
+          {
+            "key": "batt_soc_max",
+            "label": "SOC maximum — manual entry",
+            "description": "Use if the battery never reaches 100%."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "batt_capacity_kwh_entity",
+            "label": "Capacité nominale — capteur ou helper",
+            "description": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Nombre en kWh (ex. capteur, input_number). Utile si la valeur est exposée par une entité."
+          },
+          {
+            "key": "batt_capacity_kwh",
+            "label": "Capacité nominale — saisie manuelle",
+            "description": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Saisie directe ou via l'entité ci-dessus — une seule des deux."
+          },
+          {
+            "key": "batt_max_charge_w_entity",
+            "label": "Puissance max. de charge — capteur ou helper",
+            "description": "Limite technique en W lue depuis une entité."
+          },
+          {
+            "key": "batt_max_charge_w",
+            "label": "Puissance max. de charge — saisie manuelle",
+            "description": "Limite technique en W (pas la puissance instantanée mesurée)."
+          },
+          {
+            "key": "batt_max_discharge_w_entity",
+            "label": "Puissance max. de décharge — capteur ou helper",
+            "description": "Limite technique en W lue depuis une entité."
+          },
+          {
+            "key": "batt_max_discharge_w",
+            "label": "Puissance max. de décharge — saisie manuelle",
+            "description": "Limite technique en W (pas la puissance instantanée mesurée)."
+          },
+          {
+            "key": "batt_soc_min_entity",
+            "label": "SOC minimum — capteur ou helper",
+            "description": "Pourcentage 0–100 depuis une entité."
+          },
+          {
+            "key": "batt_soc_min",
+            "label": "SOC minimum — saisie manuelle",
+            "description": "Réserve basse si la batterie ne descend jamais à 0 %."
+          },
+          {
+            "key": "batt_soc_max_entity",
+            "label": "SOC maximum — capteur ou helper",
+            "description": "Pourcentage 0–100 depuis une entité."
+          },
+          {
+            "key": "batt_soc_max",
+            "label": "SOC maximum — saisie manuelle",
+            "description": "Réserve haute si la batterie ne charge jamais à 100 %."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "battery_more": {
+      "en": {
+        "fields": [
+          {
+            "key": "add_another",
+            "label": "Add another battery system?",
+            "description": "Turn on to define another battery after saving the current one."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "add_another",
+            "label": "Ajouter un autre système de batterie ?",
+            "description": "Activez pour enchaîner sur une autre batterie après celle-ci."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    }
+  }
+}

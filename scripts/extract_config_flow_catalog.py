@@ -11,8 +11,8 @@ scenarios in this JSON). Full validation cannot be replayed without Home Assista
 stays aligned with real ``step_id`` values and integration strings.
 
 Usage::
-    python scripts/extract_config_flow_catalog.py              # write site/src/data/flowCatalog.generated.json
-    python scripts/extract_config_flow_catalog.py --check     # exit 2 if output would change
+    python scripts/extract_config_flow_catalog.py              # write flowCatalog + flowHelpFieldGuide JSON
+    python scripts/extract_config_flow_catalog.py --check     # exit 2 if either output would change
 """
 
 from __future__ import annotations
@@ -31,8 +31,67 @@ CONFIG_FLOW = REPO / "custom_components/hub_energie/config_flow.py"
 STRINGS_JSON = REPO / "custom_components/hub_energie/strings.json"
 STRINGS_FR_JSON = REPO / "custom_components/hub_energie/translations/fr.json"
 OUT_JSON = REPO / "site/src/data/flowCatalog.generated.json"
+OUT_FIELD_GUIDE_JSON = REPO / "site/src/data/flowHelpFieldGuide.generated.json"
 
 STEP_HELP_DOC_PREFIX = "https://hub-energie.ts-devops.com/#/doc/setup-help#"
+
+# Keep in sync with ``site/src/data/flowStepHelpDefs.js`` (anchors on the doc site).
+FLOW_HELP_WIZARD_IDS: tuple[str, ...] = (
+    "user",
+    "supplier_custom",
+    "tariff_mode_manual_only",
+    "tariff_mode",
+    "contract",
+    "edf_offer",
+    "edf_tempo",
+    "edf_tempo_rte",
+    "manual_pricing",
+    "manual_flat",
+    "manual_tou",
+    "manual_schedule",
+    "manual_schedule_form",
+    "manual_schedule_json",
+    "grid_tri_energy_mode",
+    "grid_tri_per_phase",
+    "grid",
+    "grid_tri_layout",
+    "grid_phases",
+    "tri_grid_phase_1",
+    "tri_grid_phase_2",
+    "tri_grid_phase_3",
+    "solar",
+    "solar_config",
+    "solar_estimation",
+    "battery",
+    "battery_add",
+    "battery_advanced",
+    "battery_more",
+    "reinjection",
+)
+
+FLOW_HELP_OPTIONS_IDS: tuple[str, ...] = (
+    "init",
+    "offer",
+    "tariff_refresh",
+    "tempo",
+    "tempo_rte",
+    "advanced_energy",
+    "grid",
+    "grid_tri_energy_mode",
+    "grid_tri_per_phase",
+    "grid_tri_layout",
+    "grid_phases",
+    "tri_grid_phase_1",
+    "tri_grid_phase_2",
+    "tri_grid_phase_3",
+    "solar",
+    "solar_estimation",
+    "battery",
+    "battery_pick",
+    "battery_add",
+    "battery_advanced",
+    "battery_more",
+)
 
 CLASS_NAMES = frozenset({"HubEnergieConfigFlow", "_BatteryWizardMixin"})
 OPTIONS_FLOW_CLASS = "HubEnergieOptionsFlow"
@@ -322,6 +381,62 @@ def _integration_selector_i18n() -> dict[str, Any]:
     }
 
 
+def _field_guide_bundle(raw: dict[str, Any], step_id: str, *, options_flow: bool) -> dict[str, Any]:
+    """Strip title/description so the field-guide JSON stays compact."""
+    full = _build_field_entries(step_id, raw, options_flow=options_flow)
+    return {
+        "fields": full.get("fields") or [],
+        "sections": full.get("sections") or [],
+        "menu_choices": full.get("menu_choices") or [],
+    }
+
+
+def build_flow_help_field_guide() -> dict[str, Any]:
+    """Per-step field/menu labels + ``data_description`` for the doc vitrine (EN + FR)."""
+    en_root = json.loads(STRINGS_JSON.read_text(encoding="utf-8"))
+    fr_root = json.loads(STRINGS_FR_JSON.read_text(encoding="utf-8"))
+    cfg_en = en_root.get("config", {}).get("step", {}) or {}
+    cfg_fr = fr_root.get("config", {}).get("step", {}) or {}
+    opt_en = en_root.get("options", {}).get("step", {}) or {}
+    opt_fr = fr_root.get("options", {}).get("step", {}) or {}
+
+    wizard: dict[str, Any] = {}
+    for sid in FLOW_HELP_WIZARD_IDS:
+        raw_en = cfg_en.get(sid, {})
+        raw_fr = cfg_fr.get(sid, raw_en)
+        if not isinstance(raw_en, dict):
+            raw_en = {}
+        if not isinstance(raw_fr, dict):
+            raw_fr = raw_en
+        wizard[sid] = {
+            "en": _field_guide_bundle(raw_en, sid, options_flow=False),
+            "fr": _field_guide_bundle(raw_fr, sid, options_flow=False),
+        }
+
+    options: dict[str, Any] = {}
+    for sid in FLOW_HELP_OPTIONS_IDS:
+        raw_en = opt_en.get(sid, {})
+        raw_fr = opt_fr.get(sid, raw_en)
+        if not isinstance(raw_en, dict):
+            raw_en = {}
+        if not isinstance(raw_fr, dict):
+            raw_fr = raw_en
+        options[sid] = {
+            "en": _field_guide_bundle(raw_en, sid, options_flow=True),
+            "fr": _field_guide_bundle(raw_fr, sid, options_flow=True),
+        }
+
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "source_files": {
+            "strings_en": STRINGS_JSON.relative_to(REPO).as_posix(),
+            "strings_fr": STRINGS_FR_JSON.relative_to(REPO).as_posix(),
+        },
+        "wizard": wizard,
+        "options": options,
+    }
+
+
 def build_doc() -> dict[str, Any]:
     setup_steps = extract_steps()
     options_steps = extract_options_catalog_steps()
@@ -351,6 +466,11 @@ def _stable_json_blob(doc: dict[str, Any]) -> str:
     return json.dumps(trimmed, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
 
 
+def _stable_field_guide_blob(doc: dict[str, Any]) -> str:
+    trimmed = {k: v for k, v in doc.items() if k != "generated_at"}
+    return json.dumps(trimmed, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Generate flowCatalog.generated.json for the doc site.")
     ap.add_argument(
@@ -360,7 +480,9 @@ def main() -> None:
     )
     args = ap.parse_args()
     doc = build_doc()
+    fg = build_flow_help_field_guide()
     text = json.dumps(doc, indent=2, ensure_ascii=False) + "\n"
+    fg_text = json.dumps(fg, indent=2, ensure_ascii=False) + "\n"
     if args.check:
         if not OUT_JSON.is_file():
             print(f"Missing {OUT_JSON}; run without --check to generate.", file=sys.stderr)
@@ -376,10 +498,27 @@ def main() -> None:
                 file=sys.stderr,
             )
             sys.exit(2)
+        if not OUT_FIELD_GUIDE_JSON.is_file():
+            print(f"Missing {OUT_FIELD_GUIDE_JSON}; run without --check to generate.", file=sys.stderr)
+            sys.exit(2)
+        try:
+            existing_fg = json.loads(OUT_FIELD_GUIDE_JSON.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as e:
+            print(f"Invalid JSON in {OUT_FIELD_GUIDE_JSON}: {e}", file=sys.stderr)
+            sys.exit(2)
+        if _stable_field_guide_blob(existing_fg) != _stable_field_guide_blob(fg):
+            print(
+                f"{OUT_FIELD_GUIDE_JSON} is stale. Run: python scripts/extract_config_flow_catalog.py",
+                file=sys.stderr,
+            )
+            sys.exit(2)
         return
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(text, encoding="utf-8")
+    OUT_FIELD_GUIDE_JSON.parent.mkdir(parents=True, exist_ok=True)
+    OUT_FIELD_GUIDE_JSON.write_text(fg_text, encoding="utf-8")
     print(f"Wrote {OUT_JSON.relative_to(REPO)} ({len(doc['steps'])} steps)")
+    print(f"Wrote {OUT_FIELD_GUIDE_JSON.relative_to(REPO)}")
 
 
 if __name__ == "__main__":
