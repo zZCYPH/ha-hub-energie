@@ -6,6 +6,12 @@ All notable changes to **Hub Énergie** are documented in this file.
 
 Nothing yet.
 
+## [0.3.2] — 2026-04-08
+
+### Documentation / site
+
+- Doc site strings and raw HTML fragments take their **release version** from `custom_components/hub_energie/manifest.json` at build time (`{{HUB_ENERGIE_VERSION}}` / `{{HUB_ENERGIE_VERSION_SERIES}}` expanded by `site/scripts/sync-public.mjs` and the Vite plugin in `site/vite.config.js`).
+
 ## [0.3.1] — 2026-04-08
 
 ### Diagnostics / trust

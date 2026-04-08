@@ -1,6 +1,11 @@
 /**
  * Hub Énergie documentation — static i18n (en / fr).
  * Loaded by public pages (index, doc/index, internals/index); keys via data-i18n / data-i18n-html.
+ *
+ * Version placeholders (expanded from `custom_components/hub_energie/manifest.json` when generating
+ * `site/src/vendor/hub-energie-i18n.js` — run `npm run prebuild` / `predev` in `site/`):
+ *   {{HUB_ENERGIE_VERSION}}         — full semver, e.g. 0.3.2
+ *   {{HUB_ENERGIE_VERSION_SERIES}}  — major.minor, e.g. 0.3 (for “v0.3.x” scope lines)
  */
 (function (global) {
   "use strict";
@@ -43,7 +48,7 @@
       "landing.cta_discover": "Discover",
       "landing.cta_internals": "How it works internally",
       "landing.cta_discover_footer": "Discover the documentation",
-      "landing.version_note": "Documentation snapshot v0.3.1",
+      "landing.version_note": "Documentation snapshot v{{HUB_ENERGIE_VERSION}}",
       "landing.f1_title": "True centralization",
       "landing.f1_body":
         "Tariff, grid, solar, per-battery devices, energy balance, costs, and diagnostics live under one integration instead of scattered helpers and templates.",
@@ -172,6 +177,9 @@
       "flowsim.disclaimer":
         "Educational preview: titles/labels and selector options mirror the integration. Branching follows the real wizard in code, but entity validation, network calls (e.g. EDF/RTE), and full form rules are not executed.",
       "flowsim.branching_hint": "Your choices drive the next step (same branch points as the integration).",
+      "flowsim.simulate_existing_batteries": "Preview the Configure → Batteries picker (existing systems)",
+      "flowsim.simulate_existing_batteries_hint":
+        "When enabled and you turn on battery support, the next screen matches Settings → Hub Énergie → Configure → Batteries with at least one system already saved — not the first-time “empty add” screen.",
       "flowsim.start_over": "Start over",
       "flowsim.step_depth": "Step {n}",
       "flowsim.done_progress": "Done",
@@ -180,14 +188,24 @@
         "In Home Assistant this would create the config entry. Here the preview ends — use “Start over” to try another path.",
       "flowsim.choose_menu": "Choose an option below (same as the real menu step).",
       "flowsim.back": "Back",
+      "flowsim.flow_nav_continue": "Continue",
+      "flowsim.flow_nav_back": "Back to previous step",
+      "flowsim.flow_nav_aria": "Navigation: continue or go back to the previous step",
       "flowsim.next": "Next",
       "flowsim.close_aria": "Close",
       "flowsim.help_aria": "Help",
-      "flowsim.dummy_entity_picker": "Entity picker (dummy list)",
+      "flowsim.dummy_entity_picker":
+        "Showcase-only entity list — layout mimics Home Assistant (search, friendly name, area path, domain).",
       "flowsim.suffix_per_kwh": "{currency}/kWh",
       "flowsim.suffix_per_month": "{currency}/month",
       "flowsim.time_placeholder": "--:--",
       "flowsim.time_field_title": "Time (24 h, hh:mm)",
+      "flowsim.entity_search": "Search",
+      "flowsim.entity_placeholder": "Select an entity",
+      "flowsim.entity_clear": "None (clear)",
+      "flowsim.entity_domain_sensor": "Sensor",
+      "flowsim.entity_domain_number": "Number",
+      "flowsim.entity_domain_input_number": "Input number",
 
       "doc.modal_aria": "Full-size screenshot",
       "doc.modal_close_aria": "Close",
@@ -209,14 +227,14 @@
 
       "glance.title": "At a glance",
       "glance.ha": "<strong class=\"text-body\">HA</strong> 2024.10.0 or newer",
-      "glance.snapshot": "Doc snapshot <span class=\"badge bg-primary badge-doc\">v0.3.1</span>",
+      "glance.snapshot": "Doc snapshot <span class=\"badge bg-primary badge-doc\">v{{HUB_ENERGIE_VERSION}}</span>",
       "glance.issues": "Issues & feedback",
 
       "overview.title": "Overview",
       "overview.intro":
         "This page complements the README. Follow the steps below in order for a first-time setup.",
 
-      "scope.stable_heading": "Intended stable scope (v0.3.x)",
+      "scope.stable_heading": "Intended stable scope (v{{HUB_ENERGIE_VERSION_SERIES}}.x)",
       "scope.stable_li1_html":
         "<strong class=\"text-body\">Config flow:</strong> supplier (EDF vs custom), tariff (flat, HP–HC, multi-slot, EDF Tempo + RTE/API/sensor), grid and optional solar/battery wiring.",
       "scope.stable_li2_html":
@@ -511,7 +529,7 @@
       "glossary.est_d": "Heuristic or model-based values when no direct energy meter exists — e.g. clear-sky PV, splits inferred from power sensors.",
 
       "footer.p1_html":
-        "Hub Énergie — documentation snapshot <strong class=\"text-body\">v0.3.1</strong>. Authoritative detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>. Official platform: <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
+        "Hub Énergie — documentation snapshot <strong class=\"text-body\">v{{HUB_ENERGIE_VERSION}}</strong>. Authoritative detail: README and <code class=\"font-mono\">docs/</code> in the <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">GitLab project</a>. Official platform: <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
       "footer.license": "License: see the repository.",
       "footer.brand_name": "Hub Énergie",
       "footer.brand_aria": "Hub Énergie",
@@ -562,7 +580,7 @@
       "landing.cta_discover": "Découvrir",
       "landing.cta_internals": "Fonctionnement interne",
       "landing.cta_discover_footer": "Voir la documentation",
-      "landing.version_note": "Documentation figée v0.3.1",
+      "landing.version_note": "Documentation figée v{{HUB_ENERGIE_VERSION}}",
       "landing.f1_title": "Centralisation réelle",
       "landing.f1_body":
         "Offre, réseau, solaire, appareils par batterie, bilan énergétique, coûts et diagnostics sont regroupés dans une même intégration, au lieu d’être éclatés entre helpers et modèles.",
@@ -691,6 +709,9 @@
       "flowsim.disclaimer":
         "Aperçu pédagogique : titres, descriptions et libellés de sélecteurs calqués sur l’intégration. Les enchaînements suivent le vrai assistant dans le code, sans validation d’entités ni appels réseau (EDF/RTE, etc.).",
       "flowsim.branching_hint": "Vos choix déterminent l’étape suivante (même logique de branchement que l’intégration).",
+      "flowsim.simulate_existing_batteries": "Aperçu de l’écran Configurer → Batteries (systèmes déjà enregistrés)",
+      "flowsim.simulate_existing_batteries_hint":
+        "Si cette case est cochée et que vous activez les batteries, l’écran suivant correspond à Paramètres → Hub Énergie → Configurer → Batteries lorsqu’au moins une batterie existe déjà — pas au premier ajout vide.",
       "flowsim.start_over": "Recommencer",
       "flowsim.step_depth": "Étape {n}",
       "flowsim.done_progress": "Terminé",
@@ -699,14 +720,24 @@
         "Dans Home Assistant, l’entrée de configuration serait créée. Ici l’aperçu s’arrête — utilisez « Recommencer » pour tester un autre parcours.",
       "flowsim.choose_menu": "Choisissez une option ci-dessous (comme l’étape menu réelle).",
       "flowsim.back": "Précédent",
+      "flowsim.flow_nav_continue": "Continuer",
+      "flowsim.flow_nav_back": "Revenir à l’étape précédente",
+      "flowsim.flow_nav_aria": "Navigation : continuer ou revenir à l’étape précédente",
       "flowsim.next": "Suivant",
       "flowsim.close_aria": "Fermer",
       "flowsim.help_aria": "Aide",
-      "flowsim.dummy_entity_picker": "Sélecteur d’entité (liste factice)",
+      "flowsim.dummy_entity_picker":
+        "Liste d’entités factice pour la vitrine — présentation proche de Home Assistant (recherche, nom, chemin, domaine).",
       "flowsim.suffix_per_kwh": "{currency}/kWh",
       "flowsim.suffix_per_month": "{currency}/mois",
       "flowsim.time_placeholder": "--:--",
       "flowsim.time_field_title": "Heure (24 h, hh:mm)",
+      "flowsim.entity_search": "Rechercher",
+      "flowsim.entity_placeholder": "Sélectionnez une entité",
+      "flowsim.entity_clear": "Aucune (vider)",
+      "flowsim.entity_domain_sensor": "Capteur",
+      "flowsim.entity_domain_number": "Nombre",
+      "flowsim.entity_domain_input_number": "Nombre (entrée)",
 
       "doc.modal_aria": "Capture en grand",
       "doc.modal_close_aria": "Fermer",
@@ -728,14 +759,14 @@
 
       "glance.title": "En bref",
       "glance.ha": "<strong class=\"text-body\">HA</strong> 2024.10.0 ou plus récent",
-      "glance.snapshot": "Doc figée <span class=\"badge bg-primary badge-doc\">v0.3.1</span>",
+      "glance.snapshot": "Doc figée <span class=\"badge bg-primary badge-doc\">v{{HUB_ENERGIE_VERSION}}</span>",
       "glance.issues": "Tickets & retours",
 
       "overview.title": "Vue d’ensemble",
       "overview.intro":
         "Cette page prolonge le README. Pour une première installation, suivez les étapes ci-dessous dans l’ordre.",
 
-      "scope.stable_heading": "Périmètre stable visé (v0.3.x)",
+      "scope.stable_heading": "Périmètre stable visé (v{{HUB_ENERGIE_VERSION_SERIES}}.x)",
       "scope.stable_li1_html":
         "<strong class=\"text-body\">Assistant de configuration :</strong> fournisseur (EDF ou personnalisé), tarif (prix unique, HP/HC, multi-creuses, Tempo EDF + RTE/API/capteur), réseau et câblage solaire ou batteries optionnel.",
       "scope.stable_li2_html":
@@ -1035,7 +1066,7 @@
         "Valeurs heuristiques ou modélisées sans compteur d’énergie direct — ex. PV « ciel clair », ventilations déduites des capteurs de puissance.",
 
       "footer.p1_html":
-        "Hub Énergie — documentation figée <strong class=\"text-body\">v0.3.1</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>. Plateforme officielle : <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
+        "Hub Énergie — documentation figée <strong class=\"text-body\">v{{HUB_ENERGIE_VERSION}}</strong>. Référence détaillée : README et <code class=\"font-mono\">docs/</code> dans le <a href=\"https://gitlab.com/zzcyph1/home-assistant/hub-energie\">projet GitLab</a>. Plateforme officielle : <a href=\"https://www.home-assistant.io/\" target=\"_blank\" rel=\"noopener noreferrer\">Home Assistant</a>.",
       "footer.license": "Licence : voir le dépôt.",
       "footer.brand_name": "Hub Énergie",
       "footer.brand_aria": "Hub Énergie",

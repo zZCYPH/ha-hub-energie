@@ -2,8 +2,9 @@
 """Build a JSON catalog of Hub Énergie *initial* config-flow steps for the doc vitrine.
 
 Reads ``config_flow.py`` (AST) for ``HubEnergieConfigFlow`` + ``_BatteryWizardMixin``,
+plus selected ``HubEnergieOptionsFlow`` steps (e.g. ``battery_pick``) for the doc vitrine,
 ``strings.json`` (EN) and ``translations/fr.json`` for localized titles / field labels, plus
-a ``selector`` block (option labels) for the doc vitrine.
+a ``selector`` block (option labels).
 
 The interactive preview navigates using **branching logic in the Vue simulator** (not linear
 scenarios in this JSON). Full validation cannot be replayed without Home Assistant; this artifact
@@ -31,7 +32,12 @@ STRINGS_JSON = REPO / "custom_components/hub_energie/strings.json"
 STRINGS_FR_JSON = REPO / "custom_components/hub_energie/translations/fr.json"
 OUT_JSON = REPO / "site/src/data/flowCatalog.generated.json"
 
+STEP_HELP_DOC_PREFIX = "https://hub-energie.ts-devops.com/#/doc/setup-help#"
+
 CLASS_NAMES = frozenset({"HubEnergieConfigFlow", "_BatteryWizardMixin"})
+OPTIONS_FLOW_CLASS = "HubEnergieOptionsFlow"
+# Options-only steps merged into the catalog (``step_id`` must not collide with setup flow).
+OPTIONS_CATALOG_HANDLERS = frozenset({"async_step_battery_pick"})
 
 
 def _tri_phase_step_id(method_name: str) -> str | None:
@@ -116,7 +122,17 @@ def _infer_step_id(func_name: str, found_ids: set[str]) -> str:
     return func_name.removeprefix("async_step_")
 
 
-def _build_field_entries(step_id: str, raw: dict[str, Any]) -> dict[str, Any]:
+def _expand_step_help_description(
+    description: str, step_id: str, *, options_flow: bool = False
+) -> str:
+    """``strings.json`` uses ``{step_help_url}``; runtime fills it from ``config_flow.py``."""
+    if "{step_help_url}" not in description:
+        return description
+    slug = f"flow-step-options-{step_id}" if options_flow else f"flow-step-{step_id}"
+    return description.replace("{step_help_url}", f"{STEP_HELP_DOC_PREFIX}{slug}")
+
+
+def _build_field_entries(step_id: str, raw: dict[str, Any], *, options_flow: bool = False) -> dict[str, Any]:
     entry = raw.get("data", {}) or {}
     desc = raw.get("data_description", {}) or {}
     fields: list[dict[str, str]] = []
@@ -144,14 +160,24 @@ def _build_field_entries(step_id: str, raw: dict[str, Any]) -> dict[str, Any]:
             name = str(sec_val.get("name", sec_key))
             subfields: list[dict[str, str]] = []
             subdata = sec_val.get("data", {}) or {}
+            subdesc = sec_val.get("data_description", {}) or {}
             for sk, sl in subdata.items():
                 if sk == "flow_nav":
                     continue
-                subfields.append({"key": sk, "label": str(sl), "description": ""})
+                subfields.append(
+                    {
+                        "key": sk,
+                        "label": str(sl),
+                        "description": str(subdesc[sk]) if sk in subdesc else "",
+                    }
+                )
             sections_out.append({"id": sec_key, "name": name, "fields": subfields})
+    step_desc = _expand_step_help_description(
+        str(raw.get("description", "")), step_id, options_flow=options_flow
+    )
     return {
         "title": str(raw.get("title", "")),
-        "description": str(raw.get("description", "")),
+        "description": step_desc,
         "fields": fields,
         "menu_choices": menu_choices,
         "sections": sections_out,
@@ -169,6 +195,19 @@ def iter_setup_flow_handlers() -> list[tuple[str, str]]:
             if isinstance(item, ast.AsyncFunctionDef) and item.name.startswith("async_step_"):
                 out.append((node.name, item.name))
     out.sort(key=lambda t: (t[0], t[1]))
+    return out
+
+
+def iter_options_catalog_handlers() -> set[str]:
+    """Handler names merged into the vitrine catalog from ``HubEnergieOptionsFlow`` (subset)."""
+    tree = ast.parse(CONFIG_FLOW.read_text(encoding="utf-8"))
+    out: set[str] = set()
+    for node in tree.body:
+        if not isinstance(node, ast.ClassDef) or node.name != OPTIONS_FLOW_CLASS:
+            continue
+        for item in node.body:
+            if isinstance(item, ast.AsyncFunctionDef) and item.name in OPTIONS_CATALOG_HANDLERS:
+                out.add(item.name)
     return out
 
 
@@ -230,6 +269,49 @@ def extract_steps() -> list[dict[str, Any]]:
     return steps
 
 
+def extract_options_catalog_steps() -> list[dict[str, Any]]:
+    """Build catalog rows for whitelisted options-flow forms (strings under ``options.step``)."""
+    tree = ast.parse(CONFIG_FLOW.read_text(encoding="utf-8"))
+    strings_root_en = json.loads(STRINGS_JSON.read_text(encoding="utf-8"))
+    step_strings_en: dict[str, Any] = strings_root_en.get("options", {}).get("step", {})
+    strings_root_fr = json.loads(STRINGS_FR_JSON.read_text(encoding="utf-8"))
+    step_strings_fr: dict[str, Any] = strings_root_fr.get("options", {}).get("step", {})
+
+    out: list[dict[str, Any]] = []
+    for node in tree.body:
+        if not isinstance(node, ast.ClassDef) or node.name != OPTIONS_FLOW_CLASS:
+            continue
+        for item in node.body:
+            if not isinstance(item, ast.AsyncFunctionDef) or item.name not in OPTIONS_CATALOG_HANDLERS:
+                continue
+            found_ids, kind, menu_opts = _scan_calls(item)
+            step_id = _infer_step_id(item.name, found_ids)
+            raw_en = step_strings_en.get(step_id, {})
+            if not isinstance(raw_en, dict):
+                raw_en = {}
+            raw_fr = step_strings_fr.get(step_id, raw_en)
+            if not isinstance(raw_fr, dict):
+                raw_fr = raw_en
+            strings_en = _build_field_entries(step_id, raw_en, options_flow=True)
+            strings_fr = _build_field_entries(step_id, raw_fr, options_flow=True)
+            if not strings_en["title"]:
+                strings_en["title"] = step_id.replace("_", " ").title()
+            if not strings_fr["title"]:
+                strings_fr["title"] = strings_en["title"]
+            out.append(
+                {
+                    "step_id": step_id,
+                    "handler": item.name,
+                    "source_class": OPTIONS_FLOW_CLASS,
+                    "kind": kind or "form",
+                    "menu_options": menu_opts,
+                    "strings": {"en": strings_en, "fr": strings_fr},
+                }
+            )
+    out.sort(key=lambda s: s["step_id"])
+    return out
+
+
 def _integration_selector_i18n() -> dict[str, Any]:
     """``selector`` option labels from integration ``strings.json`` / ``translations/fr.json`` (HA shape)."""
     en_root = json.loads(STRINGS_JSON.read_text(encoding="utf-8"))
@@ -241,7 +323,16 @@ def _integration_selector_i18n() -> dict[str, Any]:
 
 
 def build_doc() -> dict[str, Any]:
-    steps = extract_steps()
+    setup_steps = extract_steps()
+    options_steps = extract_options_catalog_steps()
+    by_id = {s["step_id"]: s for s in setup_steps}
+    for s in options_steps:
+        if s["step_id"] in by_id:
+            raise RuntimeError(
+                f"Catalog step_id collision: {s['step_id']!r} exists in setup and options extract."
+            )
+        by_id[s["step_id"]] = s
+    steps = [by_id[k] for k in sorted(by_id)]
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "source_files": {

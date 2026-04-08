@@ -4,6 +4,10 @@ This document describes the **initial setup** wizard (`HubEnergieConfigFlow`) in
 
 **Interactive preview (doc site):** `python scripts/extract_config_flow_catalog.py` regenerates `site/src/data/flowCatalog.generated.json` from `config_flow.py` (AST) + `strings.json` (labels) + `selector` option text. The documentation page mounts a **non-executable** wizard shell whose **branching follows this guide** (user choices drive the next `step_id`; there is no HA validation or network I/O). GitLab CI runs the same script with `--check` so the committed JSON cannot drift silently. **`tests/test_flow_catalog_coverage.py`** asserts every `async_step_*` on `HubEnergieConfigFlow` / `_BatteryWizardMixin` has a catalog row and that the committed file matches a fresh extract. If your environment has `pytest-cov` but these tests must not measure coverage, use `pytest … --no-cov`; without the plugin, use `pytest … --override-ini addopts=` so `pytest.ini` does not inject `--cov`.
 
+**HA ↔ vitrine parity:** Any change to wizard steps, schemas, `section()` groups, selectors, or strings must be reflected **both** in the integration (`config_flow.py`, `strings.json`, `translations/*.json`) **and** in the vitrine: rerun the extract script above, and adjust `site/src/components/FlowSimulator.vue` or the extract script if a new pattern is not covered generically. The project Cursor rule `.cursor/rules/config-flow-vitrine-parity.mdc` restates this checklist for agents.
+
+**Doc site release label:** User-visible “doc snapshot **v…**” strings and HTML fallbacks use placeholders expanded from **`manifest.json` → `version`** (`{{HUB_ENERGIE_VERSION}}`, `{{HUB_ENERGIE_VERSION_SERIES}}`); see `site/scripts/manifest-version.mjs`, `site/scripts/sync-public.mjs`, and `site/vite.config.js`.
+
 - **Implementation:** `config_flow.py` → class `HubEnergieConfigFlow` (flow `VERSION = 2`).
 - **Dialog titles/descriptions (EN):** `translations/en.json` under `config.step.<step_id>`.
 - **French:** `translations/fr.json` (same keys).

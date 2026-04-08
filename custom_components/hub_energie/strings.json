@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Hub Énergie – Setup",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-user)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "supplier": "Energy supplier",
           "phase_type": "Phase type"
@@ -15,7 +15,7 @@
       },
       "supplier_custom": {
         "title": "Custom supplier",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-supplier_custom)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "supplier_custom_name": "Supplier display name",
           "flow_nav": "Wizard navigation"
@@ -26,7 +26,7 @@
       },
       "tariff_mode": {
         "title": "Tariff retrieval mode",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "tariff_mode": "Tariff mode",
           "flow_nav": "Wizard navigation"
@@ -37,7 +37,7 @@
       },
       "tariff_mode_manual_only": {
         "title": "Tariff configuration",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode_manual_only)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "flow_nav": "Wizard navigation"
         }
@@ -49,7 +49,7 @@
           "contract_name": "Contract name (optional)",
           "flow_nav": "Wizard navigation"
         },
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-contract)"
+        "description": "[I need help with this step]({step_help_url})"
       },
       "edf_offer": {
         "title": "EDF offer selection",
@@ -57,11 +57,11 @@
           "tariff_offer": "Offer type",
           "flow_nav": "Wizard navigation"
         },
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_offer)"
+        "description": "[I need help with this step]({step_help_url})"
       },
       "edf_tempo": {
         "title": "Tempo signal source",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_tempo)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "tempo_mode": "Signal source",
           "rte_client_id": "RTE API client ID",
@@ -72,7 +72,7 @@
       },
       "edf_tempo_rte": {
         "title": "RTE credentials",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_tempo_rte)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "rte_client_id": "RTE API client ID",
           "rte_client_secret": "RTE API client secret",
@@ -81,7 +81,7 @@
       },
       "manual_pricing": {
         "title": "Pricing structure",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_pricing)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "pricing_structure": "Pricing type",
           "price_basis": "Prices are",
@@ -99,11 +99,11 @@
           "subscription_price": "Monthly subscription",
           "flow_nav": "Wizard navigation"
         },
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_flat)"
+        "description": "[I need help with this step]({step_help_url})"
       },
       "manual_tou": {
         "title": "Time-of-use tariff",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_tou)",
+        "description": "[I need help with this step]({step_help_url})",
         "sections": {
           "tou_slot_0": {
             "name": "Off-peak (HC)",
@@ -129,7 +129,7 @@
       },
       "manual_schedule": {
         "title": "Advanced schedule",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule)",
+        "description": "[I need help with this step]({step_help_url})",
         "menu_options": {
           "manual_schedule_form": "Form (up to 6 slots)",
           "manual_schedule_json": "JSON (advanced)",
@@ -138,66 +138,66 @@
       },
       "manual_schedule_form": {
         "title": "Advanced schedule — form",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule_form)",
+        "description": "[I need help with this step]({step_help_url})",
         "sections": {
           "sched_slot_0": {
             "name": "Time slot 1",
             "data": {
-              "start": "Start",
-              "end": "End",
-              "price": "Energy price (per kWh)",
-              "day_type": "Day type",
-              "name": "Label (optional)"
+              "sched_r0_start": "Start",
+              "sched_r0_end": "End",
+              "sched_r0_price": "Energy price (per kWh)",
+              "sched_r0_day_type": "Day type",
+              "sched_r0_name": "Label (optional)"
             }
           },
           "sched_slot_1": {
             "name": "Time slot 2",
             "data": {
-              "start": "Start",
-              "end": "End",
-              "price": "Energy price (per kWh)",
-              "day_type": "Day type",
-              "name": "Label (optional)"
+              "sched_r1_start": "Start",
+              "sched_r1_end": "End",
+              "sched_r1_price": "Energy price (per kWh)",
+              "sched_r1_day_type": "Day type",
+              "sched_r1_name": "Label (optional)"
             }
           },
           "sched_slot_2": {
             "name": "Time slot 3",
             "data": {
-              "start": "Start",
-              "end": "End",
-              "price": "Energy price (per kWh)",
-              "day_type": "Day type",
-              "name": "Label (optional)"
+              "sched_r2_start": "Start",
+              "sched_r2_end": "End",
+              "sched_r2_price": "Energy price (per kWh)",
+              "sched_r2_day_type": "Day type",
+              "sched_r2_name": "Label (optional)"
             }
           },
           "sched_slot_3": {
             "name": "Time slot 4",
             "data": {
-              "start": "Start",
-              "end": "End",
-              "price": "Energy price (per kWh)",
-              "day_type": "Day type",
-              "name": "Label (optional)"
+              "sched_r3_start": "Start",
+              "sched_r3_end": "End",
+              "sched_r3_price": "Energy price (per kWh)",
+              "sched_r3_day_type": "Day type",
+              "sched_r3_name": "Label (optional)"
             }
           },
           "sched_slot_4": {
             "name": "Time slot 5",
             "data": {
-              "start": "Start",
-              "end": "End",
-              "price": "Energy price (per kWh)",
-              "day_type": "Day type",
-              "name": "Label (optional)"
+              "sched_r4_start": "Start",
+              "sched_r4_end": "End",
+              "sched_r4_price": "Energy price (per kWh)",
+              "sched_r4_day_type": "Day type",
+              "sched_r4_name": "Label (optional)"
             }
           },
           "sched_slot_5": {
             "name": "Time slot 6",
             "data": {
-              "start": "Start",
-              "end": "End",
-              "price": "Energy price (per kWh)",
-              "day_type": "Day type",
-              "name": "Label (optional)"
+              "sched_r5_start": "Start",
+              "sched_r5_end": "End",
+              "sched_r5_price": "Energy price (per kWh)",
+              "sched_r5_day_type": "Day type",
+              "sched_r5_name": "Label (optional)"
             }
           }
         },
@@ -208,7 +208,7 @@
       },
       "manual_schedule_json": {
         "title": "Advanced schedule — JSON",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule_json)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "schedule_slots": "Schedule slots (JSON)",
           "subscription_price": "Monthly subscription",
@@ -217,7 +217,7 @@
       },
       "grid_tri_energy_mode": {
         "title": "Three-phase grid import",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_energy_mode)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "grid_tri_energy_mode": "Grid import metering",
           "flow_nav": "Wizard navigation"
@@ -228,32 +228,67 @@
       },
       "grid_tri_per_phase": {
         "title": "Three-phase import meters",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_per_phase)",
-        "data": {
-          "grid_power_sign_mode": "Grid power sign convention",
-          "load_power_sensor": "House load power (W, optional)",
-          "tri_import_energy_p1": "Phase L1 — grid import energy (kWh)",
-          "tri_import_energy_p2": "Phase L2 — grid import energy (kWh)",
-          "tri_import_energy_p3": "Phase L3 — grid import energy (kWh)",
-          "tri_export_energy_p1": "Phase L1 — grid export energy (kWh, optional)",
-          "tri_export_energy_p2": "Phase L2 — grid export energy (kWh, optional)",
-          "tri_export_energy_p3": "Phase L3 — grid export energy (kWh, optional)",
-          "tri_grid_power_p1": "Phase L1 — grid power (W, optional)",
-          "tri_grid_power_p2": "Phase L2 — grid power (W, optional)",
-          "tri_grid_power_p3": "Phase L3 — grid power (W, optional)",
-          "flow_nav": "Wizard navigation"
+        "description": "[I need help with this step]({step_help_url})",
+        "sections": {
+          "tri_grid_sign": {
+            "name": "Grid power",
+            "data": {
+              "grid_power_sign_mode": "Grid power sign convention"
+            },
+            "data_description": {
+              "grid_power_sign_mode": "Convention: is export negative or positive on your per-phase grid power sensors?"
+            }
+          },
+          "tri_phase_l1": {
+            "name": "Phase L1",
+            "data": {
+              "tri_import_energy_p1": "Grid import energy (kWh)",
+              "tri_export_energy_p1": "Grid export energy (kWh, optional)",
+              "tri_grid_power_p1": "Grid power (W, optional)"
+            },
+            "data_description": {
+              "tri_grid_power_p1": "Instantaneous power on L1; the integration sums whichever phases you set for real-time display. For a single total sensor, fill only one phase."
+            }
+          },
+          "tri_phase_l2": {
+            "name": "Phase L2",
+            "data": {
+              "tri_import_energy_p2": "Grid import energy (kWh)",
+              "tri_export_energy_p2": "Grid export energy (kWh, optional)",
+              "tri_grid_power_p2": "Grid power (W, optional)"
+            },
+            "data_description": {
+              "tri_grid_power_p2": "Instantaneous power on L2."
+            }
+          },
+          "tri_phase_l3": {
+            "name": "Phase L3",
+            "data": {
+              "tri_import_energy_p3": "Grid import energy (kWh)",
+              "tri_export_energy_p3": "Grid export energy (kWh, optional)",
+              "tri_grid_power_p3": "Grid power (W, optional)"
+            },
+            "data_description": {
+              "tri_grid_power_p3": "Instantaneous power on L3."
+            }
+          },
+          "tri_phase_load": {
+            "name": "House load",
+            "data": {
+              "load_power_sensor": "House load power (W, optional)"
+            },
+            "data_description": {
+              "load_power_sensor": "Optional house consumption for load-side diagnostics."
+            }
+          }
         },
-        "data_description": {
-          "grid_power_sign_mode": "Convention: is export negative or positive on your per-phase grid power sensors?",
-          "load_power_sensor": "Optional house consumption for load-side diagnostics.",
-          "tri_grid_power_p1": "Instantaneous power on L1; the integration sums whichever phases you set for real-time display. For a single total sensor, fill only one phase.",
-          "tri_grid_power_p2": "Instantaneous power on L2.",
-          "tri_grid_power_p3": "Instantaneous power on L3."
+        "data": {
+          "flow_nav": "Wizard navigation"
         }
       },
       "grid": {
         "title": "Grid energy sensors",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "grid_import_energy": "Grid import energy (kWh)",
           "grid_export_energy": "Grid export energy (kWh, optional)",
@@ -271,7 +306,7 @@
       },
       "grid_tri_layout": {
         "title": "Three-phase sensor layout",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_layout)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "grid_tri_sensor_layout": "Sensor layout",
           "flow_nav": "Wizard navigation"
@@ -282,7 +317,7 @@
       },
       "grid_phases": {
         "title": "Three-phase grid sensors (JSON)",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_phases)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "grid_import_energy_phases": "Import energy sensors (per-phase, JSON list)",
           "grid_export_energy_phases": "Export energy sensors (per-phase, JSON list)",
@@ -292,7 +327,7 @@
       },
       "tri_grid_phase_1": {
         "title": "Three-phase grid — phase L1",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_1)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
@@ -302,7 +337,7 @@
       },
       "tri_grid_phase_2": {
         "title": "Three-phase grid — phase L2",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_2)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
@@ -312,7 +347,7 @@
       },
       "tri_grid_phase_3": {
         "title": "Three-phase grid — phase L3",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_3)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
@@ -326,11 +361,11 @@
           "has_solar": "Do you have solar panels?",
           "flow_nav": "Wizard navigation"
         },
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar)"
+        "description": "[I need help with this step]({step_help_url})"
       },
       "solar_config": {
         "title": "Solar production sensors",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_config)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "solar_energy": "Solar energy production (kWh)",
           "solar_power_sensor": "Solar power (W, optional)",
@@ -361,7 +396,7 @@
           "solar_performance": "System performance",
           "flow_nav": "Wizard navigation"
         },
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_estimation)"
+        "description": "[I need help with this step]({step_help_url})"
       },
       "battery": {
         "title": "Battery systems",
@@ -369,11 +404,11 @@
           "has_batteries": "Do you have battery systems?",
           "flow_nav": "Wizard navigation"
         },
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery)"
+        "description": "[I need help with this step]({step_help_url})"
       },
       "battery_add": {
         "title": "Add battery system",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_add)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "batt_name": "Battery name",
           "batt_energy_in": "Charge energy (kWh, total increasing)",
@@ -396,7 +431,7 @@
       },
       "battery_advanced": {
         "title": "Battery advanced settings",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_advanced)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "batt_capacity_kwh_entity": "Nominal capacity — sensor or helper",
           "batt_capacity_kwh": "Nominal capacity — manual entry",
@@ -425,7 +460,7 @@
       },
       "battery_more": {
         "title": "More batteries?",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_more)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "add_another": "Add another battery system?",
           "flow_nav": "Wizard navigation"
@@ -433,7 +468,7 @@
       },
       "reinjection": {
         "title": "Advanced reinjection tuning",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-reinjection)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "reinjection_export_ignore_below_w": "Ignore export below (W)",
           "reinjection_batt_charge_significant_w": "Battery charge significant above (W)",
@@ -465,6 +500,7 @@
       "battery_adv_soc_min_not_both": "Choose either a minimum SOC entity or a manual minimum SOC value.",
       "battery_adv_soc_max_not_both": "Choose either a maximum SOC entity or a manual maximum SOC value.",
       "invalid_battery_choice": "Select a valid battery system.",
+      "battery_pick_conflicting_options": "Turn off either “delete selected battery” or “add a new battery”, then try again.",
       "tariff_fetch_failed": "Failed to fetch tariffs from provider API.",
       "tariff_payload_incomplete": "Tariff data from the provider was incomplete or invalid. Try again or check offer and kVA.",
       "invalid_json": "Invalid JSON format.",
@@ -483,7 +519,7 @@
     "step": {
       "init": {
         "title": "Hub Énergie – Options",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-init)",
+        "description": "[I need help with this step]({step_help_url})",
         "menu_options": {
           "offer": "Offer & tariffs",
           "grid": "Grid sensors",
@@ -497,7 +533,7 @@
       },
       "advanced_energy": {
         "title": "Energy delta caps",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-advanced_energy)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "max_delta_kwh_grid": "Grid import & export",
           "max_delta_kwh_solar": "Solar production",
@@ -513,14 +549,14 @@
       },
       "tempo": {
         "title": "Tempo signal source",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tempo)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "tempo_mode": "Signal source"
         }
       },
       "tempo_rte": {
         "title": "RTE credentials",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tempo_rte)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "rte_client_id": "RTE API client ID",
           "rte_client_secret": "RTE API client secret"
@@ -528,7 +564,7 @@
       },
       "offer": {
         "title": "Offer & supplier",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-offer)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "supplier": "Energy supplier",
           "supplier_custom_name": "Supplier name",
@@ -543,7 +579,7 @@
       },
       "grid_tri_energy_mode": {
         "title": "Three-phase grid import",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-grid_tri_energy_mode)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "grid_tri_energy_mode": "Grid import metering"
         },
@@ -553,24 +589,65 @@
       },
       "grid_tri_per_phase": {
         "title": "Three-phase import meters",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-grid_tri_per_phase)",
-        "data": {
-          "grid_power_sign_mode": "Grid power sign convention",
-          "load_power_sensor": "House load power (W, optional)",
-          "tri_import_energy_p1": "L1 — grid import energy (kWh)",
-          "tri_import_energy_p2": "L2 — grid import energy (kWh)",
-          "tri_import_energy_p3": "L3 — grid import energy (kWh)",
-          "tri_export_energy_p1": "L1 — grid export (kWh, optional)",
-          "tri_export_energy_p2": "L2 — grid export (kWh, optional)",
-          "tri_export_energy_p3": "L3 — grid export (kWh, optional)",
-          "tri_grid_power_p1": "L1 — grid power (W, optional)",
-          "tri_grid_power_p2": "L2 — grid power (W, optional)",
-          "tri_grid_power_p3": "L3 — grid power (W, optional)"
-        }
+        "description": "[I need help with this step]({step_help_url})",
+        "sections": {
+          "tri_grid_sign": {
+            "name": "Grid power",
+            "data": {
+              "grid_power_sign_mode": "Grid power sign convention"
+            },
+            "data_description": {
+              "grid_power_sign_mode": "Convention: is export negative or positive on your per-phase grid power sensors?"
+            }
+          },
+          "tri_phase_l1": {
+            "name": "Phase L1",
+            "data": {
+              "tri_import_energy_p1": "Grid import energy (kWh)",
+              "tri_export_energy_p1": "Grid export energy (kWh, optional)",
+              "tri_grid_power_p1": "Grid power (W, optional)"
+            },
+            "data_description": {
+              "tri_grid_power_p1": "Instantaneous power on L1; the integration sums whichever phases you set for real-time display. For a single total sensor, fill only one phase."
+            }
+          },
+          "tri_phase_l2": {
+            "name": "Phase L2",
+            "data": {
+              "tri_import_energy_p2": "Grid import energy (kWh)",
+              "tri_export_energy_p2": "Grid export energy (kWh, optional)",
+              "tri_grid_power_p2": "Grid power (W, optional)"
+            },
+            "data_description": {
+              "tri_grid_power_p2": "Instantaneous power on L2."
+            }
+          },
+          "tri_phase_l3": {
+            "name": "Phase L3",
+            "data": {
+              "tri_import_energy_p3": "Grid import energy (kWh)",
+              "tri_export_energy_p3": "Grid export energy (kWh, optional)",
+              "tri_grid_power_p3": "Grid power (W, optional)"
+            },
+            "data_description": {
+              "tri_grid_power_p3": "Instantaneous power on L3."
+            }
+          },
+          "tri_phase_load": {
+            "name": "House load",
+            "data": {
+              "load_power_sensor": "House load power (W, optional)"
+            },
+            "data_description": {
+              "load_power_sensor": "Optional house consumption for load-side diagnostics."
+            }
+          }
+        },
+        "data": {}
       },
       "grid": {
         "title": "Grid sensors",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-grid)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "grid_import_energy": "Grid import energy (kWh)",
           "grid_export_energy": "Grid export energy (kWh, optional)",
@@ -588,7 +665,7 @@
       },
       "grid_tri_layout": {
         "title": "Three-phase sensor layout",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-grid_tri_layout)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "grid_tri_sensor_layout": "Sensor layout"
         },
@@ -598,7 +675,7 @@
       },
       "grid_phases": {
         "title": "Three-phase grid sensors (JSON)",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-grid_phases)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "grid_import_energy_phases": "Import energy (JSON)",
           "grid_export_energy_phases": "Export energy (JSON)",
@@ -607,7 +684,7 @@
       },
       "tri_grid_phase_1": {
         "title": "Three-phase grid — phase L1",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tri_grid_phase_1)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
@@ -616,7 +693,7 @@
       },
       "tri_grid_phase_2": {
         "title": "Three-phase grid — phase L2",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tri_grid_phase_2)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
@@ -625,7 +702,7 @@
       },
       "tri_grid_phase_3": {
         "title": "Three-phase grid — phase L3",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tri_grid_phase_3)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
@@ -634,7 +711,7 @@
       },
       "solar": {
         "title": "Solar configuration",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-solar)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "has_solar": "Do you have solar panels?",
           "solar_energy": "Solar energy production (kWh)",
@@ -654,7 +731,7 @@
       },
       "solar_estimation": {
         "title": "Solar production estimation",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-solar_estimation)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "solar_lat": "Latitude",
           "solar_lon": "Longitude",
@@ -668,7 +745,7 @@
       },
       "battery": {
         "title": "Battery systems",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-battery)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "has_batteries": "Do you have battery systems?"
         },
@@ -678,15 +755,19 @@
       },
       "battery_pick": {
         "title": "Pick battery system",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-battery_pick)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "battery_index": "Battery to edit",
-          "add_new": "Add a new battery system instead?"
+          "batt_remove_selected": "Delete the selected battery",
+          "add_new": "Add a new battery"
+        },
+        "data_description": {
+          "batt_remove_selected": "Removes the battery chosen above and saves. If this was the last one, battery support is turned off."
         }
       },
       "battery_add": {
         "title": "Add battery system",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-battery_add)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "batt_name": "Battery name",
           "batt_energy_in": "Charge energy (kWh, total increasing)",
@@ -708,7 +789,7 @@
       },
       "battery_advanced": {
         "title": "Battery advanced settings",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-battery_advanced)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "batt_capacity_kwh_entity": "Nominal capacity — sensor or helper",
           "batt_capacity_kwh": "Nominal capacity — manual entry",
@@ -736,14 +817,14 @@
       },
       "battery_more": {
         "title": "More batteries?",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-battery_more)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "add_another": "Add another battery system?"
         }
       },
       "tariff_refresh": {
         "title": "Refresh EDF tariffs",
-        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tariff_refresh)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "tariff_offer": "Offer type",
           "contract_power": "Subscribed power (kVA)"
@@ -778,6 +859,7 @@
       "battery_adv_soc_min_not_both": "Choose either a minimum SOC entity or a manual minimum SOC value.",
       "battery_adv_soc_max_not_both": "Choose either a maximum SOC entity or a manual maximum SOC value.",
       "invalid_battery_choice": "Select a valid battery system.",
+      "battery_pick_conflicting_options": "Turn off either “delete selected battery” or “add a new battery”, then try again.",
       "tariff_fetch_failed": "Failed to fetch tariffs. Check offer, kVA, and network.",
       "tariff_payload_incomplete": "Tariff data from the provider was incomplete or invalid. Try again or check offer and kVA."
     }
@@ -881,8 +963,8 @@
     },
     "grid_power_sign_mode": {
       "options": {
-        "export_negative": "Export shows as negative (import as positive)",
-        "export_positive": "Export shows as positive (import as negative)"
+        "export_negative": "Negative on export, positive on import (most meters)",
+        "export_positive": "Positive on export, negative on import"
       }
     }
   },

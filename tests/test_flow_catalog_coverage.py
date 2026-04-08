@@ -1,4 +1,4 @@
-"""Ensure the vitrine flow catalog covers every ``async_step_*`` on the initial config flow.
+"""Ensure the vitrine flow catalog covers every setup ``async_step_*`` plus whitelisted options steps.
 
 Run (repository root)::
 
@@ -42,6 +42,7 @@ def committed_catalog() -> dict:
 
 def test_setup_async_step_handlers_all_in_catalog(extract_mod, committed_catalog):
     expected = {h for _, h in extract_mod.iter_setup_flow_handlers()}
+    expected |= extract_mod.iter_options_catalog_handlers()
     actual = {s["handler"] for s in committed_catalog["steps"]}
     missing = expected - actual
     extra = actual - expected

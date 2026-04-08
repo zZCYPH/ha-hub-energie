@@ -8,6 +8,18 @@ DOMAIN: Final = "hub_energie"
 LOGIC_VERSION: Final = "1"
 INTEGRATION_TITLE: Final = "Hub Énergie"
 
+DOCUMENTATION_SITE_URL: Final = "https://hub-energie.ts-devops.com"
+
+
+def documentation_config_step_help_url(step_id: str) -> str:
+    """Public doc vitrine URL for the initial setup wizard step (matches the site simulator anchors)."""
+    return f"{DOCUMENTATION_SITE_URL}/#/doc/setup-help#flow-step-{step_id}"
+
+
+def documentation_options_step_help_url(step_id: str) -> str:
+    """Public doc vitrine URL for Settings → Hub Énergie → Configure steps."""
+    return f"{DOCUMENTATION_SITE_URL}/#/doc/setup-help#flow-step-options-{step_id}"
+
 
 def scoped_device_name(short_label: str) -> str:
     """DeviceInfo `name` prefix so HA slugifies entity_ids as hub_energie_<scope>_<sensor>."""
@@ -243,6 +255,8 @@ CONF_BATT_SOC_MIN_ENTITY: Final = "batt_soc_min_entity"
 CONF_BATT_SOC_MAX: Final = "batt_soc_max"
 CONF_BATT_SOC_MAX_ENTITY: Final = "batt_soc_max_entity"
 CONF_BATT_ADVANCED: Final = "batt_advanced"
+# Options flow ``battery_pick`` — remove selected entry (not persisted as a config key).
+CONF_BATT_REMOVE_SELECTED: Final = "batt_remove_selected"
 
 BATT_SIGN_POSITIVE_DISCHARGE: Final = "positive_discharge"
 BATT_SIGN_POSITIVE_CHARGE: Final = "positive_charge"

@@ -201,6 +201,17 @@ def tri_grid_energy_mode_selector() -> SelectSelector:
     )
 
 
+def yes_no_dropdown_selector() -> SelectSelector:
+    """Yes/No as a dropdown (labels from integration ``selector.boolean``)."""
+    return SelectSelector(
+        SelectSelectorConfig(
+            options=["false", "true"],
+            mode=SelectSelectorMode.DROPDOWN,
+            translation_key="boolean",
+        )
+    )
+
+
 def tariff_mode_selector() -> SelectSelector:
     return SelectSelector(
         SelectSelectorConfig(

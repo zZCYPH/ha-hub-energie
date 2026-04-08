@@ -1,6 +1,7 @@
 <script setup>
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import catalog from "../data/flowCatalog.generated.json";
+import FlowsimEntityPicker from "./FlowsimEntityPicker.vue";
 import { getLang } from "../siteShell";
 
 /** Sentinel: simulator reached HA ``async_create_entry`` (no catalog row). */
@@ -35,19 +36,14 @@ const INITIAL_FORM = {
   has_batteries: "false",
   batt_advanced: "false",
   add_another: "false",
+  /** When true, after “Battery systems” the preview shows the post-setup picker (Configure → Batteries). */
+  simulate_existing_batteries: "false",
+  battery_index: "0",
+  batt_remove_selected: "false",
+  add_new: "false",
 };
 
 const formState = reactive({ ...INITIAL_FORM });
-
-/** Fake entity ids — simulates HA entity picker (energy / power domains). */
-const DUMMY_ENTITIES = [
-  "sensor.compteur_reseau_import",
-  "sensor.linky_puissance",
-  "sensor.shellyem3_channel_a_energy",
-  "sensor.grid_import_energy_total",
-  "sensor.energy_returned",
-  "sensor.solaredge_import",
-];
 
 const CONTRACT_KVA = ["3", "6", "9", "12", "15", "18", "24", "30", "36"];
 
@@ -145,6 +141,7 @@ function boolFromForm(s, key) {
   if (v === false) return false;
   if (v === "true") return true;
   if (v === "false") return false;
+  if (typeof v === "string" && ["1", "yes", "on"].includes(v.trim().toLowerCase())) return true;
   return Boolean(v);
 }
 
@@ -219,7 +216,14 @@ function computeNext(stepId, s) {
     case "solar_estimation":
       return "battery";
     case "battery":
-      return boolFromForm(s, "has_batteries") ? "battery_add" : STEP_DONE;
+      if (!boolFromForm(s, "has_batteries")) return STEP_DONE;
+      if (boolFromForm(s, "simulate_existing_batteries")) return "battery_pick";
+      return "battery_add";
+    case "battery_pick": {
+      if (boolFromForm(s, "batt_remove_selected") && boolFromForm(s, "add_new")) return null;
+      if (boolFromForm(s, "batt_remove_selected")) return STEP_DONE;
+      return "battery_add";
+    }
     case "battery_add":
       return boolFromForm(s, "batt_advanced") ? "battery_advanced" : "battery_more";
     case "battery_advanced":
@@ -241,7 +245,7 @@ const canGoNext = computed(() => {
 });
 
 function defaultForFieldKey(key) {
-  if (fieldKind(key) === "boolean") return "false";
+  if (fieldKind(key) === "boolean" || fieldKind(key) === "boolean_dropdown") return "false";
   if (fieldKind(key) === "entity") return "";
   if (key === "tou_r0_start") return "22:00";
   if (key === "tou_r0_end") return "06:00";
@@ -258,6 +262,7 @@ function defaultForFieldKey(key) {
   if (key === "price_basis") return "TTC";
   if (key === "currency") return "EUR";
   if (key === "grid_tri_sensor_layout") return "total";
+  if (key === "battery_index") return "0";
   if (/^sched_r\d+_(start|end)$/.test(key)) return "";
   if (/^sched_r\d+_day_type$/.test(key)) return "all";
   return "";
@@ -267,7 +272,10 @@ function defaultForFieldKey(key) {
 function fieldFormKeyForStep(stepId, sec, f) {
   if (stepId === "manual_schedule_form" && /^sched_slot_\d+$/.test(sec.id)) {
     const i = sec.id.slice("sched_slot_".length);
-    return `sched_r${i}_${f.key}`;
+    const prefix = `sched_r${i}_`;
+    /** Catalog may ship HA-shaped keys (``sched_r0_start``) or short keys (``start``). */
+    if (String(f.key).startsWith(prefix)) return f.key;
+    return `${prefix}${f.key}`;
   }
   return f.key;
 }
@@ -320,6 +328,19 @@ function goPrev() {
   }
   if (history.value.length <= 1) return;
   history.value = history.value.slice(0, -1);
+}
+
+/** Mirrors HA ``flow_nav_selector``: dropdown with Continue vs back (not a separate button). */
+const flowNavChoice = ref("continue");
+
+const canFlowNavBack = computed(() => finished.value || history.value.length > 1);
+
+function onFlowNavChange() {
+  if (flowNavChoice.value !== "back") return;
+  goPrev();
+  nextTick(() => {
+    flowNavChoice.value = "continue";
+  });
 }
 
 function chooseMenuOption(opt) {
@@ -402,6 +423,13 @@ function textKeysExcludeEntity(key) {
 function isEntityKey(key) {
   if (textKeysExcludeEntity(key)) return false;
   if (key === "currency") return false;
+  /** Real HA uses multiline JSON text, not entity pickers — match `fieldKind` textarea branch. */
+  if (
+    key === "grid_import_energy_phases" ||
+    key === "grid_export_energy_phases" ||
+    key === "grid_power_phases"
+  )
+    return false;
   if (
     key === "solar_peak_power" ||
     key === "solar_orientation" ||
@@ -426,7 +454,14 @@ function isEntityKey(key) {
 
 function fieldKind(key) {
   if (key === "rte_client_secret") return "password";
-  if (key === "schedule_slots" || key === "solar_arrays") return "textarea";
+  if (
+    key === "schedule_slots" ||
+    key === "solar_arrays" ||
+    key === "grid_import_energy_phases" ||
+    key === "grid_export_energy_phases" ||
+    key === "grid_power_phases"
+  )
+    return "textarea";
   /** Manual kWh price in config flow — not an entity despite ``solar_`` prefix. */
   if (key === "solar_export_tariff") return "text";
   if (/^tou_r\d+_(start|end)$/.test(key)) return "time";
@@ -448,11 +483,14 @@ function fieldKind(key) {
   if (key === "solar_shading") return "solar_shading";
   if (key === "solar_performance") return "solar_performance";
   if (key === "batt_power_net_sign") return "batt_net_sign";
+  if (key === "battery_index") return "battery_index_select";
+  if (key === "batt_remove_selected" || key === "add_new") return "boolean_dropdown";
   if (
     key === "has_solar" ||
     key === "has_batteries" ||
     key === "batt_advanced" ||
     key === "add_another" ||
+    key === "simulate_existing_batteries" ||
     key === "solar_estimation_enabled" ||
     key === "solar_advanced" ||
     key === "solar_resale_contract"
@@ -505,6 +543,7 @@ const SELECTOR_KEY_BY_KIND = {
   solar_performance: "solar_performance",
   batt_net_sign: "batt_power_net_sign",
   boolean: "boolean",
+  boolean_dropdown: "boolean",
 };
 
 const selectorLocaleBundle = computed(() => {
@@ -516,6 +555,12 @@ const selectorLocaleBundle = computed(() => {
 });
 
 function selectRowsForKind(kind) {
+  if (kind === "battery_index_select") {
+    return [
+      { value: "0", label: "Hyper 2000 (4dcc91f4)" },
+      { value: "1", label: "Garage pack (a1b2c3d4)" },
+    ];
+  }
   if (kind === "contract_power") {
     return CONTRACT_KVA.map((v) => ({ value: v, label: `${v} kVA` }));
   }
@@ -523,7 +568,7 @@ function selectRowsForKind(kind) {
   if (!selKey) return [];
   const opts = selectorLocaleBundle.value[selKey]?.options;
   if (!opts || typeof opts !== "object") return [];
-  if (kind === "boolean") {
+  if (kind === "boolean" || kind === "boolean_dropdown") {
     const order = ["false", "true"];
     return order.filter((k) => Object.prototype.hasOwnProperty.call(opts, k)).map((k) => ({
       value: k,
@@ -546,11 +591,6 @@ function hasSelectRows(kind) {
   return selectRowsForKind(kind).length > 0;
 }
 
-function entitySelectOptions() {
-  const head = { value: "", label: "—" };
-  return [head, ...DUMMY_ENTITIES.map((id) => ({ value: id, label: id }))];
-}
-
 onMounted(() => {
   window.addEventListener("hub-energie-lang", bumpLang);
 });
@@ -566,6 +606,20 @@ onUnmounted(() => {
       <div class="d-flex flex-column flex-md-row gap-3 align-items-md-end justify-content-between mb-3">
         <div class="flex-grow-1">
           <p class="small text-secondary mb-1">{{ tr("flowsim.branching_hint") }}</p>
+          <div class="form-check form-check-inline small mb-2">
+            <input
+              id="flowsim-simulate-existing-batteries"
+              v-model="formState.simulate_existing_batteries"
+              class="form-check-input"
+              type="checkbox"
+              true-value="true"
+              false-value="false"
+            />
+            <label class="form-check-label" for="flowsim-simulate-existing-batteries">
+              {{ tr("flowsim.simulate_existing_batteries") }}
+            </label>
+          </div>
+          <p class="small text-secondary mb-2">{{ tr("flowsim.simulate_existing_batteries_hint") }}</p>
           <button type="button" class="btn btn-sm btn-outline-secondary" @click="restartWizard">
             {{ tr("flowsim.start_over") }}
           </button>
@@ -676,12 +730,7 @@ onUnmounted(() => {
                         />
                       </template>
                       <template v-else-if="fieldKind(fieldFormKey(sec, f)) === 'entity'">
-                        <select v-model="formState[fieldFormKey(sec, f)]" class="flow-sim-ha__control" :aria-label="f.label">
-                          <option v-for="opt in entitySelectOptions()" :key="opt.value + opt.label" :value="opt.value">
-                            {{ opt.label }}
-                          </option>
-                        </select>
-                        <span class="flow-sim-ha__hint flow-sim-ha__hint--muted">{{ tr("flowsim.dummy_entity_picker") }}</span>
+                        <FlowsimEntityPicker v-model="formState[fieldFormKey(sec, f)]" :aria-label="f.label" />
                       </template>
                       <template v-else-if="hasSelectRows(fieldKind(fieldFormKey(sec, f)))">
                         <select v-model="formState[fieldFormKey(sec, f)]" class="flow-sim-ha__control" :aria-label="f.label">
@@ -779,12 +828,7 @@ onUnmounted(() => {
                   />
                 </template>
                 <template v-else-if="fieldKind(f.key) === 'entity'">
-                  <select v-model="formState[f.key]" class="flow-sim-ha__control" :aria-label="f.label">
-                    <option v-for="opt in entitySelectOptions()" :key="f.key + opt.value" :value="opt.value">
-                      {{ opt.label }}
-                    </option>
-                  </select>
-                  <span class="flow-sim-ha__hint flow-sim-ha__hint--muted">{{ tr("flowsim.dummy_entity_picker") }}</span>
+                  <FlowsimEntityPicker v-model="formState[f.key]" :aria-label="f.label" />
                 </template>
                 <template v-else-if="hasSelectRows(fieldKind(f.key))">
                   <select v-model="formState[f.key]" class="flow-sim-ha__control" :aria-label="f.label">
@@ -843,14 +887,17 @@ onUnmounted(() => {
         </div>
 
         <footer class="flow-sim-ha__footer">
-          <button
-            type="button"
-            class="flow-sim-ha__btn flow-sim-ha__btn--text"
-            :disabled="history.length <= 1 && !finished"
-            @click="goPrev"
-          >
-            {{ tr("flowsim.back") }}
-          </button>
+          <div class="flow-sim-ha__flow-nav-wrap">
+            <select
+              v-model="flowNavChoice"
+              class="flow-sim-ha__control flow-sim-ha__flow-nav"
+              :aria-label="tr('flowsim.flow_nav_aria')"
+              @change="onFlowNavChange"
+            >
+              <option value="continue">{{ tr("flowsim.flow_nav_continue") }}</option>
+              <option value="back" :disabled="!canFlowNavBack">{{ tr("flowsim.flow_nav_back") }}</option>
+            </select>
+          </div>
           <button
             type="button"
             class="flow-sim-ha__btn flow-sim-ha__btn--primary"
@@ -1133,6 +1180,18 @@ onUnmounted(() => {
   gap: 8px;
   padding: 12px 12px 16px;
   border-top: 1px solid var(--fs-ha-divider);
+}
+
+.flow-sim-ha__flow-nav-wrap {
+  margin-inline-end: auto;
+  min-width: 0;
+  flex: 1;
+  max-width: min(100%, 20rem);
+}
+
+.flow-sim-ha__flow-nav {
+  width: 100%;
+  cursor: pointer;
 }
 
 .flow-sim-ha__btn {

@@ -1,0 +1,33 @@
+---
+description: Keep Home Assistant config/options flow and doc vitrine simulator aligned for any wizard UI change.
+alwaysApply: true
+---
+
+# Config flow ↔ vitrine simulator parity
+
+When changing **setup or options** wizard behaviour, labels, steps, sections, selectors, or branching, apply updates on **both** sides:
+
+## 1. Home Assistant (source of truth)
+
+- `custom_components/hub_energie/config_flow.py` — steps, `data_schema`, `section()`, selectors, navigation.
+- `custom_components/hub_energie/strings.json` — default EN strings (including `config.step.*` / `options.step.*`, `sections`, `selector` option labels).
+- `custom_components/hub_energie/translations/en.json` and `translations/fr.json` — same keys as users expect in UI.
+
+If validation or stored keys change, update `config_validation.py` and any related helpers.
+
+## 2. Doc vitrine (simulator + catalog)
+
+- **Release version on the site** comes from `custom_components/hub_energie/manifest.json` → `version`. Use placeholders in `site/public/i18n.js` and in `site/src/assets/*-fragment.html` / `landing-body.html`: `{{HUB_ENERGIE_VERSION}}` (full semver) and `{{HUB_ENERGIE_VERSION_SERIES}}` (major.minor for “v0.3.x” lines). They are expanded when running `npm run prebuild` / `predev` / `build` in `site/` (`sync-public.mjs` + Vite plugin `site/vite.config.js`). Bump **`manifest.json`** only; do not hand-edit expanded numbers in generated `site/src/vendor/hub-energie-i18n.js` (gitignored).
+- Regenerate the catalog:  
+  `python scripts/extract_config_flow_catalog.py`  
+  so `site/src/data/flowCatalog.generated.json` matches `config_flow.py` + strings. CI uses `--check` on this file.
+- If the extract script cannot represent a new pattern (AST limits, options-only steps whitelist, section shape, etc.), extend `scripts/extract_config_flow_catalog.py`.
+- If the interactive preview cannot render or branch correctly for new fields (selector kind, entity key heuristics, `computeNext`, `INITIAL_FORM` defaults, section field keys), update `site/src/components/FlowSimulator.vue`.
+
+## 3. Checklist before finishing a flow-related task
+
+- [ ] HA side updated (`config_flow` + strings/translations + validation if needed).
+- [ ] Catalog regenerated (or `--check` passes in CI).
+- [ ] Simulator exercised for the changed `step_id` (branching + field types); Vue updated if generic catalog path is insufficient.
+
+Do **not** ship integration-only string/schema changes without refreshing the catalog; the vitrine would lie. Do **not** change the simulator’s branching or copy in a way that contradicts `config_flow.py` unless the goal is explicitly a demo-only divergence (rare — document it).

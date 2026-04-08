@@ -7,6 +7,179 @@ const DOC_DELTA = '<a href="#/doc#configure-delta-caps">Energy delta caps</a>';
 const DOC_DELTA_FR =
   '<a href="#/doc#configure-delta-caps">Plafonds de delta d’énergie</a>';
 
+/** From ``custom_components/hub_energie/docs/advanced-schedule-slots.md`` — keep in sync when that doc changes. */
+const FLOWHELP_ADV_SCHEDULE_REFERENCE_EN = `
+<div class="flowhelp-schedule-ref small text-body">
+<p class="text-secondary mb-3">Each <strong>slot</strong> is a time range, an energy price (per kWh), which days it applies to, and an optional label. The integration stores slots as a JSON <strong>array of objects</strong> in <code class="font-mono">schedule_slots</code> (Home Assistant config entry data).</p>
+
+<h4 class="h6 fw-semibold mt-3 mb-2">JSON shape — field reference</h4>
+<div class="table-responsive mb-3">
+  <table class="table table-sm table-bordered align-middle mb-0">
+    <thead class="table-light"><tr><th scope="col">Field</th><th scope="col">Required</th><th scope="col">Type</th><th scope="col">Description</th></tr></thead>
+    <tbody>
+      <tr><td><code class="font-mono">start</code></td><td>yes</td><td>string</td><td>Start time, <code class="font-mono">HH:MM</code> (24 h). Seconds (<code class="font-mono">HH:MM:SS</code>) are accepted and normalized to <code class="font-mono">HH:MM</code>.</td></tr>
+      <tr><td><code class="font-mono">end</code></td><td>yes</td><td>string</td><td>End time, same format. <strong><code class="font-mono">00:00</code> means midnight at the end of the day</strong> (24:00), not midnight at the start. Use this for ranges that cross midnight (e.g. <code class="font-mono">22:00</code> → <code class="font-mono">00:00</code>).</td></tr>
+      <tr><td><code class="font-mono">price</code></td><td>yes</td><td>number</td><td>Energy price in your configured currency per kWh (non-negative).</td></tr>
+      <tr><td><code class="font-mono">day_type</code></td><td>no</td><td>string</td><td>One of: <code class="font-mono">all</code>, <code class="font-mono">weekdays</code>, <code class="font-mono">weekends</code>. Default: <code class="font-mono">all</code>.</td></tr>
+      <tr><td><code class="font-mono">name</code></td><td>no</td><td>string</td><td>Short label for UI / logs (e.g. <code class="font-mono">Night</code>, <code class="font-mono">Peak</code>).</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h4 class="h6 fw-semibold mt-3 mb-2"><code class="font-mono">day_type</code> values</h4>
+<ul class="mb-3 ps-3">
+  <li><code class="font-mono">all</code> — every day</li>
+  <li><code class="font-mono">weekdays</code> — Monday–Friday</li>
+  <li><code class="font-mono">weekends</code> — Saturday and Sunday</li>
+</ul>
+
+<h4 class="h6 fw-semibold mt-3 mb-2">Minimal example (two bands, all days)</h4>
+<pre class="p-3 bg-body-secondary border rounded small overflow-x-auto mb-3"><code>[
+  {
+    "start": "22:00",
+    "end": "06:00",
+    "price": 0.1296,
+    "day_type": "all",
+    "name": "Off-peak"
+  },
+  {
+    "start": "06:00",
+    "end": "22:00",
+    "price": 0.1609,
+    "day_type": "all",
+    "name": "Peak"
+  }
+]</code></pre>
+
+<h4 class="h6 fw-semibold mt-3 mb-2">Example — different weekday / weekend prices</h4>
+<pre class="p-3 bg-body-secondary border rounded small overflow-x-auto mb-3"><code>[
+  {
+    "start": "00:00",
+    "end": "06:00",
+    "price": 0.12,
+    "day_type": "all",
+    "name": "Night"
+  },
+  {
+    "start": "06:00",
+    "end": "22:00",
+    "price": 0.18,
+    "day_type": "weekdays",
+    "name": "Weekday day"
+  },
+  {
+    "start": "06:00",
+    "end": "22:00",
+    "price": 0.15,
+    "day_type": "weekends",
+    "name": "Weekend day"
+  },
+  {
+    "start": "22:00",
+    "end": "00:00",
+    "price": 0.12,
+    "day_type": "all",
+    "name": "Evening"
+  }
+]</code></pre>
+
+<h4 class="h6 fw-semibold mt-3 mb-2">Validation (summary)</h4>
+<ul class="mb-3 ps-3">
+  <li>At least one slot is required.</li>
+  <li>Times must be valid 24 h <code class="font-mono">HH:MM</code>.</li>
+  <li><code class="font-mono">price</code> must be a number ≥ 0.</li>
+  <li><code class="font-mono">day_type</code>, if present, must be exactly one of the three allowed values.</li>
+</ul>
+<p class="text-secondary mb-0">The tariff engine matches the current local time and weekday against slots; overlapping rules depend on how slots are ordered and evaluated in code — keep your intent clear and avoid redundant overlaps when possible.</p>
+</div>
+`;
+
+const FLOWHELP_ADV_SCHEDULE_REFERENCE_FR = `
+<div class="flowhelp-schedule-ref small text-body">
+<p class="text-secondary mb-3">Chaque <strong>créneau</strong> définit une plage horaire, un prix d’énergie (par kWh), les jours concernés et un libellé optionnel. L’intégration enregistre les créneaux en JSON : un <strong>tableau d’objets</strong> dans <code class="font-mono">schedule_slots</code> (données de l’entrée de configuration Home Assistant).</p>
+
+<h4 class="h6 fw-semibold mt-3 mb-2">Structure JSON — référence des champs</h4>
+<div class="table-responsive mb-3">
+  <table class="table table-sm table-bordered align-middle mb-0">
+    <thead class="table-light"><tr><th scope="col">Champ</th><th scope="col">Obligatoire</th><th scope="col">Type</th><th scope="col">Description</th></tr></thead>
+    <tbody>
+      <tr><td><code class="font-mono">start</code></td><td>oui</td><td>chaîne</td><td>Heure de début, <code class="font-mono">HH:MM</code> (24 h). Les secondes (<code class="font-mono">HH:MM:SS</code>) sont acceptées et normalisées en <code class="font-mono">HH:MM</code>.</td></tr>
+      <tr><td><code class="font-mono">end</code></td><td>oui</td><td>chaîne</td><td>Heure de fin, même format. <strong><code class="font-mono">00:00</code> signifie minuit en <em>fin</em> de journée</strong> (équivalent 24:00), pas minuit au début. À utiliser pour les plages qui passent minuit (ex. <code class="font-mono">22:00</code> → <code class="font-mono">00:00</code>).</td></tr>
+      <tr><td><code class="font-mono">price</code></td><td>oui</td><td>nombre</td><td>Prix de l’énergie, dans la devise configurée, par kWh (≥ 0).</td></tr>
+      <tr><td><code class="font-mono">day_type</code></td><td>non</td><td>chaîne</td><td>L’une des valeurs : <code class="font-mono">all</code>, <code class="font-mono">weekdays</code>, <code class="font-mono">weekends</code>. Défaut : <code class="font-mono">all</code>.</td></tr>
+      <tr><td><code class="font-mono">name</code></td><td>non</td><td>chaîne</td><td>Libellé court pour l’UI / les journaux (ex. <code class="font-mono">Night</code>, <code class="font-mono">Peak</code>).</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h4 class="h6 fw-semibold mt-3 mb-2">Valeurs de <code class="font-mono">day_type</code></h4>
+<ul class="mb-3 ps-3">
+  <li><code class="font-mono">all</code> — tous les jours</li>
+  <li><code class="font-mono">weekdays</code> — lundi à vendredi</li>
+  <li><code class="font-mono">weekends</code> — samedi et dimanche</li>
+</ul>
+
+<h4 class="h6 fw-semibold mt-3 mb-2">Exemple minimal (deux plages, tous les jours)</h4>
+<pre class="p-3 bg-body-secondary border rounded small overflow-x-auto mb-3"><code>[
+  {
+    "start": "22:00",
+    "end": "06:00",
+    "price": 0.1296,
+    "day_type": "all",
+    "name": "Off-peak"
+  },
+  {
+    "start": "06:00",
+    "end": "22:00",
+    "price": 0.1609,
+    "day_type": "all",
+    "name": "Peak"
+  }
+]</code></pre>
+
+<h4 class="h6 fw-semibold mt-3 mb-2">Exemple — tarifs jour de semaine / week-end différents</h4>
+<pre class="p-3 bg-body-secondary border rounded small overflow-x-auto mb-3"><code>[
+  {
+    "start": "00:00",
+    "end": "06:00",
+    "price": 0.12,
+    "day_type": "all",
+    "name": "Night"
+  },
+  {
+    "start": "06:00",
+    "end": "22:00",
+    "price": 0.18,
+    "day_type": "weekdays",
+    "name": "Weekday day"
+  },
+  {
+    "start": "06:00",
+    "end": "22:00",
+    "price": 0.15,
+    "day_type": "weekends",
+    "name": "Weekend day"
+  },
+  {
+    "start": "22:00",
+    "end": "00:00",
+    "price": 0.12,
+    "day_type": "all",
+    "name": "Evening"
+  }
+]</code></pre>
+
+<h4 class="h6 fw-semibold mt-3 mb-2">Validation (résumé)</h4>
+<ul class="mb-3 ps-3">
+  <li>Au moins un créneau est requis.</li>
+  <li>Les heures doivent être valides en 24 h (<code class="font-mono">HH:MM</code>).</li>
+  <li><code class="font-mono">price</code> doit être un nombre ≥ 0.</li>
+  <li>Si <code class="font-mono">day_type</code> est présent, il doit être exactement l’une des trois valeurs autorisées.</li>
+</ul>
+<p class="text-secondary mb-0">Le moteur tarifaire confronte l’heure locale et le jour de la semaine aux créneaux ; le comportement en cas de chevauchement dépend de l’ordre et de l’évaluation dans le code — gardez une intention claire et évitez les recouvrements redondants lorsque c’est possible.</p>
+</div>
+`;
+
 export const FLOW_HELP_EN = {
   user: {
     title: "User — supplier & phase",
@@ -54,15 +227,22 @@ export const FLOW_HELP_EN = {
   },
   manual_schedule: {
     title: "Manual — advanced schedule menu",
-    body_html: `<p>Choose between a <strong>visual slot editor</strong> and a <strong>JSON</strong> representation for complex weekly / calendar rules.</p>`,
+    body_html: `<p>The wizard asks whether you want <strong>form</strong> or <strong>JSON</strong> mode for the advanced schedule (manual tariff).</p>
+<ul class="ps-3 mb-3">
+  <li><strong>Form</strong> — up to <strong>6</strong> slots with time pickers, price, day type, and optional name (no raw JSON).</li>
+  <li><strong>JSON</strong> — paste a full array (same object shape as the form); use this for more than six slots or bulk edits.</li>
+</ul>
+<p class="mb-0">The <strong>slot format</strong>, JSON examples, and validation rules are documented in the <strong>Schedule (form)</strong> and <strong>Schedule (JSON)</strong> sections below on this page — the reference is the same for both modes.</p>`,
   },
   manual_schedule_form: {
     title: "Manual — schedule (form)",
-    body_html: `<p>Fill rows for start/end times, price, optional day filter, and labels. Validation ensures coverage rules expected by the integration.</p>`,
+    body_html: `<p class="text-secondary mb-3">Use the <strong>form</strong> for up to six slots: start/end, price per kWh, <code class="font-mono">day_type</code>, and optional label. Values are stored as <code class="font-mono">schedule_slots</code> with the same JSON shape as below.</p>
+${FLOWHELP_ADV_SCHEDULE_REFERENCE_EN}`,
   },
   manual_schedule_json: {
     title: "Manual — schedule (JSON)",
-    body_html: `<p>Paste or edit the schedule as JSON — useful for power users duplicating configs between homes.</p>`,
+    body_html: `<p class="text-secondary mb-3">Paste or edit a JSON <strong>array of slot objects</strong> in <code class="font-mono">schedule_slots</code>. Prefer JSON when you need <strong>more than six</strong> slots or copy/paste between instances. The format is identical to what the form produces.</p>
+${FLOWHELP_ADV_SCHEDULE_REFERENCE_EN}`,
   },
   grid_tri_energy_mode: {
     title: "Three-phase — energy layout",
@@ -195,11 +375,11 @@ export const FLOW_HELP_EN = {
   },
   options_battery: {
     title: "Options — batteries",
-    body_html: `<p>Add, remove, or edit battery definitions; pick which pack to edit when several exist.</p>`,
+    body_html: `<p>Turn battery tracking on or off. When it stays on and at least one system is saved, you can pick a pack to edit, add another, or remove one from the picker step.</p>`,
   },
   options_battery_pick: {
     title: "Options — pick battery",
-    body_html: `<p>Shown when multiple batteries are configured — choose which row to edit or add a new pack.</p>`,
+    body_html: `<p>Shown when at least one battery exists: choose which system to edit, set <strong>Add a new battery</strong> to <em>Yes</em> in the dropdown to start a blank row, or set <strong>Delete the selected battery</strong> to <em>Yes</em> to remove the highlighted entry and save (you cannot combine delete and add-new on the same submit). Removing the last battery also turns battery support off.</p>`,
   },
   options_battery_add: {
     title: "Options — add / edit battery",
@@ -263,15 +443,22 @@ export const FLOW_HELP_FR = {
   },
   manual_schedule: {
     title: "Manuel — calendrier avancé",
-    body_html: `<p>Choix entre formulaire visuel et saisie <strong>JSON</strong>.</p>`,
+    body_html: `<p>L’assistant demande si vous préférez le <strong>formulaire</strong> ou la saisie <strong>JSON</strong> pour le calendrier avancé (tarif manuel).</p>
+<ul class="ps-3 mb-3">
+  <li><strong>Formulaire</strong> — jusqu’à <strong>6</strong> créneaux : heures début/fin, prix, type de jour, nom optionnel (sans JSON brut).</li>
+  <li><strong>JSON</strong> — collez un tableau complet (même structure d’objets que le formulaire) ; utile au-delà de six créneaux ou pour copier/coller en masse.</li>
+</ul>
+<p class="mb-0">Le <strong>format des créneaux</strong>, les exemples JSON et les règles de validation sont détaillés dans les sections <strong>Calendrier (formulaire)</strong> et <strong>Calendrier (JSON)</strong> ci-dessous sur cette page — la référence est la même pour les deux modes.</p>`,
   },
   manual_schedule_form: {
     title: "Manuel — calendrier (formulaire)",
-    body_html: `<p>Remplir les lignes (début / fin / prix / type de jour / nom). Des règles de validation garantissent la couverture attendue.</p>`,
+    body_html: `<p class="text-secondary mb-3">Le <strong>formulaire</strong> couvre jusqu’à six créneaux : début/fin, prix au kWh, <code class="font-mono">day_type</code> et libellé optionnel. Les valeurs sont enregistrées dans <code class="font-mono">schedule_slots</code> avec la même forme JSON que ci-dessous.</p>
+${FLOWHELP_ADV_SCHEDULE_REFERENCE_FR}`,
   },
   manual_schedule_json: {
     title: "Manuel — calendrier (JSON)",
-    body_html: `<p>Édition ou collage JSON pour dupliquer des configurations ou versions avancées.</p>`,
+    body_html: `<p class="text-secondary mb-3">Collez ou éditez un <strong>tableau JSON d’objets créneau</strong> dans <code class="font-mono">schedule_slots</code>. Préférez le JSON pour <strong>plus de six</strong> créneaux ou la duplication entre instances. Le format est identique à celui produit par le formulaire.</p>
+${FLOWHELP_ADV_SCHEDULE_REFERENCE_FR}`,
   },
   grid_tri_energy_mode: {
     title: "Triphasé — mode énergie",
@@ -404,11 +591,11 @@ export const FLOW_HELP_FR = {
   },
   options_battery: {
     title: "Options — batteries",
-    body_html: `<p>Éditer la flotte : ajout, choix d’un pack existant, suppression implicite si tout est retiré.</p>`,
+    body_html: `<p>Activer ou désactiver le suivi batteries. S’il reste actif et qu’au moins un système est enregistré, vous pouvez en choisir un à modifier, en ajouter un autre ou en supprimer un depuis l’écran de sélection.</p>`,
   },
   options_battery_pick: {
     title: "Options — choix de batterie",
-    body_html: `<p>Liste déroulante lorsque plusieurs systèmes sont enregistrés.</p>`,
+    body_html: `<p>Affiché dès qu’au moins une batterie existe : choisissez la ligne à modifier, mettez <strong>Ajouter une nouvelle batterie</strong> sur <em>Oui</em> dans la liste pour une saisie vide, ou <strong>Supprimer la batterie sélectionnée</strong> sur <em>Oui</em> pour retirer l’entrée choisie et enregistrer (suppression et ajout ne peuvent pas être validés ensemble). Si vous supprimez la dernière batterie, le suivi batteries est désactivé.</p>`,
   },
   options_battery_add: {
     title: "Options — ajouter / éditer batterie",
