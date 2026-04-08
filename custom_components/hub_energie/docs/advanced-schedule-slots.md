@@ -94,4 +94,4 @@ The setup wizard first asks whether you want the **form** or **JSON** mode.
 - **Form** — up to **6** slots with time pickers, price, day type, and optional name (no raw JSON).  
 - **JSON** — paste a full array as in the examples above (for advanced or bulk edits). Use JSON if you need more than six slots.  
 
-This file is the reference for the JSON format in both cases. The canonical URL used in the UI is defined in code as `DOCUMENTATION_ADVANCED_SCHEDULE_SLOTS_URL` (GitLab `master` branch).
+This file is the reference for the JSON format in both cases. In Home Assistant, the setup step links to the **documentation vitrine** (on-site setup help) instead of embedding GitLab URLs in the dialog.

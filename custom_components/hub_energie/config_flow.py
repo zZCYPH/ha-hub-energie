@@ -132,7 +132,6 @@ from .const import (
     DEFAULT_MAX_DELTA_KWH_SOLAR,
     DELTA_CAP_KWH_MAX,
     DELTA_CAP_KWH_MIN,
-    DOCUMENTATION_ADVANCED_SCHEDULE_SLOTS_URL,
     FLOW_NAV_BACK,
     FLOW_NAV_CONTINUE,
     SCHEDULE_FORM_MAX_SLOTS,
@@ -1333,7 +1332,6 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
         return self.async_show_menu(
             step_id="manual_schedule",
             menu_options=["manual_schedule_form", "manual_schedule_json", "manual_schedule_prev"],
-            description_placeholders={"doc_url": DOCUMENTATION_ADVANCED_SCHEDULE_SLOTS_URL},
         )
 
     async def async_step_manual_schedule_prev(
@@ -1364,7 +1362,6 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
             step_id="manual_schedule_form",
             data_schema=_manual_schedule_form_schema(self.hass, self._data, currency, setup_flow=self),
             errors=errors,
-            description_placeholders={"doc_url": DOCUMENTATION_ADVANCED_SCHEDULE_SLOTS_URL},
         )
 
     async def async_step_manual_schedule_json(
@@ -1406,7 +1403,6 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
                 ),
             ),
             errors=errors,
-            description_placeholders={"doc_url": DOCUMENTATION_ADVANCED_SCHEDULE_SLOTS_URL},
         )
 
     async def async_step_grid(

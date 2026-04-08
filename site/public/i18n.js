@@ -170,7 +170,7 @@
       "flowsim.empty": "(no step)",
       "flowsim.redirect_note": "This step only navigates in the real wizard — there is usually no form.",
       "flowsim.disclaimer":
-        "Educational preview: titles/labels and selector options mirror the integration. Branching follows the real wizard in code, but entity validation, network calls (e.g. EDF/RTE), and full form rules are not executed. Regenerate with python scripts/extract_config_flow_catalog.py.",
+        "Educational preview: titles/labels and selector options mirror the integration. Branching follows the real wizard in code, but entity validation, network calls (e.g. EDF/RTE), and full form rules are not executed.",
       "flowsim.branching_hint": "Your choices drive the next step (same branch points as the integration).",
       "flowsim.start_over": "Start over",
       "flowsim.step_depth": "Step {n}",
@@ -184,6 +184,10 @@
       "flowsim.close_aria": "Close",
       "flowsim.help_aria": "Help",
       "flowsim.dummy_entity_picker": "Entity picker (dummy list)",
+      "flowsim.suffix_per_kwh": "{currency}/kWh",
+      "flowsim.suffix_per_month": "{currency}/month",
+      "flowsim.time_placeholder": "--:--",
+      "flowsim.time_field_title": "Time (24 h, hh:mm)",
 
       "doc.modal_aria": "Full-size screenshot",
       "doc.modal_close_aria": "Close",
@@ -685,7 +689,7 @@
       "flowsim.empty": "(pas d’étape)",
       "flowsim.redirect_note": "Cette étape ne fait qu’enchaîner dans le vrai assistant — en principe sans formulaire.",
       "flowsim.disclaimer":
-        "Aperçu pédagogique : titres, descriptions et libellés de sélecteurs calqués sur l’intégration. Les enchaînements suivent le vrai assistant dans le code, sans validation d’entités ni appels réseau (EDF/RTE, etc.). Régénérer avec python scripts/extract_config_flow_catalog.py.",
+        "Aperçu pédagogique : titres, descriptions et libellés de sélecteurs calqués sur l’intégration. Les enchaînements suivent le vrai assistant dans le code, sans validation d’entités ni appels réseau (EDF/RTE, etc.).",
       "flowsim.branching_hint": "Vos choix déterminent l’étape suivante (même logique de branchement que l’intégration).",
       "flowsim.start_over": "Recommencer",
       "flowsim.step_depth": "Étape {n}",
@@ -699,6 +703,10 @@
       "flowsim.close_aria": "Fermer",
       "flowsim.help_aria": "Aide",
       "flowsim.dummy_entity_picker": "Sélecteur d’entité (liste factice)",
+      "flowsim.suffix_per_kwh": "{currency}/kWh",
+      "flowsim.suffix_per_month": "{currency}/mois",
+      "flowsim.time_placeholder": "--:--",
+      "flowsim.time_field_title": "Heure (24 h, hh:mm)",
 
       "doc.modal_aria": "Capture en grand",
       "doc.modal_close_aria": "Fermer",

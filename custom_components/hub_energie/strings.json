@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Hub Énergie – Setup",
-        "description": "Configure your energy monitoring integration. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-user)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-user)",
         "data": {
           "supplier": "Energy supplier",
           "phase_type": "Phase type"
@@ -15,7 +15,7 @@
       },
       "supplier_custom": {
         "title": "Custom supplier",
-        "description": "You chose Other as your energy supplier. Enter a short name for dashboards and entity labels (for example the name on your bill). Tariffs are entered manually when there is no automatic feed for this provider. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-supplier_custom)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-supplier_custom)",
         "data": {
           "supplier_custom_name": "Supplier display name",
           "flow_nav": "Wizard navigation"
@@ -26,7 +26,7 @@
       },
       "tariff_mode": {
         "title": "Tariff retrieval mode",
-        "description": "Choose how tariffs should be configured. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode)",
         "data": {
           "tariff_mode": "Tariff mode",
           "flow_nav": "Wizard navigation"
@@ -37,9 +37,8 @@
       },
       "tariff_mode_manual_only": {
         "title": "Tariff configuration",
-        "description": "Automatic tariff retrieval is not yet available for this supplier. Rates must be entered manually. If auto-retrieval becomes available later, a migration path will be provided without affecting historical data. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode_manual_only)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tariff_mode_manual_only)",
         "data": {
-          "tariff_mode": "Tariff mode",
           "flow_nav": "Wizard navigation"
         }
       },
@@ -50,7 +49,7 @@
           "contract_name": "Contract name (optional)",
           "flow_nav": "Wizard navigation"
         },
-        "description": "Enter your subscribed power (kVA) and an optional contract label. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-contract)"
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-contract)"
       },
       "edf_offer": {
         "title": "EDF offer selection",
@@ -58,11 +57,11 @@
           "tariff_offer": "Offer type",
           "flow_nav": "Wizard navigation"
         },
-        "description": "Choose how your EDF offer is priced: BASE, HPHC, or Tempo. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_offer)"
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_offer)"
       },
       "edf_tempo": {
         "title": "Tempo signal source",
-        "description": "RTE is the most reliable source but requires credentials. API Couleur Tempo works without credentials and is easier to set up. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_tempo)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_tempo)",
         "data": {
           "tempo_mode": "Signal source",
           "rte_client_id": "RTE API client ID",
@@ -73,7 +72,7 @@
       },
       "edf_tempo_rte": {
         "title": "RTE credentials",
-        "description": "Enter your RTE API credentials to fetch the Tempo calendar from the official source. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_tempo_rte)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-edf_tempo_rte)",
         "data": {
           "rte_client_id": "RTE API client ID",
           "rte_client_secret": "RTE API client secret",
@@ -82,7 +81,7 @@
       },
       "manual_pricing": {
         "title": "Pricing structure",
-        "description": "Choose how your manual tariff is modeled. Pick the option that best matches how your bill is structured. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_pricing)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_pricing)",
         "data": {
           "pricing_structure": "Pricing type",
           "price_basis": "Prices are",
@@ -100,11 +99,11 @@
           "subscription_price": "Monthly subscription",
           "flow_nav": "Wizard navigation"
         },
-        "description": "Enter your single kWh energy price and optional monthly subscription. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_flat)"
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_flat)"
       },
       "manual_tou": {
         "title": "Time-of-use tariff",
-        "description": "Define off-peak (HC) and peak (HP) windows and their kWh prices. Use advanced schedule for more than two bands. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_tou)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_tou)",
         "sections": {
           "tou_slot_0": {
             "name": "Off-peak (HC)",
@@ -130,7 +129,7 @@
       },
       "manual_schedule": {
         "title": "Advanced schedule",
-        "description": "Choose how to enter your tariff slots. Full JSON format and examples: {doc_url} [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule)",
         "menu_options": {
           "manual_schedule_form": "Form (up to 6 slots)",
           "manual_schedule_json": "JSON (advanced)",
@@ -139,7 +138,7 @@
       },
       "manual_schedule_form": {
         "title": "Advanced schedule — form",
-        "description": "Fill one row per slot (up to 6). Leave unused rows empty. See {doc_url} for midnight ranges and day types. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule_form)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule_form)",
         "sections": {
           "sched_slot_0": {
             "name": "Time slot 1",
@@ -209,7 +208,7 @@
       },
       "manual_schedule_json": {
         "title": "Advanced schedule — JSON",
-        "description": "Paste a JSON array of slots. Specification: {doc_url} [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule_json)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-manual_schedule_json)",
         "data": {
           "schedule_slots": "Schedule slots (JSON)",
           "subscription_price": "Monthly subscription",
@@ -218,7 +217,7 @@
       },
       "grid_tri_energy_mode": {
         "title": "Three-phase grid import",
-        "description": "Does your installation expose one total import counter for the whole grid, or one counter per phase? [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_energy_mode)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_energy_mode)",
         "data": {
           "grid_tri_energy_mode": "Grid import metering",
           "flow_nav": "Wizard navigation"
@@ -229,7 +228,7 @@
       },
       "grid_tri_per_phase": {
         "title": "Three-phase import meters",
-        "description": "Select one import energy sensor per phase. Optional: three export sensors (all or none). [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_per_phase)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_per_phase)",
         "data": {
           "grid_power_sign_mode": "Grid power sign convention",
           "load_power_sensor": "House load power (W, optional)",
@@ -254,7 +253,7 @@
       },
       "grid": {
         "title": "Grid energy sensors",
-        "description": "Configure your grid energy measurement sensors. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid)",
         "data": {
           "grid_import_energy": "Grid import energy (kWh)",
           "grid_export_energy": "Grid export energy (kWh, optional)",
@@ -272,7 +271,7 @@
       },
       "grid_tri_layout": {
         "title": "Three-phase sensor layout",
-        "description": "Choose how you want to enter optional per-phase sensors (import/export energy and grid power). Your main grid sensors from the previous step stay as the primary totals. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_layout)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_tri_layout)",
         "data": {
           "grid_tri_sensor_layout": "Sensor layout",
           "flow_nav": "Wizard navigation"
@@ -283,7 +282,7 @@
       },
       "grid_phases": {
         "title": "Three-phase grid sensors (JSON)",
-        "description": "Optional JSON lists: either one entry for a total sensor or one entry per phase (see template). Leave fields empty to skip. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_phases)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-grid_phases)",
         "data": {
           "grid_import_energy_phases": "Import energy sensors (per-phase, JSON list)",
           "grid_export_energy_phases": "Export energy sensors (per-phase, JSON list)",
@@ -293,7 +292,7 @@
       },
       "tri_grid_phase_1": {
         "title": "Three-phase grid — phase L1",
-        "description": "Optional sensors for phase 1. Leave a field empty if you do not have it. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_1)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_1)",
         "data": {
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
@@ -303,7 +302,7 @@
       },
       "tri_grid_phase_2": {
         "title": "Three-phase grid — phase L2",
-        "description": "Optional sensors for phase 2. Leave a field empty if you do not have it. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_2)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_2)",
         "data": {
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
@@ -313,7 +312,7 @@
       },
       "tri_grid_phase_3": {
         "title": "Three-phase grid — phase L3",
-        "description": "Optional sensors for phase 3. Leave a field empty if you do not have it. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_3)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-tri_grid_phase_3)",
         "data": {
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
@@ -327,11 +326,11 @@
           "has_solar": "Do you have solar panels?",
           "flow_nav": "Wizard navigation"
         },
-        "description": "Say whether you want to track solar production in this integration. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar)"
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar)"
       },
       "solar_config": {
         "title": "Solar production sensors",
-        "description": "Select the solar production sensors. Optional: resale and estimation. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_config)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_config)",
         "data": {
           "solar_energy": "Solar energy production (kWh)",
           "solar_power_sensor": "Solar power (W, optional)",
@@ -362,7 +361,7 @@
           "solar_performance": "System performance",
           "flow_nav": "Wizard navigation"
         },
-        "description": "Optional: configure PV estimation when you enable it. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_estimation)"
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-solar_estimation)"
       },
       "battery": {
         "title": "Battery systems",
@@ -370,11 +369,11 @@
           "has_batteries": "Do you have battery systems?",
           "flow_nav": "Wizard navigation"
         },
-        "description": "Say whether you want to track home battery systems. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery)"
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery)"
       },
       "battery_add": {
         "title": "Add battery system",
-        "description": "Configure a battery/inverter system. Only charge and discharge energy sensors are required. If you enable advanced fields, the next step will ask for optional capacity, power limits, and SOC bounds. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_add)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_add)",
         "data": {
           "batt_name": "Battery name",
           "batt_energy_in": "Charge energy (kWh, total increasing)",
@@ -397,7 +396,7 @@
       },
       "battery_advanced": {
         "title": "Battery advanced settings",
-        "description": "Battery #{battery_number}: for each setting, two rows share the same title: first a sensor/helper, then a manual value. Only fill one of the two rows (not both). [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_advanced)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_advanced)",
         "data": {
           "batt_capacity_kwh_entity": "Nominal capacity — sensor or helper",
           "batt_capacity_kwh": "Nominal capacity — manual entry",
@@ -426,7 +425,7 @@
       },
       "battery_more": {
         "title": "More batteries?",
-        "description": "You can add more battery systems or continue. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_more)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-battery_more)",
         "data": {
           "add_another": "Add another battery system?",
           "flow_nav": "Wizard navigation"
@@ -434,7 +433,7 @@
       },
       "reinjection": {
         "title": "Advanced reinjection tuning",
-        "description": "Optional advanced thresholds for export / reinjection classification. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-reinjection)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-reinjection)",
         "data": {
           "reinjection_export_ignore_below_w": "Ignore export below (W)",
           "reinjection_batt_charge_significant_w": "Battery charge significant above (W)",
@@ -484,7 +483,7 @@
     "step": {
       "init": {
         "title": "Hub Énergie – Options",
-        "description": "Modify your energy monitoring configuration. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-init)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-init)",
         "menu_options": {
           "offer": "Offer & tariffs",
           "grid": "Grid sensors",
@@ -498,7 +497,7 @@
       },
       "advanced_energy": {
         "title": "Energy delta caps",
-        "description": "Maximum positive kWh change accepted in a single update per source class. Larger jumps are treated as unrealistic (skipped for internal totals; last meter reading still updates). Grid applies to import and export. [Documentation — energy delta caps](https://hub-energie.ts-devops.com/#/doc#configure-delta-caps).",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-advanced_energy)",
         "data": {
           "max_delta_kwh_grid": "Grid import & export",
           "max_delta_kwh_solar": "Solar production",
@@ -514,14 +513,14 @@
       },
       "tempo": {
         "title": "Tempo signal source",
-        "description": "Choose between RTE (official) and API Couleur Tempo. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tempo)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tempo)",
         "data": {
           "tempo_mode": "Signal source"
         }
       },
       "tempo_rte": {
         "title": "RTE credentials",
-        "description": "Enter your RTE API credentials. Leave secret empty to keep the existing one. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tempo_rte)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tempo_rte)",
         "data": {
           "rte_client_id": "RTE API client ID",
           "rte_client_secret": "RTE API client secret"
@@ -529,7 +528,7 @@
       },
       "offer": {
         "title": "Offer & supplier",
-        "description": "Supplier, subscribed power, and optional contract label. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-offer)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-offer)",
         "data": {
           "supplier": "Energy supplier",
           "supplier_custom_name": "Supplier name",
@@ -544,7 +543,7 @@
       },
       "grid_tri_energy_mode": {
         "title": "Three-phase grid import",
-        "description": "One total import counter for the whole grid, or one counter per phase? [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-grid_tri_energy_mode)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-grid_tri_energy_mode)",
         "data": {
           "grid_tri_energy_mode": "Grid import metering"
         },
@@ -554,7 +553,7 @@
       },
       "grid_tri_per_phase": {
         "title": "Three-phase import meters",
-        "description": "One import sensor per phase. Export: three sensors or none. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-grid_tri_per_phase)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-grid_tri_per_phase)",
         "data": {
           "grid_power_sign_mode": "Grid power sign convention",
           "load_power_sensor": "House load power (W, optional)",
@@ -571,7 +570,7 @@
       },
       "grid": {
         "title": "Grid sensors",
-        "description": "Grid import/export energy and optional power entities. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-grid)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-grid)",
         "data": {
           "grid_import_energy": "Grid import energy (kWh)",
           "grid_export_energy": "Grid export energy (kWh, optional)",
@@ -589,7 +588,7 @@
       },
       "grid_tri_layout": {
         "title": "Three-phase sensor layout",
-        "description": "Choose how to enter optional per-phase sensors. Main grid totals from “Grid sensors” are unchanged. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-grid_tri_layout)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-grid_tri_layout)",
         "data": {
           "grid_tri_sensor_layout": "Sensor layout"
         },
@@ -599,7 +598,7 @@
       },
       "grid_phases": {
         "title": "Three-phase grid sensors (JSON)",
-        "description": "Optional JSON lists: one total sensor or one per phase. Leave empty to skip. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-grid_phases)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-grid_phases)",
         "data": {
           "grid_import_energy_phases": "Import energy (JSON)",
           "grid_export_energy_phases": "Export energy (JSON)",
@@ -608,7 +607,7 @@
       },
       "tri_grid_phase_1": {
         "title": "Three-phase grid — phase L1",
-        "description": "Optional sensors for phase 1. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tri_grid_phase_1)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tri_grid_phase_1)",
         "data": {
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
@@ -617,7 +616,7 @@
       },
       "tri_grid_phase_2": {
         "title": "Three-phase grid — phase L2",
-        "description": "Optional sensors for phase 2. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tri_grid_phase_2)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tri_grid_phase_2)",
         "data": {
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
@@ -626,7 +625,7 @@
       },
       "tri_grid_phase_3": {
         "title": "Three-phase grid — phase L3",
-        "description": "Optional sensors for phase 3. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tri_grid_phase_3)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tri_grid_phase_3)",
         "data": {
           "tri_phase_step_import_energy": "Import energy (kWh, optional)",
           "tri_phase_step_export_energy": "Export energy (kWh, optional)",
@@ -635,7 +634,7 @@
       },
       "solar": {
         "title": "Solar configuration",
-        "description": "Solar production sensors and optional resale tariff. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-solar)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-solar)",
         "data": {
           "has_solar": "Do you have solar panels?",
           "solar_energy": "Solar energy production (kWh)",
@@ -655,7 +654,7 @@
       },
       "solar_estimation": {
         "title": "Solar production estimation",
-        "description": "PV system parameters for the estimation model. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-solar_estimation)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-solar_estimation)",
         "data": {
           "solar_lat": "Latitude",
           "solar_lon": "Longitude",
@@ -669,7 +668,7 @@
       },
       "battery": {
         "title": "Battery systems",
-        "description": "{battery_count} system(s) configured. Use Configure on the integration entry to add or edit battery details. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-battery)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-battery)",
         "data": {
           "has_batteries": "Do you have battery systems?"
         },
@@ -679,7 +678,7 @@
       },
       "battery_pick": {
         "title": "Pick battery system",
-        "description": "Edit an existing battery system or add a new one. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-battery_pick)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-battery_pick)",
         "data": {
           "battery_index": "Battery to edit",
           "add_new": "Add a new battery system instead?"
@@ -687,7 +686,7 @@
       },
       "battery_add": {
         "title": "Add battery system",
-        "description": "Configure a battery/inverter system. Only charge and discharge energy sensors are required. If you enable advanced fields, the next step will ask for optional capacity, power limits, and SOC bounds. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-battery_add)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-battery_add)",
         "data": {
           "batt_name": "Battery name",
           "batt_energy_in": "Charge energy (kWh, total increasing)",
@@ -709,7 +708,7 @@
       },
       "battery_advanced": {
         "title": "Battery advanced settings",
-        "description": "Battery #{battery_number}: for each setting, two rows share the same title: first a sensor/helper, then a manual value. Only fill one of the two rows (not both). [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-battery_advanced)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-battery_advanced)",
         "data": {
           "batt_capacity_kwh_entity": "Nominal capacity — sensor or helper",
           "batt_capacity_kwh": "Nominal capacity — manual entry",
@@ -737,14 +736,14 @@
       },
       "battery_more": {
         "title": "More batteries?",
-        "description": "You can add more battery systems or continue. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-battery_more)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-battery_more)",
         "data": {
           "add_another": "Add another battery system?"
         }
       },
       "tariff_refresh": {
         "title": "Refresh EDF tariffs",
-        "description": "Fetch current rates from the public EDF data (data.gouv) for the selected offer and kVA. [Step help](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tariff_refresh)",
+        "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-tariff_refresh)",
         "data": {
           "tariff_offer": "Offer type",
           "contract_power": "Subscribed power (kVA)"

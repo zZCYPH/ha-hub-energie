@@ -35,10 +35,7 @@ function sectionTitle(id) {
 
 function onLangEvt(e) {
   const d = e && e.detail && e.detail.lang;
-  if (d === "en" || d === "fr") {
-    langCode.value = d;
-    nextTick(() => applyLang(d, "flowhelp"));
-  }
+  if (d === "en" || d === "fr") langCode.value = d;
 }
 
 onMounted(() => {

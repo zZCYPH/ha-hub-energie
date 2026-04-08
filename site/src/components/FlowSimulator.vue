@@ -78,6 +78,29 @@ function humanizeDescription(raw) {
   return s;
 }
 
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function escapeAttr(s) {
+  return escapeHtml(s).replace(/'/g, "&#39;");
+}
+
+/** Integration step description is a single markdown link to the doc vitrine → safe HTML. */
+function flowStepDescriptionHtml(raw) {
+  if (!raw) return "";
+  const t = String(raw).trim();
+  const m = t.match(/^\[([^\]]+)\]\(([^)]+)\)\s*$/);
+  if (!m) return escapeHtml(humanizeDescription(raw));
+  const label = m[1];
+  const href = m[2].trim();
+  return `<a href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer" class="flow-sim-ha__doc-link">${escapeHtml(label)}</a>`;
+}
+
 function displayTitle(raw) {
   if (!raw) return "";
   return String(raw).replace(/\{battery_number\}/g, "1");
@@ -220,6 +243,10 @@ const canGoNext = computed(() => {
 function defaultForFieldKey(key) {
   if (fieldKind(key) === "boolean") return "false";
   if (fieldKind(key) === "entity") return "";
+  if (key === "tou_r0_start") return "22:00";
+  if (key === "tou_r0_end") return "06:00";
+  if (key === "tou_r1_start") return "06:00";
+  if (key === "tou_r1_end") return "22:00";
   if (fieldKind(key) === "contract_power") return "9";
   if (fieldKind(key) === "number") return "0";
   if (key === "supplier") return "edf";
@@ -231,7 +258,22 @@ function defaultForFieldKey(key) {
   if (key === "price_basis") return "TTC";
   if (key === "currency") return "EUR";
   if (key === "grid_tri_sensor_layout") return "total";
+  if (/^sched_r\d+_(start|end)$/.test(key)) return "";
+  if (/^sched_r\d+_day_type$/.test(key)) return "all";
   return "";
+}
+
+/** Map catalog section field → Home Assistant user-input key (e.g. advanced schedule slots). */
+function fieldFormKeyForStep(stepId, sec, f) {
+  if (stepId === "manual_schedule_form" && /^sched_slot_\d+$/.test(sec.id)) {
+    const i = sec.id.slice("sched_slot_".length);
+    return `sched_r${i}_${f.key}`;
+  }
+  return f.key;
+}
+
+function fieldFormKey(sec, f) {
+  return fieldFormKeyForStep(currentStepId.value, sec, f);
 }
 
 watch(
@@ -240,12 +282,15 @@ watch(
     if (finished.value) return;
     const st = stepCopy.value;
     if (!st) return;
-    const list = [...(st.fields || [])];
-    for (const sec of st.sections || []) {
-      for (const f of sec.fields || []) list.push(f);
-    }
-    for (const f of list) {
+    const sid = currentStepId.value;
+    for (const f of st.fields || []) {
       if (formState[f.key] === undefined) formState[f.key] = defaultForFieldKey(f.key);
+    }
+    for (const sec of st.sections || []) {
+      for (const f of sec.fields || []) {
+        const k = fieldFormKeyForStep(sid, sec, f);
+        if (formState[k] === undefined) formState[k] = defaultForFieldKey(k);
+      }
     }
   },
   { immediate: true },
@@ -301,6 +346,47 @@ const progressLabel = computed(() => {
   return tr("flowsim.step_depth").replace("{n}", String(history.value.length));
 });
 
+/** HA-style expandable HC/HP sections on the time-of-use tariff step. */
+const touSectionExpanded = reactive({});
+
+watch(
+  () => currentStepId.value,
+  (id, prev) => {
+    if (prev === "manual_tou" && id !== "manual_tou") {
+      for (const k of Object.keys(touSectionExpanded)) delete touSectionExpanded[k];
+    }
+  },
+);
+
+const isManualTouStep = computed(() => !finished.value && currentStepId.value === "manual_tou");
+
+function touSectionIsOpen(secId) {
+  return touSectionExpanded[secId] !== false;
+}
+
+function toggleTouSection(secId) {
+  const open = touSectionExpanded[secId] !== false;
+  touSectionExpanded[secId] = !open;
+}
+
+function flowsimCurrency() {
+  const c = String(formState.currency ?? "EUR").trim();
+  return c || "EUR";
+}
+
+/** Suffix inside number fields (TOU + advanced schedule), aligned with HA number + unit. */
+function suffixForNumberField(key) {
+  if (finished.value) return "";
+  const step = currentStepId.value;
+  if (key === "subscription_price" && (step === "manual_tou" || step === "manual_schedule_form"))
+    return tr("flowsim.suffix_per_month").replace("{currency}", flowsimCurrency());
+  if (/^tou_r\d+_price$/.test(key) && step === "manual_tou")
+    return tr("flowsim.suffix_per_kwh").replace("{currency}", flowsimCurrency());
+  if (/^sched_r\d+_price$/.test(key) && step === "manual_schedule_form")
+    return tr("flowsim.suffix_per_kwh").replace("{currency}", flowsimCurrency());
+  return "";
+}
+
 function textKeysExcludeEntity(key) {
   return (
     key === "supplier_custom_name" ||
@@ -343,6 +429,9 @@ function fieldKind(key) {
   if (key === "schedule_slots" || key === "solar_arrays") return "textarea";
   /** Manual kWh price in config flow — not an entity despite ``solar_`` prefix. */
   if (key === "solar_export_tariff") return "text";
+  if (/^tou_r\d+_(start|end)$/.test(key)) return "time";
+  if (/^sched_r\d+_(start|end)$/.test(key)) return "time";
+  if (/^sched_r\d+_day_type$/.test(key)) return "day_type";
   if (key === "supplier") return "supplier";
   if (key === "phase_type") return "phase_type";
   if (key === "tariff_mode") return "tariff_mode";
@@ -523,88 +612,156 @@ onUnmounted(() => {
           </template>
 
           <template v-else>
-            <p v-if="stepCopy?.description" class="flow-sim-ha__description">
-              {{ humanizeDescription(stepCopy.description) }}
-            </p>
+            <p
+              v-if="stepCopy?.description"
+              class="flow-sim-ha__description"
+              v-html="flowStepDescriptionHtml(stepCopy.description)"
+            ></p>
 
             <template v-if="stepCopy?.sections?.length">
-              <div v-for="sec in stepCopy.sections" :key="sec.id" class="flow-sim-ha__group">
-                <div class="flow-sim-ha__group-title">{{ sec.name }}</div>
-                <div v-for="f in sec.fields" :key="sec.id + f.key" class="flow-sim-ha__field">
-                  <template v-if="fieldKind(f.key) === 'boolean'">
-                    <div class="flow-sim-ha__row--toggle">
-                      <span class="flow-sim-ha__toggle-text">{{ f.label }}</span>
-                      <label class="flow-sim-ha__switch">
-                        <input
-                          type="checkbox"
-                          role="switch"
-                          :checked="boolFieldModelChecked(f.key)"
-                          :aria-label="f.label"
-                          @change="setBoolFieldFromEvent(f.key, $event)"
-                        />
-                        <span class="flow-sim-ha__slider" />
-                      </label>
-                    </div>
-                    <p v-if="f.description" class="flow-sim-ha__hint">{{ f.description }}</p>
-                  </template>
-                  <template v-else>
-                    <label class="flow-sim-ha__label">{{ f.label }}</label>
-                    <template v-if="fieldKind(f.key) === 'entity'">
-                      <select v-model="formState[f.key]" class="flow-sim-ha__control" :aria-label="f.label">
-                        <option v-for="opt in entitySelectOptions()" :key="opt.value + opt.label" :value="opt.value">
-                          {{ opt.label }}
-                        </option>
-                      </select>
-                      <span class="flow-sim-ha__hint flow-sim-ha__hint--muted">{{ tr("flowsim.dummy_entity_picker") }}</span>
-                    </template>
-                    <template v-else-if="fieldKind(f.key) !== 'text' && hasSelectRows(fieldKind(f.key))">
-                      <select v-model="formState[f.key]" class="flow-sim-ha__control" :aria-label="f.label">
-                        <option
-                          v-for="opt in selectRowsForKind(fieldKind(f.key))"
-                          :key="f.key + opt.value"
-                          :value="opt.value"
-                        >
-                          {{ opt.label }}
-                        </option>
-                      </select>
-                    </template>
-                    <template v-else-if="fieldKind(f.key) === 'number'">
-                      <input
-                        v-model="formState[f.key]"
-                        class="flow-sim-ha__control"
-                        type="number"
-                        step="any"
-                        :aria-label="f.label"
-                      />
+              <div
+                v-for="sec in stepCopy.sections"
+                :key="sec.id"
+                :class="['flow-sim-ha__group', isManualTouStep && 'flow-sim-ha__group--tou-card']"
+              >
+                <button
+                  v-if="isManualTouStep"
+                  type="button"
+                  class="flow-sim-ha__section-head"
+                  :aria-expanded="touSectionIsOpen(sec.id)"
+                  @click="toggleTouSection(sec.id)"
+                >
+                  <span
+                    class="flow-sim-ha__chevron"
+                    :class="{ 'flow-sim-ha__chevron--collapsed': !touSectionIsOpen(sec.id) }"
+                    aria-hidden="true"
+                  />
+                  <span class="flow-sim-ha__section-head-text">{{ sec.name }}</span>
+                </button>
+                <div v-else class="flow-sim-ha__group-title">{{ sec.name }}</div>
+                <div v-show="!isManualTouStep || touSectionIsOpen(sec.id)" class="flow-sim-ha__section-body">
+                  <div v-for="f in sec.fields" :key="sec.id + f.key" class="flow-sim-ha__field">
+                    <template v-if="fieldKind(fieldFormKey(sec, f)) === 'boolean'">
+                      <div class="flow-sim-ha__row--toggle">
+                        <span class="flow-sim-ha__toggle-text">{{ f.label }}</span>
+                        <label class="flow-sim-ha__switch">
+                          <input
+                            type="checkbox"
+                            role="switch"
+                            :checked="boolFieldModelChecked(fieldFormKey(sec, f))"
+                            :aria-label="f.label"
+                            @change="setBoolFieldFromEvent(fieldFormKey(sec, f), $event)"
+                          />
+                          <span class="flow-sim-ha__slider" />
+                        </label>
+                      </div>
                     </template>
                     <template v-else>
-                      <input v-model="formState[f.key]" class="flow-sim-ha__control" type="text" :aria-label="f.label" />
+                      <label class="flow-sim-ha__label">{{ f.label }}</label>
+                      <template v-if="fieldKind(fieldFormKey(sec, f)) === 'password'">
+                        <input
+                          v-model="formState[fieldFormKey(sec, f)]"
+                          class="flow-sim-ha__control"
+                          type="password"
+                          autocomplete="off"
+                          :aria-label="f.label"
+                        />
+                      </template>
+                      <template v-else-if="fieldKind(fieldFormKey(sec, f)) === 'textarea'">
+                        <textarea
+                          v-model="formState[fieldFormKey(sec, f)]"
+                          class="flow-sim-ha__control flow-sim-ha__textarea"
+                          rows="4"
+                          :aria-label="f.label"
+                        />
+                      </template>
+                      <template v-else-if="fieldKind(fieldFormKey(sec, f)) === 'entity'">
+                        <select v-model="formState[fieldFormKey(sec, f)]" class="flow-sim-ha__control" :aria-label="f.label">
+                          <option v-for="opt in entitySelectOptions()" :key="opt.value + opt.label" :value="opt.value">
+                            {{ opt.label }}
+                          </option>
+                        </select>
+                        <span class="flow-sim-ha__hint flow-sim-ha__hint--muted">{{ tr("flowsim.dummy_entity_picker") }}</span>
+                      </template>
+                      <template v-else-if="hasSelectRows(fieldKind(fieldFormKey(sec, f)))">
+                        <select v-model="formState[fieldFormKey(sec, f)]" class="flow-sim-ha__control" :aria-label="f.label">
+                          <option
+                            v-for="opt in selectRowsForKind(fieldKind(fieldFormKey(sec, f)))"
+                            :key="fieldFormKey(sec, f) + opt.value"
+                            :value="opt.value"
+                          >
+                            {{ opt.label }}
+                          </option>
+                        </select>
+                      </template>
+                      <template v-else-if="fieldKind(fieldFormKey(sec, f)) === 'time'">
+                        <input
+                          v-model="formState[fieldFormKey(sec, f)]"
+                          class="flow-sim-ha__control flow-sim-ha__control--time"
+                          type="time"
+                          step="60"
+                          :placeholder="tr('flowsim.time_placeholder')"
+                          :title="tr('flowsim.time_field_title')"
+                          :aria-label="f.label"
+                        />
+                      </template>
+                      <template
+                        v-else-if="fieldKind(fieldFormKey(sec, f)) === 'number' && suffixForNumberField(fieldFormKey(sec, f))"
+                      >
+                        <div class="flow-sim-ha__suffix-wrap">
+                          <input
+                            v-model="formState[fieldFormKey(sec, f)]"
+                            class="flow-sim-ha__control flow-sim-ha__control--suffix-in"
+                            type="number"
+                            step="0.0001"
+                            :aria-label="f.label"
+                          />
+                          <span class="flow-sim-ha__suffix">{{ suffixForNumberField(fieldFormKey(sec, f)) }}</span>
+                        </div>
+                      </template>
+                      <template v-else-if="fieldKind(fieldFormKey(sec, f)) === 'number'">
+                        <input
+                          v-model="formState[fieldFormKey(sec, f)]"
+                          class="flow-sim-ha__control"
+                          type="number"
+                          step="any"
+                          :aria-label="f.label"
+                        />
+                      </template>
+                      <template v-else>
+                        <input
+                          v-model="formState[fieldFormKey(sec, f)]"
+                          class="flow-sim-ha__control"
+                          type="text"
+                          :aria-label="f.label"
+                        />
+                      </template>
                     </template>
-                  </template>
+                    <p v-if="f.description" class="flow-sim-ha__hint">{{ f.description }}</p>
+                  </div>
                 </div>
               </div>
             </template>
 
-            <template v-else>
-              <div v-for="f in stepCopy?.fields || []" :key="f.key" class="flow-sim-ha__field">
-                <template v-if="fieldKind(f.key) === 'boolean'">
-                  <div class="flow-sim-ha__row--toggle">
-                    <span class="flow-sim-ha__toggle-text">{{ f.label }}</span>
-                    <label class="flow-sim-ha__switch">
-                      <input
-                        type="checkbox"
-                        role="switch"
-                        :checked="boolFieldModelChecked(f.key)"
-                        :aria-label="f.label"
-                        @change="setBoolFieldFromEvent(f.key, $event)"
-                      />
-                      <span class="flow-sim-ha__slider" />
-                    </label>
-                  </div>
-                </template>
-                <template v-else>
-                  <label class="flow-sim-ha__label">{{ f.label }}</label>
-                  <template v-if="fieldKind(f.key) === 'password'">
+            <div v-for="f in stepCopy?.fields || []" :key="'flow-top-' + f.key" class="flow-sim-ha__field">
+              <template v-if="fieldKind(f.key) === 'boolean'">
+                <div class="flow-sim-ha__row--toggle">
+                  <span class="flow-sim-ha__toggle-text">{{ f.label }}</span>
+                  <label class="flow-sim-ha__switch">
+                    <input
+                      type="checkbox"
+                      role="switch"
+                      :checked="boolFieldModelChecked(f.key)"
+                      :aria-label="f.label"
+                      @change="setBoolFieldFromEvent(f.key, $event)"
+                    />
+                    <span class="flow-sim-ha__slider" />
+                  </label>
+                </div>
+              </template>
+              <template v-else>
+                <label class="flow-sim-ha__label">{{ f.label }}</label>
+                <template v-if="fieldKind(f.key) === 'password'">
                   <input
                     v-model="formState[f.key]"
                     class="flow-sim-ha__control"
@@ -640,6 +797,29 @@ onUnmounted(() => {
                     </option>
                   </select>
                 </template>
+                <template v-else-if="fieldKind(f.key) === 'time'">
+                  <input
+                    v-model="formState[f.key]"
+                    class="flow-sim-ha__control flow-sim-ha__control--time"
+                    type="time"
+                    step="60"
+                    :placeholder="tr('flowsim.time_placeholder')"
+                    :title="tr('flowsim.time_field_title')"
+                    :aria-label="f.label"
+                  />
+                </template>
+                <template v-else-if="fieldKind(f.key) === 'number' && suffixForNumberField(f.key)">
+                  <div class="flow-sim-ha__suffix-wrap">
+                    <input
+                      v-model="formState[f.key]"
+                      class="flow-sim-ha__control flow-sim-ha__control--suffix-in"
+                      type="number"
+                      step="0.0001"
+                      :aria-label="f.label"
+                    />
+                    <span class="flow-sim-ha__suffix">{{ suffixForNumberField(f.key) }}</span>
+                  </div>
+                </template>
                 <template v-else-if="fieldKind(f.key) === 'number'">
                   <input
                     v-model="formState[f.key]"
@@ -652,10 +832,9 @@ onUnmounted(() => {
                 <template v-else>
                   <input v-model="formState[f.key]" class="flow-sim-ha__control" type="text" :aria-label="f.label" />
                 </template>
-                </template>
-                <p v-if="f.description" class="flow-sim-ha__hint">{{ f.description }}</p>
-              </div>
-            </template>
+              </template>
+              <p v-if="f.description" class="flow-sim-ha__hint">{{ f.description }}</p>
+            </div>
 
             <p v-if="currentMeta?.kind === 'redirect'" class="flow-sim-ha__hint flow-sim-ha__hint--muted mb-0 fst-italic">
               {{ tr("flowsim.redirect_note") }}
@@ -759,8 +938,108 @@ onUnmounted(() => {
   margin-bottom: 1rem;
 }
 
+.flow-sim-ha__description :deep(.flow-sim-ha__doc-link) {
+  color: var(--fs-ha-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 500;
+}
+
+.flow-sim-ha__description :deep(.flow-sim-ha__doc-link):hover {
+  filter: brightness(1.12);
+}
+
 .flow-sim-ha__group {
   margin-bottom: 1.1rem;
+}
+
+/* Time-of-use (HC/HP): HA-like bordered expandable sections */
+.flow-sim-ha__group--tou-card {
+  border: 1px solid var(--fs-ha-divider);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--fs-ha-bg) 88%, #fff);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.flow-sim-ha__section-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+  padding: 12px 14px;
+  border: none;
+  border-bottom: 1px solid var(--fs-ha-divider);
+  background: color-mix(in srgb, var(--fs-ha-field) 70%, var(--fs-ha-bg));
+  color: var(--fs-ha-ink);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.flow-sim-ha__section-head:hover {
+  filter: brightness(1.06);
+}
+
+.flow-sim-ha__section-head-text {
+  flex: 1;
+}
+
+.flow-sim-ha__chevron {
+  display: inline-block;
+  font-size: 0.55rem;
+  line-height: 1;
+  color: var(--fs-ha-muted);
+  transition: transform 0.2s ease;
+  transform: rotate(0deg);
+}
+
+.flow-sim-ha__chevron::before {
+  content: "▼";
+}
+
+.flow-sim-ha__chevron--collapsed {
+  transform: rotate(-90deg);
+}
+
+.flow-sim-ha__section-body {
+  padding: 14px 14px 6px;
+}
+
+.flow-sim-ha__group--tou-card .flow-sim-ha__field:last-child {
+  margin-bottom: 0.75rem;
+}
+
+.flow-sim-ha__control--time {
+  min-height: 44px;
+  padding-inline: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.flow-sim-ha__suffix-wrap {
+  position: relative;
+  display: block;
+}
+
+.flow-sim-ha__suffix-wrap .flow-sim-ha__control--suffix-in {
+  width: 100%;
+  padding-inline-end: 5rem;
+  box-sizing: border-box;
+}
+
+.flow-sim-ha__suffix {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--fs-ha-muted);
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 .flow-sim-ha__group-title {
