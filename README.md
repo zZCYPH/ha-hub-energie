@@ -103,7 +103,7 @@ The Lovelace bundles in `frontend/dist/` are committed (rebuilt in CI), so you d
 
 **Card frontend:** `frontend/dist/` is included in the repository. You only need `npm ci` / `npm run build` under `custom_components/hub_energie/frontend/` if you change the card source locally.
 
-**Version:** see `custom_components/hub_energie/manifest.json` (`version` field). For reproducible installs, use a Git tag whose name is **`v`** plus that exact value (for example version `0.3.2` → tag **`v0.3.2`**).
+**Version:** see `custom_components/hub_energie/manifest.json` (`version` field). For reproducible installs, use a Git tag whose name is **`v`** plus that exact value (for example version `0.3.3` → tag **`v0.3.3`**).
 
 ## Lovelace Card
 

@@ -6,6 +6,18 @@ All notable changes to **Hub Énergie** are documented in this file.
 
 Nothing yet.
 
+## [0.3.3] — 2026-04-09
+
+### Documentation / site
+
+- Setup & options **step help** lists **per-field explanations** (generated from integration `data_description` into `flowHelpFieldGuide.generated.json`). Expanded `data_description` coverage in `strings.json` and translations (EN/FR); vitrine catalog regenerated from the same strings.
+
+### Config flow / UX
+
+- Options **battery pick**: delete / add-new use **boolean toggles** instead of Yes/No dropdowns (simulator aligned).
+- **Back** navigation on grid / tri / solar steps no longer blocked by Voluptuous `Required` energy fields; validation remains on **Continue** (`_wizard_step_energy_entity`).
+- **Other supplier** tariff step restores the **manual-only / no automatic fetch** description text.
+
 ## [0.3.2] — 2026-04-08
 
 ### Documentation / site

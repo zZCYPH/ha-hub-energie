@@ -4,7 +4,7 @@
  *
  * Version placeholders (expanded from `custom_components/hub_energie/manifest.json` when generating
  * `site/src/vendor/hub-energie-i18n.js` — run `npm run prebuild` / `predev` in `site/`):
- *   {{HUB_ENERGIE_VERSION}}         — full semver, e.g. 0.3.2
+ *   {{HUB_ENERGIE_VERSION}}         — full semver, e.g. 0.3.3
  *   {{HUB_ENERGIE_VERSION_SERIES}}  — major.minor, e.g. 0.3 (for “v0.3.x” scope lines)
  */
 (function (global) {
