@@ -176,6 +176,25 @@ from .const import (
     OPT_MAX_DELTA_KWH_GRID,
     OPT_MAX_DELTA_KWH_OTHER,
     OPT_MAX_DELTA_KWH_SOLAR,
+    OPT_REINJECTION_BATT_CHARGE_SIGNIFICANT_W,
+    OPT_REINJECTION_BATT_FULL_MIN_SOC_FRAC,
+    OPT_REINJECTION_EXPORT_IGNORE_BELOW_W,
+    OPT_REINJECTION_EXPORT_MIN_ABS_W,
+    OPT_REINJECTION_EXPORT_VS_SOLAR_FRACTION,
+    OPT_REINJECTION_MIN_SOLAR_FOR_CLASSIFY_W,
+    OPT_REINJECTION_SHORT_EXPORT_MAX_S,
+    OPT_REINJECTION_SHORT_EXPORT_MAX_W,
+    REINJECTION_BATT_CHARGE_SIGNIFICANT_W,
+    REINJECTION_BATT_FULL_MIN_SOC_FRAC,
+    REINJECTION_EXPORT_IGNORE_BELOW_W,
+    REINJECTION_EXPORT_MIN_ABS_W,
+    REINJECTION_EXPORT_VS_SOLAR_FRACTION,
+    REINJECTION_MIN_SOLAR_FOR_CLASSIFY_W,
+    REINJECTION_OPTION_KEYS,
+    REINJECTION_SHORT_EXPORT_MAX_S,
+    REINJECTION_SHORT_EXPORT_MAX_W,
+    REINJECTION_UI_DURATION_S_MAX,
+    REINJECTION_UI_POWER_W_MAX,
     OPT_ROUGE_HC,
     OPT_ROUGE_HP,
     OPT_TARIFF_FETCHED_AT,
@@ -1817,6 +1836,7 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
             options.append("tariff_refresh")
             if data.get(CONF_TARIFF_OFFER) == TARIFF_OFFER_TEMPO:
                 options.append("tempo")
+        options.append("reinjection")
         options.append("advanced_energy")
         return options
 
@@ -1941,6 +1961,146 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
             }
         )
         return self._show_doc_form(step_id="advanced_energy", data_schema=schema, errors=errors)
+
+    async def async_step_reinjection(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        opts = dict(self.config_entry.options)
+
+        def eff(key: str, default: float) -> float:
+            raw = opts.get(key)
+            if raw is None:
+                return float(default)
+            try:
+                v = float(raw)
+            except (TypeError, ValueError):
+                return float(default)
+            if not math.isfinite(v):
+                return float(default)
+            return v
+
+        defaults = {
+            OPT_REINJECTION_EXPORT_IGNORE_BELOW_W: eff(
+                OPT_REINJECTION_EXPORT_IGNORE_BELOW_W, REINJECTION_EXPORT_IGNORE_BELOW_W
+            ),
+            OPT_REINJECTION_BATT_CHARGE_SIGNIFICANT_W: eff(
+                OPT_REINJECTION_BATT_CHARGE_SIGNIFICANT_W, REINJECTION_BATT_CHARGE_SIGNIFICANT_W
+            ),
+            OPT_REINJECTION_SHORT_EXPORT_MAX_S: eff(
+                OPT_REINJECTION_SHORT_EXPORT_MAX_S, REINJECTION_SHORT_EXPORT_MAX_S
+            ),
+            OPT_REINJECTION_SHORT_EXPORT_MAX_W: eff(
+                OPT_REINJECTION_SHORT_EXPORT_MAX_W, REINJECTION_SHORT_EXPORT_MAX_W
+            ),
+            OPT_REINJECTION_MIN_SOLAR_FOR_CLASSIFY_W: eff(
+                OPT_REINJECTION_MIN_SOLAR_FOR_CLASSIFY_W, REINJECTION_MIN_SOLAR_FOR_CLASSIFY_W
+            ),
+            OPT_REINJECTION_EXPORT_MIN_ABS_W: eff(
+                OPT_REINJECTION_EXPORT_MIN_ABS_W, REINJECTION_EXPORT_MIN_ABS_W
+            ),
+            OPT_REINJECTION_EXPORT_VS_SOLAR_FRACTION: eff(
+                OPT_REINJECTION_EXPORT_VS_SOLAR_FRACTION, REINJECTION_EXPORT_VS_SOLAR_FRACTION
+            ),
+            OPT_REINJECTION_BATT_FULL_MIN_SOC_FRAC: eff(
+                OPT_REINJECTION_BATT_FULL_MIN_SOC_FRAC, REINJECTION_BATT_FULL_MIN_SOC_FRAC
+            ),
+        }
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            try:
+                parsed: dict[str, float] = {}
+                for k in REINJECTION_OPTION_KEYS:
+                    parsed[k] = float(user_input[k])
+            except (TypeError, ValueError, KeyError):
+                errors["base"] = "invalid_reinjection_thresholds"
+            else:
+                ign = parsed[OPT_REINJECTION_EXPORT_IGNORE_BELOW_W]
+                short_s = parsed[OPT_REINJECTION_SHORT_EXPORT_MAX_S]
+                short_w = parsed[OPT_REINJECTION_SHORT_EXPORT_MAX_W]
+                min_sol = parsed[OPT_REINJECTION_MIN_SOLAR_FOR_CLASSIFY_W]
+                exp_min = parsed[OPT_REINJECTION_EXPORT_MIN_ABS_W]
+                frac = parsed[OPT_REINJECTION_EXPORT_VS_SOLAR_FRACTION]
+                batt_chg = parsed[OPT_REINJECTION_BATT_CHARGE_SIGNIFICANT_W]
+                soc_frac = parsed[OPT_REINJECTION_BATT_FULL_MIN_SOC_FRAC]
+                if not (
+                    0.0 <= ign <= REINJECTION_UI_POWER_W_MAX
+                    and 0.0 <= batt_chg <= REINJECTION_UI_POWER_W_MAX
+                    and 0.0 < short_s <= REINJECTION_UI_DURATION_S_MAX
+                    and 0.0 < short_w <= REINJECTION_UI_POWER_W_MAX
+                    and 0.0 <= min_sol <= REINJECTION_UI_POWER_W_MAX
+                    and 0.0 <= exp_min <= REINJECTION_UI_POWER_W_MAX
+                    and 0.0 <= frac <= 1.0
+                    and 0.0 <= soc_frac <= 1.0
+                ):
+                    errors["base"] = "invalid_reinjection_thresholds"
+                else:
+                    try:
+                        return await self._persist(options_patch=parsed)
+                    except ValueError as err:
+                        errors = dict(err.args[0])
+        power_sel = NumberSelector(
+            NumberSelectorConfig(
+                min=0.0,
+                max=float(REINJECTION_UI_POWER_W_MAX),
+                step=1,
+                mode=NumberSelectorMode.BOX,
+                unit_of_measurement="W",
+            )
+        )
+        duration_sel = NumberSelector(
+            NumberSelectorConfig(
+                min=0.01,
+                max=float(REINJECTION_UI_DURATION_S_MAX),
+                step=1,
+                mode=NumberSelectorMode.BOX,
+                unit_of_measurement="s",
+            )
+        )
+        ratio_sel = NumberSelector(
+            NumberSelectorConfig(
+                min=0.0,
+                max=1.0,
+                step=0.01,
+                mode=NumberSelectorMode.BOX,
+            )
+        )
+        schema = vol.Schema(
+            {
+                vol.Required(
+                    OPT_REINJECTION_EXPORT_IGNORE_BELOW_W,
+                    default=defaults[OPT_REINJECTION_EXPORT_IGNORE_BELOW_W],
+                ): power_sel,
+                vol.Required(
+                    OPT_REINJECTION_BATT_CHARGE_SIGNIFICANT_W,
+                    default=defaults[OPT_REINJECTION_BATT_CHARGE_SIGNIFICANT_W],
+                ): power_sel,
+                vol.Required(
+                    OPT_REINJECTION_SHORT_EXPORT_MAX_S,
+                    default=defaults[OPT_REINJECTION_SHORT_EXPORT_MAX_S],
+                ): duration_sel,
+                vol.Required(
+                    OPT_REINJECTION_SHORT_EXPORT_MAX_W,
+                    default=defaults[OPT_REINJECTION_SHORT_EXPORT_MAX_W],
+                ): power_sel,
+                vol.Required(
+                    OPT_REINJECTION_MIN_SOLAR_FOR_CLASSIFY_W,
+                    default=defaults[OPT_REINJECTION_MIN_SOLAR_FOR_CLASSIFY_W],
+                ): power_sel,
+                vol.Required(
+                    OPT_REINJECTION_EXPORT_MIN_ABS_W,
+                    default=defaults[OPT_REINJECTION_EXPORT_MIN_ABS_W],
+                ): power_sel,
+                vol.Required(
+                    OPT_REINJECTION_EXPORT_VS_SOLAR_FRACTION,
+                    default=defaults[OPT_REINJECTION_EXPORT_VS_SOLAR_FRACTION],
+                ): ratio_sel,
+                vol.Required(
+                    OPT_REINJECTION_BATT_FULL_MIN_SOC_FRAC,
+                    default=defaults[OPT_REINJECTION_BATT_FULL_MIN_SOC_FRAC],
+                ): ratio_sel,
+            }
+        )
+        return self._show_doc_form(step_id="reinjection", data_schema=schema, errors=errors)
 
     async def async_step_offer(
         self, user_input: dict[str, Any] | None = None
