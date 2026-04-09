@@ -8,8 +8,8 @@ Canonical sources:
   - hacs.json (HACS homeassistant field should match manifest)
 
 Scanned surfaces:
-  - site/public/i18n.js (EN/FR strings shown on the static site)
-  - site/src/assets/*.html (static fallbacks / fragments; may use
+  - site/lang/en/*.json and site/lang/fr/*.json (scoped strings merged at site prebuild)
+  - site/src/assets/*.html (remaining static fragments / includes; may use
     {{HUB_ENERGIE_VERSION}} substituted at site build from manifest)
 
 Exit 0 if consistent; non-zero with a short report otherwise.
@@ -26,8 +26,11 @@ MANIFEST = ROOT / "custom_components/hub_energie/manifest.json"
 HACS = ROOT / "hacs.json"
 SERVICES = ROOT / "custom_components/hub_energie/services.yaml"
 README = ROOT / "README.md"
-SITE_I18N = ROOT / "site/public/i18n.js"
+SITE_LANG_EN = ROOT / "site/lang/en"
+SITE_LANG_FR = ROOT / "site/lang/fr"
 SITE_ASSETS = ROOT / "site/src/assets"
+
+LANG_MERGE_ORDER = ("common", "landing", "doc", "flowsim", "flowhelp", "internals")
 # Replaced from manifest during site prebuild (see site/scripts/manifest-version.mjs).
 MANIFEST_VERSION_PLACEHOLDER = "{{HUB_ENERGIE_VERSION}}"
 
@@ -95,6 +98,30 @@ def _collect_semvers_and_ha(text: str) -> tuple[set[str], set[str]]:
         semvers.add(triplet)
     ha_vers: set[str] = {m.group(1) for m in HA_VER_RE.finditer(text)}
     return semvers, ha_vers
+
+
+def _lang_dir_concat_text(lang_dir: Path) -> str:
+    chunks: list[str] = []
+    for name in LANG_MERGE_ORDER:
+        p = lang_dir / f"{name}.json"
+        if not p.is_file():
+            raise FileNotFoundError(f"missing scoped lang file: {p}")
+        chunks.append(p.read_text(encoding="utf-8"))
+    return "\n".join(chunks)
+
+
+def _merged_lang_flat_keys(lang_dir: Path) -> dict[str, str]:
+    merged: dict[str, str] = {}
+    for name in LANG_MERGE_ORDER:
+        p = lang_dir / f"{name}.json"
+        data = _load_json(p)
+        for k, v in data.items():
+            if k in merged:
+                raise ValueError(f"duplicate i18n key {k!r} merging {p.name}")
+            if not isinstance(v, str):
+                raise TypeError(f"{p.name}: key {k!r} must be a string")
+            merged[k] = v
+    return merged
 
 
 def _check_site_text(
@@ -168,14 +195,45 @@ def main() -> int:
                 + ", ".join(f"`hub_energie.{s}`" for s in extra_in_readme)
             )
 
-    if SITE_I18N.is_file():
+    if SITE_LANG_EN.is_dir() and SITE_LANG_FR.is_dir():
+        try:
+            en_keys = _merged_lang_flat_keys(SITE_LANG_EN)
+            fr_keys = _merged_lang_flat_keys(SITE_LANG_FR)
+        except (FileNotFoundError, ValueError, TypeError, json.JSONDecodeError) as e:
+            errors.append(f"site/lang: {e}")
+            en_keys = {}
+            fr_keys = {}
+        if en_keys and fr_keys:
+            only_en = sorted(set(en_keys) - set(fr_keys))
+            only_fr = sorted(set(fr_keys) - set(en_keys))
+            if only_en:
+                errors.append(
+                    "site/lang: keys present in en/ but missing in fr/: " + ", ".join(only_en[:40])
+                    + (" …" if len(only_en) > 40 else "")
+                )
+            if only_fr:
+                errors.append(
+                    "site/lang: keys present in fr/ but missing in en/: " + ", ".join(only_fr[:40])
+                    + (" …" if len(only_fr) > 40 else "")
+                )
         errors.extend(
             _check_site_text(
-                "site/public/i18n.js",
-                SITE_I18N.read_text(encoding="utf-8"),
+                "site/lang/en/*.json",
+                _lang_dir_concat_text(SITE_LANG_EN),
                 ver,
                 ha_min,
                 require_ha_line=True,
+                allow_build_time_version_placeholder=True,
+            )
+        )
+        errors.extend(
+            _check_site_text(
+                "site/lang/fr/*.json",
+                _lang_dir_concat_text(SITE_LANG_FR),
+                ver,
+                ha_min,
+                require_ha_line=True,
+                allow_build_time_version_placeholder=True,
             )
         )
 
@@ -183,9 +241,7 @@ def main() -> int:
         for p in sorted(SITE_ASSETS.glob("*.html")):
             rel = p.relative_to(ROOT)
             name = p.name
-            if name == "internals-fragment.html":
-                continue
-            require_ha = name != "landing-body.html"
+            require_ha = True
             errors.extend(
                 _check_site_text(
                     str(rel),
@@ -203,15 +259,15 @@ def main() -> int:
             print(f"  - {e}", file=sys.stderr)
         print(
             "\nFix: bump custom_components/hub_energie/manifest.json, then align "
-            "README.md, hacs.json, site/public/i18n.js, and site/src/assets/*.html "
-            "(or use {{HUB_ENERGIE_VERSION}} in HTML; prebuild fills it from the manifest). "
+            "README.md, hacs.json, site/lang/en|fr/*.json, and site/src/assets/*.html "
+            "(or use {{HUB_ENERGIE_VERSION}} in sources; site prebuild expands from the manifest). "
             "Or run from Cursor with the verify-vitrine-vs-integration skill.",
             file=sys.stderr,
         )
         return 1
 
     print(
-        f"verify_vitrine_integration_docs: OK (integration {ver}, HA ≥ {ha_min}, services match README)."
+        f"verify_vitrine_integration_docs: OK (integration {ver}, HA >= {ha_min}, services match README)."
     )
     return 0
 

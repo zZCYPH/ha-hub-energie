@@ -3,11 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "postinstall": "node scripts/sync-public.mjs",
+    "postinstall": "node scripts/build-i18n.mjs",
     "fetch-releases": "node scripts/fetch-releases.mjs",
     "generate:flow-catalog": "python ../scripts/extract_config_flow_catalog.py",
-    "prebuild": "node scripts/sync-public.mjs",
-    "predev": "node scripts/sync-public.mjs",
+    "prebuild": "node scripts/build-i18n.mjs",
+    "predev": "node scripts/build-i18n.mjs",
     "build": "vite build",
     "export:pages": "npm run build && node scripts/export-pages.mjs",
     "dev": "vite"

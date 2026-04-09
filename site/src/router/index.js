@@ -1,8 +1,8 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import ConfigFlowHelpView from "../views/ConfigFlowHelpView.vue";
+import ConfigFlowHelpView from "../views/partial/doc/setup-help/ConfigFlowHelpView.vue";
 import DocView from "../views/DocView.vue";
 import HomeView from "../views/HomeView.vue";
-import InternalsView from "../views/InternalsView.vue";
+import InternalsView from "../views/partial/internals/InternalsView.vue";
 
 const router = createRouter({
   history: createWebHashHistory(),

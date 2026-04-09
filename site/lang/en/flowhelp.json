@@ -1,0 +1,17 @@
+{
+  "flowhelp.kicker": "Home Assistant — config dialogs",
+  "flowhelp.title": "Setup &amp; options — step help",
+  "flowhelp.intro_html": "This page is meant to be opened from Hub Énergie itself: each section matches a <code class=\"font-mono\">step_id</code> in the integration config or options flow. Text stays out of the main documentation scroll path unless you choose to come here.",
+  "flowhelp.link_convention_html": "<strong class=\"text-body\">Anchor convention:</strong> initial wizard → <code class=\"font-mono\">#flow-step-&lt;step_id&gt;</code>; post-setup <em>Configure</em> menu → <code class=\"font-mono\">#flow-step-options-&lt;step_id&gt;</code> (for example <code class=\"font-mono\">options advanced_energy</code> → <code class=\"font-mono\">#flow-step-options-advanced_energy</code>).",
+  "flowhelp.toc_setup": "Initial setup",
+  "flowhelp.toc_options": "Configure menu",
+  "flowhelp.back_doc": "Back to documentation",
+  "flowhelp.setup_heading": "Initial setup wizard",
+  "flowhelp.options_heading": "Settings → Hub Énergie → Configure",
+  "flowhelp.footer_html": "Full branch graph and <code class=\"font-mono\">step_id</code> table: <code class=\"font-mono\">custom_components/hub_energie/docs/config-flow.md</code> in GitLab. Main guided doc: <a href=\"#/doc#configure\">Configuration</a> on this site.",
+  "flowhelp.fieldguide_heading": "Fields on this screen",
+  "flowhelp.fieldguide_menu_heading": "Menu actions",
+  "flowhelp.fieldguide_no_hint": "No extra description in translations (see the label). Required vs optional follows Home Assistant defaults for this step.",
+  "flowhelp.fieldguide_col_field": "Field",
+  "flowhelp.fieldguide_col_description": "Description"
+}

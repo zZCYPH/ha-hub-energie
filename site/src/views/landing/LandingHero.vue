@@ -1,0 +1,71 @@
+<script setup>
+const base = import.meta.env.BASE_URL;
+</script>
+
+<template>
+  <header class="landing-hero position-relative overflow-hidden">
+    <div class="landing-hero-glow" aria-hidden="true"></div>
+    <div class="container-xxl px-3 pt-5 mt-5 pb-5 position-relative">
+      <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-11 text-center">
+          <p
+            class="text-uppercase site-landing-kicker small fw-semibold text-primary mb-3 tracking-wide"
+            data-i18n="landing.kicker"
+          >
+            Hub Énergie · Home Assistant custom integration
+          </p>
+          <div class="mb-4 d-flex justify-content-center">
+            <a
+              href="#/doc"
+              class="landing-integration-badge text-decoration-none d-inline-flex align-items-center gap-3"
+              data-i18n-aria="landing.hero_badge_aria"
+            >
+              <img
+                :src="`${base}img/icon.png`"
+                alt=""
+                width="48"
+                height="48"
+                class="landing-hero-brand-icon rounded-2 flex-shrink-0"
+                decoding="async"
+                data-i18n-alt="landing.hero_badge_alt"
+              />
+              <span class="text-start lh-sm">
+                <span class="d-block fw-bold text-body landing-hero-badge-title fs-5" data-i18n="landing.hero_badge_title"
+                  >Hub Énergie</span
+                >
+                <span class="d-block small text-secondary landing-hero-badge-sub" data-i18n="landing.hero_badge_sub"
+                  >Custom integration for Home Assistant</span
+                >
+              </span>
+            </a>
+          </div>
+          <h1 class="display-4 fw-bold mb-4 landing-title" data-i18n="landing.headline">
+            Centralize your home’s energy data
+          </h1>
+          <p
+            class="lead text-secondary mb-5 mx-auto landing-lead"
+            style="max-width: 42rem"
+            data-i18n="landing.lead"
+          >
+            One integration ties your tariff, meters, solar, batteries, costs, and diagnostics together — configure
+            once and get a consistent view in Home Assistant.
+          </p>
+          <div
+            class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center justify-content-center gap-3 mb-5"
+          >
+            <a
+              class="btn btn-primary btn-lg rounded-pill px-5 py-3 landing-discover shadow"
+              href="#/doc"
+              data-i18n="landing.cta_discover"
+              >Discover</a
+            >
+            <a class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-3" href="#/internals" data-i18n="landing.cta_internals"
+              >How it works internally</a
+            >
+          </div>
+          <p class="small text-secondary mb-0" data-i18n="landing.version_note"></p>
+        </div>
+      </div>
+    </div>
+  </header>
+</template>

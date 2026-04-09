@@ -1,12 +1,12 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { FLOW_HELP_EN, FLOW_HELP_FR } from "../data/flowHelpContent";
-import fieldGuideDoc from "../data/flowHelpFieldGuide.generated.json";
-import { FLOW_HELP_OPTIONS_IDS, FLOW_HELP_WIZARD_IDS } from "../data/flowStepHelpDefs";
-import FlowhelpFieldGuideTables from "../components/FlowhelpFieldGuideTables.vue";
-import { attachInPageNav } from "../inPageNav";
-import { applyLang, teardownScrollSpy } from "../siteShell";
+import { FLOW_HELP_EN, FLOW_HELP_FR } from "../../../../data/flowHelpContent";
+import fieldGuideDoc from "../../../../data/flowHelpFieldGuide.generated.json";
+import { FLOW_HELP_OPTIONS_IDS, FLOW_HELP_WIZARD_IDS } from "../../../../data/flowStepHelpDefs";
+import FlowhelpFieldGuideTables from "../../../../components/FlowhelpFieldGuideTables.vue";
+import { attachInPageNav } from "../../../../inPageNav";
+import { applyLang, teardownScrollSpy } from "../../../../siteShell";
 
 const root = ref(null);
 const router = useRouter();

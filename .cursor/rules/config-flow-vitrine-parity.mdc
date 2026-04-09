@@ -17,7 +17,7 @@ If validation or stored keys change, update `config_validation.py` and any relat
 
 ## 2. Doc vitrine (simulator + catalog)
 
-- **Release version on the site** comes from `custom_components/hub_energie/manifest.json` → `version`. Use placeholders in `site/public/i18n.js` and in `site/src/assets/*-fragment.html` / `landing-body.html`: `{{HUB_ENERGIE_VERSION}}` (full semver) and `{{HUB_ENERGIE_VERSION_SERIES}}` (major.minor for “v0.3.x” lines). They are expanded when running `npm run prebuild` / `predev` / `build` in `site/` (`sync-public.mjs` + Vite plugin `site/vite.config.js`). Bump **`manifest.json`** only; do not hand-edit expanded numbers in generated `site/src/vendor/hub-energie-i18n.js` (gitignored).
+- **Release version on the site** comes from `custom_components/hub_energie/manifest.json` → `version`. Use placeholders in `site/lang/en|fr/*.json` (and any raw HTML under `site/src/assets/` if present): `{{HUB_ENERGIE_VERSION}}` (full semver) and `{{HUB_ENERGIE_VERSION_SERIES}}` (major.minor for “v0.3.x” lines). They are expanded when running `npm run prebuild` / `predev` / `build` in `site/` (`node scripts/build-i18n.mjs` merges JSON → `site/src/vendor/hub-energie-i18n.js`). Bump **`manifest.json`** only; do not hand-edit expanded numbers in the generated vendor bundle unless you know it is checked in for your workflow.
 - Regenerate the catalog:  
   `python scripts/extract_config_flow_catalog.py`  
   so `site/src/data/flowCatalog.generated.json` matches `config_flow.py` + strings. CI uses `--check` on this file.

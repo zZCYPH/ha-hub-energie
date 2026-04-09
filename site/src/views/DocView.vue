@@ -1,7 +1,19 @@
 <script setup>
 import { createApp, nextTick, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import docHtml from "../assets/doc-fragment.html?raw";
+import DocOffcanvas from "./partial/doc/DocOffcanvas.vue";
+import DocHero from "./partial/doc/DocHero.vue";
+import DocSidebarInner from "./partial/doc/DocSidebarInner.vue";
+import DocSectionOverview from "./partial/doc/DocSectionOverview.vue";
+import DocSectionInstall from "./partial/doc/DocSectionInstall.vue";
+import DocSectionConfigure from "./partial/doc/DocSectionConfigure.vue";
+import DocSectionLovelace from "./partial/doc/DocSectionLovelace.vue";
+import DocSectionDevices from "./partial/doc/DocSectionDevices.vue";
+import DocSectionServices from "./partial/doc/DocSectionServices.vue";
+import DocSectionLimitations from "./partial/doc/DocSectionLimitations.vue";
+import DocSectionGlossary from "./partial/doc/DocSectionGlossary.vue";
+import DocFooter from "./partial/doc/DocFooter.vue";
+import DocImageModal from "./partial/doc/DocImageModal.vue";
 import InstallReleasePicker from "../components/InstallReleasePicker.vue";
 import FlowSimulator from "../components/FlowSimulator.vue";
 import {
@@ -73,6 +85,28 @@ onUnmounted(() => {
 
 <template>
   <div id="view-doc" class="app-view">
-    <div ref="root" v-html="docHtml"></div>
+    <div ref="root">
+      <DocOffcanvas />
+      <DocHero />
+      <div class="container-xxl px-3 py-4 py-lg-5">
+        <div class="row g-4 g-xl-5">
+          <aside class="col-lg-3 d-none d-lg-block">
+            <DocSidebarInner />
+          </aside>
+          <main class="col-lg-9">
+            <DocSectionOverview />
+            <DocSectionInstall />
+            <DocSectionConfigure />
+            <DocSectionLovelace />
+            <DocSectionDevices />
+            <DocSectionServices />
+            <DocSectionLimitations />
+            <DocSectionGlossary />
+            <DocFooter />
+          </main>
+        </div>
+      </div>
+      <DocImageModal />
+    </div>
   </div>
 </template>
