@@ -642,3 +642,8 @@ pre.doc-code {
 .doc-ha-val.font-monospace {
   font-size: 0.7rem;
 }
+
+/* Plain-text blocks from i18n that use \\n for readability (e.g. delta caps). */
+.doc-plain-multiline {
+  white-space: pre-line;
+}

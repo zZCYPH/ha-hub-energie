@@ -94,6 +94,8 @@
             <div id="hub-energie-install-release-mount"></div>
             <p class="small text-secondary mt-3 mb-0">
               <span data-i18n="install.zip_after_before"></span>
+              <a href="#configure" data-i18n="install.zip_after_configure"></a>
+              <span data-i18n="install.zip_after_between"></span>
               <a
                 href="https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/releases"
                 target="_blank"
