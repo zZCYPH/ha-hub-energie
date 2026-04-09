@@ -10,12 +10,6 @@
         >#</a
       >
     </h2>
-    <ul class="text-secondary">
-      <li data-i18n="limitations.li1">Recorder retention limits history, charts, and rebuild-from-recorder paths.</li>
-      <li data-i18n="limitations.li2">Optional solar estimation is clear-sky output — indicative, not a production meter.</li>
-      <li data-i18n="limitations.li3"></li>
-      <li data-i18n="limitations.li4"></li>
-      <li data-i18n="limitations.li5"></li>
-    </ul>
+    <p class="text-secondary mb-0" data-i18n-html="limitations.intro_html"></p>
   </section>
 </template>

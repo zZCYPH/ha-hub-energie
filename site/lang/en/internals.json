@@ -1,6 +1,7 @@
 {
   "toc.internals_title": "On this page",
   "toc.internals_overview": "Pipeline",
+  "toc.internals_lovelace": "Lovelace resource",
   "toc.internals_sources": "Energy sources",
   "toc.internals_slots": "Tariff slots",
   "toc.internals_attribution": "Slot attribution",
@@ -19,6 +20,9 @@
   "internals.s_overview_h": "End-to-end pipeline",
   "internals.s_overview_p1": "At a high level: the coordinator watches configured energy entities (total_increasing kWh). Each positive delta is tagged with the tariff slot active when the delta occurred (Europe/Paris), then summed into per-source totals and per-day / per-slot buckets. When a calendar day in that timezone is complete, those buckets feed Home Assistant external statistics for durable per-slot and per-source graphs. A JSON Store holds running sums and recent day maps so restarts stay consistent.",
   "internals.s_overview_p2_html": "Recorder history for the entities you selected remains the external SSOT for raw meter values; integration SSOT sensors expose the <strong class=\"text-body\">internally accumulated</strong> totals used for slot splits and cost snapshots.",
+  "internals.s_lovelace_h": "Lovelace resource loading",
+  "internals.s_lovelace_p1": "The integration registers a dashboard resource pointing at /hub_energie/hub-energie-card-boot.js. That boot file is a small loader; it pulls in the full card module. The compiled bundle ships inside custom_components/hub_energie/frontend/dist/ and is served from your instance under /hub_energie/.",
+  "internals.s_lovelace_p2_html": "On startup and when you reload the integration, the resource entry is refreshed with a cache-busting <code class=\"font-mono\">?v=…</code> query string (same mechanism as <strong class=\"text-body\">Settings → Dashboards → Resources</strong>) so browsers load new JavaScript. Storage-mode dashboards pick this up automatically; if your dashboards are YAML-only, you must add the resource yourself (see the expandable steps under <a href=\"#/doc#lovelace\" class=\"link-secondary\">Documentation → Lovelace card</a>).",
   "internals.s_sources_h": "Energy sources (accumulator keys)",
   "internals.s_sources_p1": "Each configured meter maps to a source key (for example grid import, grid export, solar, per-battery charge and discharge). The expected key set comes from your configuration: only sources bound to an entity participate in statistics writes. Three-phase setups can use summed “virtual” entities for bookkeeping while still reading phase meters upstream.",
   "internals.s_sources_p2": "Long-term statistics writes require a complete source matrix for a finished day; if any expected source is missing from the internal day map, that day is skipped — avoiding silent partial writes.",

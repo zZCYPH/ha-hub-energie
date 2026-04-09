@@ -409,6 +409,8 @@ pre.doc-code {
   inset: 0;
   z-index: 1;
   pointer-events: none;
+  /* Softer grid so body/lead text stays readable on light backgrounds */
+  opacity: 0.72;
 }
 
 .landing-hero-cables-svg {
@@ -419,7 +421,7 @@ pre.doc-code {
 
 .landing-hero-cable-base {
   fill: none;
-  stroke: rgba(var(--doc-accent-rgb), 0.22);
+  /* stroke: Lovelace-matched hues from LandingHeroCables.vue */
   stroke-width: 1.35px;
   stroke-linecap: square;
   stroke-linejoin: miter;
@@ -427,14 +429,12 @@ pre.doc-code {
 
 .landing-hero-cable-flow {
   fill: none;
-  stroke: rgba(var(--doc-accent-rgb), 0.55);
   stroke-width: 1.05px;
   stroke-linecap: butt;
   stroke-linejoin: miter;
 }
 
 .landing-hero-cable-node {
-  fill: rgba(var(--doc-accent-rgb), 0.5);
   stroke: rgba(255, 255, 255, 0.55);
   stroke-width: 0.35px;
 }
@@ -538,6 +538,49 @@ pre.doc-code {
 
 .landing-lead {
   line-height: 1.6;
+}
+
+/* Lead sits on the busiest part of the cable art — light scrim + slight shadow */
+.landing-hero-lead-panel {
+  max-width: 42rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1.15rem 1.35rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 0.35rem 1.5rem rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+[data-bs-theme="dark"] .landing-hero-lead-panel {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(33, 37, 41, 0.58);
+  box-shadow: 0 0.35rem 1.5rem rgba(0, 0, 0, 0.25);
+}
+
+.landing-hero .landing-lead {
+  color: var(--bs-secondary-color);
+}
+
+[data-bs-theme="dark"] .landing-hero .landing-lead {
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.landing-hero-version {
+  position: relative;
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  text-shadow: none;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+[data-bs-theme="dark"] .landing-hero-version {
+  background: rgba(33, 37, 41, 0.55);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .landing-discover {
@@ -710,7 +753,67 @@ pre.doc-code {
 }
 
 .doc-config-blurb {
-  line-height: 1.5;
+  line-height: 1.55;
+  font-size: 0.9375rem;
+}
+
+/* Readable body copy: darker on light, lighter on dark (vs. default text-secondary) */
+.doc-config-card .doc-config-blurb {
+  color: #343a40;
+}
+
+[data-bs-theme="dark"] .doc-config-card .doc-config-blurb {
+  color: #dde2ea;
+}
+
+.doc-config-blurb .doc-config-kicker {
+  display: block;
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(var(--doc-accent-rgb), 0.95);
+  margin-bottom: 0.4rem;
+}
+
+.doc-config-blurb .doc-menu-path {
+  font-family: var(--bs-font-monospace);
+  font-size: 0.88em;
+  font-weight: 500;
+  padding: 0.08em 0.28em;
+  border-radius: 0.25rem;
+  background: rgba(var(--doc-accent-rgb), 0.1);
+  border: 1px solid rgba(var(--doc-accent-rgb), 0.18);
+}
+
+[data-bs-theme="dark"] .doc-config-blurb .doc-menu-path {
+  background: rgba(var(--doc-accent-rgb), 0.14);
+  border-color: rgba(var(--doc-accent-rgb), 0.28);
+}
+
+.doc-config-blurb .doc-config-note,
+.doc-config-muted .doc-config-note {
+  opacity: 0.88;
+  font-style: italic;
+}
+
+.doc-config-blurb .doc-config-code,
+.doc-config-muted .doc-config-code {
+  font-size: 0.84em;
+  padding: 0.12em 0.4em;
+  border-radius: 0.3rem;
+  background: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+}
+
+/* Secondary paragraphs under Configuration (simulator / advanced intros) */
+.doc-config-muted {
+  line-height: 1.55;
+  color: #495057;
+}
+
+[data-bs-theme="dark"] .doc-config-muted {
+  color: #c5ccd6;
 }
 
 .doc-maintainer-details summary {

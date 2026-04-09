@@ -14,17 +14,12 @@ import carouselInnerRaw from "../../../assets/doc-devices-carousel-inner.include
         >#</a
       >
     </h2>
-    <p class="text-secondary small">
-      <span data-i18n="devices.intro_before"></span>
-      <code class="font-mono">CHANGELOG.md</code>
-      <span data-i18n="devices.intro_after"></span>
-    </p>
+    <p class="text-secondary small" data-i18n="devices.intro"></p>
 
     <h3 class="h5 mt-4 mb-2 doc-subsection" id="devices-gallery">
       <span data-i18n="devices.gallery_title">Devices in Home Assistant</span>
     </h3>
     <p class="text-secondary small" data-i18n="devices.gallery_intro"></p>
-    <p class="small text-secondary mb-2" data-i18n="devices.gallery_footnote"></p>
     <p class="small text-secondary mb-2">
       <a class="text-body" href="#/doc/setup-help" data-i18n="devices.gallery_link_setup"></a>
       <span class="text-secondary mx-1" aria-hidden="true">·</span>

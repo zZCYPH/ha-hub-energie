@@ -1,6 +1,7 @@
 /** In-page anchors for #/internals — keep ids in sync with router / inPageNav. */
 export const INTERNALS_TOC_ITEMS = [
   { href: "#internals-overview", labelKey: "toc.internals_overview" },
+  { href: "#internals-lovelace-resources", labelKey: "toc.internals_lovelace" },
   { href: "#internals-ssot", labelKey: "ssot.title" },
   { href: "#internals-sources", labelKey: "toc.internals_sources" },
   { href: "#internals-slots", labelKey: "toc.internals_slots" },
@@ -13,4 +14,5 @@ export const INTERNALS_TOC_ITEMS = [
   { href: "#internals-lts", labelKey: "toc.internals_lts" },
   { href: "#internals-rebuild", labelKey: "toc.internals_rebuild" },
   { href: "#internals-telemetry", labelKey: "toc.internals_telemetry" },
+  { href: "#internals-glossary", labelKey: "toc.glossary" },
 ];

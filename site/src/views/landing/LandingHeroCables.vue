@@ -4,6 +4,30 @@ import { nextTick, onMounted, onUnmounted, ref } from "vue";
 /** Grid step in viewBox 0–100 space (only H/V/45° segments between joints). */
 const STEP = 5;
 
+/**
+ * Same hues as the Lovelace power card (`custom_components/hub_energie/frontend/src/constants/colors.js`):
+ * solar export (blue), battery (green), solar (yellow).
+ */
+const LOVELACE_CABLE_HEX = ["#29b6f6", "#66bb6a", "#fdd835"];
+
+function hexToRgb(hex) {
+  const h = hex.replace("#", "");
+  return {
+    r: parseInt(h.slice(0, 2), 16),
+    g: parseInt(h.slice(2, 4), 16),
+    b: parseInt(h.slice(4, 6), 16),
+  };
+}
+
+function cableStrokesFromTone(toneIndex) {
+  const { r, g, b } = hexToRgb(LOVELACE_CABLE_HEX[toneIndex % LOVELACE_CABLE_HEX.length]);
+  return {
+    strokeBase: `rgba(${r},${g},${b},0.16)`,
+    strokeFlow: `rgba(${r},${g},${b},0.4)`,
+    nodeFill: `rgba(${r},${g},${b},0.38)`,
+  };
+}
+
 const DIRS = [
   [1, 0],
   [-1, 0],
@@ -16,7 +40,7 @@ const DIRS = [
 ];
 
 const svgRef = ref(null);
-/** @type {{ import('vue').Ref<Array<{ d: string; x0: number; y0: number; x1: number; y1: number }>> }} */
+/** @type {{ import('vue').Ref<Array<{ d: string; x0: number; y0: number; x1: number; y1: number; strokeBase: string; strokeFlow: string; nodeFill: string }>> }} */
 const cables = ref([]);
 
 /** @type {Animation[]} */
@@ -147,9 +171,9 @@ function pathLen(pts) {
 }
 
 function generateCableData() {
-  /** @type {Array<{ d: string; x0: number; y0: number; x1: number; y1: number }>} */
+  /** @type {Array<{ d: string; x0: number; y0: number; x1: number; y1: number; strokeBase: string; strokeFlow: string; nodeFill: string }>} */
   const out = [];
-  const target = 14;
+  const target = 11; /* ~20% fewer than 14 */
   let tries = 0;
   while (out.length < target && tries < 200) {
     tries++;
@@ -162,7 +186,8 @@ function generateCableData() {
     if (!d) continue;
     const p0 = pts[0];
     const p1 = pts[pts.length - 1];
-    out.push({ d, x0: p0.x, y0: p0.y, x1: p1.x, y1: p1.y });
+    const { strokeBase, strokeFlow, nodeFill } = cableStrokesFromTone(out.length);
+    out.push({ d, x0: p0.x, y0: p0.y, x1: p1.x, y1: p1.y, strokeBase, strokeFlow, nodeFill });
   }
   return out;
 }
@@ -256,12 +281,14 @@ onUnmounted(() => {
         :key="'b-' + i"
         class="landing-hero-cable-base"
         :d="c.d"
+        :stroke="c.strokeBase"
       />
       <path
         v-for="(c, i) in cables"
         :key="'f-' + i"
         class="landing-hero-cable-flow"
         :d="c.d"
+        :stroke="c.strokeFlow"
         filter="url(#landing-hero-cable-glow)"
       />
 
@@ -272,6 +299,7 @@ onUnmounted(() => {
         :cx="c.x0"
         :cy="c.y0"
         r="1.15"
+        :fill="c.nodeFill"
       />
       <circle
         v-for="(c, i) in cables"
@@ -280,6 +308,7 @@ onUnmounted(() => {
         :cx="c.x1"
         :cy="c.y1"
         r="1.15"
+        :fill="c.nodeFill"
       />
     </svg>
   </div>

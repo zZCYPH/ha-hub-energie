@@ -1,0 +1,38 @@
+<p>
+  Chaque valeur est le <strong>plus grand pas positif en kWh</strong> que le hub
+  enregistre <em>en une mise à jour</em> pour cette classe de compteur.
+</p>
+<p>
+  Si le compteur physique a sauté davantage (Home Assistant arrêté, échantillon
+  aberrant), la partie au-dessus du plafond est
+  <strong>ignorée pour les totaux internes</strong> par créneau et coût — la
+  lecture brute conservée avance quand même pour que le prochain delta reste
+  cohérent.
+</p>
+<ul class="ps-3 mb-3 text-secondary small">
+  <li>
+    <strong>Réseau import &amp; export</strong> — plafond commun aux deux sens
+    sur les entités réseau choisies (mono / tri).
+  </li>
+  <li>
+    <strong>Production solaire</strong> — s’applique au compteur kWh
+    <code class="font-mono">total_increasing</code> de production PV.
+  </li>
+  <li>
+    <strong>Batteries (charge &amp; décharge)</strong> — pour chaque pack
+    configuré, les compteurs charge et décharge sont contrôlés séparément par
+    rapport à ce plafond.
+  </li>
+  <li>
+    <strong>Autres compteurs d’énergie</strong> — valeur de repli pour toute
+    autre source suivie par le hub hors réseau, PV et ces compteurs batterie.
+  </li>
+</ul>
+<p>
+  Mécanique complète, plafonds par défaut et exemples (coupures, pics) :
+  <a href="#/internals#internals-delta-caps">Internes — plafonds de delta</a>.
+</p>
+<p>
+  Notes plus courtes sur la doc principale :
+  <a href="#/doc#configure-delta-caps">Plafonds de delta d’énergie</a>.
+</p>

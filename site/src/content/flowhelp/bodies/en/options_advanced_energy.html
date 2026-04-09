@@ -1,0 +1,36 @@
+<p>
+  Each number is the <strong>maximum positive kWh step</strong> the hub will
+  book in <em>one update</em> for that meter class.
+</p>
+<p>
+  If the physical counter jumped further while Home Assistant was away (or a bad
+  sample spiked), anything above the cap is
+  <strong>skipped for internal</strong> slot and cost totals — the stored raw
+  reading still moves forward so the next delta stays consistent.
+</p>
+<ul class="ps-3 mb-3 text-secondary small">
+  <li>
+    <strong>Grid import &amp; export</strong> — one shared ceiling for both
+    directions on the grid energy entities you picked in Grid / tri steps.
+  </li>
+  <li>
+    <strong>Solar production</strong> — applies to the PV
+    <code class="font-mono">total_increasing</code> kWh entity.
+  </li>
+  <li>
+    <strong>Battery in &amp; out</strong> — each configured pack: charge and
+    discharge counters are checked separately against this cap.
+  </li>
+  <li>
+    <strong>Other energy meters</strong> — fallback for any other hub-tracked
+    source that is not grid, solar, or those battery counters.
+  </li>
+</ul>
+<p>
+  End-to-end mechanics, default ceilings, and outage/spike walk-throughs:
+  <a href="#/internals#internals-delta-caps">Internals — energy delta caps</a>.
+</p>
+<p>
+  Shorter user-facing notes:
+  <a href="#/doc#configure-delta-caps">Energy delta caps</a>.
+</p>

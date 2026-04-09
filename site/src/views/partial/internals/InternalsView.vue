@@ -14,6 +14,7 @@ import InternalsSectionDay from "./InternalsSectionDay.vue";
 import InternalsSectionDeltaCaps from "./InternalsSectionDeltaCaps.vue";
 import InternalsSectionDeltas from "./InternalsSectionDeltas.vue";
 import InternalsSectionLts from "./InternalsSectionLts.vue";
+import InternalsSectionLovelaceResources from "./InternalsSectionLovelaceResources.vue";
 import InternalsSectionOverview from "./InternalsSectionOverview.vue";
 import InternalsSectionRebuild from "./InternalsSectionRebuild.vue";
 import InternalsSectionSlots from "./InternalsSectionSlots.vue";
@@ -21,6 +22,7 @@ import InternalsSectionSources from "./InternalsSectionSources.vue";
 import InternalsSectionSsot from "./InternalsSectionSsot.vue";
 import InternalsSectionStore from "./InternalsSectionStore.vue";
 import InternalsSectionTelemetry from "./InternalsSectionTelemetry.vue";
+import InternalsSectionGlossary from "./InternalsSectionGlossary.vue";
 
 const root = ref(null);
 const router = useRouter();
@@ -50,6 +52,7 @@ onUnmounted(() => {
           <InternalsDesktopSidebar />
           <main class="col-lg-9">
             <InternalsSectionOverview />
+            <InternalsSectionLovelaceResources />
             <InternalsSectionSsot />
             <InternalsSectionSources />
             <InternalsSectionSlots />
@@ -62,6 +65,7 @@ onUnmounted(() => {
             <InternalsSectionLts />
             <InternalsSectionRebuild />
             <InternalsSectionTelemetry />
+            <InternalsSectionGlossary />
             <InternalsPageFooter />
           </main>
         </div>

@@ -50,14 +50,12 @@ const feedbackMailto =
           <h1 class="display-4 fw-bold mb-4 landing-title" data-i18n="landing.headline">
             Centralize your home’s energy data
           </h1>
-          <p
-            class="lead text-secondary mb-5 mx-auto landing-lead"
-            style="max-width: 42rem"
-            data-i18n="landing.lead"
-          >
-            One integration ties your tariff, meters, solar, batteries, costs, and diagnostics together — configure
-            once and get a consistent view in Home Assistant.
-          </p>
+          <div class="landing-hero-lead-panel mb-5">
+            <p class="lead mb-0 landing-lead" data-i18n="landing.lead">
+              One integration ties your tariff, meters, solar, batteries, costs, and diagnostics together — configure
+              once and get a consistent view in Home Assistant.
+            </p>
+          </div>
           <div
             class="d-flex flex-column flex-sm-row flex-wrap align-items-stretch align-items-sm-center justify-content-center gap-3 mb-5"
           >
@@ -100,7 +98,7 @@ const feedbackMailto =
               </ul>
             </div>
           </div>
-          <p class="small text-secondary mb-0" data-i18n="landing.version_note"></p>
+          <p class="small text-secondary mb-0 landing-hero-version" data-i18n="landing.version_note"></p>
         </div>
       </div>
     </div>
