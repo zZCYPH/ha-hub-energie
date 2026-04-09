@@ -44,20 +44,6 @@
     </details>
     <div id="flow-simulator-mount" class="mb-4"></div>
 
-    <div class="card border mb-4 shadow-sm">
-      <div class="card-body">
-        <h3 class="h6 card-title" data-i18n="configure.flow_map_title">How the config flow branches</h3>
-        <p class="small text-secondary mb-2 mb-lg-3" data-i18n="configure.flow_map_note"></p>
-        <ul class="small text-secondary mb-0 ps-3">
-          <li data-i18n="configure.flow_map_li1"></li>
-          <li data-i18n="configure.flow_map_li2"></li>
-          <li data-i18n="configure.flow_map_li3"></li>
-          <li data-i18n="configure.flow_map_li4"></li>
-          <li data-i18n="configure.flow_map_li5"></li>
-        </ul>
-      </div>
-    </div>
-
     <h3 class="h5 mt-2 mb-2 doc-subsection" id="configure-advanced">
       <span data-i18n="configure.advanced_h">Advanced configuration</span>
       <a

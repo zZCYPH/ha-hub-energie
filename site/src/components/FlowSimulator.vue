@@ -965,7 +965,7 @@ onUnmounted(() => {
       <p class="small text-secondary mt-3 mb-0" data-flow-simulator-disclaimer>
         {{ tr("flowsim.disclaimer") }}
       </p>
-      <p class="small text-secondary mb-0 font-monospace">generated_at · {{ catalog.generated_at }}</p>
+      <p class="small text-secondary mt-2 mb-0">{{ tr("flowsim.sync_note") }}</p>
     </div>
   </div>
 </template>

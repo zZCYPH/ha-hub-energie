@@ -3,6 +3,7 @@
   "flowsim.empty": "(pas d’étape)",
   "flowsim.redirect_note": "Cette étape ne fait qu’enchaîner dans le vrai assistant — en principe sans formulaire.",
   "flowsim.disclaimer": "Aperçu pédagogique : titres, descriptions et libellés de sélecteurs calqués sur l’intégration. Les enchaînements suivent le vrai assistant dans le code, sans validation d’entités ni appels réseau (EDF/RTE, etc.).",
+  "flowsim.sync_note": "Les mainteneurs s’efforcent de garder cet aperçu aligné sur l’intégration. Le catalogue généré est mis à jour lorsque le flux de configuration change (voir la note mainteneurs au-dessus de cet aperçu).",
   "flowsim.branching_hint": "Vos choix déterminent l’étape suivante (même logique de branchement que l’intégration).",
   "flowsim.start_over": "Recommencer",
   "flowsim.step_depth": "Étape {n}",

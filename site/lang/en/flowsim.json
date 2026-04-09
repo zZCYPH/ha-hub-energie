@@ -3,6 +3,7 @@
   "flowsim.empty": "(no step)",
   "flowsim.redirect_note": "This step only navigates in the real wizard — there is usually no form.",
   "flowsim.disclaimer": "Educational preview: titles/labels and selector options mirror the integration. Branching follows the real wizard in code, but entity validation, network calls (e.g. EDF/RTE), and full form rules are not executed.",
+  "flowsim.sync_note": "Maintainers aim to keep this preview aligned with the integration. The generated catalog is updated whenever the config flow changes (see the maintainer note above this preview).",
   "flowsim.branching_hint": "Your choices drive the next step (same branch points as the integration).",
   "flowsim.start_over": "Start over",
   "flowsim.step_depth": "Step {n}",
