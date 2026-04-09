@@ -9,6 +9,7 @@ import InternalsHero from "./InternalsHero.vue";
 import InternalsMobileOffcanvas from "./InternalsMobileOffcanvas.vue";
 import InternalsPageFooter from "./InternalsPageFooter.vue";
 import InternalsSectionAttribution from "./InternalsSectionAttribution.vue";
+import InternalsSectionReinjection from "./InternalsSectionReinjection.vue";
 import InternalsSectionDay from "./InternalsSectionDay.vue";
 import InternalsSectionDeltaCaps from "./InternalsSectionDeltaCaps.vue";
 import InternalsSectionDeltas from "./InternalsSectionDeltas.vue";
@@ -53,6 +54,7 @@ onUnmounted(() => {
             <InternalsSectionSources />
             <InternalsSectionSlots />
             <InternalsSectionAttribution />
+            <InternalsSectionReinjection />
             <InternalsSectionDeltas />
             <InternalsSectionDeltaCaps />
             <InternalsSectionDay />

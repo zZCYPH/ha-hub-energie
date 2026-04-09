@@ -51,7 +51,7 @@ function bindFlowsimJumpButtons() {
       const stepId = el.getAttribute("data-options-flowsim-jump");
       if (!stepId) return;
       router
-        .push({ name: "doc", hash: "#configure-options-simulator" })
+        .push({ name: "doc", hash: "#configure-advanced" })
         .then(() =>
           nextTick(() => {
             window.dispatchEvent(new CustomEvent("hub-energie-options-flowsim-jump", { detail: { stepId } }));

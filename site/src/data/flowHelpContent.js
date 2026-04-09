@@ -7,6 +7,15 @@ const DOC_DELTA = '<a href="#/doc#configure-delta-caps">Energy delta caps</a>';
 const DOC_DELTA_FR =
   '<a href="#/doc#configure-delta-caps">Plafonds de delta d’énergie</a>';
 
+const DOC_INTERNALS_REINJECTION =
+  '<a href="#/internals#internals-reinjection">Internals — grid export &amp; reinjection</a>';
+const DOC_INTERNALS_REINJECTION_FR =
+  '<a href="#/internals#internals-reinjection">Internes — export &amp; réinjection</a>';
+const DOC_INTERNALS_DELTA_CAPS =
+  '<a href="#/internals#internals-delta-caps">Internals — energy delta caps</a>';
+const DOC_INTERNALS_DELTA_CAPS_FR =
+  '<a href="#/internals#internals-delta-caps">Internes — plafonds de delta</a>';
+
 /** From ``custom_components/hub_energie/docs/advanced-schedule-slots.md`` — keep in sync when that doc changes. */
 const FLOWHELP_ADV_SCHEDULE_REFERENCE_EN = `
 <div class="flowhelp-schedule-ref small text-body">
@@ -343,11 +352,18 @@ ${FLOWHELP_ADV_SCHEDULE_REFERENCE_EN}`,
   },
   options_reinjection: {
     title: "Options — reinjection tuning",
-    body_html: `<p>Optional expert thresholds (W, seconds, ratios, SOC fraction) for classifying grid export, solar contribution, battery charge significance, and short “switch latency” spikes. Stored in integration options; adjust only when debugging mis-tagged reinjection diagnostics.</p>`,
+    body_html: `<p>Optional expert thresholds (W, seconds, ratios, SOC fraction) for classifying grid export, solar contribution, battery charge significance, and short “switch latency” spikes. Stored in integration options; adjust only when debugging mis-tagged reinjection diagnostics.</p><p class="text-secondary small mb-0">How the numbers map to code paths, the dynamic export bar, and example situations by diagnostic category: ${DOC_INTERNALS_REINJECTION}.</p>`,
   },
   options_advanced_energy: {
     title: "Options — energy delta caps",
-    body_html: `<p>Override the maximum positive kWh jump accepted per poll for grid, solar, batteries, and other sources. See ${DOC_DELTA} for when to raise caps and what happens if HA was offline.</p>`,
+    body_html: `<p>Each number is the <strong>maximum positive kWh step</strong> the hub will book in <em>one update</em> for that meter class. If the physical counter jumped further while Home Assistant was away (or a bad sample spiked), anything above the cap is <strong>skipped for internal</strong> slot and cost totals — the stored raw reading still moves forward so the next delta stays consistent.</p>
+<ul class="ps-3 mb-3 text-secondary small">
+<li><strong>Grid import &amp; export</strong> — one shared ceiling for both directions on the grid energy entities you picked in Grid / tri steps.</li>
+<li><strong>Solar production</strong> — applies to the PV <code class="font-mono">total_increasing</code> kWh entity.</li>
+<li><strong>Battery in &amp; out</strong> — each configured pack: charge and discharge counters are checked separately against this cap.</li>
+<li><strong>Other energy meters</strong> — fallback for any other hub-tracked source that is not grid, solar, or those battery counters.</li>
+</ul>
+<p class="text-secondary small mb-0">End-to-end mechanics, default ceilings, and outage/spike walk-throughs: ${DOC_INTERNALS_DELTA_CAPS}. Shorter user-facing notes: ${DOC_DELTA}.</p>`,
   },
   options_grid: {
     title: "Options — grid sensors",
@@ -575,11 +591,18 @@ ${FLOWHELP_ADV_SCHEDULE_REFERENCE_FR}`,
   },
   options_reinjection: {
     title: "Options — réglages réinjection",
-    body_html: `<p>Seuils experts optionnels (W, secondes, ratios, fraction SOC) pour classer l’export réseau, la part solaire, la charge batterie « significative » et les courts pics de « latence ». Stockés dans les options de l’intégration ; à n’ajuster que pour diagnostiquer une mauvaise étiquette de réinjection.</p>`,
+    body_html: `<p>Seuils experts optionnels (W, secondes, ratios, fraction SOC) pour classer l’export réseau, la part solaire, la charge batterie « significative » et les courts pics de « latence ». Stockés dans les options de l’intégration ; à n’ajuster que pour diagnostiquer une mauvaise étiquette de réinjection.</p><p class="text-secondary small mb-0">Lien entre seuils et chemins dans le code, barre dynamique d’export, exemples par catégorie de diagnostic : ${DOC_INTERNALS_REINJECTION_FR}.</p>`,
   },
   options_advanced_energy: {
     title: "Options — plafonds de delta",
-    body_html: `<p>Remplace les plafonds kWh par relevé pour éviter rejets après longue coupure ou, inversement, limiter un pic. Voir ${DOC_DELTA_FR}.</p>`,
+    body_html: `<p>Chaque valeur est le <strong>plus grand pas positif en kWh</strong> que le hub enregistre <em>en une mise à jour</em> pour cette classe de compteur. Si le compteur physique a sauté davantage (Home Assistant arrêté, échantillon aberrant), la partie au-dessus du plafond est <strong>ignorée pour les totaux internes</strong> par créneau et coût — la lecture brute conservée avance quand même pour que le prochain delta reste cohérent.</p>
+<ul class="ps-3 mb-3 text-secondary small">
+<li><strong>Réseau import &amp; export</strong> — plafond commun aux deux sens sur les entités réseau choisies (mono / tri).</li>
+<li><strong>Production solaire</strong> — s’applique au compteur kWh <code class="font-mono">total_increasing</code> de production PV.</li>
+<li><strong>Batteries (charge &amp; décharge)</strong> — pour chaque pack configuré, les compteurs charge et décharge sont contrôlés séparément par rapport à ce plafond.</li>
+<li><strong>Autres compteurs d’énergie</strong> — valeur de repli pour toute autre source suivie par le hub hors réseau, PV et ces compteurs batterie.</li>
+</ul>
+<p class="text-secondary small mb-0">Mécanique complète, plafonds par défaut et exemples (coupures, pics) : ${DOC_INTERNALS_DELTA_CAPS_FR}. Notes plus courtes sur la doc principale : ${DOC_DELTA_FR}.</p>`,
   },
   options_grid: {
     title: "Options — réseau",

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-09T19:24:41.513757+00:00",
+  "generated_at": "2026-04-09T19:52:20.763995+00:00",
   "source_files": {
     "strings_en": "custom_components/hub_energie/strings.json",
     "strings_fr": "custom_components/hub_energie/translations/fr.json"
@@ -1651,52 +1651,52 @@
           {
             "key": "batt_capacity_kwh_entity",
             "label": "Nominal capacity — sensor or helper",
-            "description": "Nominal capacity at 100% SOC (max storable energy, kWh). Numeric value in kWh (e.g. sensor, input_number). Use when the value comes from an entity."
+            "description": "Pick a sensor, input_number, or number entity whose state is nominal usable energy (kWh) at 100% SOC — datasheet capacity, not live remaining. Leave empty if you type the value in the manual field instead (never both)."
           },
           {
             "key": "batt_capacity_kwh",
             "label": "Nominal capacity — manual entry",
-            "description": "Nominal capacity at 100% SOC (max storable energy, kWh). Enter here or use the entity above — only one of the two."
+            "description": "Type nominal capacity in kWh at 100% SOC when you do not bind an entity. XOR with the entity picker above."
           },
           {
             "key": "batt_max_charge_w_entity",
             "label": "Max charge power — sensor or helper",
-            "description": "Technical limit in W read from an entity."
+            "description": "Entity for the inverter/BMS maximum charge power (W), e.g. datasheet limit. Not the live measured charge power. XOR with manual watts below."
           },
           {
             "key": "batt_max_charge_w",
             "label": "Max charge power — manual entry",
-            "description": "Technical limit in W (not your instantaneous measured power)."
+            "description": "Manual max charge power (W). XOR with the entity above."
           },
           {
             "key": "batt_max_discharge_w_entity",
             "label": "Max discharge power — sensor or helper",
-            "description": "Technical limit in W read from an entity."
+            "description": "Entity for maximum discharge power (W). XOR with manual value below."
           },
           {
             "key": "batt_max_discharge_w",
             "label": "Max discharge power — manual entry",
-            "description": "Technical limit in W (not your instantaneous measured power)."
+            "description": "Manual max discharge power (W). XOR with the entity above."
           },
           {
             "key": "batt_soc_min_entity",
             "label": "SOC minimum — sensor or helper",
-            "description": "Percent 0–100 from an entity."
+            "description": "Entity reporting minimum usable SOC (0–100%) — use when the pack never truly hits 0% on the sensor. XOR with manual percent below."
           },
           {
             "key": "batt_soc_min",
             "label": "SOC minimum — manual entry",
-            "description": "Use if the battery never reaches 0%."
+            "description": "Manual floor SOC (0–100). XOR with the entity above."
           },
           {
             "key": "batt_soc_max_entity",
             "label": "SOC maximum — sensor or helper",
-            "description": "Percent 0–100 from an entity."
+            "description": "Entity for maximum SOC the system reports (0–100%) when it never reaches 100%. XOR with manual percent below."
           },
           {
             "key": "batt_soc_max",
             "label": "SOC maximum — manual entry",
-            "description": "Use if the battery never reaches 100%."
+            "description": "Manual ceiling SOC (0–100). XOR with the entity above."
           }
         ],
         "sections": [],
@@ -1707,52 +1707,52 @@
           {
             "key": "batt_capacity_kwh_entity",
             "label": "Capacité nominale — capteur ou helper",
-            "description": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Nombre en kWh (ex. capteur, input_number). Utile si la valeur est exposée par une entité."
+            "description": "Capteur, input_number ou entité nombre dont l’état est la capacité nominale (kWh) à 100 % de SOC — valeur constructeur, pas l’énergie restante instantanée. Laisser vide si vous saisissez la valeur manuelle (jamais les deux)."
           },
           {
             "key": "batt_capacity_kwh",
             "label": "Capacité nominale — saisie manuelle",
-            "description": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Saisie directe ou via l'entité ci-dessus — une seule des deux."
+            "description": "Capacité nominale en kWh à 100 % de SOC si pas d’entité. XOR avec le sélecteur ci-dessus."
           },
           {
             "key": "batt_max_charge_w_entity",
             "label": "Puissance max. de charge — capteur ou helper",
-            "description": "Limite technique en W lue depuis une entité."
+            "description": "Entité pour la puissance max de charge (W) onduleur/BMS (limite technique), pas la puissance mesurée en direct. XOR avec la saisie manuelle."
           },
           {
             "key": "batt_max_charge_w",
             "label": "Puissance max. de charge — saisie manuelle",
-            "description": "Limite technique en W (pas la puissance instantanée mesurée)."
+            "description": "Puissance max de charge (W) manuelle. XOR avec l’entité."
           },
           {
             "key": "batt_max_discharge_w_entity",
             "label": "Puissance max. de décharge — capteur ou helper",
-            "description": "Limite technique en W lue depuis une entité."
+            "description": "Entité pour la puissance max de décharge (W). XOR avec la valeur manuelle."
           },
           {
             "key": "batt_max_discharge_w",
             "label": "Puissance max. de décharge — saisie manuelle",
-            "description": "Limite technique en W (pas la puissance instantanée mesurée)."
+            "description": "Puissance max de décharge (W) manuelle. XOR avec l’entité."
           },
           {
             "key": "batt_soc_min_entity",
             "label": "SOC minimum — capteur ou helper",
-            "description": "Pourcentage 0–100 depuis une entité."
+            "description": "Entité SOC minimum utilisable (0–100 %) si le pack n’atteint jamais vraiment 0 % à l’affichage. XOR avec le pourcentage manuel."
           },
           {
             "key": "batt_soc_min",
             "label": "SOC minimum — saisie manuelle",
-            "description": "Réserve basse si la batterie ne descend jamais à 0 %."
+            "description": "SOC plancher manuel (0–100). XOR avec l’entité."
           },
           {
             "key": "batt_soc_max_entity",
             "label": "SOC maximum — capteur ou helper",
-            "description": "Pourcentage 0–100 depuis une entité."
+            "description": "Entité pour le SOC max affiché (0–100 %) quand le pack n’atteint pas 100 %. XOR avec le pourcentage manuel."
           },
           {
             "key": "batt_soc_max",
             "label": "SOC maximum — saisie manuelle",
-            "description": "Réserve haute si la batterie ne charge jamais à 100 %."
+            "description": "SOC plafond manuel (0–100). XOR avec l’entité."
           }
         ],
         "sections": [],
@@ -2035,42 +2035,42 @@
           {
             "key": "reinjection_export_ignore_below_w",
             "label": "Ignore export below (W)",
-            "description": "Ignore small grid export readings below this power (reduces flicker)."
+            "description": "Grid export power (W) at or below this is ignored for reinjection classification: diagnostics fall back to “unattributed” and the continuous-export timer resets. Set just above meter noise (default 10 W). Lower = fewer false export events; higher = count smaller injections."
           },
           {
             "key": "reinjection_batt_charge_significant_w",
             "label": "Battery charge significant above (W)",
-            "description": "Treat battery charge above this threshold as “significant” for classification heuristics."
+            "description": "Battery charge power (W) strictly above this counts as “significant charging” in the export-vs-solar branches. At or below = treated as not materially charging, which steers causes between solar surplus and battery full / idle. Default 0 means any charge > 0 W is significant."
           },
           {
             "key": "reinjection_short_export_max_s",
             "label": "Switch latency max duration (s)",
-            "description": "Maximum duration (s) for short export spikes before treating them as latency noise."
+            "description": "If export has lasted at most this many seconds and its power is at most “Switch latency max power (W)”, the event is classified as switch_latency (brief transient). Increase if real exports ramp slowly; decrease if genuine export should be recognised sooner."
           },
           {
             "key": "reinjection_short_export_max_w",
             "label": "Switch latency max power (W)",
-            "description": "Power ceiling (W) for those short export spikes."
+            "description": "Paired with max duration: both conditions must hold for the latency bucket. Typical use: filter short inverter/controller bumps without labelling a sustained export as noise."
           },
           {
             "key": "reinjection_min_solar_for_classify_w",
             "label": "Min solar for classification (W)",
-            "description": "Minimum solar production (W) before solar-heavy classification applies."
+            "description": "Minimum PV production (W) required before solar-heavy classification branches run. Below this, strong export may end up unattributed unless another rule matches."
           },
           {
             "key": "reinjection_export_min_abs_w",
             "label": "Min export for classification (W)",
-            "description": "Minimum absolute export (W) required to classify as export-led."
+            "description": "Builds a dynamic export bar together with the fraction: threshold = max(this watts, fraction × solar_w). Guarantees a minimum export level even when PV is very small."
           },
           {
             "key": "reinjection_export_vs_solar_fraction",
             "label": "Export/solar ratio threshold",
-            "description": "Ratio threshold between export and solar power for mixed states."
+            "description": "Fraction (0–1) of current solar power used in the dynamic export bar (see min export field). Example: 0.2 with 2000 W PV → 400 W of the threshold comes from PV; the min-abs watts still applies."
           },
           {
             "key": "reinjection_batt_full_min_soc_frac",
             "label": "Battery full SOC threshold (0-1)",
-            "description": "SOC fraction (0–1) above which the pack is treated as “full” for heuristics."
+            "description": "SOC fill ratio (0–1). When SOC is known and below this, some branches prefer solar_surplus; at/above, combined with low charge power, the pack is treated as “full enough” for battery_full_or_absent-style causes."
           }
         ],
         "sections": [],
@@ -2081,42 +2081,42 @@
           {
             "key": "reinjection_export_ignore_below_w",
             "label": "Ignorer export en dessous de (W)",
-            "description": "Ignore les petites injections réseau sous ce seuil (W) pour limiter le scintillement."
+            "description": "Puissance d’export réseau (W) en dessous ou égale à ce seuil : ignorée pour la classification « réinjection » — diagnostic plutôt « non attribué » et remise à zéro du chronomètre d’export continu. Réglez juste au-dessus du bruit du compteur (défaut 10 W). Plus bas = moins de faux exports ; plus haut = compter de petites injections."
           },
           {
             "key": "reinjection_batt_charge_significant_w",
             "label": "Charge batterie significative au-dessus de (W)",
-            "description": "Au-delà de cette puissance (W), la charge batterie est jugée « significative » pour les heuristiques."
+            "description": "Puissance de charge batterie (W) strictement au-dessus de ce seuil = « charge significative » dans les branches export vs solaire. En dessous ou égal = pas de charge matérielle, ce qui oriente le diagnostic entre surplus solaire et batterie pleine / inactive. 0 = toute charge > 0 W est significative."
           },
           {
             "key": "reinjection_short_export_max_s",
             "label": "Durée max latence switch (s)",
-            "description": "Durée max (s) des courts pics d’export considérés comme bruit de latence."
+            "description": "Si l’export dure au plus ce nombre de secondes et sa puissance ne dépasse pas « Puissance max latence (W) », classification switch_latency (transitoire). Augmentez si vos vrais exports montent lentement ; diminuez pour reconnaître plus tôt un export réel."
           },
           {
             "key": "reinjection_short_export_max_w",
             "label": "Puissance max latence switch (W)",
-            "description": "Plafond de puissance (W) pour ces courts pics."
+            "description": "Associé à la durée : les deux conditions doivent être vraies pour le panier « latence ». Filtre les courts à-coups onduleur/régulation sans traiter un export soutenu comme du bruit."
           },
           {
             "key": "reinjection_min_solar_for_classify_w",
             "label": "Solaire min pour classification (W)",
-            "description": "Production PV minimale (W) avant classification « fort solaire »."
+            "description": "Production PV minimale (W) avant d’activer les branches « fort solaire ». En dessous, un export marqué peut rester non attribué si aucune autre règle ne s’applique."
           },
           {
             "key": "reinjection_export_min_abs_w",
             "label": "Export min pour classification (W)",
-            "description": "Export minimal (W) pour considérer un état export dominant."
+            "description": "Construit avec la fraction un seuil dynamique d’export : max(cette puissance en W, fraction × puissance_solaire). Garantit un plancher d’export même quand le PV est très faible."
           },
           {
             "key": "reinjection_export_vs_solar_fraction",
             "label": "Seuil ratio export/solaire",
-            "description": "Seuil de ratio export / solaire pour les états mixtes."
+            "description": "Part (0–1) de la puissance solaire instantanée dans ce seuil dynamique (voir champ export minimal). Ex. 0,2 et 2000 W PV → 400 W issus du solaire ; le plancher absolu s’applique toujours."
           },
           {
             "key": "reinjection_batt_full_min_soc_frac",
             "label": "Seuil SOC batterie pleine (0-1)",
-            "description": "Fraction de SOC (0–1) au-dessus de laquelle la batterie est considérée comme pleine."
+            "description": "Rapport de SOC (0–1). Si le SOC est connu et strictement inférieur, certaines branches privilégient solar_surplus ; au-delà, avec peu de charge, la batterie est vue comme « assez pleine » pour des causes proches de battery_full_or_absent."
           }
         ],
         "sections": [],
@@ -2129,22 +2129,22 @@
           {
             "key": "max_delta_kwh_grid",
             "label": "Grid import & export",
-            "description": "Ceiling for one update on grid counters. Raise it if Home Assistant was off and the meter moved more than this before the next poll."
+            "description": "Maximum positive grid import or export kWh jump accepted in one hub update. If HA was down and the meter moved more than this before the next poll, the excess is discarded for internal slot/cost math (raw meter still advances). Raise for rare long outages; keep moderate to block spikes."
           },
           {
             "key": "max_delta_kwh_solar",
             "label": "Solar production",
-            "description": "Same for the PV kWh meter—stops one bad spike from booking a huge amount at once."
+            "description": "Same guard for the solar production kWh counter. Tighten if the inverter sometimes posts absurd single-step increases."
           },
           {
             "key": "max_delta_kwh_battery",
             "label": "Battery in & out",
-            "description": "Applies to each battery charge/discharge counter configured in the integration."
+            "description": "Applies independently to each configured battery charge and discharge total_increasing counter. Large domestic packs rarely need >80 kWh per step unless you intentionally aggregate stacks."
           },
           {
             "key": "max_delta_kwh_other",
             "label": "Other energy meters",
-            "description": "Fallback cap for any other hub energy source not covered above."
+            "description": "Fallback cap for any other hub energy source (not grid, solar, or named battery counters). Use when you route extra meters through “other” paths."
           }
         ],
         "sections": [],
@@ -2155,22 +2155,22 @@
           {
             "key": "max_delta_kwh_grid",
             "label": "Réseau import & export",
-            "description": "Plafond pour une mise à jour des compteurs réseau. Augmentez-le si HA était arrêté et que le compteur a gagné plus de kWh que ça entre deux cycles."
+            "description": "Plafond de variation positive (kWh) acceptée en une mise à jour pour l’import ou l’export réseau. Après une longue coupure HA, si le compteur a sauté plus que cette valeur, l’excédent n’entre pas dans la comptabilité interne par créneau (le compteur brut avance quand même). Augmentez pour rares grosses reprises ; gardez modéré contre les spikes."
           },
           {
             "key": "max_delta_kwh_solar",
             "label": "Production solaire",
-            "description": "Idem pour le compteur kWh PV : évite qu'une valeur aberrante crédite d'un coup trop d'énergie."
+            "description": "Même garde-fou pour le compteur kWh de production PV. Serrez si l’onduleur publie parfois des bonds irréalistes."
           },
           {
             "key": "max_delta_kwh_battery",
             "label": "Batteries (charge & décharge)",
-            "description": "S'applique aux compteurs charge/décharge de chaque batterie configurée ici."
+            "description": "S’applique à chaque compteur charge/décharge total_increasing configuré. Les packs domestiques dépassent rarement 80 kWh entre deux polls sauf agrégation volontaire."
           },
           {
             "key": "max_delta_kwh_other",
             "label": "Autres compteurs d'énergie",
-            "description": "Valeur de repli pour toute autre source d'énergie du hub non couverte par les lignes ci-dessus."
+            "description": "Plafond de repli pour toute autre source d’énergie du hub (hors réseau, PV et compteurs batterie nommés). Utile pour des compteurs « autres »."
           }
         ],
         "sections": [],
@@ -2985,52 +2985,52 @@
           {
             "key": "batt_capacity_kwh_entity",
             "label": "Nominal capacity — sensor or helper",
-            "description": "Nominal capacity at 100% SOC (max storable energy, kWh). Numeric value in kWh (e.g. sensor, input_number). Use when the value comes from an entity."
+            "description": "Pick a sensor, input_number, or number entity whose state is nominal usable energy (kWh) at 100% SOC — datasheet capacity, not live remaining. Leave empty if you type the value in the manual field instead (never both)."
           },
           {
             "key": "batt_capacity_kwh",
             "label": "Nominal capacity — manual entry",
-            "description": "Nominal capacity at 100% SOC (max storable energy, kWh). Enter here or use the entity above — only one of the two."
+            "description": "Type nominal capacity in kWh at 100% SOC when you do not bind an entity. XOR with the entity picker above."
           },
           {
             "key": "batt_max_charge_w_entity",
             "label": "Max charge power — sensor or helper",
-            "description": "Technical limit in W read from an entity."
+            "description": "Entity for the inverter/BMS maximum charge power (W), e.g. datasheet limit. Not the live measured charge power. XOR with manual watts below."
           },
           {
             "key": "batt_max_charge_w",
             "label": "Max charge power — manual entry",
-            "description": "Technical limit in W (not your instantaneous measured power)."
+            "description": "Manual max charge power (W). XOR with the entity above."
           },
           {
             "key": "batt_max_discharge_w_entity",
             "label": "Max discharge power — sensor or helper",
-            "description": "Technical limit in W read from an entity."
+            "description": "Entity for maximum discharge power (W). XOR with manual value below."
           },
           {
             "key": "batt_max_discharge_w",
             "label": "Max discharge power — manual entry",
-            "description": "Technical limit in W (not your instantaneous measured power)."
+            "description": "Manual max discharge power (W). XOR with the entity above."
           },
           {
             "key": "batt_soc_min_entity",
             "label": "SOC minimum — sensor or helper",
-            "description": "Percent 0–100 from an entity."
+            "description": "Entity reporting minimum usable SOC (0–100%) — use when the pack never truly hits 0% on the sensor. XOR with manual percent below."
           },
           {
             "key": "batt_soc_min",
             "label": "SOC minimum — manual entry",
-            "description": "Use if the battery never reaches 0%."
+            "description": "Manual floor SOC (0–100). XOR with the entity above."
           },
           {
             "key": "batt_soc_max_entity",
             "label": "SOC maximum — sensor or helper",
-            "description": "Percent 0–100 from an entity."
+            "description": "Entity for maximum SOC the system reports (0–100%) when it never reaches 100%. XOR with manual percent below."
           },
           {
             "key": "batt_soc_max",
             "label": "SOC maximum — manual entry",
-            "description": "Use if the battery never reaches 100%."
+            "description": "Manual ceiling SOC (0–100). XOR with the entity above."
           }
         ],
         "sections": [],
@@ -3041,52 +3041,52 @@
           {
             "key": "batt_capacity_kwh_entity",
             "label": "Capacité nominale — capteur ou helper",
-            "description": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Nombre en kWh (ex. capteur, input_number). Utile si la valeur est exposée par une entité."
+            "description": "Capteur, input_number ou entité nombre dont l’état est la capacité nominale (kWh) à 100 % de SOC — valeur constructeur, pas l’énergie restante instantanée. Laisser vide si vous saisissez la valeur manuelle (jamais les deux)."
           },
           {
             "key": "batt_capacity_kwh",
             "label": "Capacité nominale — saisie manuelle",
-            "description": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Saisie directe ou via l'entité ci-dessus — une seule des deux."
+            "description": "Capacité nominale en kWh à 100 % de SOC si pas d’entité. XOR avec le sélecteur ci-dessus."
           },
           {
             "key": "batt_max_charge_w_entity",
             "label": "Puissance max. de charge — capteur ou helper",
-            "description": "Limite technique en W lue depuis une entité."
+            "description": "Entité pour la puissance max de charge (W) onduleur/BMS (limite technique), pas la puissance mesurée en direct. XOR avec la saisie manuelle."
           },
           {
             "key": "batt_max_charge_w",
             "label": "Puissance max. de charge — saisie manuelle",
-            "description": "Limite technique en W (pas la puissance instantanée mesurée)."
+            "description": "Puissance max de charge (W) manuelle. XOR avec l’entité."
           },
           {
             "key": "batt_max_discharge_w_entity",
             "label": "Puissance max. de décharge — capteur ou helper",
-            "description": "Limite technique en W lue depuis une entité."
+            "description": "Entité pour la puissance max de décharge (W). XOR avec la valeur manuelle."
           },
           {
             "key": "batt_max_discharge_w",
             "label": "Puissance max. de décharge — saisie manuelle",
-            "description": "Limite technique en W (pas la puissance instantanée mesurée)."
+            "description": "Puissance max de décharge (W) manuelle. XOR avec l’entité."
           },
           {
             "key": "batt_soc_min_entity",
             "label": "SOC minimum — capteur ou helper",
-            "description": "Pourcentage 0–100 depuis une entité."
+            "description": "Entité SOC minimum utilisable (0–100 %) si le pack n’atteint jamais vraiment 0 % à l’affichage. XOR avec le pourcentage manuel."
           },
           {
             "key": "batt_soc_min",
             "label": "SOC minimum — saisie manuelle",
-            "description": "Réserve basse si la batterie ne descend jamais à 0 %."
+            "description": "SOC plancher manuel (0–100). XOR avec l’entité."
           },
           {
             "key": "batt_soc_max_entity",
             "label": "SOC maximum — capteur ou helper",
-            "description": "Pourcentage 0–100 depuis une entité."
+            "description": "Entité pour le SOC max affiché (0–100 %) quand le pack n’atteint pas 100 %. XOR avec le pourcentage manuel."
           },
           {
             "key": "batt_soc_max",
             "label": "SOC maximum — saisie manuelle",
-            "description": "Réserve haute si la batterie ne charge jamais à 100 %."
+            "description": "SOC plafond manuel (0–100). XOR avec l’entité."
           }
         ],
         "sections": [],

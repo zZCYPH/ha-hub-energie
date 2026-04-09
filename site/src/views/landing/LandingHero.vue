@@ -1,11 +1,19 @@
 <script setup>
+import LandingHeroCables from "./LandingHeroCables.vue";
+
 const base = import.meta.env.BASE_URL;
+
+/** Service Desk / feedback alias — opens the visitor's mail client (mailto). */
+const feedbackMailto =
+  "mailto:feedback@hub-energie.ts-devops.com?subject=" +
+  encodeURIComponent("Hub Énergie — feedback");
 </script>
 
 <template>
   <header class="landing-hero position-relative overflow-hidden">
+    <LandingHeroCables />
     <div class="landing-hero-glow" aria-hidden="true"></div>
-    <div class="container-xxl px-3 pt-5 mt-5 pb-5 position-relative">
+    <div class="container-xxl landing-hero-content px-3 pt-5 mt-5 pb-5 position-relative">
       <div class="row justify-content-center">
         <div class="col-xl-10 col-lg-11 text-center">
           <p
@@ -51,7 +59,7 @@ const base = import.meta.env.BASE_URL;
             once and get a consistent view in Home Assistant.
           </p>
           <div
-            class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center justify-content-center gap-3 mb-5"
+            class="d-flex flex-column flex-sm-row flex-wrap align-items-stretch align-items-sm-center justify-content-center gap-3 mb-5"
           >
             <a
               class="btn btn-primary btn-lg rounded-pill px-5 py-3 landing-discover shadow"
@@ -62,6 +70,35 @@ const base = import.meta.env.BASE_URL;
             <a class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-3" href="#/internals" data-i18n="landing.cta_internals"
               >How it works internally</a
             >
+            <div class="dropdown">
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-3 dropdown-toggle"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                data-i18n="landing.cta_feedback"
+                data-i18n-aria="landing.cta_feedback_aria"
+              >
+                Give us your feedback
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end text-start">
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/work_items"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-i18n="landing.cta_feedback_gitlab"
+                    >GitLab — sign in and create a work item</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" :href="feedbackMailto" data-i18n="landing.cta_feedback_email"
+                    >Email feedback (Service Desk)</a
+                  >
+                </li>
+              </ul>
+            </div>
           </div>
           <p class="small text-secondary mb-0" data-i18n="landing.version_note"></p>
         </div>

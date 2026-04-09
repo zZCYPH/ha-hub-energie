@@ -571,16 +571,16 @@
           "flow_nav": "Navigation dans l’assistant"
         },
         "data_description": {
-          "batt_capacity_kwh_entity": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Nombre en kWh (ex. capteur, input_number). Utile si la valeur est exposée par une entité.",
-          "batt_capacity_kwh": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Saisie directe ou via l'entité ci-dessus — une seule des deux.",
-          "batt_max_charge_w_entity": "Limite technique en W lue depuis une entité.",
-          "batt_max_charge_w": "Limite technique en W (pas la puissance instantanée mesurée).",
-          "batt_max_discharge_w_entity": "Limite technique en W lue depuis une entité.",
-          "batt_max_discharge_w": "Limite technique en W (pas la puissance instantanée mesurée).",
-          "batt_soc_min_entity": "Pourcentage 0–100 depuis une entité.",
-          "batt_soc_min": "Réserve basse si la batterie ne descend jamais à 0 %.",
-          "batt_soc_max_entity": "Pourcentage 0–100 depuis une entité.",
-          "batt_soc_max": "Réserve haute si la batterie ne charge jamais à 100 %."
+          "batt_capacity_kwh_entity": "Capteur, input_number ou entité nombre dont l’état est la capacité nominale (kWh) à 100 % de SOC — valeur constructeur, pas l’énergie restante instantanée. Laisser vide si vous saisissez la valeur manuelle (jamais les deux).",
+          "batt_capacity_kwh": "Capacité nominale en kWh à 100 % de SOC si pas d’entité. XOR avec le sélecteur ci-dessus.",
+          "batt_max_charge_w_entity": "Entité pour la puissance max de charge (W) onduleur/BMS (limite technique), pas la puissance mesurée en direct. XOR avec la saisie manuelle.",
+          "batt_max_charge_w": "Puissance max de charge (W) manuelle. XOR avec l’entité.",
+          "batt_max_discharge_w_entity": "Entité pour la puissance max de décharge (W). XOR avec la valeur manuelle.",
+          "batt_max_discharge_w": "Puissance max de décharge (W) manuelle. XOR avec l’entité.",
+          "batt_soc_min_entity": "Entité SOC minimum utilisable (0–100 %) si le pack n’atteint jamais vraiment 0 % à l’affichage. XOR avec le pourcentage manuel.",
+          "batt_soc_min": "SOC plancher manuel (0–100). XOR avec l’entité.",
+          "batt_soc_max_entity": "Entité pour le SOC max affiché (0–100 %) quand le pack n’atteint pas 100 %. XOR avec le pourcentage manuel.",
+          "batt_soc_max": "SOC plafond manuel (0–100). XOR avec l’entité."
         }
       },
       "battery_more": {
@@ -648,7 +648,7 @@
       },
       "reinjection": {
         "title": "Réglages avancés de réinjection",
-        "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})",
+        "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})\n\n[Détails d’implémentation — export réseau & réinjection](https://hub-energie.ts-devops.com/#/internals#internals-reinjection)",
         "data": {
           "reinjection_export_ignore_below_w": "Ignorer export en dessous de (W)",
           "reinjection_batt_charge_significant_w": "Charge batterie significative au-dessus de (W)",
@@ -660,19 +660,19 @@
           "reinjection_batt_full_min_soc_frac": "Seuil SOC batterie pleine (0-1)"
         },
         "data_description": {
-          "reinjection_export_ignore_below_w": "Ignore les petites injections réseau sous ce seuil (W) pour limiter le scintillement.",
-          "reinjection_batt_charge_significant_w": "Au-delà de cette puissance (W), la charge batterie est jugée « significative » pour les heuristiques.",
-          "reinjection_short_export_max_s": "Durée max (s) des courts pics d’export considérés comme bruit de latence.",
-          "reinjection_short_export_max_w": "Plafond de puissance (W) pour ces courts pics.",
-          "reinjection_min_solar_for_classify_w": "Production PV minimale (W) avant classification « fort solaire ».",
-          "reinjection_export_min_abs_w": "Export minimal (W) pour considérer un état export dominant.",
-          "reinjection_export_vs_solar_fraction": "Seuil de ratio export / solaire pour les états mixtes.",
-          "reinjection_batt_full_min_soc_frac": "Fraction de SOC (0–1) au-dessus de laquelle la batterie est considérée comme pleine."
+          "reinjection_export_ignore_below_w": "Puissance d’export réseau (W) en dessous ou égale à ce seuil : ignorée pour la classification « réinjection » — diagnostic plutôt « non attribué » et remise à zéro du chronomètre d’export continu. Réglez juste au-dessus du bruit du compteur (défaut 10 W). Plus bas = moins de faux exports ; plus haut = compter de petites injections.",
+          "reinjection_batt_charge_significant_w": "Puissance de charge batterie (W) strictement au-dessus de ce seuil = « charge significative » dans les branches export vs solaire. En dessous ou égal = pas de charge matérielle, ce qui oriente le diagnostic entre surplus solaire et batterie pleine / inactive. 0 = toute charge > 0 W est significative.",
+          "reinjection_short_export_max_s": "Si l’export dure au plus ce nombre de secondes et sa puissance ne dépasse pas « Puissance max latence (W) », classification switch_latency (transitoire). Augmentez si vos vrais exports montent lentement ; diminuez pour reconnaître plus tôt un export réel.",
+          "reinjection_short_export_max_w": "Associé à la durée : les deux conditions doivent être vraies pour le panier « latence ». Filtre les courts à-coups onduleur/régulation sans traiter un export soutenu comme du bruit.",
+          "reinjection_min_solar_for_classify_w": "Production PV minimale (W) avant d’activer les branches « fort solaire ». En dessous, un export marqué peut rester non attribué si aucune autre règle ne s’applique.",
+          "reinjection_export_min_abs_w": "Construit avec la fraction un seuil dynamique d’export : max(cette puissance en W, fraction × puissance_solaire). Garantit un plancher d’export même quand le PV est très faible.",
+          "reinjection_export_vs_solar_fraction": "Part (0–1) de la puissance solaire instantanée dans ce seuil dynamique (voir champ export minimal). Ex. 0,2 et 2000 W PV → 400 W issus du solaire ; le plancher absolu s’applique toujours.",
+          "reinjection_batt_full_min_soc_frac": "Rapport de SOC (0–1). Si le SOC est connu et strictement inférieur, certaines branches privilégient solar_surplus ; au-delà, avec peu de charge, la batterie est vue comme « assez pleine » pour des causes proches de battery_full_or_absent."
         }
       },
       "advanced_energy": {
         "title": "Plafonds de delta d'énergie",
-        "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})",
+        "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})\n\n[Détails d’implémentation — plafonds de delta d’énergie](https://hub-energie.ts-devops.com/#/internals#internals-delta-caps)",
         "data": {
           "max_delta_kwh_grid": "Réseau import & export",
           "max_delta_kwh_solar": "Production solaire",
@@ -680,10 +680,10 @@
           "max_delta_kwh_other": "Autres compteurs d'énergie"
         },
         "data_description": {
-          "max_delta_kwh_grid": "Plafond pour une mise à jour des compteurs réseau. Augmentez-le si HA était arrêté et que le compteur a gagné plus de kWh que ça entre deux cycles.",
-          "max_delta_kwh_solar": "Idem pour le compteur kWh PV : évite qu'une valeur aberrante crédite d'un coup trop d'énergie.",
-          "max_delta_kwh_battery": "S'applique aux compteurs charge/décharge de chaque batterie configurée ici.",
-          "max_delta_kwh_other": "Valeur de repli pour toute autre source d'énergie du hub non couverte par les lignes ci-dessus."
+          "max_delta_kwh_grid": "Plafond de variation positive (kWh) acceptée en une mise à jour pour l’import ou l’export réseau. Après une longue coupure HA, si le compteur a sauté plus que cette valeur, l’excédent n’entre pas dans la comptabilité interne par créneau (le compteur brut avance quand même). Augmentez pour rares grosses reprises ; gardez modéré contre les spikes.",
+          "max_delta_kwh_solar": "Même garde-fou pour le compteur kWh de production PV. Serrez si l’onduleur publie parfois des bonds irréalistes.",
+          "max_delta_kwh_battery": "S’applique à chaque compteur charge/décharge total_increasing configuré. Les packs domestiques dépassent rarement 80 kWh entre deux polls sauf agrégation volontaire.",
+          "max_delta_kwh_other": "Plafond de repli pour toute autre source d’énergie du hub (hors réseau, PV et compteurs batterie nommés). Utile pour des compteurs « autres »."
         }
       },
       "tempo": {
@@ -991,16 +991,16 @@
           "batt_soc_max": "SOC maximum — saisie manuelle"
         },
         "data_description": {
-          "batt_capacity_kwh_entity": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Nombre en kWh (ex. capteur, input_number). Utile si la valeur est exposée par une entité.",
-          "batt_capacity_kwh": "Capacité nominale à 100 % SOC (énergie maximale stockable, kWh). Saisie directe ou via l'entité ci-dessus — une seule des deux.",
-          "batt_max_charge_w_entity": "Limite technique en W lue depuis une entité.",
-          "batt_max_charge_w": "Limite technique en W (pas la puissance instantanée mesurée).",
-          "batt_max_discharge_w_entity": "Limite technique en W lue depuis une entité.",
-          "batt_max_discharge_w": "Limite technique en W (pas la puissance instantanée mesurée).",
-          "batt_soc_min_entity": "Pourcentage 0–100 depuis une entité.",
-          "batt_soc_min": "Réserve basse si la batterie ne descend jamais à 0 %.",
-          "batt_soc_max_entity": "Pourcentage 0–100 depuis une entité.",
-          "batt_soc_max": "Réserve haute si la batterie ne charge jamais à 100 %."
+          "batt_capacity_kwh_entity": "Capteur, input_number ou entité nombre dont l’état est la capacité nominale (kWh) à 100 % de SOC — valeur constructeur, pas l’énergie restante instantanée. Laisser vide si vous saisissez la valeur manuelle (jamais les deux).",
+          "batt_capacity_kwh": "Capacité nominale en kWh à 100 % de SOC si pas d’entité. XOR avec le sélecteur ci-dessus.",
+          "batt_max_charge_w_entity": "Entité pour la puissance max de charge (W) onduleur/BMS (limite technique), pas la puissance mesurée en direct. XOR avec la saisie manuelle.",
+          "batt_max_charge_w": "Puissance max de charge (W) manuelle. XOR avec l’entité.",
+          "batt_max_discharge_w_entity": "Entité pour la puissance max de décharge (W). XOR avec la valeur manuelle.",
+          "batt_max_discharge_w": "Puissance max de décharge (W) manuelle. XOR avec l’entité.",
+          "batt_soc_min_entity": "Entité SOC minimum utilisable (0–100 %) si le pack n’atteint jamais vraiment 0 % à l’affichage. XOR avec le pourcentage manuel.",
+          "batt_soc_min": "SOC plancher manuel (0–100). XOR avec l’entité.",
+          "batt_soc_max_entity": "Entité pour le SOC max affiché (0–100 %) quand le pack n’atteint pas 100 %. XOR avec le pourcentage manuel.",
+          "batt_soc_max": "SOC plafond manuel (0–100). XOR avec l’entité."
         }
       },
       "battery_more": {

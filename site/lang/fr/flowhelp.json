@@ -1,7 +1,7 @@
 {
   "flowhelp.kicker": "Home Assistant — boîtes de configuration",
   "flowhelp.title": "Assistant &amp; options — aide par étape",
-  "flowhelp.intro_html": "Cette page est pensée pour être ouverte depuis Hub Énergie : chaque section correspond à un <code class=\"font-mono\">step_id</code> du flux initial ou du menu <em>Configurer</em>. Le contenu n’apparaît pas dans le fil principal de la documentation tant que vous ne suivez pas un lien.",
+  "flowhelp.intro_html": "Cette page est pensée pour être ouverte depuis Hub Énergie : chaque section correspond à un <code class=\"font-mono\">step_id</code> du flux initial ou du menu <em>Configurer</em>. Le contenu n’apparaît pas dans le fil principal de la documentation tant que vous ne suivez pas un lien. Pour la mécanique détaillée (classification réinjection, plafonds de delta, chaîne de traitement), voir la page <a href=\"#/internals\">Internes</a> — par ex. <a href=\"#/internals#internals-reinjection\">export réseau &amp; réinjection</a> et <a href=\"#/internals#internals-delta-caps\">plafonds de delta</a>.",
   "flowhelp.link_convention_html": "<strong class=\"text-body\">Convention d’ancre :</strong> assistant initial → <code class=\"font-mono\">#flow-step-&lt;step_id&gt;</code> ; menu <em>Configurer</em> après installation → <code class=\"font-mono\">#flow-step-options-&lt;step_id&gt;</code> (ex. <code class=\"font-mono\">advanced_energy</code> → <code class=\"font-mono\">#flow-step-options-advanced_energy</code>).",
   "flowhelp.toc_setup": "Assistant initial",
   "flowhelp.toc_options": "Menu Configurer",

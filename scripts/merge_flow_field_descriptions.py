@@ -230,16 +230,18 @@ CONFIG_EN: dict[str, Any] = {
             "add_another": "Turn on to define another battery after saving the current one.",
         }
     },
-    "reinjection": {
+    "battery_advanced": {
         "data_description": {
-            "reinjection_export_ignore_below_w": "Ignore small grid export readings below this power (reduces flicker).",
-            "reinjection_batt_charge_significant_w": "Treat battery charge above this threshold as “significant” for classification heuristics.",
-            "reinjection_short_export_max_s": "Maximum duration (s) for short export spikes before treating them as latency noise.",
-            "reinjection_short_export_max_w": "Power ceiling (W) for those short export spikes.",
-            "reinjection_min_solar_for_classify_w": "Minimum solar production (W) before solar-heavy classification applies.",
-            "reinjection_export_min_abs_w": "Minimum absolute export (W) required to classify as export-led.",
-            "reinjection_export_vs_solar_fraction": "Ratio threshold between export and solar power for mixed states.",
-            "reinjection_batt_full_min_soc_frac": "SOC fraction (0–1) above which the pack is treated as “full” for heuristics.",
+            "batt_capacity_kwh_entity": "Pick a sensor, input_number, or number entity whose state is nominal usable energy (kWh) at 100% SOC — datasheet capacity, not live remaining. Leave empty if you type the value in the manual field instead (never both).",
+            "batt_capacity_kwh": "Type nominal capacity in kWh at 100% SOC when you do not bind an entity. XOR with the entity picker above.",
+            "batt_max_charge_w_entity": "Entity for the inverter/BMS maximum charge power (W), e.g. datasheet limit. Not the live measured charge power. XOR with manual watts below.",
+            "batt_max_charge_w": "Manual max charge power (W). XOR with the entity above.",
+            "batt_max_discharge_w_entity": "Entity for maximum discharge power (W). XOR with manual value below.",
+            "batt_max_discharge_w": "Manual max discharge power (W). XOR with the entity above.",
+            "batt_soc_min_entity": "Entity reporting minimum usable SOC (0–100%) — use when the pack never truly hits 0% on the sensor. XOR with manual percent below.",
+            "batt_soc_min": "Manual floor SOC (0–100). XOR with the entity above.",
+            "batt_soc_max_entity": "Entity for maximum SOC the system reports (0–100%) when it never reaches 100%. XOR with manual percent below.",
+            "batt_soc_max": "Manual ceiling SOC (0–100). XOR with the entity above.",
         }
     },
 }
@@ -386,16 +388,18 @@ CONFIG_FR: dict[str, Any] = {
             "add_another": "Activez pour enchaîner sur une autre batterie après celle-ci.",
         }
     },
-    "reinjection": {
+    "battery_advanced": {
         "data_description": {
-            "reinjection_export_ignore_below_w": "Ignore les petites injections réseau sous ce seuil (W) pour limiter le scintillement.",
-            "reinjection_batt_charge_significant_w": "Au-delà de cette puissance (W), la charge batterie est jugée « significative » pour les heuristiques.",
-            "reinjection_short_export_max_s": "Durée max (s) des courts pics d’export considérés comme bruit de latence.",
-            "reinjection_short_export_max_w": "Plafond de puissance (W) pour ces courts pics.",
-            "reinjection_min_solar_for_classify_w": "Production PV minimale (W) avant classification « fort solaire ».",
-            "reinjection_export_min_abs_w": "Export minimal (W) pour considérer un état export dominant.",
-            "reinjection_export_vs_solar_fraction": "Seuil de ratio export / solaire pour les états mixtes.",
-            "reinjection_batt_full_min_soc_frac": "Fraction de SOC (0–1) au-dessus de laquelle la batterie est considérée comme pleine.",
+            "batt_capacity_kwh_entity": "Capteur, input_number ou entité nombre dont l’état est la capacité nominale (kWh) à 100 % de SOC — valeur constructeur, pas l’énergie restante instantanée. Laisser vide si vous saisissez la valeur manuelle (jamais les deux).",
+            "batt_capacity_kwh": "Capacité nominale en kWh à 100 % de SOC si pas d’entité. XOR avec le sélecteur ci-dessus.",
+            "batt_max_charge_w_entity": "Entité pour la puissance max de charge (W) onduleur/BMS (limite technique), pas la puissance mesurée en direct. XOR avec la saisie manuelle.",
+            "batt_max_charge_w": "Puissance max de charge (W) manuelle. XOR avec l’entité.",
+            "batt_max_discharge_w_entity": "Entité pour la puissance max de décharge (W). XOR avec la valeur manuelle.",
+            "batt_max_discharge_w": "Puissance max de décharge (W) manuelle. XOR avec l’entité.",
+            "batt_soc_min_entity": "Entité SOC minimum utilisable (0–100 %) si le pack n’atteint jamais vraiment 0 % à l’affichage. XOR avec le pourcentage manuel.",
+            "batt_soc_min": "SOC plancher manuel (0–100). XOR avec l’entité.",
+            "batt_soc_max_entity": "Entité pour le SOC max affiché (0–100 %) quand le pack n’atteint pas 100 %. XOR avec le pourcentage manuel.",
+            "batt_soc_max": "SOC plafond manuel (0–100). XOR avec l’entité.",
         }
     },
 }
@@ -437,6 +441,27 @@ OPTIONS_EN: dict[str, Any] = {
             **CONFIG_EN["battery_add"]["data_description"],
         }
     },
+    "battery_advanced": {"data_description": dict(CONFIG_EN["battery_advanced"]["data_description"])},
+    "reinjection": {
+        "data_description": {
+            "reinjection_export_ignore_below_w": "Grid export power (W) at or below this is ignored for reinjection classification: diagnostics fall back to “unattributed” and the continuous-export timer resets. Set just above meter noise (default 10 W). Lower = fewer false export events; higher = count smaller injections.",
+            "reinjection_batt_charge_significant_w": "Battery charge power (W) strictly above this counts as “significant charging” in the export-vs-solar branches. At or below = treated as not materially charging, which steers causes between solar surplus and battery full / idle. Default 0 means any charge > 0 W is significant.",
+            "reinjection_short_export_max_s": "If export has lasted at most this many seconds and its power is at most “Switch latency max power (W)”, the event is classified as switch_latency (brief transient). Increase if real exports ramp slowly; decrease if genuine export should be recognised sooner.",
+            "reinjection_short_export_max_w": "Paired with max duration: both conditions must hold for the latency bucket. Typical use: filter short inverter/controller bumps without labelling a sustained export as noise.",
+            "reinjection_min_solar_for_classify_w": "Minimum PV production (W) required before solar-heavy classification branches run. Below this, strong export may end up unattributed unless another rule matches.",
+            "reinjection_export_min_abs_w": "Builds a dynamic export bar together with the fraction: threshold = max(this watts, fraction × solar_w). Guarantees a minimum export level even when PV is very small.",
+            "reinjection_export_vs_solar_fraction": "Fraction (0–1) of current solar power used in the dynamic export bar (see min export field). Example: 0.2 with 2000 W PV → 400 W of the threshold comes from PV; the min-abs watts still applies.",
+            "reinjection_batt_full_min_soc_frac": "SOC fill ratio (0–1). When SOC is known and below this, some branches prefer solar_surplus; at/above, combined with low charge power, the pack is treated as “full enough” for battery_full_or_absent-style causes.",
+        }
+    },
+    "advanced_energy": {
+        "data_description": {
+            "max_delta_kwh_grid": "Maximum positive grid import or export kWh jump accepted in one hub update. If HA was down and the meter moved more than this before the next poll, the excess is discarded for internal slot/cost math (raw meter still advances). Raise for rare long outages; keep moderate to block spikes.",
+            "max_delta_kwh_solar": "Same guard for the solar production kWh counter. Tighten if the inverter sometimes posts absurd single-step increases.",
+            "max_delta_kwh_battery": "Applies independently to each configured battery charge and discharge total_increasing counter. Large domestic packs rarely need >80 kWh per step unless you intentionally aggregate stacks.",
+            "max_delta_kwh_other": "Fallback cap for any other hub energy source (not grid, solar, or named battery counters). Use when you route extra meters through “other” paths.",
+        }
+    },
 }
 
 OPTIONS_FR: dict[str, Any] = {
@@ -476,6 +501,27 @@ OPTIONS_FR: dict[str, Any] = {
     },
     "battery_more": CONFIG_FR["battery_more"],
     "battery_add": {"data_description": dict(CONFIG_FR["battery_add"]["data_description"])},
+    "battery_advanced": {"data_description": dict(CONFIG_FR["battery_advanced"]["data_description"])},
+    "reinjection": {
+        "data_description": {
+            "reinjection_export_ignore_below_w": "Puissance d’export réseau (W) en dessous ou égale à ce seuil : ignorée pour la classification « réinjection » — diagnostic plutôt « non attribué » et remise à zéro du chronomètre d’export continu. Réglez juste au-dessus du bruit du compteur (défaut 10 W). Plus bas = moins de faux exports ; plus haut = compter de petites injections.",
+            "reinjection_batt_charge_significant_w": "Puissance de charge batterie (W) strictement au-dessus de ce seuil = « charge significative » dans les branches export vs solaire. En dessous ou égal = pas de charge matérielle, ce qui oriente le diagnostic entre surplus solaire et batterie pleine / inactive. 0 = toute charge > 0 W est significative.",
+            "reinjection_short_export_max_s": "Si l’export dure au plus ce nombre de secondes et sa puissance ne dépasse pas « Puissance max latence (W) », classification switch_latency (transitoire). Augmentez si vos vrais exports montent lentement ; diminuez pour reconnaître plus tôt un export réel.",
+            "reinjection_short_export_max_w": "Associé à la durée : les deux conditions doivent être vraies pour le panier « latence ». Filtre les courts à-coups onduleur/régulation sans traiter un export soutenu comme du bruit.",
+            "reinjection_min_solar_for_classify_w": "Production PV minimale (W) avant d’activer les branches « fort solaire ». En dessous, un export marqué peut rester non attribué si aucune autre règle ne s’applique.",
+            "reinjection_export_min_abs_w": "Construit avec la fraction un seuil dynamique d’export : max(cette puissance en W, fraction × puissance_solaire). Garantit un plancher d’export même quand le PV est très faible.",
+            "reinjection_export_vs_solar_fraction": "Part (0–1) de la puissance solaire instantanée dans ce seuil dynamique (voir champ export minimal). Ex. 0,2 et 2000 W PV → 400 W issus du solaire ; le plancher absolu s’applique toujours.",
+            "reinjection_batt_full_min_soc_frac": "Rapport de SOC (0–1). Si le SOC est connu et strictement inférieur, certaines branches privilégient solar_surplus ; au-delà, avec peu de charge, la batterie est vue comme « assez pleine » pour des causes proches de battery_full_or_absent.",
+        }
+    },
+    "advanced_energy": {
+        "data_description": {
+            "max_delta_kwh_grid": "Plafond de variation positive (kWh) acceptée en une mise à jour pour l’import ou l’export réseau. Après une longue coupure HA, si le compteur a sauté plus que cette valeur, l’excédent n’entre pas dans la comptabilité interne par créneau (le compteur brut avance quand même). Augmentez pour rares grosses reprises ; gardez modéré contre les spikes.",
+            "max_delta_kwh_solar": "Même garde-fou pour le compteur kWh de production PV. Serrez si l’onduleur publie parfois des bonds irréalistes.",
+            "max_delta_kwh_battery": "S’applique à chaque compteur charge/décharge total_increasing configuré. Les packs domestiques dépassent rarement 80 kWh entre deux polls sauf agrégation volontaire.",
+            "max_delta_kwh_other": "Plafond de repli pour toute autre source d’énergie du hub (hors réseau, PV et compteurs batterie nommés). Utile pour des compteurs « autres ».",
+        }
+    },
 }
 
 

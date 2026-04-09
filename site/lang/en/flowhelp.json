@@ -1,7 +1,7 @@
 {
   "flowhelp.kicker": "Home Assistant — config dialogs",
   "flowhelp.title": "Setup &amp; options — step help",
-  "flowhelp.intro_html": "This page is meant to be opened from Hub Énergie itself: each section matches a <code class=\"font-mono\">step_id</code> in the integration config or options flow. Text stays out of the main documentation scroll path unless you choose to come here.",
+  "flowhelp.intro_html": "This page is meant to be opened from Hub Énergie itself: each section matches a <code class=\"font-mono\">step_id</code> in the integration config or options flow. Text stays out of the main documentation scroll path unless you choose to come here. For the underlying mechanics (reinjection classification, delta caps, pipeline), see the <a href=\"#/internals\">Internals</a> page — e.g. <a href=\"#/internals#internals-reinjection\">grid export &amp; reinjection</a> and <a href=\"#/internals#internals-delta-caps\">energy delta caps</a>.",
   "flowhelp.link_convention_html": "<strong class=\"text-body\">Anchor convention:</strong> initial wizard → <code class=\"font-mono\">#flow-step-&lt;step_id&gt;</code>; post-setup <em>Configure</em> menu → <code class=\"font-mono\">#flow-step-options-&lt;step_id&gt;</code> (for example <code class=\"font-mono\">options advanced_energy</code> → <code class=\"font-mono\">#flow-step-options-advanced_energy</code>).",
   "flowhelp.toc_setup": "Initial setup",
   "flowhelp.toc_options": "Configure menu",

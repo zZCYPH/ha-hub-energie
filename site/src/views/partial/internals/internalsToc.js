@@ -5,6 +5,7 @@ export const INTERNALS_TOC_ITEMS = [
   { href: "#internals-sources", labelKey: "toc.internals_sources" },
   { href: "#internals-slots", labelKey: "toc.internals_slots" },
   { href: "#internals-attribution", labelKey: "toc.internals_attribution" },
+  { href: "#internals-reinjection", labelKey: "toc.internals_reinjection" },
   { href: "#internals-deltas", labelKey: "toc.internals_deltas" },
   { href: "#internals-delta-caps", labelKey: "toc.internals_delta_caps" },
   { href: "#internals-day", labelKey: "toc.internals_day" },

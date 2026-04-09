@@ -102,19 +102,40 @@ function escapeAttr(s) {
   return escapeHtml(s).replace(/'/g, "&#39;");
 }
 
-/** Integration step description is a single markdown link to the doc vitrine → safe HTML. */
+/** Turn absolute vitrine URLs from the generated catalog into same-origin hash routes (SPA). */
+function normalizeVitrineHref(href) {
+  const s = String(href).trim();
+  if (s.startsWith("#/")) return s;
+  const marker = "/#/";
+  const i = s.indexOf(marker);
+  if (i !== -1) return s.slice(i + 1);
+  return s;
+}
+
+/** Step description: one or more markdown links / paragraphs (from integration strings). */
 function flowStepDescriptionHtml(raw) {
   if (!raw) return "";
-  const sid = finished.value ? null : history.value[history.value.length - 1] ?? null;
-  if (props.mode === "options" && (sid === "advanced_energy" || sid === "reinjection")) {
-    return "";
+  const chunks = String(raw).trim().split(/\n\n+/).filter(Boolean);
+  const blocks = [];
+  for (const chunk of chunks) {
+    const t = chunk.trim();
+    const m = t.match(/^\[([^\]]+)\]\(([^)]+)\)\s*$/);
+    if (m) {
+      const hrefNorm = normalizeVitrineHref(m[2].trim());
+      const spa = hrefNorm.startsWith("#/");
+      const rel = spa ? "" : ' target="_blank" rel="noopener noreferrer"';
+      blocks.push(
+        `<p class="flow-sim-ha__description-par mb-2"><a href="${escapeAttr(hrefNorm)}"${rel} class="flow-sim-ha__doc-link">${escapeHtml(m[1])}</a></p>`,
+      );
+    } else {
+      blocks.push(`<p class="flow-sim-ha__description-par mb-2">${escapeHtml(humanizeDescription(t))}</p>`);
+    }
   }
-  const t = String(raw).trim();
-  const m = t.match(/^\[([^\]]+)\]\(([^)]+)\)\s*$/);
-  if (!m) return escapeHtml(humanizeDescription(raw));
-  const label = m[1];
-  const href = m[2].trim();
-  return `<a href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer" class="flow-sim-ha__doc-link">${escapeHtml(label)}</a>`;
+  if (blocks.length) {
+    const last = blocks.length - 1;
+    blocks[last] = blocks[last].replace(" mb-2", " mb-0");
+  }
+  return blocks.join("");
 }
 
 function displayTitle(raw) {
@@ -937,11 +958,11 @@ onUnmounted(() => {
           </template>
 
           <template v-else>
-            <p
+            <div
               v-if="stepCopy?.description"
               class="flow-sim-ha__description"
               v-html="flowStepDescriptionHtml(stepCopy.description)"
-            ></p>
+            ></div>
 
             <template v-if="stepCopy?.sections?.length">
               <div
@@ -1262,6 +1283,10 @@ onUnmounted(() => {
   line-height: 1.45;
   color: var(--fs-ha-muted);
   margin-bottom: 1rem;
+}
+
+.flow-sim-ha__description-par {
+  margin: 0;
 }
 
 .flow-sim-ha__description :deep(.flow-sim-ha__doc-link) {

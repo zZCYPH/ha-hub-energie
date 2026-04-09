@@ -39,13 +39,10 @@
           ><span data-i18n="toc.configure">Configuration</span></a
         >
         <a class="nav-link small py-1 ps-3" href="#configure-flow-simulator" data-bs-dismiss="offcanvas"
-          ><span data-i18n="toc.configure_flow_simulator">Flow preview (generated)</span></a
+          ><span data-i18n="toc.configure_flow_simulator">Installation flow preview</span></a
         >
         <a class="nav-link small py-1 ps-3" href="#configure-advanced" data-bs-dismiss="offcanvas"
-          ><span data-i18n="toc.configure_advanced">Advanced configuration</span></a
-        >
-        <a class="nav-link small py-1 ps-3" href="#configure-options-simulator" data-bs-dismiss="offcanvas"
-          ><span data-i18n="toc.configure_options_simulator">Configure (existing entry) preview</span></a
+          ><span data-i18n="toc.configure_advanced">Reconfigure / Advanced configuration</span></a
         >
         <a class="nav-link" href="#lovelace" data-bs-dismiss="offcanvas"
           ><span data-i18n="toc.lovelace">Lovelace card</span></a
