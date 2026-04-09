@@ -593,30 +593,6 @@
         "data_description": {
           "add_another": "Turn on to define another battery after saving the current one."
         }
-      },
-      "reinjection": {
-        "title": "Advanced reinjection tuning",
-        "description": "[I need help with this step]({step_help_url})",
-        "data": {
-          "reinjection_export_ignore_below_w": "Ignore export below (W)",
-          "reinjection_batt_charge_significant_w": "Battery charge significant above (W)",
-          "reinjection_short_export_max_s": "Switch latency max duration (s)",
-          "reinjection_short_export_max_w": "Switch latency max power (W)",
-          "reinjection_min_solar_for_classify_w": "Min solar for classification (W)",
-          "reinjection_export_min_abs_w": "Min export for classification (W)",
-          "reinjection_export_vs_solar_fraction": "Export/solar ratio threshold",
-          "reinjection_batt_full_min_soc_frac": "Battery full SOC threshold (0-1)"
-        },
-        "data_description": {
-          "reinjection_export_ignore_below_w": "Ignore small grid export readings below this power (reduces flicker).",
-          "reinjection_batt_charge_significant_w": "Treat battery charge above this threshold as “significant” for classification heuristics.",
-          "reinjection_short_export_max_s": "Maximum duration (s) for short export spikes before treating them as latency noise.",
-          "reinjection_short_export_max_w": "Power ceiling (W) for those short export spikes.",
-          "reinjection_min_solar_for_classify_w": "Minimum solar production (W) before solar-heavy classification applies.",
-          "reinjection_export_min_abs_w": "Minimum absolute export (W) required to classify as export-led.",
-          "reinjection_export_vs_solar_fraction": "Ratio threshold between export and solar power for mixed states.",
-          "reinjection_batt_full_min_soc_frac": "SOC fraction (0–1) above which the pack is treated as “full” for heuristics."
-        }
       }
     },
     "error": {
@@ -647,7 +623,8 @@
       "tri_export_all_or_none": "Either leave all three export phase sensors empty or configure all three.",
       "tri_import_phases_incomplete": "Configure import energy sensors for all three phases (L1, L2, L3).",
       "schedule_incomplete_row": "Each slot needs both start and end times, or leave the row empty.",
-      "invalid_delta_cap": "Delta caps must be finite numbers within the allowed range."
+      "invalid_delta_cap": "Delta caps must be finite numbers within the allowed range.",
+      "invalid_reinjection_thresholds": "Reinjection thresholds must be valid numbers within the allowed ranges."
     },
     "abort": {
       "already_configured": "This integration is already configured."
@@ -666,7 +643,32 @@
           "battery": "Battery systems",
           "tariff_refresh": "EDF tariffs: refresh from API",
           "tempo": "Tempo source (API vs RTE)",
+          "reinjection": "Advanced: reinjection tuning",
           "advanced_energy": "Advanced: energy delta caps"
+        }
+      },
+      "reinjection": {
+        "title": "Advanced reinjection tuning",
+        "description": "[I need help with this step]({step_help_url})",
+        "data": {
+          "reinjection_export_ignore_below_w": "Ignore export below (W)",
+          "reinjection_batt_charge_significant_w": "Battery charge significant above (W)",
+          "reinjection_short_export_max_s": "Switch latency max duration (s)",
+          "reinjection_short_export_max_w": "Switch latency max power (W)",
+          "reinjection_min_solar_for_classify_w": "Min solar for classification (W)",
+          "reinjection_export_min_abs_w": "Min export for classification (W)",
+          "reinjection_export_vs_solar_fraction": "Export/solar ratio threshold",
+          "reinjection_batt_full_min_soc_frac": "Battery full SOC threshold (0-1)"
+        },
+        "data_description": {
+          "reinjection_export_ignore_below_w": "Ignore small grid export readings below this power (reduces flicker).",
+          "reinjection_batt_charge_significant_w": "Treat battery charge above this threshold as “significant” for classification heuristics.",
+          "reinjection_short_export_max_s": "Maximum duration (s) for short export spikes before treating them as latency noise.",
+          "reinjection_short_export_max_w": "Power ceiling (W) for those short export spikes.",
+          "reinjection_min_solar_for_classify_w": "Minimum solar production (W) before solar-heavy classification applies.",
+          "reinjection_export_min_abs_w": "Minimum absolute export (W) required to classify as export-led.",
+          "reinjection_export_vs_solar_fraction": "Ratio threshold between export and solar power for mixed states.",
+          "reinjection_batt_full_min_soc_frac": "SOC fraction (0–1) above which the pack is treated as “full” for heuristics."
         }
       },
       "advanced_energy": {
