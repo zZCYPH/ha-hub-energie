@@ -61,7 +61,6 @@ function bindFlowsimJumpButtons() {
 }
 
 onMounted(() => {
-  setupScrollSpy("doc");
   nextTick(() => {
     wireDocCarouselImages();
     wireCarouselPair("devicesGalleryCarousel", "devicesGalleryTree");
@@ -84,6 +83,7 @@ onMounted(() => {
       flowOptionsSimApp.mount(optSimEl);
     }
     bindFlowsimJumpButtons();
+    setupScrollSpy("doc");
   });
 });
 

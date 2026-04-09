@@ -29,10 +29,10 @@ const router = useRouter();
 let detachNav = () => {};
 
 onMounted(() => {
-  setupScrollSpy("internals");
   nextTick(() => {
     wireTocMobile();
     if (root.value) detachNav = attachInPageNav(root.value, router, "/internals");
+    setupScrollSpy("internals");
   });
 });
 

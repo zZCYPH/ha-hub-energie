@@ -142,6 +142,15 @@ h2:hover .doc-anchor {
   padding: 1rem 1rem 1rem 4rem;
 }
 
+/* ZIP tab: no numbered badge — symmetric padding, roomier copy */
+.doc-step-card--zip .step-body {
+  padding: 1.35rem 1.4rem 1.5rem;
+}
+
+.doc-step-card--zip .step-body > p.small {
+  line-height: 1.65;
+}
+
 .doc-step-card .step-title {
   font-weight: 600;
   margin-bottom: 0.35rem;
@@ -411,12 +420,21 @@ pre.doc-code {
   pointer-events: none;
   /* Softer grid so body/lead text stays readable on light backgrounds */
   opacity: 0.72;
+  /* Limit style/layout work to this subtree (avoid `paint` — SVG blur can extend outside). */
+  contain: layout style;
 }
 
 .landing-hero-cables-svg {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+@media (max-width: 767px) {
+  .landing-hero-cables-svg {
+    /* Cheaper rasterization on small GPUs; cables are thin anyway */
+    shape-rendering: optimizeSpeed;
+  }
 }
 
 .landing-hero-cable-base {

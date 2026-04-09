@@ -112,18 +112,11 @@ import carouselInnerRaw from "../../../assets/doc-devices-carousel-inner.include
           id="devicesGalleryCarousel"
           class="carousel slide carousel-dark doc-doc-carousel card shadow-sm"
           data-bs-ride="false"
+          data-bs-touch="false"
           data-i18n-aria="carousel.aria_devices"
           aria-label="Devices"
         >
           <div class="carousel-inner" v-html="carouselInnerRaw"></div>
-          <button class="carousel-control-prev" type="button" data-bs-target="#devicesGalleryCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden" data-i18n="carousel.prev">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#devicesGalleryCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden" data-i18n="carousel.next">Next</span>
-          </button>
         </div>
       </div>
     </div>

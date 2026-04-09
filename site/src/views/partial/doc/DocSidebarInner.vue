@@ -3,6 +3,9 @@
     <div class="small text-uppercase text-secondary fw-semibold mb-2" data-i18n="toc.on_this_page">
       On this page
     </div>
+    <a class="nav-link mb-2" href="#/doc/setup-help"
+      ><span data-i18n="toc.setup_help">Setup &amp; options — step help</span></a
+    >
     <nav
       id="toc-nav-doc"
       class="nav nav-pills flex-column gap-1"
@@ -10,9 +13,6 @@
       data-i18n-aria="nav.toc_aria"
       aria-label="Page"
     >
-      <a class="nav-link" href="#/doc/setup-help"
-        ><span data-i18n="toc.setup_help">Setup &amp; options — step help</span></a
-      >
       <a class="nav-link" href="#overview"><span data-i18n="toc.overview">Quick tour</span></a>
       <a class="nav-link" href="#install"><span data-i18n="toc.install">Install</span></a>
       <a class="nav-link" href="#configure"><span data-i18n="toc.configure">Configuration</span></a>
