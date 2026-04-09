@@ -12,6 +12,7 @@ export default defineConfig({
       entry: {
         "hub-energie-card-boot": resolve(__dirname, "src/hub-energie-card-boot.js"),
         "hub-energie-card": resolve(__dirname, "src/hub-energie-card.js"),
+        "hub-energie-flow-card": resolve(__dirname, "src/hub-energie-flow-card.js"),
       },
       formats: ["es"],
       fileName: (_format, entryName) => `${entryName}.js`,

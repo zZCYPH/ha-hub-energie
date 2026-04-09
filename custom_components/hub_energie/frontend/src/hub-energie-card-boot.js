@@ -7,6 +7,7 @@
  * is not stuck in the module cache after a deploy/reload.
  */
 import "./hub-energie-card-editor.js";
+import "./hub-energie-flow-card-editor.js";
 
 function cacheBustedSibling(relativeHref) {
   const base = new URL(import.meta.url);
@@ -17,6 +18,10 @@ function cacheBustedSibling(relativeHref) {
   }
   return resolved.href;
 }
+
+void import(cacheBustedSibling("./hub-energie-flow-card.js")).catch((err) => {
+  console.error("[hub-energie-card-boot] flow module failed to load", err);
+});
 
 const LOADER_HTML = `
   <style>

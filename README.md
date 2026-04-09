@@ -107,7 +107,7 @@ The Lovelace bundles in `frontend/dist/` are committed (rebuilt in CI), so you d
 
 ## Lovelace Card
 
-CI rebuilds the Vite bundle on each commit; **`hub-energie-card-boot.js`** (shell, registered as `hub-energie-card`), **`hub-energie-card.js`**, **`hub-energie-card-editor.js`**, and any shared chunks under `frontend/dist/` are **checked in**. Home Assistant serves the whole `dist` folder at **`/hub_energie/`**.
+CI rebuilds the Vite bundle on each commit; **`hub-energie-card-boot.js`** (shell, registered as `hub-energie-card`), **`hub-energie-card.js`**, **`hub-energie-card-editor.js`**, the live **`hub-energie-flow-card.js`** chunk and any shared chunks under `frontend/dist/` are **checked in**. Home Assistant serves the whole `dist` folder at **`/hub_energie/`**.
 
 **Solar production (kWh)** — Since **v0.2.3**, the card can show an optional **“Production solaire (énergie)”** bar (editor: **Barre production solaire**; YAML: `show_solar_production_bar`, default on). It appears in the **Consumption** section, under the grid-import strip, and splits the selected day/range into self-use, solar-to-battery charging, and attributed PV export (see `CHANGELOG.md`).
 
@@ -131,6 +131,19 @@ Then add a card:
 ```yaml
 type: custom:hub-energie-card
 # Optional: hide sections (all true by default), e.g. show_reinjection: false, show_solar_production_bar: false
+```
+
+The integration also exposes two helper entities for Lovelace cards:
+
+- `sensor.hub_energie_frontend_data` for high-churn live power/flow attributes
+- `sensor.hub_energie_frontend_meta` for lower-churn card metadata
+
+You can use them through the dedicated live flow card:
+
+```yaml
+type: custom:hub-energie-flow-card
+# Optional: layout: auto | full | compact
+# Optional: title: Hub Énergie
 ```
 
 ## Device Model

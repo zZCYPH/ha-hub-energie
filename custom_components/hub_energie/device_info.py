@@ -21,6 +21,7 @@ __all__ = (
     "_device_cost",
     "_device_diagnostics",
     "_device_energy_balance",
+    "_device_frontend",
     "_device_for_diagnostic_metric_key",
     "_device_for_power_flow_kind",
     "_device_for_slot_source",
@@ -111,6 +112,16 @@ def _device_cost(coordinator: HubEnergieCoordinator) -> DeviceInfo:
         name=scoped_device_name("Coûts"),
         manufacturer=INTEGRATION_TITLE,
         model="Monetary (€)",
+    )
+
+
+def _device_frontend(coordinator: HubEnergieCoordinator) -> DeviceInfo:
+    return DeviceInfo(
+        entry_type=DeviceEntryType.SERVICE,
+        identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_frontend")},
+        name=scoped_device_name("Frontend"),
+        manufacturer=INTEGRATION_TITLE,
+        model="Lovelace payloads",
     )
 
 

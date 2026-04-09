@@ -31,6 +31,8 @@ export function makeEntityMap(prefix = DEFAULT_HUB_ENTITY_PREFIX) {
   const p = prefix;
   return {
     cost: `${p}cost_detail`,
+    frontendData: `${p}frontend_data`,
+    frontendMeta: `${p}frontend_meta`,
     ecoSolar: `${p}savings_solar_eur`,
     ecoBatt: `${p}savings_battery_eur`,
     originGrid: `${p}origin_grid_kwh`,
