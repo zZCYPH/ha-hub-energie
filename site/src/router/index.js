@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import ConfigFlowHelpView from "../views/partial/doc/setup-help/ConfigFlowHelpView.vue";
+import DevelopersView from "../views/DevelopersView.vue";
 import DocView from "../views/DocView.vue";
 import HomeView from "../views/HomeView.vue";
 import InternalsView from "../views/partial/internals/InternalsView.vue";
@@ -24,6 +25,8 @@ const router = createRouter({
     { path: "/doc", name: "doc", component: DocView },
     { path: "/doc/setup-help", name: "flowhelp", component: ConfigFlowHelpView },
     { path: "/internals", name: "internals", component: InternalsView },
+    /* Not linked from the public nav yet — bookmark `#/dev` to open. */
+    { path: "/dev", name: "developers", component: DevelopersView },
   ],
 });
 

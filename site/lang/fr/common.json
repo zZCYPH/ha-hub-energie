@@ -7,6 +7,8 @@
   "meta.description.internals": "Comment Hub Énergie ventile les kWh par créneau tarifaire, persiste l’état et enregistre les statistiques long terme dans Home Assistant.",
   "meta.title.flowhelp": "Hub Énergie — Aide par étape (configuration)",
   "meta.description.flowhelp": "Textes courts pour chaque écran de l’assistant Hub Énergie et du menu Configurer, avec ancres stables depuis l’intégration.",
+  "meta.title.developers": "Hub Énergie — Développeurs",
+  "meta.description.developers": "Notes internes pour les mainteneurs du site de documentation Hub Énergie (aperçu du flux, catalogue généré, CI).",
   "nav.home": "Accueil",
   "nav.documentation": "Documentation",
   "nav.internals": "Détails d’implémentation",

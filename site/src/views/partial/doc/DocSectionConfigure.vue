@@ -38,11 +38,6 @@
         >#</a
       >
     </h3>
-    <p class="doc-config-muted small mb-2" data-i18n-html="configure.flow_simulator_intro_user"></p>
-    <details class="doc-maintainer-details small text-secondary mb-3">
-      <summary class="mb-2 user-select-none" data-i18n="configure.flow_simulator_maintainers_summary"></summary>
-      <p class="mb-0 ps-1 border-start border-secondary border-opacity-25" data-i18n="configure.flow_simulator_maintainers"></p>
-    </details>
     <div id="flow-simulator-mount" class="mb-4"></div>
 
     <h3 class="h5 mt-2 mb-2 doc-subsection" id="configure-advanced">

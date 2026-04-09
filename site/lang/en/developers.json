@@ -1,0 +1,8 @@
+{
+  "developers.title": "Developers",
+  "developers.intro": "Internal notes for people working on the Hub Énergie integration or this documentation site. Nothing here is required to install or use Hub Énergie in Home Assistant.",
+  "developers.flow_preview_h": "Documentation — config-flow preview",
+  "developers.flow_preview_body": "Built from <code class=\"doc-config-code\">config_flow.py</code> and <code class=\"doc-config-code\">strings.json</code> — <strong>same labels and branching</strong> as the real wizard. The preview is <strong>not</strong> Home Assistant: no entity validation or network calls.",
+  "developers.flow_catalog_h": "Maintainers: refresh the flow catalog",
+  "developers.flow_catalog_body": "After changing the flow: run <code class=\"doc-config-code\">python scripts/extract_config_flow_catalog.py</code> and commit <code class=\"doc-config-code\">site/src/data/flowCatalog.generated.json</code>. CI fails if that file is stale."
+}

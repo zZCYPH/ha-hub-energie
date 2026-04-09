@@ -75,6 +75,9 @@ export function applyLang(lang, page) {
   } else if (page === "internals") {
     titleKey = "meta.title.internals";
     descKey = "meta.description.internals";
+  } else if (page === "developers") {
+    titleKey = "meta.title.developers";
+    descKey = "meta.description.developers";
   }
   document.title = tr(lang, titleKey);
   const meta = document.querySelector('meta[name="description"]');
@@ -166,6 +169,7 @@ function pageFromRouteName(name) {
   if (name === "doc") return "doc";
   if (name === "flowhelp") return "flowhelp";
   if (name === "internals") return "internals";
+  if (name === "developers") return "developers";
   return "landing";
 }
 
