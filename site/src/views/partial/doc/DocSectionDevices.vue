@@ -14,17 +14,12 @@ import carouselInnerRaw from "../../../assets/doc-devices-carousel-inner.include
         >#</a
       >
     </h2>
-    <p class="text-secondary small">
-      <span data-i18n="devices.intro_before"></span>
-      <code class="font-mono">CHANGELOG.md</code>
-      <span data-i18n="devices.intro_after"></span>
-    </p>
+    <p class="text-secondary small" data-i18n="devices.intro"></p>
 
     <h3 class="h5 mt-4 mb-2 doc-subsection" id="devices-gallery">
       <span data-i18n="devices.gallery_title">Devices in Home Assistant</span>
     </h3>
     <p class="text-secondary small" data-i18n="devices.gallery_intro"></p>
-    <p class="small text-secondary mb-2" data-i18n="devices.gallery_footnote"></p>
     <p class="small text-secondary mb-2">
       <a class="text-body" href="#/doc/setup-help" data-i18n="devices.gallery_link_setup"></a>
       <span class="text-secondary mx-1" aria-hidden="true">·</span>
@@ -117,18 +112,11 @@ import carouselInnerRaw from "../../../assets/doc-devices-carousel-inner.include
           id="devicesGalleryCarousel"
           class="carousel slide carousel-dark doc-doc-carousel card shadow-sm"
           data-bs-ride="false"
+          data-bs-touch="false"
           data-i18n-aria="carousel.aria_devices"
           aria-label="Devices"
         >
           <div class="carousel-inner" v-html="carouselInnerRaw"></div>
-          <button class="carousel-control-prev" type="button" data-bs-target="#devicesGalleryCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden" data-i18n="carousel.prev">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#devicesGalleryCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden" data-i18n="carousel.next">Next</span>
-          </button>
         </div>
       </div>
     </div>

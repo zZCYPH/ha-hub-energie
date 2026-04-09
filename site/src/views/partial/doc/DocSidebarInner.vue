@@ -3,6 +3,9 @@
     <div class="small text-uppercase text-secondary fw-semibold mb-2" data-i18n="toc.on_this_page">
       On this page
     </div>
+    <a class="nav-link mb-2" href="#/doc/setup-help"
+      ><span data-i18n="toc.setup_help">Setup &amp; options — step help</span></a
+    >
     <nav
       id="toc-nav-doc"
       class="nav nav-pills flex-column gap-1"
@@ -32,7 +35,6 @@
       >
       <a class="nav-link" href="#services"><span data-i18n="toc.services">Services</span></a>
       <a class="nav-link" href="#limitations"><span data-i18n="toc.limitations">Limitations</span></a>
-      <a class="nav-link" href="#glossary"><span data-i18n="toc.glossary">Glossary</span></a>
     </nav>
   </div>
 </template>

@@ -1,0 +1,8 @@
+{
+  "developers.title": "Développeurs",
+  "developers.intro": "Notes internes pour les personnes qui travaillent sur l’intégration Hub Énergie ou sur ce site de documentation. Rien d’obligatoire ici pour installer ou utiliser Hub Énergie dans Home Assistant.",
+  "developers.flow_preview_h": "Documentation — aperçu du flux de configuration",
+  "developers.flow_preview_body": "Construit à partir de <code class=\"doc-config-code\">config_flow.py</code> et <code class=\"doc-config-code\">strings.json</code> — <strong>mêmes libellés et embranchements</strong> que l’assistant réel. L’aperçu n’est <strong>pas</strong> Home Assistant : pas de validation d’entités ni d’appels réseau.",
+  "developers.flow_catalog_h": "Mainteneurs : régénérer le catalogue du flux",
+  "developers.flow_catalog_body": "Après modification du flux : exécutez <code class=\"doc-config-code\">python scripts/extract_config_flow_catalog.py</code> et validez <code class=\"doc-config-code\">site/src/data/flowCatalog.generated.json</code>. La CI échoue si ce fichier est obsolète."
+}

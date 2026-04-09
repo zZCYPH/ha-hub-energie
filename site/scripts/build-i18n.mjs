@@ -17,7 +17,7 @@ const siteDir = join(__root, "..");
 const vendorDir = join(siteDir, "src", "vendor");
 
 /** Same order as extract-lang-from-legacy-i18n.mjs scopes */
-const MERGE_ORDER = ["common", "landing", "doc", "flowsim", "flowhelp", "internals"];
+const MERGE_ORDER = ["common", "landing", "doc", "developers", "flowsim", "flowhelp", "internals"];
 
 function mergeLocale(lang) {
   const out = {};

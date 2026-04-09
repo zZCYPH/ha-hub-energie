@@ -1,0 +1,50 @@
+<p>This step is a <strong>form</strong> (no raw JSON).</p>
+<p>
+  You get up to <strong>six</strong> collapsible sections — typically labelled
+  like <em>Time slot 1</em> … <em>Time slot 6</em> — plus an optional
+  <strong>monthly subscription</strong> field at the bottom.
+</p>
+<h4 class="h6 fw-semibold mt-3 mb-2">Per slot</h4>
+<ul class="ps-3 mb-3">
+  <li>
+    <strong>Start</strong> and <strong>End</strong> — use the time controls;
+    format is 24 h (<code class="font-mono">HH:MM</code>). For a range that
+    crosses midnight, set the end to <code class="font-mono">00:00</code>: in
+    this integration that means
+    <strong>midnight at the end of the day</strong> (not the start), e.g.
+    <code class="font-mono">22:00</code> →
+    <code class="font-mono">00:00</code> for an overnight band.
+  </li>
+  <li>
+    <strong>Energy price</strong> — price per kWh in your configured currency
+    (non-negative).
+  </li>
+  <li>
+    <strong>Day type</strong> — <em>All days</em>, <em>Weekdays</em> (Mon–Fri),
+    or <em>Weekends</em> (Sat–Sun).
+  </li>
+  <li>
+    <strong>Label</strong> — optional short name (e.g. “Peak”, “Night”) for
+    clarity in the UI or logs.
+  </li>
+</ul>
+<h4 class="h6 fw-semibold mt-3 mb-2">How rows are used</h4>
+<ul class="ps-3 mb-3">
+  <li>
+    A section with <strong>both</strong> start and end left empty is
+    <strong>ignored</strong> — you do not need to fill every slot.
+  </li>
+  <li>
+    If you enter only one of start or end, the form will show an error
+    (incomplete row).
+  </li>
+  <li>
+    You need <strong>at least one</strong> complete slot (start, end, and a
+    valid price) for validation to succeed.
+  </li>
+</ul>
+<p>Need <strong>more than six</strong> slots, or a copy-paste JSON workflow?</p>
+<p>
+  Use the <strong>Schedule (JSON)</strong> step instead — see that section below
+  for the exact stored field names and examples.
+</p>

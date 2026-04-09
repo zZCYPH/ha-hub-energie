@@ -12,24 +12,24 @@
     </h2>
     <p class="text-secondary small mb-2" data-i18n="overview.intro_lead"></p>
     <ul class="list-unstyled doc-quick-tour mb-4">
-      <li class="d-flex gap-2 mb-2">
-        <i class="bi bi-download text-primary mt-1 flex-shrink-0" aria-hidden="true"></i>
+      <li class="d-flex gap-2 align-items-center mb-2">
+        <i class="bi bi-download text-primary flex-shrink-0" aria-hidden="true"></i>
         <span class="text-secondary small" data-i18n="overview.intro_li_install"></span>
       </li>
-      <li class="d-flex gap-2 mb-2">
-        <i class="bi bi-sliders text-primary mt-1 flex-shrink-0" aria-hidden="true"></i>
+      <li class="d-flex gap-2 align-items-center mb-2">
+        <i class="bi bi-sliders text-primary flex-shrink-0" aria-hidden="true"></i>
         <span class="text-secondary small" data-i18n="overview.intro_li_configure"></span>
       </li>
-      <li class="d-flex gap-2 mb-2">
-        <i class="bi bi-grid-3x3-gap text-primary mt-1 flex-shrink-0" aria-hidden="true"></i>
+      <li class="d-flex gap-2 align-items-center mb-2">
+        <i class="bi bi-grid-3x3-gap text-primary flex-shrink-0" aria-hidden="true"></i>
         <span class="text-secondary small" data-i18n="overview.intro_li_devices"></span>
       </li>
-      <li class="d-flex gap-2 mb-2">
-        <i class="bi bi-window-sidebar text-primary mt-1 flex-shrink-0" aria-hidden="true"></i>
+      <li class="d-flex gap-2 align-items-center mb-2">
+        <i class="bi bi-window-sidebar text-primary flex-shrink-0" aria-hidden="true"></i>
         <span class="text-secondary small" data-i18n="overview.intro_li_lovelace"></span>
       </li>
-      <li class="d-flex gap-2">
-        <i class="bi bi-diagram-3 text-primary mt-1 flex-shrink-0" aria-hidden="true"></i>
+      <li class="d-flex gap-2 align-items-center">
+        <i class="bi bi-diagram-3 text-primary flex-shrink-0" aria-hidden="true"></i>
         <span class="text-secondary small">
           <span data-i18n="overview.intro_li_internals_before"></span>
           <router-link class="text-body" to="/internals" data-i18n="doc.hero_internals_cta"></router-link>
@@ -52,7 +52,7 @@
           </button>
         </h3>
         <div id="scopeStable" class="accordion-collapse collapse" data-bs-parent="#accScope">
-          <div class="accordion-body text-secondary small pt-0">
+          <div class="accordion-body text-secondary small">
             <ul class="list-unstyled doc-scope-stable mb-0">
               <li>
                 <span class="fw-semibold text-body" data-i18n="scope.stable_li1_t"></span>

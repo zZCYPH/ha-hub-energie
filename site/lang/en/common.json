@@ -7,6 +7,8 @@
   "meta.description.internals": "How Hub Énergie assigns kWh to tariff slots, persists state, and writes Home Assistant long-term statistics.",
   "meta.title.flowhelp": "Hub Énergie — Config step help",
   "meta.description.flowhelp": "Short on-page help for each Home Assistant setup and Configure dialog step (Hub Énergie), with stable links from the integration UI.",
+  "meta.title.developers": "Hub Énergie — Developers",
+  "meta.description.developers": "Internal maintainer notes for the Hub Énergie documentation site (config-flow preview, generated catalog, CI).",
   "nav.home": "Home",
   "nav.documentation": "Documentation",
   "nav.internals": "Implementation details",

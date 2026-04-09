@@ -1,0 +1,177 @@
+<p>
+  Collez ou éditez un <strong>tableau JSON d’objets créneau</strong> dans
+  <code class="font-mono">schedule_slots</code>.
+</p>
+<p>
+  Préférez le JSON pour <strong>plus de six</strong> créneaux ou la duplication
+  entre instances.
+</p>
+<p>Le format est identique à celui produit par le formulaire.</p>
+<div class="flowhelp-schedule-ref small text-body">
+  <p>
+    Chaque <strong>créneau</strong> définit une plage horaire, un prix d’énergie
+    (par kWh), les jours concernés et un libellé optionnel.
+  </p>
+  <p>
+    L’intégration enregistre les créneaux en JSON : un
+    <strong>tableau d’objets</strong> dans
+    <code class="font-mono">schedule_slots</code> (données de l’entrée de
+    configuration Home Assistant).
+  </p>
+  <h4 class="h6 fw-semibold mt-3 mb-2">
+    Structure JSON — référence des champs
+  </h4>
+  <div class="table-responsive mb-3">
+    <table class="table table-sm table-bordered align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th scope="col">Champ</th>
+          <th scope="col">Obligatoire</th>
+          <th scope="col">Type</th>
+          <th scope="col">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code class="font-mono">start</code></td>
+          <td>oui</td>
+          <td>chaîne</td>
+          <td>
+            Heure de début, <code class="font-mono">HH:MM</code> (24 h). Les
+            secondes (<code class="font-mono">HH:MM:SS</code>) sont acceptées et
+            normalisées en <code class="font-mono">HH:MM</code>.
+          </td>
+        </tr>
+        <tr>
+          <td><code class="font-mono">end</code></td>
+          <td>oui</td>
+          <td>chaîne</td>
+          <td>
+            Heure de fin, même format.
+            <strong
+              ><code class="font-mono">00:00</code> signifie minuit en
+              <em>fin</em> de journée</strong
+            >
+            (équivalent 24:00), pas minuit au début. À utiliser pour les plages
+            qui passent minuit (ex. <code class="font-mono">22:00</code> →
+            <code class="font-mono">00:00</code>).
+          </td>
+        </tr>
+        <tr>
+          <td><code class="font-mono">price</code></td>
+          <td>oui</td>
+          <td>nombre</td>
+          <td>Prix de l’énergie, dans la devise configurée, par kWh (≥ 0).</td>
+        </tr>
+        <tr>
+          <td><code class="font-mono">day_type</code></td>
+          <td>non</td>
+          <td>chaîne</td>
+          <td>
+            L’une des valeurs : <code class="font-mono">all</code>,
+            <code class="font-mono">weekdays</code>,
+            <code class="font-mono">weekends</code>. Défaut :
+            <code class="font-mono">all</code>.
+          </td>
+        </tr>
+        <tr>
+          <td><code class="font-mono">name</code></td>
+          <td>non</td>
+          <td>chaîne</td>
+          <td>
+            Libellé court pour l’UI / les journaux (ex.
+            <code class="font-mono">Night</code>,
+            <code class="font-mono">Peak</code>).
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <h4 class="h6 fw-semibold mt-3 mb-2">
+    Valeurs de <code class="font-mono">day_type</code>
+  </h4>
+  <ul class="mb-3 ps-3">
+    <li><code class="font-mono">all</code> — tous les jours</li>
+    <li><code class="font-mono">weekdays</code> — lundi à vendredi</li>
+    <li><code class="font-mono">weekends</code> — samedi et dimanche</li>
+  </ul>
+  <h4 class="h6 fw-semibold mt-3 mb-2">
+    Exemple minimal (deux plages, tous les jours)
+  </h4>
+  <pre
+    class="p-3 bg-body-secondary border rounded small overflow-x-auto mb-3"
+  ><code>[
+  {
+    "start": "22:00",
+    "end": "06:00",
+    "price": 0.1296,
+    "day_type": "all",
+    "name": "Off-peak"
+  },
+  {
+    "start": "06:00",
+    "end": "22:00",
+    "price": 0.1609,
+    "day_type": "all",
+    "name": "Peak"
+  }
+]</code></pre>
+  <h4 class="h6 fw-semibold mt-3 mb-2">
+    Exemple — tarifs jour de semaine / week-end différents
+  </h4>
+  <pre
+    class="p-3 bg-body-secondary border rounded small overflow-x-auto mb-3"
+  ><code>[
+  {
+    "start": "00:00",
+    "end": "06:00",
+    "price": 0.12,
+    "day_type": "all",
+    "name": "Night"
+  },
+  {
+    "start": "06:00",
+    "end": "22:00",
+    "price": 0.18,
+    "day_type": "weekdays",
+    "name": "Weekday day"
+  },
+  {
+    "start": "06:00",
+    "end": "22:00",
+    "price": 0.15,
+    "day_type": "weekends",
+    "name": "Weekend day"
+  },
+  {
+    "start": "22:00",
+    "end": "00:00",
+    "price": 0.12,
+    "day_type": "all",
+    "name": "Evening"
+  }
+]</code></pre>
+  <h4 class="h6 fw-semibold mt-3 mb-2">Validation (résumé)</h4>
+  <ul class="mb-3 ps-3">
+    <li>Au moins un créneau est requis.</li>
+    <li>
+      Les heures doivent être valides en 24 h (<code class="font-mono"
+        >HH:MM</code
+      >).
+    </li>
+    <li><code class="font-mono">price</code> doit être un nombre ≥ 0.</li>
+    <li>
+      Si <code class="font-mono">day_type</code> est présent, il doit être
+      exactement l’une des trois valeurs autorisées.
+    </li>
+  </ul>
+  <p>
+    Le moteur tarifaire confronte l’heure locale et le jour de la semaine aux
+    créneaux ;
+  </p>
+  <p>
+    le comportement en cas de chevauchement dépend de l’ordre et de l’évaluation
+    dans le code — gardez une intention claire et évitez les recouvrements
+    redondants lorsque c’est possible.
+  </p>
+</div>

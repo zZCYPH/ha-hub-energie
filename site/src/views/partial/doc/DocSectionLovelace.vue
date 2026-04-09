@@ -1,7 +1,17 @@
 <script setup>
+import { nextTick, ref, watch } from "vue";
+import { applyLang, getLang } from "../../../siteShell";
+
 const base = import.meta.env.BASE_URL;
 const imgCard = `${base}img/hub-energie-card.png`;
 const imgEditor = `${base}img/lovelace-editor-01.png`;
+
+const showLovelaceTroubleshoot = ref(false);
+
+/** Steps 2–3 mount with v-if; re-run i18n so new [data-i18n] nodes get text. */
+watch(showLovelaceTroubleshoot, (open) => {
+  if (open) nextTick(() => applyLang(getLang(), "doc"));
+});
 </script>
 
 <template>
@@ -24,11 +34,20 @@ const imgEditor = `${base}img/lovelace-editor-01.png`;
           <span class="step-badge">1</span>
           <div class="step-body">
             <div class="step-title" data-i18n="lovelace.l1_title">Storage-mode dashboards (default)</div>
-            <p class="small text-secondary mb-0" data-i18n="lovelace.l1"></p>
+            <p class="small doc-config-muted mb-2" data-i18n-html="lovelace.l1"></p>
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-sm"
+              :aria-expanded="showLovelaceTroubleshoot"
+              @click="showLovelaceTroubleshoot = !showLovelaceTroubleshoot"
+            >
+              <span v-show="!showLovelaceTroubleshoot" data-i18n="lovelace.troubleshoot_btn"></span>
+              <span v-show="showLovelaceTroubleshoot" data-i18n="lovelace.troubleshoot_hide"></span>
+            </button>
           </div>
         </div>
       </li>
-      <li>
+      <li v-if="showLovelaceTroubleshoot">
         <div class="doc-step-card shadow-sm">
           <span class="step-badge">2</span>
           <div class="step-body">
@@ -37,11 +56,11 @@ const imgEditor = `${base}img/lovelace-editor-01.png`;
             <pre class="doc-code"><code>resources:
   - url: /hub_energie/hub-energie-card-boot.js
     type: module</code></pre>
-            <p class="small text-secondary mb-0" data-i18n="lovelace.l2_note"></p>
+            <p class="small doc-config-muted mb-0" data-i18n-html="lovelace.l2_note"></p>
           </div>
         </div>
       </li>
-      <li>
+      <li v-if="showLovelaceTroubleshoot">
         <div class="doc-step-card shadow-sm">
           <span class="step-badge">3</span>
           <div class="step-body">

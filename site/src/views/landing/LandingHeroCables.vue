@@ -4,6 +4,33 @@ import { nextTick, onMounted, onUnmounted, ref } from "vue";
 /** Grid step in viewBox 0–100 space (only H/V/45° segments between joints). */
 const STEP = 5;
 
+/** Below `md` — fewer cables, no SVG blur, fewer running dash animations. */
+const MOBILE_MQ = "(max-width: 767px)";
+
+/**
+ * Same hues as the Lovelace power card (`custom_components/hub_energie/frontend/src/constants/colors.js`):
+ * solar export (blue), battery (green), solar (yellow).
+ */
+const LOVELACE_CABLE_HEX = ["#29b6f6", "#66bb6a", "#fdd835"];
+
+function hexToRgb(hex) {
+  const h = hex.replace("#", "");
+  return {
+    r: parseInt(h.slice(0, 2), 16),
+    g: parseInt(h.slice(2, 4), 16),
+    b: parseInt(h.slice(4, 6), 16),
+  };
+}
+
+function cableStrokesFromTone(toneIndex) {
+  const { r, g, b } = hexToRgb(LOVELACE_CABLE_HEX[toneIndex % LOVELACE_CABLE_HEX.length]);
+  return {
+    strokeBase: `rgba(${r},${g},${b},0.16)`,
+    strokeFlow: `rgba(${r},${g},${b},0.4)`,
+    nodeFill: `rgba(${r},${g},${b},0.38)`,
+  };
+}
+
 const DIRS = [
   [1, 0],
   [-1, 0],
@@ -16,7 +43,11 @@ const DIRS = [
 ];
 
 const svgRef = ref(null);
-/** @type {{ import('vue').Ref<Array<{ d: string; x0: number; y0: number; x1: number; y1: number }>> }} */
+const layerRef = ref(null);
+/** @type {import('vue').Ref<'full' | 'lite'>} */
+const tier = ref("full");
+
+/** @type {{ import('vue').Ref<Array<{ d: string; x0: number; y0: number; x1: number; y1: number; strokeBase: string; strokeFlow: string; nodeFill: string; flowAnimate: boolean }>> }} */
 const cables = ref([]);
 
 /** @type {Animation[]} */
@@ -63,8 +94,10 @@ function pushPt(pts, x, y) {
 
 /**
  * Random “cable run” from A to B on the grid using only orthogonal + diagonal segments.
+ * @param {number} wanderCap
+ * @param {number} guardCap
  */
-function buildCable(start, end) {
+function buildCable(start, end, wanderCap = 70, guardCap = 120) {
   let cx = start.x;
   let cy = start.y;
   /** @type {{ x: number; y: number }[]} */
@@ -72,7 +105,7 @@ function buildCable(start, end) {
   pushPt(pts, cx, cy);
   let prevDir = null;
 
-  for (let n = 0; n < 70; n++) {
+  for (let n = 0; n < wanderCap; n++) {
     if (dist({ x: cx, y: cy }, end) < 0.1) break;
 
     const ad = allowedDirs(prevDir);
@@ -105,7 +138,7 @@ function buildCable(start, end) {
     prevDir = pick.dir;
   }
 
-  for (let guard = 0; guard < 120 && dist({ x: cx, y: cy }, end) > 0.1; guard++) {
+  for (let guard = 0; guard < guardCap && dist({ x: cx, y: cy }, end) > 0.1; guard++) {
     const ad = allowedDirs(prevDir);
     let best = null;
     let bestScore = Infinity;
@@ -146,24 +179,50 @@ function pathLen(pts) {
   return s;
 }
 
+function refreshTier() {
+  tier.value = window.matchMedia(MOBILE_MQ).matches ? "lite" : "full";
+}
+
 function generateCableData() {
-  /** @type {Array<{ d: string; x0: number; y0: number; x1: number; y1: number }>} */
+  const t = tier.value;
+  const target = t === "lite" ? 5 : 11;
+  const wanderCap = t === "lite" ? 40 : 70;
+  const guardCap = t === "lite" ? 72 : 120;
+
+  /** @type {Array<{ d: string; x0: number; y0: number; x1: number; y1: number; strokeBase: string; strokeFlow: string; nodeFill: string; flowAnimate: boolean }>} */
   const out = [];
-  const target = 14;
   let tries = 0;
   while (out.length < target && tries < 200) {
     tries++;
     const a = rndPoint();
     const b = rndPoint();
     if (dist(a, b) < STEP * 5) continue;
-    const pts = buildCable(a, b);
+    const pts = buildCable(a, b, wanderCap, guardCap);
     if (pts.length < 3 || pathLen(pts) < STEP * 6) continue;
     const d = pointsToD(pts);
     if (!d) continue;
     const p0 = pts[0];
     const p1 = pts[pts.length - 1];
-    out.push({ d, x0: p0.x, y0: p0.y, x1: p1.x, y1: p1.y });
+    const { strokeBase, strokeFlow, nodeFill } = cableStrokesFromTone(out.length);
+    out.push({
+      d,
+      x0: p0.x,
+      y0: p0.y,
+      x1: p1.x,
+      y1: p1.y,
+      strokeBase,
+      strokeFlow,
+      nodeFill,
+      flowAnimate: true,
+    });
   }
+
+  if (t === "lite") {
+    out.forEach((c, i) => {
+      c.flowAnimate = i < 3;
+    });
+  }
+
   return out;
 }
 
@@ -180,6 +239,8 @@ function stopFlowAnimations() {
 
 function startFlowAnimations() {
   stopFlowAnimations();
+  if (typeof document !== "undefined" && document.hidden) return;
+  if (!heroIntersecting) return;
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   const root = svgRef.value;
@@ -194,7 +255,8 @@ function startFlowAnimations() {
     pathEl.style.strokeDasharray = `${dash} ${gap}`;
     pathEl.style.strokeDashoffset = "0";
 
-    const duration = 9000 + Math.random() * 11000;
+    const duration =
+      tier.value === "lite" ? 12000 + Math.random() * 14000 : 9000 + Math.random() * 11000;
     const anim = pathEl.animate(
       [{ strokeDashoffset: 0 }, { strokeDashoffset: -len }],
       { duration, iterations: Infinity, easing: "linear", delay: -Math.random() * duration },
@@ -203,9 +265,18 @@ function startFlowAnimations() {
   });
 }
 
-function regenerate() {
-  cables.value = generateCableData();
+/** Hero layer is on-screen (or unknown — assume true if IntersectionObserver unsupported). */
+let heroIntersecting = true;
+
+function scheduleAnimations() {
   void nextTick(() => startFlowAnimations());
+}
+
+function regenerate() {
+  refreshTier();
+  stopFlowAnimations();
+  cables.value = generateCableData();
+  scheduleAnimations();
 }
 
 let resizeTimer = 0;
@@ -214,20 +285,54 @@ function onResize() {
   resizeTimer = window.setTimeout(() => regenerate(), 160);
 }
 
+/** @type {IntersectionObserver | null} */
+let io = null;
+const mqMobile = typeof window !== "undefined" ? window.matchMedia(MOBILE_MQ) : null;
+
+function onMqChange() {
+  regenerate();
+}
+
+function onVisibilityChange() {
+  if (document.hidden) stopFlowAnimations();
+  else scheduleAnimations();
+}
+
 onMounted(() => {
   regenerate();
+
   window.addEventListener("resize", onResize);
+
+  const layer = layerRef.value;
+  if (layer && typeof IntersectionObserver !== "undefined") {
+    io = new IntersectionObserver(
+      (entries) => {
+        heroIntersecting = entries[0]?.isIntersecting ?? true;
+        if (heroIntersecting && !document.hidden) scheduleAnimations();
+        else stopFlowAnimations();
+      },
+      { threshold: 0, rootMargin: "72px 0px" },
+    );
+    io.observe(layer);
+  }
+
+  mqMobile?.addEventListener("change", onMqChange);
+  document.addEventListener("visibilitychange", onVisibilityChange);
 });
 
 onUnmounted(() => {
   window.removeEventListener("resize", onResize);
   window.clearTimeout(resizeTimer);
+  mqMobile?.removeEventListener("change", onMqChange);
+  document.removeEventListener("visibilitychange", onVisibilityChange);
+  io?.disconnect();
+  io = null;
   stopFlowAnimations();
 });
 </script>
 
 <template>
-  <div class="landing-hero-cables" aria-hidden="true">
+  <div ref="layerRef" class="landing-hero-cables" aria-hidden="true">
     <svg
       ref="svgRef"
       class="landing-hero-cables-svg"
@@ -235,7 +340,7 @@ onUnmounted(() => {
       preserveAspectRatio="xMidYMid slice"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <defs>
+      <defs v-if="tier === 'full'">
         <filter
           id="landing-hero-cable-glow"
           x="-35%"
@@ -256,14 +361,17 @@ onUnmounted(() => {
         :key="'b-' + i"
         class="landing-hero-cable-base"
         :d="c.d"
+        :stroke="c.strokeBase"
       />
-      <path
-        v-for="(c, i) in cables"
-        :key="'f-' + i"
-        class="landing-hero-cable-flow"
-        :d="c.d"
-        filter="url(#landing-hero-cable-glow)"
-      />
+      <template v-for="(c, i) in cables" :key="'f-' + i">
+        <path
+          v-if="tier === 'full' || c.flowAnimate"
+          class="landing-hero-cable-flow"
+          :d="c.d"
+          :stroke="c.strokeFlow"
+          :filter="tier === 'full' ? 'url(#landing-hero-cable-glow)' : undefined"
+        />
+      </template>
 
       <circle
         v-for="(c, i) in cables"
@@ -272,6 +380,7 @@ onUnmounted(() => {
         :cx="c.x0"
         :cy="c.y0"
         r="1.15"
+        :fill="c.nodeFill"
       />
       <circle
         v-for="(c, i) in cables"
@@ -280,6 +389,7 @@ onUnmounted(() => {
         :cx="c.x1"
         :cy="c.y1"
         r="1.15"
+        :fill="c.nodeFill"
       />
     </svg>
   </div>

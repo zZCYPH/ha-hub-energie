@@ -27,7 +27,7 @@
     <h3 class="h5 mt-4 mb-3">
       <i class="bi bi-download text-primary me-2"></i><span data-i18n="install.choose_path">Choose your path</span>
     </h3>
-    <ul class="nav nav-tabs mb-3 flex-nowrap overflow-auto" role="tablist">
+    <ul class="nav nav-tabs mb-3 flex-nowrap overflow-x-auto overflow-y-hidden" role="tablist">
       <li class="nav-item" role="presentation">
         <button
           class="nav-link active text-nowrap"
@@ -84,15 +84,15 @@
         role="tabpanel"
         data-i18n-aria="install.release_aria"
       >
-        <div class="doc-step-card shadow-sm mb-3">
-          <div class="step-body">
-            <p class="small text-secondary mb-3">
+        <div class="doc-step-card doc-step-card--zip shadow-sm mb-3">
+          <div class="step-body d-flex flex-column gap-4">
+            <p class="small text-secondary mb-0 lh-lg">
               <span data-i18n="install.zip_intro_1"></span>
               <code class="font-mono">configuration.yaml</code>
               <span data-i18n="install.zip_intro_2"></span>
             </p>
-            <div id="hub-energie-install-release-mount"></div>
-            <p class="small text-secondary mt-3 mb-0">
+            <div id="hub-energie-install-release-mount" class="flex-shrink-0"></div>
+            <p class="small text-secondary mb-0 lh-lg">
               <span data-i18n="install.zip_after_before"></span>
               <a href="#configure" data-i18n="install.zip_after_configure"></a>
               <span data-i18n="install.zip_after_between"></span>
@@ -179,19 +179,22 @@ cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/confi
     </div>
 
     <div class="card border-warning border-opacity-50 mt-4">
-      <div class="card-body">
-        <h3 class="h6 card-title d-flex align-items-center gap-2 mb-2">
+      <div class="card-body d-flex flex-column gap-3">
+        <h3 class="h6 card-title d-flex align-items-center gap-2 mb-0">
           <i class="bi bi-puzzle text-warning"></i>
           <span data-i18n="install.lovelace_title">If you use the Lovelace card</span>
         </h3>
-        <p class="card-text small text-secondary mb-3">
-          <span data-i18n="install.lovelace_body_1"></span>
+        <p class="card-text small text-secondary mb-0 lh-lg">
+          <span data-i18n="install.lovelace_p1"></span>
+        </p>
+        <p class="card-text small text-secondary mb-0 lh-lg">
+          <span data-i18n="install.lovelace_p2_before"></span>
           <code class="font-mono">manifest.json</code>
           <span data-i18n="install.lovelace_body_arrow"></span>
           <code class="font-mono">version</code>
-          <span data-i18n="install.lovelace_body_2"></span>
+          <span data-i18n="install.lovelace_p2_after"></span>
         </p>
-        <p class="card-text small text-muted mb-0">
+        <p class="card-text small text-muted mb-0 lh-lg">
           <strong class="text-body" data-i18n="install.lovelace_dev_label"></strong>
           <span data-i18n="install.lovelace_dev_rest"></span>
         </p>

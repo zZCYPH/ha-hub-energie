@@ -20,7 +20,12 @@ function tr(lang, key) {
 export function refreshScrollSpy() {
   if (typeof bootstrap === "undefined" || !bootstrap.ScrollSpy) return;
   const inst = bootstrap.ScrollSpy.getInstance(document.body);
-  if (inst) inst.refresh();
+  if (!inst) return;
+  try {
+    inst.refresh();
+  } catch {
+    /* Invalid TOC href (e.g. SPA hash) should not break i18n sync */
+  }
 }
 
 export function applyLang(lang, page) {
@@ -70,6 +75,9 @@ export function applyLang(lang, page) {
   } else if (page === "internals") {
     titleKey = "meta.title.internals";
     descKey = "meta.description.internals";
+  } else if (page === "developers") {
+    titleKey = "meta.title.developers";
+    descKey = "meta.description.developers";
   }
   document.title = tr(lang, titleKey);
   const meta = document.querySelector('meta[name="description"]');
@@ -161,6 +169,7 @@ function pageFromRouteName(name) {
   if (name === "doc") return "doc";
   if (name === "flowhelp") return "flowhelp";
   if (name === "internals") return "internals";
+  if (name === "developers") return "developers";
   return "landing";
 }
 
@@ -241,24 +250,24 @@ export function setupScrollSpy(route) {
   document.body.removeAttribute("data-bs-target");
   document.body.removeAttribute("data-bs-smooth-scroll");
   document.body.removeAttribute("data-bs-offset");
-  if (route === "doc") {
+
+  const targetId = route === "doc" ? "toc-nav-doc" : "toc-nav-internals";
+  const targetEl = document.getElementById(targetId);
+  /* Use an element for `target`: string resolution can fall back to body and scan every [href]. */
+  if (!targetEl) return;
+
+  try {
     document.body.setAttribute("data-bs-spy", "scroll");
-    document.body.setAttribute("data-bs-target", "#toc-nav-doc");
+    document.body.setAttribute("data-bs-target", `#${targetId}`);
     document.body.setAttribute("data-bs-smooth-scroll", "true");
     document.body.setAttribute("data-bs-offset", "80");
     new bootstrap.ScrollSpy(document.body, {
-      target: "#toc-nav-doc",
+      target: targetEl,
       offset: 80,
+      smoothScroll: true,
     });
-  } else if (route === "internals") {
-    document.body.setAttribute("data-bs-spy", "scroll");
-    document.body.setAttribute("data-bs-target", "#toc-nav-internals");
-    document.body.setAttribute("data-bs-smooth-scroll", "true");
-    document.body.setAttribute("data-bs-offset", "80");
-    new bootstrap.ScrollSpy(document.body, {
-      target: "#toc-nav-internals",
-      offset: 80,
-    });
+  } catch {
+    teardownScrollSpy();
   }
 }
 

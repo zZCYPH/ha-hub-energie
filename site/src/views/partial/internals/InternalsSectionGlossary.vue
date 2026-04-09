@@ -1,10 +1,10 @@
 <template>
-  <section id="glossary" class="doc-section pb-4">
+  <section id="internals-glossary" class="doc-section pb-4">
     <h2 class="mb-3">
       <span data-i18n="glossary.title">Measured, reconstructed, estimated</span>
       <a
         class="doc-anchor text-secondary"
-        href="#glossary"
+        href="#internals-glossary"
         data-i18n-aria="section.link_aria"
         aria-label="Link to section"
         >#</a

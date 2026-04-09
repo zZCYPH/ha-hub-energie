@@ -1,0 +1,49 @@
+<p>Cette étape est un <strong>formulaire</strong> (pas de JSON brut).</p>
+<p>
+  Vous avez jusqu’à <strong>six</strong> blocs repliables — en général intitulés
+  du type <em>Créneau horaire 1</em> … <em>Créneau horaire 6</em> — et en bas un
+  champ optionnel d’<strong>abonnement mensuel</strong>.
+</p>
+<h4 class="h6 fw-semibold mt-3 mb-2">Pour chaque créneau</h4>
+<ul class="ps-3 mb-3">
+  <li>
+    <strong>Début</strong> et <strong>Fin</strong> — sélecteurs d’heure au
+    format 24 h (<code class="font-mono">HH:MM</code>). Pour une plage qui passe
+    minuit, mettez la fin à <code class="font-mono">00:00</code> : ici cela
+    signifie <strong>minuit en fin de journée</strong> (et non le début du
+    jour), par ex. <code class="font-mono">22:00</code> →
+    <code class="font-mono">00:00</code> pour une plage de nuit.
+  </li>
+  <li>
+    <strong>Prix de l’énergie</strong> — prix au kWh dans votre devise (≥ 0).
+  </li>
+  <li>
+    <strong>Type de jour</strong> — <em>Tous les jours</em>,
+    <em>Jours de semaine</em> (lun–ven) ou <em>Week-ends</em> (sam–dim).
+  </li>
+  <li>
+    <strong>Libellé</strong> — nom court optionnel (ex. « Heures pleines », «
+    Nuit »).
+  </li>
+</ul>
+<h4 class="h6 fw-semibold mt-3 mb-2">Utilisation des lignes</h4>
+<ul class="ps-3 mb-3">
+  <li>
+    Un bloc où <strong>début et fin sont vides</strong> est
+    <strong>ignoré</strong> — inutile de remplir les six.
+  </li>
+  <li>
+    Si vous ne renseignez qu’une seule des deux heures, le formulaire signale
+    une erreur (ligne incomplète).
+  </li>
+  <li>
+    Il faut <strong>au moins un</strong> créneau complet (début, fin et prix
+    valide) pour valider.
+  </li>
+</ul>
+<p class="text-secondary mb-0">
+  Au-delà de <strong>six</strong> créneaux ou pour travailler en JSON
+  copier-coller, utilisez l’étape <strong>Calendrier (JSON)</strong> — voir la
+  section correspondante ci-dessous pour les noms de champs stockés et des
+  exemples.
+</p>

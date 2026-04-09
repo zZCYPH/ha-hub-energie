@@ -29,6 +29,9 @@
           ><span data-i18n="nav.internals">How it works behind the scenes</span></a
         >
         <hr class="border-secondary my-2 opacity-25" />
+        <a class="nav-link" href="#/doc/setup-help" data-bs-dismiss="offcanvas"
+          ><span data-i18n="toc.setup_help">Setup &amp; options — step help</span></a
+        >
         <a class="nav-link" href="#overview" data-bs-dismiss="offcanvas"
           ><span data-i18n="toc.overview">Quick tour</span></a
         >
@@ -64,9 +67,6 @@
         >
         <a class="nav-link" href="#limitations" data-bs-dismiss="offcanvas"
           ><span data-i18n="toc.limitations">Limitations</span></a
-        >
-        <a class="nav-link" href="#glossary" data-bs-dismiss="offcanvas"
-          ><span data-i18n="toc.glossary">Glossary</span></a
         >
       </nav>
     </div>

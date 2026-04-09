@@ -11,7 +11,6 @@ import DocSectionLovelace from "./partial/doc/DocSectionLovelace.vue";
 import DocSectionDevices from "./partial/doc/DocSectionDevices.vue";
 import DocSectionServices from "./partial/doc/DocSectionServices.vue";
 import DocSectionLimitations from "./partial/doc/DocSectionLimitations.vue";
-import DocSectionGlossary from "./partial/doc/DocSectionGlossary.vue";
 import DocFooter from "./partial/doc/DocFooter.vue";
 import DocImageModal from "./partial/doc/DocImageModal.vue";
 import InstallReleasePicker from "../components/InstallReleasePicker.vue";
@@ -62,7 +61,6 @@ function bindFlowsimJumpButtons() {
 }
 
 onMounted(() => {
-  setupScrollSpy("doc");
   nextTick(() => {
     wireDocCarouselImages();
     wireCarouselPair("devicesGalleryCarousel", "devicesGalleryTree");
@@ -85,6 +83,7 @@ onMounted(() => {
       flowOptionsSimApp.mount(optSimEl);
     }
     bindFlowsimJumpButtons();
+    setupScrollSpy("doc");
   });
 });
 
@@ -124,7 +123,6 @@ onUnmounted(() => {
             <DocSectionDevices />
             <DocSectionServices />
             <DocSectionLimitations />
-            <DocSectionGlossary />
             <DocFooter />
           </main>
         </div>
