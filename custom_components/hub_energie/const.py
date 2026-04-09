@@ -304,6 +304,10 @@ REINJECTION_OPTION_KEYS: Final[tuple[str, ...]] = (
     OPT_REINJECTION_BATT_FULL_MIN_SOC_FRAC,
 )
 
+# Bounds for options-flow UI (NumberSelector); defaults above stay the integration defaults.
+REINJECTION_UI_POWER_W_MAX: Final = 500_000.0
+REINJECTION_UI_DURATION_S_MAX: Final = 600.0
+
 # ---------------------------------------------------------------------------
 # EDF-specific tariff / slot constants (kept for EDF supplier path)
 # ---------------------------------------------------------------------------

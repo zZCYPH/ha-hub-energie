@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-08T21:25:22.453193+00:00",
+  "generated_at": "2026-04-09T19:24:41.512467+00:00",
   "source_files": {
     "config_flow": "custom_components/hub_energie/config_flow.py",
     "strings_en": "custom_components/hub_energie/strings.json",
@@ -216,6 +216,71 @@
     }
   },
   "steps": [
+    {
+      "step_id": "advanced_energy",
+      "handler": "async_step_advanced_energy",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Energy delta caps",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-advanced_energy)",
+          "fields": [
+            {
+              "key": "max_delta_kwh_grid",
+              "label": "Grid import & export",
+              "description": "Ceiling for one update on grid counters. Raise it if Home Assistant was off and the meter moved more than this before the next poll."
+            },
+            {
+              "key": "max_delta_kwh_solar",
+              "label": "Solar production",
+              "description": "Same for the PV kWh meter—stops one bad spike from booking a huge amount at once."
+            },
+            {
+              "key": "max_delta_kwh_battery",
+              "label": "Battery in & out",
+              "description": "Applies to each battery charge/discharge counter configured in the integration."
+            },
+            {
+              "key": "max_delta_kwh_other",
+              "label": "Other energy meters",
+              "description": "Fallback cap for any other hub energy source not covered above."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Plafonds de delta d'énergie",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-advanced_energy)",
+          "fields": [
+            {
+              "key": "max_delta_kwh_grid",
+              "label": "Réseau import & export",
+              "description": "Plafond pour une mise à jour des compteurs réseau. Augmentez-le si HA était arrêté et que le compteur a gagné plus de kWh que ça entre deux cycles."
+            },
+            {
+              "key": "max_delta_kwh_solar",
+              "label": "Production solaire",
+              "description": "Idem pour le compteur kWh PV : évite qu'une valeur aberrante crédite d'un coup trop d'énergie."
+            },
+            {
+              "key": "max_delta_kwh_battery",
+              "label": "Batteries (charge & décharge)",
+              "description": "S'applique aux compteurs charge/décharge de chaque batterie configurée ici."
+            },
+            {
+              "key": "max_delta_kwh_other",
+              "label": "Autres compteurs d'énergie",
+              "description": "Valeur de repli pour toute autre source d'énergie du hub non couverte par les lignes ci-dessus."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
     {
       "step_id": "battery",
       "handler": "async_step_battery",
@@ -1127,6 +1192,103 @@
       }
     },
     {
+      "step_id": "init",
+      "handler": "async_step_init",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Hub Énergie – Options",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-init)",
+          "fields": [],
+          "menu_choices": [
+            {
+              "key": "offer",
+              "label": "Offer & tariffs"
+            },
+            {
+              "key": "grid",
+              "label": "Grid sensors"
+            },
+            {
+              "key": "grid_tri",
+              "label": "Three-phase grid (optional)"
+            },
+            {
+              "key": "solar",
+              "label": "Solar configuration"
+            },
+            {
+              "key": "battery",
+              "label": "Battery systems"
+            },
+            {
+              "key": "tariff_refresh",
+              "label": "EDF tariffs: refresh from API"
+            },
+            {
+              "key": "tempo",
+              "label": "Tempo source (API vs RTE)"
+            },
+            {
+              "key": "reinjection",
+              "label": "Advanced: reinjection tuning"
+            },
+            {
+              "key": "advanced_energy",
+              "label": "Advanced: energy delta caps"
+            }
+          ],
+          "sections": []
+        },
+        "fr": {
+          "title": "Hub Énergie – Options",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-init)",
+          "fields": [],
+          "menu_choices": [
+            {
+              "key": "offer",
+              "label": "Offre & tarifs"
+            },
+            {
+              "key": "grid",
+              "label": "Capteurs réseau"
+            },
+            {
+              "key": "grid_tri",
+              "label": "Réseau triphasé (optionnel)"
+            },
+            {
+              "key": "solar",
+              "label": "Configuration solaire"
+            },
+            {
+              "key": "battery",
+              "label": "Systèmes de batterie"
+            },
+            {
+              "key": "tariff_refresh",
+              "label": "Tarifs EDF : actualiser via l'API"
+            },
+            {
+              "key": "tempo",
+              "label": "Tempo : source (API vs RTE)"
+            },
+            {
+              "key": "reinjection",
+              "label": "Avancé : réglages de réinjection"
+            },
+            {
+              "key": "advanced_energy",
+              "label": "Avancé : plafonds de delta (kWh)"
+            }
+          ],
+          "sections": []
+        }
+      }
+    },
+    {
       "step_id": "manual_flat",
       "handler": "async_step_manual_flat",
       "source_class": "HubEnergieConfigFlow",
@@ -1870,6 +2032,111 @@
               ]
             }
           ]
+        }
+      }
+    },
+    {
+      "step_id": "reinjection",
+      "handler": "async_step_reinjection",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Advanced reinjection tuning",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-reinjection)",
+          "fields": [
+            {
+              "key": "reinjection_export_ignore_below_w",
+              "label": "Ignore export below (W)",
+              "description": "Ignore small grid export readings below this power (reduces flicker)."
+            },
+            {
+              "key": "reinjection_batt_charge_significant_w",
+              "label": "Battery charge significant above (W)",
+              "description": "Treat battery charge above this threshold as “significant” for classification heuristics."
+            },
+            {
+              "key": "reinjection_short_export_max_s",
+              "label": "Switch latency max duration (s)",
+              "description": "Maximum duration (s) for short export spikes before treating them as latency noise."
+            },
+            {
+              "key": "reinjection_short_export_max_w",
+              "label": "Switch latency max power (W)",
+              "description": "Power ceiling (W) for those short export spikes."
+            },
+            {
+              "key": "reinjection_min_solar_for_classify_w",
+              "label": "Min solar for classification (W)",
+              "description": "Minimum solar production (W) before solar-heavy classification applies."
+            },
+            {
+              "key": "reinjection_export_min_abs_w",
+              "label": "Min export for classification (W)",
+              "description": "Minimum absolute export (W) required to classify as export-led."
+            },
+            {
+              "key": "reinjection_export_vs_solar_fraction",
+              "label": "Export/solar ratio threshold",
+              "description": "Ratio threshold between export and solar power for mixed states."
+            },
+            {
+              "key": "reinjection_batt_full_min_soc_frac",
+              "label": "Battery full SOC threshold (0-1)",
+              "description": "SOC fraction (0–1) above which the pack is treated as “full” for heuristics."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Réglages avancés de réinjection",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-reinjection)",
+          "fields": [
+            {
+              "key": "reinjection_export_ignore_below_w",
+              "label": "Ignorer export en dessous de (W)",
+              "description": "Ignore les petites injections réseau sous ce seuil (W) pour limiter le scintillement."
+            },
+            {
+              "key": "reinjection_batt_charge_significant_w",
+              "label": "Charge batterie significative au-dessus de (W)",
+              "description": "Au-delà de cette puissance (W), la charge batterie est jugée « significative » pour les heuristiques."
+            },
+            {
+              "key": "reinjection_short_export_max_s",
+              "label": "Durée max latence switch (s)",
+              "description": "Durée max (s) des courts pics d’export considérés comme bruit de latence."
+            },
+            {
+              "key": "reinjection_short_export_max_w",
+              "label": "Puissance max latence switch (W)",
+              "description": "Plafond de puissance (W) pour ces courts pics."
+            },
+            {
+              "key": "reinjection_min_solar_for_classify_w",
+              "label": "Solaire min pour classification (W)",
+              "description": "Production PV minimale (W) avant classification « fort solaire »."
+            },
+            {
+              "key": "reinjection_export_min_abs_w",
+              "label": "Export min pour classification (W)",
+              "description": "Export minimal (W) pour considérer un état export dominant."
+            },
+            {
+              "key": "reinjection_export_vs_solar_fraction",
+              "label": "Seuil ratio export/solaire",
+              "description": "Seuil de ratio export / solaire pour les états mixtes."
+            },
+            {
+              "key": "reinjection_batt_full_min_soc_frac",
+              "label": "Seuil SOC batterie pleine (0-1)",
+              "description": "Fraction de SOC (0–1) au-dessus de laquelle la batterie est considérée comme pleine."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
         }
       }
     },

@@ -647,3 +647,33 @@ pre.doc-code {
 .doc-plain-multiline {
   white-space: pre-line;
 }
+
+.doc-quick-tour li {
+  line-height: 1.45;
+}
+
+.doc-scope-stable > li {
+  margin-bottom: 0.75rem;
+}
+
+.doc-scope-stable > li:last-child {
+  margin-bottom: 0;
+}
+
+.doc-scope-stable .fw-semibold {
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.doc-config-blurb {
+  line-height: 1.5;
+}
+
+.doc-maintainer-details summary {
+  cursor: pointer;
+  color: var(--bs-secondary-color);
+}
+
+.doc-maintainer-details summary:hover {
+  color: var(--bs-body-color);
+}

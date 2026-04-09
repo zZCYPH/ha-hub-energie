@@ -30,6 +30,7 @@ const router = useRouter();
 let detachNav = () => {};
 let pickerApp = null;
 let flowSimApp = null;
+let flowOptionsSimApp = null;
 
 function bindFlowsimJumpButtons() {
   root.value?.querySelectorAll("[data-flowsim-jump]").forEach((el) => {
@@ -41,6 +42,19 @@ function bindFlowsimJumpButtons() {
         .then(() =>
           nextTick(() => {
             window.dispatchEvent(new CustomEvent("hub-energie-flowsim-jump", { detail: { stepId } }));
+          }),
+        );
+    });
+  });
+  root.value?.querySelectorAll("[data-options-flowsim-jump]").forEach((el) => {
+    el.addEventListener("click", () => {
+      const stepId = el.getAttribute("data-options-flowsim-jump");
+      if (!stepId) return;
+      router
+        .push({ name: "doc", hash: "#configure-options-simulator" })
+        .then(() =>
+          nextTick(() => {
+            window.dispatchEvent(new CustomEvent("hub-energie-options-flowsim-jump", { detail: { stepId } }));
           }),
         );
     });
@@ -62,8 +76,13 @@ onMounted(() => {
     }
     const simEl = document.getElementById("flow-simulator-mount");
     if (simEl && !flowSimApp) {
-      flowSimApp = createApp(FlowSimulator);
+      flowSimApp = createApp(FlowSimulator, { mode: "setup" });
       flowSimApp.mount(simEl);
+    }
+    const optSimEl = document.getElementById("flow-options-simulator-mount");
+    if (optSimEl && !flowOptionsSimApp) {
+      flowOptionsSimApp = createApp(FlowSimulator, { mode: "options" });
+      flowOptionsSimApp.mount(optSimEl);
     }
     bindFlowsimJumpButtons();
   });
@@ -79,6 +98,10 @@ onUnmounted(() => {
   if (flowSimApp) {
     flowSimApp.unmount();
     flowSimApp = null;
+  }
+  if (flowOptionsSimApp) {
+    flowOptionsSimApp.unmount();
+    flowOptionsSimApp = null;
   }
 });
 </script>

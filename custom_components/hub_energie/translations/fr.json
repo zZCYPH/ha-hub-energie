@@ -593,30 +593,6 @@
         "data_description": {
           "add_another": "Activez pour enchaîner sur une autre batterie après celle-ci."
         }
-      },
-      "reinjection": {
-        "title": "Réglages avancés de réinjection",
-        "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})",
-        "data": {
-          "reinjection_export_ignore_below_w": "Ignorer export en dessous de (W)",
-          "reinjection_batt_charge_significant_w": "Charge batterie significative au-dessus de (W)",
-          "reinjection_short_export_max_s": "Durée max latence switch (s)",
-          "reinjection_short_export_max_w": "Puissance max latence switch (W)",
-          "reinjection_min_solar_for_classify_w": "Solaire min pour classification (W)",
-          "reinjection_export_min_abs_w": "Export min pour classification (W)",
-          "reinjection_export_vs_solar_fraction": "Seuil ratio export/solaire",
-          "reinjection_batt_full_min_soc_frac": "Seuil SOC batterie pleine (0-1)"
-        },
-        "data_description": {
-          "reinjection_export_ignore_below_w": "Ignore les petites injections réseau sous ce seuil (W) pour limiter le scintillement.",
-          "reinjection_batt_charge_significant_w": "Au-delà de cette puissance (W), la charge batterie est jugée « significative » pour les heuristiques.",
-          "reinjection_short_export_max_s": "Durée max (s) des courts pics d’export considérés comme bruit de latence.",
-          "reinjection_short_export_max_w": "Plafond de puissance (W) pour ces courts pics.",
-          "reinjection_min_solar_for_classify_w": "Production PV minimale (W) avant classification « fort solaire ».",
-          "reinjection_export_min_abs_w": "Export minimal (W) pour considérer un état export dominant.",
-          "reinjection_export_vs_solar_fraction": "Seuil de ratio export / solaire pour les états mixtes.",
-          "reinjection_batt_full_min_soc_frac": "Fraction de SOC (0–1) au-dessus de laquelle la batterie est considérée comme pleine."
-        }
       }
     },
     "error": {
@@ -646,7 +622,8 @@
       "battery_adv_soc_max_not_both": "Choisissez soit une entité de SOC maximum, soit une valeur manuelle — pas les deux.",
       "invalid_battery_choice": "Sélectionnez une batterie valide.",
       "tariff_payload_incomplete": "Les données tarifaires du fournisseur sont incomplètes ou invalides. Réessayez ou vérifiez l'offre et le kVA.",
-      "invalid_delta_cap": "Les plafonds de delta doivent être des nombres valides dans la plage autorisée."
+      "invalid_delta_cap": "Les plafonds de delta doivent être des nombres valides dans la plage autorisée.",
+      "invalid_reinjection_thresholds": "Les seuils de réinjection doivent être des nombres valides dans les plages autorisées."
     },
     "abort": {
       "already_configured": "Cette intégration est déjà configurée."
@@ -665,7 +642,32 @@
           "battery": "Systèmes de batterie",
           "tariff_refresh": "Tarifs EDF : actualiser via l'API",
           "tempo": "Tempo : source (API vs RTE)",
+          "reinjection": "Avancé : réglages de réinjection",
           "advanced_energy": "Avancé : plafonds de delta (kWh)"
+        }
+      },
+      "reinjection": {
+        "title": "Réglages avancés de réinjection",
+        "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})",
+        "data": {
+          "reinjection_export_ignore_below_w": "Ignorer export en dessous de (W)",
+          "reinjection_batt_charge_significant_w": "Charge batterie significative au-dessus de (W)",
+          "reinjection_short_export_max_s": "Durée max latence switch (s)",
+          "reinjection_short_export_max_w": "Puissance max latence switch (W)",
+          "reinjection_min_solar_for_classify_w": "Solaire min pour classification (W)",
+          "reinjection_export_min_abs_w": "Export min pour classification (W)",
+          "reinjection_export_vs_solar_fraction": "Seuil ratio export/solaire",
+          "reinjection_batt_full_min_soc_frac": "Seuil SOC batterie pleine (0-1)"
+        },
+        "data_description": {
+          "reinjection_export_ignore_below_w": "Ignore les petites injections réseau sous ce seuil (W) pour limiter le scintillement.",
+          "reinjection_batt_charge_significant_w": "Au-delà de cette puissance (W), la charge batterie est jugée « significative » pour les heuristiques.",
+          "reinjection_short_export_max_s": "Durée max (s) des courts pics d’export considérés comme bruit de latence.",
+          "reinjection_short_export_max_w": "Plafond de puissance (W) pour ces courts pics.",
+          "reinjection_min_solar_for_classify_w": "Production PV minimale (W) avant classification « fort solaire ».",
+          "reinjection_export_min_abs_w": "Export minimal (W) pour considérer un état export dominant.",
+          "reinjection_export_vs_solar_fraction": "Seuil de ratio export / solaire pour les états mixtes.",
+          "reinjection_batt_full_min_soc_frac": "Fraction de SOC (0–1) au-dessus de laquelle la batterie est considérée comme pleine."
         }
       },
       "advanced_energy": {
@@ -1050,7 +1052,8 @@
       "invalid_battery_choice": "Sélectionnez une batterie valide.",
       "battery_pick_conflicting_options": "Désactivez soit « supprimer la batterie sélectionnée », soit « ajouter une nouvelle batterie », puis réessayez.",
       "tariff_fetch_failed": "Échec de la récupération des tarifs. Vérifiez l'offre, le kVA et le réseau.",
-      "tariff_payload_incomplete": "Les données tarifaires du fournisseur sont incomplètes ou invalides. Réessayez ou vérifiez l'offre et le kVA."
+      "tariff_payload_incomplete": "Les données tarifaires du fournisseur sont incomplètes ou invalides. Réessayez ou vérifiez l'offre et le kVA.",
+      "invalid_reinjection_thresholds": "Les seuils de réinjection doivent être des nombres valides dans les plages autorisées."
     }
   },
   "selector": {

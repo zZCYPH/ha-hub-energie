@@ -320,14 +320,10 @@ ${FLOWHELP_ADV_SCHEDULE_REFERENCE_EN}`,
     title: "Battery — add another?",
     body_html: `<p>Loop control: add more battery definitions or finish the wizard and create the config entry.</p>`,
   },
-  reinjection: {
-    title: "Advanced reinjection tuning",
-    body_html: `<p>Optional expert thresholds for classifying export, solar contribution, and short “latency” spikes. Adjust only when debugging mis-tagged reinjection.</p>`,
-  },
 
   options_init: {
     title: "Options — menu",
-    body_html: `<p>Entry point for <strong>Configure</strong> after the integration is installed. Pick a topic (offer, grid, solar, batteries, Tempo, delta caps, …) without walking the entire first-run wizard.</p>`,
+    body_html: `<p>Entry point for <strong>Configure</strong> after the integration is installed. Pick a topic (offer, grid, solar, batteries, Tempo, reinjection tuning, delta caps, …) without walking the entire first-run wizard.</p>`,
   },
   options_offer: {
     title: "Options — offer & contract",
@@ -344,6 +340,10 @@ ${FLOWHELP_ADV_SCHEDULE_REFERENCE_EN}`,
   options_tempo_rte: {
     title: "Options — RTE credentials",
     body_html: `<p>Update RTE OAuth secrets; blank secret keeps the previous value. Same validation rules as the initial wizard.</p>`,
+  },
+  options_reinjection: {
+    title: "Options — reinjection tuning",
+    body_html: `<p>Optional expert thresholds (W, seconds, ratios, SOC fraction) for classifying grid export, solar contribution, battery charge significance, and short “switch latency” spikes. Stored in integration options; adjust only when debugging mis-tagged reinjection diagnostics.</p>`,
   },
   options_advanced_energy: {
     title: "Options — energy delta caps",
@@ -552,14 +552,10 @@ ${FLOWHELP_ADV_SCHEDULE_REFERENCE_FR}`,
     title: "Batterie — une autre ?",
     body_html: `<p>Boucle d’ajout ou fin de création d’entrée de configuration.</p>`,
   },
-  reinjection: {
-    title: "Réglages avancés réinjection",
-    body_html: `<p>Seuils experts optionnels pour classer export, part solaire et courts pics de « latence ». À n’ajuster que pour diagnostiquer une mauvaise étiquette.</p>`,
-  },
 
   options_init: {
     title: "Options — menu",
-    body_html: `<p>Point d’entrée du menu <strong>Configurer</strong> après installation : choisir un thème (offre, réseau, solaire, batteries, Tempo, deltas, …) sans refaire tout l’assistant initial.</p>`,
+    body_html: `<p>Point d’entrée du menu <strong>Configurer</strong> après installation : choisir un thème (offre, réseau, solaire, batteries, Tempo, réinjection, deltas, …) sans refaire tout l’assistant initial.</p>`,
   },
   options_offer: {
     title: "Options — offre & contrat",
@@ -576,6 +572,10 @@ ${FLOWHELP_ADV_SCHEDULE_REFERENCE_FR}`,
   options_tempo_rte: {
     title: "Options — identifiants RTE",
     body_html: `<p>Rotation des secrets RTE avec les mêmes règles que le flux initial.</p>`,
+  },
+  options_reinjection: {
+    title: "Options — réglages réinjection",
+    body_html: `<p>Seuils experts optionnels (W, secondes, ratios, fraction SOC) pour classer l’export réseau, la part solaire, la charge batterie « significative » et les courts pics de « latence ». Stockés dans les options de l’intégration ; à n’ajuster que pour diagnostiquer une mauvaise étiquette de réinjection.</p>`,
   },
   options_advanced_energy: {
     title: "Options — plafonds de delta",

@@ -19,6 +19,9 @@
       <a class="nav-link small py-1 ps-3" href="#configure-advanced"
         ><span data-i18n="toc.configure_advanced">Advanced configuration</span></a
       >
+      <a class="nav-link small py-1 ps-3" href="#configure-options-simulator"
+        ><span data-i18n="toc.configure_options_simulator">Configure (existing entry) preview</span></a
+      >
       <a class="nav-link" href="#lovelace"><span data-i18n="toc.lovelace">Lovelace card</span></a>
       <a class="nav-link small py-1 ps-3" href="#lovelace-showcase"
         ><span data-i18n="toc.lovelace_showcase">Card preview</span></a

@@ -10,29 +10,78 @@
         >#</a
       >
     </h2>
-    <p class="text-secondary" data-i18n="overview.intro">
-      This page is a guided companion to the README. Use the steps below in order when setting up for the first
-      time.
-    </p>
+    <p class="text-secondary small mb-2" data-i18n="overview.intro_lead"></p>
+    <ul class="list-unstyled doc-quick-tour mb-4">
+      <li class="d-flex gap-2 mb-2">
+        <i class="bi bi-download text-primary mt-1 flex-shrink-0" aria-hidden="true"></i>
+        <span class="text-secondary small" data-i18n="overview.intro_li_install"></span>
+      </li>
+      <li class="d-flex gap-2 mb-2">
+        <i class="bi bi-sliders text-primary mt-1 flex-shrink-0" aria-hidden="true"></i>
+        <span class="text-secondary small" data-i18n="overview.intro_li_configure"></span>
+      </li>
+      <li class="d-flex gap-2 mb-2">
+        <i class="bi bi-grid-3x3-gap text-primary mt-1 flex-shrink-0" aria-hidden="true"></i>
+        <span class="text-secondary small" data-i18n="overview.intro_li_devices"></span>
+      </li>
+      <li class="d-flex gap-2 mb-2">
+        <i class="bi bi-window-sidebar text-primary mt-1 flex-shrink-0" aria-hidden="true"></i>
+        <span class="text-secondary small" data-i18n="overview.intro_li_lovelace"></span>
+      </li>
+      <li class="d-flex gap-2">
+        <i class="bi bi-diagram-3 text-primary mt-1 flex-shrink-0" aria-hidden="true"></i>
+        <span class="text-secondary small">
+          <span data-i18n="overview.intro_li_internals_before"></span>
+          <router-link class="text-body" to="/internals" data-i18n="doc.hero_internals_cta"></router-link>
+          <span data-i18n="overview.intro_li_internals_after"></span>
+        </span>
+      </li>
+    </ul>
 
     <div class="accordion accordion-flush border rounded-3 overflow-hidden mb-4" id="accScope">
       <div class="accordion-item border-0 border-bottom">
         <h3 class="accordion-header">
-          <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#scopeStable">
+          <button
+            class="accordion-button collapsed fw-semibold"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#scopeStable"
+          >
             <i class="bi bi-shield-check text-success me-2"></i>
             <span data-i18n="scope.stable_heading">Intended stable scope (v0.0.x)</span>
           </button>
         </h3>
-        <div id="scopeStable" class="accordion-collapse collapse show" data-bs-parent="#accScope">
-          <div class="accordion-body text-secondary small">
-            <ul class="mb-0">
-              <li data-i18n="scope.stable_li1"></li>
-              <li data-i18n="scope.stable_li2"></li>
-              <li data-i18n="scope.stable_li3"></li>
-              <li data-i18n="scope.stable_li4"></li>
-              <li data-i18n="scope.stable_li5"></li>
-              <li data-i18n="scope.stable_li6"></li>
-              <li data-i18n="scope.stable_li7"></li>
+        <div id="scopeStable" class="accordion-collapse collapse" data-bs-parent="#accScope">
+          <div class="accordion-body text-secondary small pt-0">
+            <ul class="list-unstyled doc-scope-stable mb-0">
+              <li>
+                <span class="fw-semibold text-body" data-i18n="scope.stable_li1_t"></span>
+                <span data-i18n="scope.stable_li1_d"></span>
+              </li>
+              <li>
+                <span class="fw-semibold text-body" data-i18n="scope.stable_li2_t"></span>
+                <span data-i18n="scope.stable_li2_d"></span>
+              </li>
+              <li>
+                <span class="fw-semibold text-body" data-i18n="scope.stable_li3_t"></span>
+                <span data-i18n="scope.stable_li3_d"></span>
+              </li>
+              <li>
+                <span class="fw-semibold text-body" data-i18n="scope.stable_li4_t"></span>
+                <span data-i18n="scope.stable_li4_d"></span>
+              </li>
+              <li>
+                <span class="fw-semibold text-body" data-i18n="scope.stable_li5_t"></span>
+                <span data-i18n="scope.stable_li5_d"></span>
+              </li>
+              <li>
+                <span class="fw-semibold text-body" data-i18n="scope.stable_li6_t"></span>
+                <span data-i18n="scope.stable_li6_d"></span>
+              </li>
+              <li>
+                <span class="fw-semibold text-body" data-i18n="scope.stable_li7_t"></span>
+                <span data-i18n="scope.stable_li7_d"></span>
+              </li>
             </ul>
           </div>
         </div>
