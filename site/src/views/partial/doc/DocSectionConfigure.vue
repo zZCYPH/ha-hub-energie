@@ -10,9 +10,22 @@
         >#</a
       >
     </h2>
-    <p class="text-secondary mb-3" data-i18n="configure.flow_lead"></p>
-    <p class="text-secondary mb-3" data-i18n="configure.after_install"></p>
-    <p class="small text-secondary mb-3 mb-lg-4" data-i18n="configure.flow_step_help"></p>
+    <div class="card border shadow-sm mb-3 mb-lg-4">
+      <div class="card-body py-3 px-3 px-lg-4">
+        <div class="doc-config-blurb text-secondary small mb-3 pb-3 border-bottom border-secondary border-opacity-25">
+          <span data-i18n="configure.flow_lead_1"></span>
+        </div>
+        <div class="doc-config-blurb text-secondary small mb-3 pb-3 border-bottom border-secondary border-opacity-25">
+          <span data-i18n="configure.flow_lead_2"></span>
+        </div>
+        <div class="doc-config-blurb text-secondary small mb-3 pb-3 border-bottom border-secondary border-opacity-25">
+          <span data-i18n="configure.after_install"></span>
+        </div>
+        <div class="doc-config-blurb text-secondary small mb-0">
+          <span data-i18n="configure.flow_step_help"></span>
+        </div>
+      </div>
+    </div>
 
     <h3 class="h5 mt-2 mb-2 doc-subsection" id="configure-flow-simulator">
       <span data-i18n="configure.flow_simulator_h">Interactive flow preview</span>
@@ -24,7 +37,11 @@
         >#</a
       >
     </h3>
-    <p class="text-secondary small mb-3" data-i18n="configure.flow_simulator_intro"></p>
+    <p class="text-secondary small mb-2" data-i18n="configure.flow_simulator_intro_user"></p>
+    <details class="doc-maintainer-details small text-secondary mb-3">
+      <summary class="mb-2 user-select-none" data-i18n="configure.flow_simulator_maintainers_summary"></summary>
+      <p class="mb-0 ps-1 border-start border-secondary border-opacity-25" data-i18n="configure.flow_simulator_maintainers"></p>
+    </details>
     <div id="flow-simulator-mount" class="mb-4"></div>
 
     <div class="card border mb-4 shadow-sm">
