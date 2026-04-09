@@ -34,7 +34,6 @@ export const FLOW_HELP_WIZARD_IDS = [
   "battery_add",
   "battery_advanced",
   "battery_more",
-  "reinjection",
 ];
 
 /** Options menu step_ids (HubEnergieOptionsFlow). */
@@ -44,6 +43,7 @@ export const FLOW_HELP_OPTIONS_IDS = [
   "tariff_refresh",
   "tempo",
   "tempo_rte",
+  "reinjection",
   "advanced_energy",
   "grid",
   "grid_tri_energy_mode",

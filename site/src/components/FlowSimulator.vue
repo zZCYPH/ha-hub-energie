@@ -106,7 +106,7 @@ function escapeAttr(s) {
 function flowStepDescriptionHtml(raw) {
   if (!raw) return "";
   const sid = finished.value ? null : history.value[history.value.length - 1] ?? null;
-  if (props.mode === "options" && sid === "advanced_energy") {
+  if (props.mode === "options" && (sid === "advanced_energy" || sid === "reinjection")) {
     return "";
   }
   const t = String(raw).trim();
@@ -184,6 +184,8 @@ function normalizeEnterGrid(s) {
 
 function computeNextOptions(stepId, s) {
   switch (stepId) {
+    case "reinjection":
+      return STEP_DONE;
     case "advanced_energy":
       return STEP_DONE;
     case "battery":
@@ -295,8 +297,42 @@ const canFinishAdvancedEnergy = computed(() => {
   return true;
 });
 
+const REINJECTION_KEYS = [
+  "reinjection_export_ignore_below_w",
+  "reinjection_batt_charge_significant_w",
+  "reinjection_short_export_max_s",
+  "reinjection_short_export_max_w",
+  "reinjection_min_solar_for_classify_w",
+  "reinjection_export_min_abs_w",
+  "reinjection_export_vs_solar_fraction",
+  "reinjection_batt_full_min_soc_frac",
+];
+
+const canFinishReinjection = computed(() => {
+  if (props.mode !== "options" || finished.value) return false;
+  if (currentStepId.value !== "reinjection") return false;
+  const UI_W_MAX = 500000;
+  const UI_S_MAX = 600;
+  for (const k of REINJECTION_KEYS) {
+    const v = parseFloat(String(formState[k] ?? "").replace(",", "."));
+    if (!Number.isFinite(v)) return false;
+    if (k === "reinjection_short_export_max_s") {
+      if (v <= 0.01 || v > UI_S_MAX) return false;
+    } else if (k === "reinjection_export_vs_solar_fraction" || k === "reinjection_batt_full_min_soc_frac") {
+      if (v < 0 || v > 1) return false;
+    } else {
+      if (v < 0 || v > UI_W_MAX) return false;
+    }
+  }
+  return true;
+});
+
 const primaryActionLabel = computed(() => {
-  if (props.mode === "options" && !finished.value && currentStepId.value === "advanced_energy") {
+  if (
+    props.mode === "options" &&
+    !finished.value &&
+    (currentStepId.value === "advanced_energy" || currentStepId.value === "reinjection")
+  ) {
     return tr("flowsim.submit_options");
   }
   return tr("flowsim.next");
@@ -306,6 +342,9 @@ const primaryActionDisabled = computed(() => {
   if (props.mode === "options" && !finished.value && currentStepId.value === "advanced_energy") {
     return !canFinishAdvancedEnergy.value;
   }
+  if (props.mode === "options" && !finished.value && currentStepId.value === "reinjection") {
+    return !canFinishReinjection.value;
+  }
   return !canGoNext.value;
 });
 
@@ -314,6 +353,14 @@ function defaultForFieldKey(key) {
   if (key === "max_delta_kwh_solar") return "120";
   if (key === "max_delta_kwh_battery") return "80";
   if (key === "max_delta_kwh_other") return "200";
+  if (key === "reinjection_export_ignore_below_w") return "10";
+  if (key === "reinjection_batt_charge_significant_w") return "0";
+  if (key === "reinjection_short_export_max_s") return "45";
+  if (key === "reinjection_short_export_max_w") return "600";
+  if (key === "reinjection_min_solar_for_classify_w") return "100";
+  if (key === "reinjection_export_min_abs_w") return "120";
+  if (key === "reinjection_export_vs_solar_fraction") return "0.2";
+  if (key === "reinjection_batt_full_min_soc_frac") return "0.93";
   if (fieldKind(key) === "boolean" || fieldKind(key) === "boolean_dropdown") return "false";
   if (fieldKind(key) === "entity") return "";
   if (key === "tou_r0_start") return "22:00";
@@ -380,6 +427,11 @@ function goNext() {
   if (currentMeta.value?.kind === "menu") return;
   if (props.mode === "options" && cur === "advanced_energy") {
     if (!canFinishAdvancedEnergy.value) return;
+    finished.value = true;
+    return;
+  }
+  if (props.mode === "options" && cur === "reinjection") {
+    if (!canFinishReinjection.value) return;
     finished.value = true;
     return;
   }
@@ -468,6 +520,21 @@ function jumpToAdvancedEnergy() {
   history.value = ["advanced_energy"];
 }
 
+function jumpToReinjection() {
+  finished.value = false;
+  flowNavChoice.value = "continue";
+  for (const k of Object.keys(formState)) delete formState[k];
+  formState.reinjection_export_ignore_below_w = "10";
+  formState.reinjection_batt_charge_significant_w = "0";
+  formState.reinjection_short_export_max_s = "45";
+  formState.reinjection_short_export_max_w = "600";
+  formState.reinjection_min_solar_for_classify_w = "100";
+  formState.reinjection_export_min_abs_w = "120";
+  formState.reinjection_export_vs_solar_fraction = "0.2";
+  formState.reinjection_batt_full_min_soc_frac = "0.93";
+  history.value = ["reinjection"];
+}
+
 function onFlowsimJumpEvent(ev) {
   if (props.mode !== "setup") return;
   const sid = ev?.detail?.stepId;
@@ -479,6 +546,7 @@ function onOptionsFlowsimJumpEvent(ev) {
   const sid = ev?.detail?.stepId;
   if (sid === "battery_pick") jumpToBatteryPick();
   else if (sid === "advanced_energy") jumpToAdvancedEnergy();
+  else if (sid === "reinjection") jumpToReinjection();
 }
 
 function chooseOptionsMenuOption(opt) {
@@ -487,6 +555,10 @@ function chooseOptionsMenuOption(opt) {
   if (cur !== "init") return;
   if (opt === "battery") {
     history.value = [...history.value, "battery"];
+    return;
+  }
+  if (opt === "reinjection") {
+    history.value = [...history.value, "reinjection"];
     return;
   }
   if (opt === "advanced_energy") {
@@ -560,6 +632,15 @@ function suffixForNumberField(key) {
   if (key === "solar_peak_power") return "kWc";
   if (key === "solar_orientation" || key === "solar_tilt") return "°";
   if (/^max_delta_kwh_/.test(key)) return "kWh";
+  if (
+    key === "reinjection_export_ignore_below_w" ||
+    key === "reinjection_batt_charge_significant_w" ||
+    key === "reinjection_short_export_max_w" ||
+    key === "reinjection_min_solar_for_classify_w" ||
+    key === "reinjection_export_min_abs_w"
+  )
+    return "W";
+  if (key === "reinjection_short_export_max_s") return "s";
   return "";
 }
 
@@ -568,6 +649,12 @@ function numberInputStepForKey(key) {
   if (key === "solar_peak_power") return "0.01";
   if (key === "solar_orientation" || key === "solar_tilt") return "1";
   if (/^max_delta_kwh_/.test(key)) return "1";
+  if (
+    key === "reinjection_export_vs_solar_fraction" ||
+    key === "reinjection_batt_full_min_soc_frac"
+  )
+    return "0.01";
+  if (key === "reinjection_short_export_max_s") return "1";
   return "0.0001";
 }
 
@@ -649,6 +736,7 @@ function fieldKind(key) {
   if (key === "solar_performance") return "solar_performance";
   if (key === "batt_power_net_sign") return "batt_net_sign";
   if (/^max_delta_kwh_/.test(key)) return "number";
+  if (/^reinjection_/.test(key)) return "number";
   if (key === "battery_index") return "battery_index_select";
   if (
     key === "has_solar" ||

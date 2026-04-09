@@ -75,6 +75,7 @@ FLOW_HELP_OPTIONS_IDS: tuple[str, ...] = (
     "tariff_refresh",
     "tempo",
     "tempo_rte",
+    "reinjection",
     "advanced_energy",
     "grid",
     "grid_tri_energy_mode",
@@ -99,6 +100,7 @@ OPTIONS_FLOW_CLASS = "HubEnergieOptionsFlow"
 OPTIONS_CATALOG_HANDLERS = frozenset(
     {
         "async_step_init",
+        "async_step_reinjection",
         "async_step_advanced_energy",
         "async_step_battery_pick",
     }

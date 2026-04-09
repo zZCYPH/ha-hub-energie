@@ -60,6 +60,9 @@
       <button type="button" class="btn btn-outline-primary btn-sm" data-options-flowsim-jump="battery_pick">
         <span data-i18n="configure.advanced_btn_flowsim_batteries">Preview: Configure → Batteries (existing)</span>
       </button>
+      <button type="button" class="btn btn-outline-primary btn-sm" data-options-flowsim-jump="reinjection">
+        <span data-i18n="configure.advanced_btn_flowsim_reinjection">Preview: Configure → Reinjection tuning</span>
+      </button>
       <button type="button" class="btn btn-outline-primary btn-sm" data-options-flowsim-jump="advanced_energy">
         <span data-i18n="configure.advanced_btn_flowsim_delta">Preview: Configure → Advanced — delta caps</span>
       </button>
