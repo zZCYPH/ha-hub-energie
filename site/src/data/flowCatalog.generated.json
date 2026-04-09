@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-08T21:25:22.453193+00:00",
+  "generated_at": "2026-04-09T19:05:43.778882+00:00",
   "source_files": {
     "config_flow": "custom_components/hub_energie/config_flow.py",
     "strings_en": "custom_components/hub_energie/strings.json",
@@ -216,6 +216,71 @@
     }
   },
   "steps": [
+    {
+      "step_id": "advanced_energy",
+      "handler": "async_step_advanced_energy",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Energy delta caps",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-advanced_energy)",
+          "fields": [
+            {
+              "key": "max_delta_kwh_grid",
+              "label": "Grid import & export",
+              "description": "Ceiling for one update on grid counters. Raise it if Home Assistant was off and the meter moved more than this before the next poll."
+            },
+            {
+              "key": "max_delta_kwh_solar",
+              "label": "Solar production",
+              "description": "Same for the PV kWh meter—stops one bad spike from booking a huge amount at once."
+            },
+            {
+              "key": "max_delta_kwh_battery",
+              "label": "Battery in & out",
+              "description": "Applies to each battery charge/discharge counter configured in the integration."
+            },
+            {
+              "key": "max_delta_kwh_other",
+              "label": "Other energy meters",
+              "description": "Fallback cap for any other hub energy source not covered above."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Plafonds de delta d'énergie",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-advanced_energy)",
+          "fields": [
+            {
+              "key": "max_delta_kwh_grid",
+              "label": "Réseau import & export",
+              "description": "Plafond pour une mise à jour des compteurs réseau. Augmentez-le si HA était arrêté et que le compteur a gagné plus de kWh que ça entre deux cycles."
+            },
+            {
+              "key": "max_delta_kwh_solar",
+              "label": "Production solaire",
+              "description": "Idem pour le compteur kWh PV : évite qu'une valeur aberrante crédite d'un coup trop d'énergie."
+            },
+            {
+              "key": "max_delta_kwh_battery",
+              "label": "Batteries (charge & décharge)",
+              "description": "S'applique aux compteurs charge/décharge de chaque batterie configurée ici."
+            },
+            {
+              "key": "max_delta_kwh_other",
+              "label": "Autres compteurs d'énergie",
+              "description": "Valeur de repli pour toute autre source d'énergie du hub non couverte par les lignes ci-dessus."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
     {
       "step_id": "battery",
       "handler": "async_step_battery",
@@ -1123,6 +1188,95 @@
               ]
             }
           ]
+        }
+      }
+    },
+    {
+      "step_id": "init",
+      "handler": "async_step_init",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Hub Énergie – Options",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-init)",
+          "fields": [],
+          "menu_choices": [
+            {
+              "key": "offer",
+              "label": "Offer & tariffs"
+            },
+            {
+              "key": "grid",
+              "label": "Grid sensors"
+            },
+            {
+              "key": "grid_tri",
+              "label": "Three-phase grid (optional)"
+            },
+            {
+              "key": "solar",
+              "label": "Solar configuration"
+            },
+            {
+              "key": "battery",
+              "label": "Battery systems"
+            },
+            {
+              "key": "tariff_refresh",
+              "label": "EDF tariffs: refresh from API"
+            },
+            {
+              "key": "tempo",
+              "label": "Tempo source (API vs RTE)"
+            },
+            {
+              "key": "advanced_energy",
+              "label": "Advanced: energy delta caps"
+            }
+          ],
+          "sections": []
+        },
+        "fr": {
+          "title": "Hub Énergie – Options",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-init)",
+          "fields": [],
+          "menu_choices": [
+            {
+              "key": "offer",
+              "label": "Offre & tarifs"
+            },
+            {
+              "key": "grid",
+              "label": "Capteurs réseau"
+            },
+            {
+              "key": "grid_tri",
+              "label": "Réseau triphasé (optionnel)"
+            },
+            {
+              "key": "solar",
+              "label": "Configuration solaire"
+            },
+            {
+              "key": "battery",
+              "label": "Systèmes de batterie"
+            },
+            {
+              "key": "tariff_refresh",
+              "label": "Tarifs EDF : actualiser via l'API"
+            },
+            {
+              "key": "tempo",
+              "label": "Tempo : source (API vs RTE)"
+            },
+            {
+              "key": "advanced_energy",
+              "label": "Avancé : plafonds de delta (kWh)"
+            }
+          ],
+          "sections": []
         }
       }
     },

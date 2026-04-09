@@ -4,11 +4,20 @@ import catalog from "../data/flowCatalog.generated.json";
 import FlowsimEntityPicker from "./FlowsimEntityPicker.vue";
 import { getLang } from "../siteShell";
 
+const props = defineProps({
+  /** ``setup`` = first-time wizard; ``options`` = Settings → Configure on an existing entry. */
+  mode: {
+    type: String,
+    default: "setup",
+    validator: (v) => v === "setup" || v === "options",
+  },
+});
+
 /** Sentinel: simulator reached HA ``async_create_entry`` (no catalog row). */
 const STEP_DONE = "__done__";
 
 const langTick = ref(0);
-const history = ref(["user"]);
+const history = ref(props.mode === "options" ? ["init"] : ["user"]);
 const finished = ref(false);
 
 /** Branching state — same keys as ``config_flow.py`` user input (stringly-typed for `<select>` / `<input>`). */
@@ -96,6 +105,10 @@ function escapeAttr(s) {
 /** Integration step description is a single markdown link to the doc vitrine → safe HTML. */
 function flowStepDescriptionHtml(raw) {
   if (!raw) return "";
+  const sid = finished.value ? null : history.value[history.value.length - 1] ?? null;
+  if (props.mode === "options" && sid === "advanced_energy") {
+    return "";
+  }
   const t = String(raw).trim();
   const m = t.match(/^\[([^\]]+)\]\(([^)]+)\)\s*$/);
   if (!m) return escapeHtml(humanizeDescription(raw));
@@ -169,7 +182,33 @@ function normalizeEnterGrid(s) {
   return "grid";
 }
 
+function computeNextOptions(stepId, s) {
+  switch (stepId) {
+    case "advanced_energy":
+      return STEP_DONE;
+    case "battery":
+      if (!boolFromForm(s, "has_batteries")) return STEP_DONE;
+      return "battery_pick";
+    case "battery_pick": {
+      if (boolFromForm(s, "batt_remove_selected") && boolFromForm(s, "add_new")) return null;
+      if (boolFromForm(s, "batt_remove_selected")) return STEP_DONE;
+      return "battery_add";
+    }
+    case "battery_add":
+      return boolFromForm(s, "batt_advanced") ? "battery_advanced" : "battery_more";
+    case "battery_advanced":
+      return "battery_more";
+    case "battery_more":
+      return boolFromForm(s, "add_another") ? "battery_add" : STEP_DONE;
+    default:
+      return null;
+  }
+}
+
 function computeNext(stepId, s) {
+  if (props.mode === "options") {
+    return computeNextOptions(stepId, s);
+  }
   switch (stepId) {
     case "user":
       return s.supplier === "other" ? "supplier_custom" : "tariff_mode";
@@ -225,11 +264,6 @@ function computeNext(stepId, s) {
     case "battery":
       if (!boolFromForm(s, "has_batteries")) return STEP_DONE;
       return "battery_add";
-    case "battery_pick": {
-      if (boolFromForm(s, "batt_remove_selected") && boolFromForm(s, "add_new")) return null;
-      if (boolFromForm(s, "batt_remove_selected")) return STEP_DONE;
-      return "battery_add";
-    }
     case "battery_add":
       return boolFromForm(s, "batt_advanced") ? "battery_advanced" : "battery_more";
     case "battery_advanced":
@@ -250,7 +284,36 @@ const canGoNext = computed(() => {
   return n !== null && n !== undefined;
 });
 
+const canFinishAdvancedEnergy = computed(() => {
+  if (props.mode !== "options" || finished.value) return false;
+  if (currentStepId.value !== "advanced_energy") return false;
+  const keys = ["max_delta_kwh_grid", "max_delta_kwh_solar", "max_delta_kwh_battery", "max_delta_kwh_other"];
+  for (const k of keys) {
+    const v = parseFloat(String(formState[k] ?? "").replace(",", "."));
+    if (!Number.isFinite(v) || v < 0.01 || v > 500000) return false;
+  }
+  return true;
+});
+
+const primaryActionLabel = computed(() => {
+  if (props.mode === "options" && !finished.value && currentStepId.value === "advanced_energy") {
+    return tr("flowsim.submit_options");
+  }
+  return tr("flowsim.next");
+});
+
+const primaryActionDisabled = computed(() => {
+  if (props.mode === "options" && !finished.value && currentStepId.value === "advanced_energy") {
+    return !canFinishAdvancedEnergy.value;
+  }
+  return !canGoNext.value;
+});
+
 function defaultForFieldKey(key) {
+  if (key === "max_delta_kwh_grid") return "300";
+  if (key === "max_delta_kwh_solar") return "120";
+  if (key === "max_delta_kwh_battery") return "80";
+  if (key === "max_delta_kwh_other") return "200";
   if (fieldKind(key) === "boolean" || fieldKind(key) === "boolean_dropdown") return "false";
   if (fieldKind(key) === "entity") return "";
   if (key === "tou_r0_start") return "22:00";
@@ -315,6 +378,11 @@ function goNext() {
   const cur = currentStepId.value;
   if (!cur || cur === STEP_DONE) return;
   if (currentMeta.value?.kind === "menu") return;
+  if (props.mode === "options" && cur === "advanced_energy") {
+    if (!canFinishAdvancedEnergy.value) return;
+    finished.value = true;
+    return;
+  }
   const next = computeNext(cur, formState);
   if (next === null || next === undefined) return;
   if (next === STEP_DONE) {
@@ -351,6 +419,10 @@ function onFlowNavChange() {
 
 function chooseMenuOption(opt) {
   const cur = history.value[history.value.length - 1];
+  if (props.mode === "options" && cur === "init") {
+    chooseOptionsMenuOption(opt);
+    return;
+  }
   if (cur !== "manual_schedule") return;
   if (opt === "manual_schedule_prev") {
     history.value = history.value.slice(0, -1);
@@ -363,12 +435,18 @@ function chooseMenuOption(opt) {
 
 function restartWizard() {
   finished.value = false;
-  history.value = ["user"];
+  flowNavChoice.value = "continue";
   for (const k of Object.keys(formState)) delete formState[k];
-  Object.assign(formState, { ...INITIAL_FORM });
+  if (props.mode === "options") {
+    history.value = ["init"];
+    Object.assign(formState, { ...INITIAL_FORM });
+  } else {
+    history.value = ["user"];
+    Object.assign(formState, { ...INITIAL_FORM });
+  }
 }
 
-/** Post-setup options step: Configure → Batteries when systems already exist (doc shortcut only). */
+/** Post-setup options: Configure → Batteries (existing systems). */
 function jumpToBatteryPick() {
   finished.value = false;
   flowNavChoice.value = "continue";
@@ -378,14 +456,64 @@ function jumpToBatteryPick() {
   history.value = ["battery_pick"];
 }
 
+/** Post-setup options: Configure → Advanced → energy delta caps form. */
+function jumpToAdvancedEnergy() {
+  finished.value = false;
+  flowNavChoice.value = "continue";
+  for (const k of Object.keys(formState)) delete formState[k];
+  formState.max_delta_kwh_grid = "300";
+  formState.max_delta_kwh_solar = "120";
+  formState.max_delta_kwh_battery = "80";
+  formState.max_delta_kwh_other = "200";
+  history.value = ["advanced_energy"];
+}
+
 function onFlowsimJumpEvent(ev) {
+  if (props.mode !== "setup") return;
   const sid = ev?.detail?.stepId;
   if (sid === "battery_pick") jumpToBatteryPick();
+}
+
+function onOptionsFlowsimJumpEvent(ev) {
+  if (props.mode !== "options") return;
+  const sid = ev?.detail?.stepId;
+  if (sid === "battery_pick") jumpToBatteryPick();
+  else if (sid === "advanced_energy") jumpToAdvancedEnergy();
+}
+
+function chooseOptionsMenuOption(opt) {
+  if (props.mode !== "options") return;
+  const cur = history.value[history.value.length - 1];
+  if (cur !== "init") return;
+  if (opt === "battery") {
+    history.value = [...history.value, "battery"];
+    return;
+  }
+  if (opt === "advanced_energy") {
+    history.value = [...history.value, "advanced_energy"];
+  }
 }
 
 const progressLabel = computed(() => {
   if (finished.value) return tr("flowsim.done_progress");
   return tr("flowsim.step_depth").replace("{n}", String(history.value.length));
+});
+
+const shellDisclaimer = computed(() => {
+  langTick.value;
+  return props.mode === "options" ? tr("flowsim.disclaimer_options") : tr("flowsim.disclaimer");
+});
+
+const doneTitleText = computed(() => {
+  langTick.value;
+  if (!finished.value) return "";
+  return props.mode === "options" ? tr("flowsim.done_title_options") : tr("flowsim.done_title");
+});
+
+const doneBodyText = computed(() => {
+  langTick.value;
+  if (!finished.value) return "";
+  return props.mode === "options" ? tr("flowsim.done_body_options") : tr("flowsim.done_body");
 });
 
 /** HA-style expandable HC/HP sections on the time-of-use tariff step. */
@@ -431,6 +559,7 @@ function suffixForNumberField(key) {
   /** Parity with HA `NumberSelector` `unit_of_measurement` on `solar_estimation`. */
   if (key === "solar_peak_power") return "kWc";
   if (key === "solar_orientation" || key === "solar_tilt") return "°";
+  if (/^max_delta_kwh_/.test(key)) return "kWh";
   return "";
 }
 
@@ -438,6 +567,7 @@ function suffixForNumberField(key) {
 function numberInputStepForKey(key) {
   if (key === "solar_peak_power") return "0.01";
   if (key === "solar_orientation" || key === "solar_tilt") return "1";
+  if (/^max_delta_kwh_/.test(key)) return "1";
   return "0.0001";
 }
 
@@ -518,6 +648,7 @@ function fieldKind(key) {
   if (key === "solar_shading") return "solar_shading";
   if (key === "solar_performance") return "solar_performance";
   if (key === "batt_power_net_sign") return "batt_net_sign";
+  if (/^max_delta_kwh_/.test(key)) return "number";
   if (key === "battery_index") return "battery_index_select";
   if (
     key === "has_solar" ||
@@ -650,12 +781,17 @@ function hasSelectRows(kind) {
 
 onMounted(() => {
   window.addEventListener("hub-energie-lang", bumpLang);
-  window.addEventListener("hub-energie-flowsim-jump", onFlowsimJumpEvent);
+  if (props.mode === "setup") {
+    window.addEventListener("hub-energie-flowsim-jump", onFlowsimJumpEvent);
+  } else {
+    window.addEventListener("hub-energie-options-flowsim-jump", onOptionsFlowsimJumpEvent);
+  }
 });
 
 onUnmounted(() => {
   window.removeEventListener("hub-energie-lang", bumpLang);
   window.removeEventListener("hub-energie-flowsim-jump", onFlowsimJumpEvent);
+  window.removeEventListener("hub-energie-options-flowsim-jump", onOptionsFlowsimJumpEvent);
 });
 </script>
 
@@ -664,7 +800,9 @@ onUnmounted(() => {
     <div class="card-body">
       <div class="d-flex flex-column flex-md-row gap-3 align-items-md-end justify-content-between mb-3">
         <div class="flex-grow-1">
-          <p class="small text-secondary mb-1">{{ tr("flowsim.branching_hint") }}</p>
+          <p class="small text-secondary mb-1">
+            {{ props.mode === "options" ? tr("flowsim.branching_hint_options") : tr("flowsim.branching_hint") }}
+          </p>
           <button type="button" class="btn btn-sm btn-outline-secondary" @click="restartWizard">
             {{ tr("flowsim.start_over") }}
           </button>
@@ -675,7 +813,7 @@ onUnmounted(() => {
       <div
         class="flow-sim-ha"
         role="region"
-        :aria-label="tr('flowsim.region_aria')"
+        :aria-label="props.mode === 'options' ? tr('flowsim.region_aria_options') : tr('flowsim.region_aria')"
         data-bs-theme="dark"
       >
         <header class="flow-sim-ha__toolbar">
@@ -683,7 +821,7 @@ onUnmounted(() => {
           <h3 class="flow-sim-ha__title">
             {{
               finished
-                ? tr("flowsim.done_title")
+                ? doneTitleText
                 : displayTitle(stepCopy?.title) || tr("flowsim.empty")
             }}
           </h3>
@@ -692,7 +830,7 @@ onUnmounted(() => {
 
         <div class="flow-sim-ha__content">
           <template v-if="finished">
-            <p class="flow-sim-ha__description mb-2">{{ tr("flowsim.done_body") }}</p>
+            <p class="flow-sim-ha__description mb-2">{{ doneBodyText }}</p>
           </template>
 
           <template v-else-if="currentMeta?.kind === 'menu' && currentMeta.menu_options?.length">
@@ -954,18 +1092,18 @@ onUnmounted(() => {
           <button
             type="button"
             class="flow-sim-ha__btn flow-sim-ha__btn--primary"
-            :disabled="!canGoNext"
+            :disabled="primaryActionDisabled"
             @click="goNext"
           >
-            {{ tr("flowsim.next") }}
+            {{ primaryActionLabel }}
           </button>
         </footer>
       </div>
 
       <p class="small text-secondary mt-3 mb-0" data-flow-simulator-disclaimer>
-        {{ tr("flowsim.disclaimer") }}
+        {{ shellDisclaimer }}
       </p>
-      <p class="small text-secondary mt-2 mb-0">{{ tr("flowsim.sync_note") }}</p>
+      <p v-if="props.mode === 'setup'" class="small text-secondary mt-2 mb-0">{{ tr("flowsim.sync_note") }}</p>
     </div>
   </div>
 </template>

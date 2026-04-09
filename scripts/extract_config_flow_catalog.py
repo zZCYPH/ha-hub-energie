@@ -2,7 +2,7 @@
 """Build a JSON catalog of Hub Énergie *initial* config-flow steps for the doc vitrine.
 
 Reads ``config_flow.py`` (AST) for ``HubEnergieConfigFlow`` + ``_BatteryWizardMixin``,
-plus selected ``HubEnergieOptionsFlow`` steps (e.g. ``battery_pick``) for the doc vitrine,
+plus selected ``HubEnergieOptionsFlow`` steps (``init``, ``advanced_energy``, ``battery_pick``) for the doc vitrine,
 ``strings.json`` (EN) and ``translations/fr.json`` for localized titles / field labels, plus
 a ``selector`` block (option labels).
 
@@ -96,7 +96,13 @@ FLOW_HELP_OPTIONS_IDS: tuple[str, ...] = (
 CLASS_NAMES = frozenset({"HubEnergieConfigFlow", "_BatteryWizardMixin"})
 OPTIONS_FLOW_CLASS = "HubEnergieOptionsFlow"
 # Options-only steps merged into the catalog (``step_id`` must not collide with setup flow).
-OPTIONS_CATALOG_HANDLERS = frozenset({"async_step_battery_pick"})
+OPTIONS_CATALOG_HANDLERS = frozenset(
+    {
+        "async_step_init",
+        "async_step_advanced_energy",
+        "async_step_battery_pick",
+    }
+)
 
 
 def _tri_phase_step_id(method_name: str) -> str | None:
