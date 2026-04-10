@@ -83,9 +83,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div id="view-flowhelp" class="app-view">
-    <div ref="root" class="container-xxl px-3 py-4 py-lg-5">
-      <header class="mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+  <div id="view-flowhelp" class="app-view site-page site-page--flowhelp">
+    <div ref="root" class="site-page__flowhelp-inner container-xxl px-3 py-4 py-lg-5">
+      <header class="site-page__flowhelp-header mb-4 pb-3 border-bottom border-secondary border-opacity-25">
         <p class="text-uppercase small fw-semibold text-primary mb-2 tracking-wide" data-i18n="flowhelp.kicker">
           Home Assistant — config dialogs
         </p>
@@ -94,9 +94,9 @@ onUnmounted(() => {
         <p class="small text-secondary mb-0" data-i18n-html="flowhelp.link_convention_html"></p>
       </header>
 
-      <div class="row g-4 g-xl-5">
-        <aside class="col-lg-3 d-none d-lg-block">
-          <div class="doc-sidebar">
+      <div class="site-page__flowhelp-layout row g-4 g-xl-5">
+        <aside class="site-page__flowhelp-sidebar col-lg-3 d-none d-lg-block">
+          <div class="doc-sidebar site-flowhelp-sidebar">
             <div class="small text-uppercase text-secondary fw-semibold mb-2" data-i18n="flowhelp.toc_setup">
               Initial setup
             </div>
@@ -129,8 +129,8 @@ onUnmounted(() => {
           </div>
         </aside>
 
-        <main class="col-lg-9 flowhelp-main">
-          <section class="mb-5 pb-lg-2">
+        <main class="site-page__flowhelp-main col-lg-9 flowhelp-main">
+          <section class="site-flowhelp-section site-flowhelp-section--wizard mb-5 pb-lg-2">
             <h2 class="h5 mb-4 flowhelp-section-h" data-i18n="flowhelp.setup_heading">Initial setup wizard</h2>
             <article
               v-for="rid in FLOW_HELP_WIZARD_IDS"
@@ -156,7 +156,7 @@ onUnmounted(() => {
             </article>
           </section>
 
-          <section class="mb-5 pb-lg-2">
+          <section class="site-flowhelp-section site-flowhelp-section--options mb-5 pb-lg-2">
             <h2 class="h5 mb-4 flowhelp-section-h" data-i18n="flowhelp.options_heading">Settings → Hub Énergie → Configure</h2>
             <article
               v-for="rid in FLOW_HELP_OPTIONS_IDS"
@@ -182,57 +182,11 @@ onUnmounted(() => {
             </article>
           </section>
 
-          <p class="small text-secondary" data-i18n-html="flowhelp.footer_html"></p>
+          <p class="site-page__flowhelp-footer small text-secondary" data-i18n-html="flowhelp.footer_html"></p>
         </main>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped>
-.flowhelp-main {
-  max-width: 56rem;
-}
-
-.flowhelp-section-h {
-  letter-spacing: 0.02em;
-}
-
-.flowhelp-step-card {
-  margin-bottom: 2rem;
-  padding: 1.35rem 1.35rem 1.5rem;
-  border-radius: 0.6rem;
-  border: 1px solid var(--bs-border-color-translucent);
-  background-color: var(--bs-body-bg);
-  box-shadow: var(--bs-box-shadow-sm);
-}
-
-@media (min-width: 768px) {
-  .flowhelp-step-card {
-    padding: 1.5rem 1.65rem 1.65rem;
-    margin-bottom: 2.25rem;
-  }
-}
-
-.flowhelp-step-title {
-  color: var(--bs-emphasis-color);
-  padding-bottom: 0.35rem;
-  border-bottom: 1px solid var(--bs-border-color-translucent);
-}
-
-.flowhelp-step-prose :deep(p:last-child) {
-  margin-bottom: 0;
-}
-
-.flowhelp-step-prose :deep(p + p) {
-  margin-top: 0.65rem;
-}
-
-.flowhelp-step-prose :deep(p) {
-  line-height: 1.58;
-}
-
-.flowhelp-fieldguide {
-  max-width: 52rem;
-}
-</style>
+<style scoped src="../../../../styles/flowhelp/config-flow-help.css"></style>

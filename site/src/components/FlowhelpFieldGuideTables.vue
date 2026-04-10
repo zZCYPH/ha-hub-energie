@@ -9,7 +9,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="flowhelp-fg-tables">
+  <div class="site-flowhelp-field-guide flowhelp-fg-tables">
     <template v-if="bundle.menu_choices?.length">
       <p class="flowhelp-fg-menu-heading small fw-semibold text-body mb-2">{{ menuHeading }}</p>
       <ul class="flowhelp-fg-menu list-unstyled small mb-3">
@@ -63,53 +63,4 @@ defineProps({
   </div>
 </template>
 
-<style scoped>
-.flowhelp-fg-section {
-  margin-top: 1.25rem;
-}
-
-.flowhelp-fg-section--first {
-  margin-top: 0;
-}
-
-.flowhelp-fg-section-title {
-  padding-bottom: 0.125rem;
-  border-bottom: 1px solid var(--bs-border-color-translucent);
-}
-
-.flowhelp-fg-menu-item + .flowhelp-fg-menu-item {
-  margin-top: 0.25rem;
-}
-
-.flowhelp-fg-menu-item {
-  background-color: var(--bs-secondary-bg);
-  border: 1px solid var(--bs-border-color-translucent);
-}
-
-.flowhelp-fg-table tbody tr + tr th,
-.flowhelp-fg-table tbody tr + tr td {
-  border-top: 1px solid var(--bs-border-color-translucent);
-}
-
-.flowhelp-fg-cell-label {
-  width: 34%;
-  min-width: 10.5rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  vertical-align: top;
-  font-weight: 600;
-}
-
-.flowhelp-fg-cell-desc {
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  vertical-align: top;
-}
-
-@media (max-width: 575.98px) {
-  .flowhelp-fg-cell-label {
-    width: 42%;
-    min-width: 8rem;
-  }
-}
-</style>
+<style scoped src="../styles/flowhelp/field-guide-tables.css"></style>

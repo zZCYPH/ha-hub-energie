@@ -5,8 +5,8 @@ const { full } = useManifestVersion();
 </script>
 
 <template>
-  <header class="doc-hero pt-5 mt-5" id="top">
-    <div class="container-xxl px-3 py-5">
+  <header class="site-doc-hero doc-hero pt-5 mt-5" id="top">
+    <div class="site-doc-hero__inner container-xxl px-3 py-5">
       <div class="row g-4 align-items-center">
         <div class="col-lg-8">
           <p class="text-uppercase small fw-semibold text-primary mb-2 tracking-wide" data-i18n="hero.kicker">

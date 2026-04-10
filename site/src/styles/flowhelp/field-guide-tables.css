@@ -1,0 +1,82 @@
+/* FlowhelpFieldGuideTables — field / menu tables for setup-help */
+
+.flowhelp-fg-section {
+  margin-top: 1.25rem;
+}
+
+.flowhelp-fg-section--first {
+  margin-top: 0;
+}
+
+.flowhelp-fg-section-title {
+  padding-bottom: 0.125rem;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+.flowhelp-fg-menu-item + .flowhelp-fg-menu-item {
+  margin-top: 0.25rem;
+}
+
+.flowhelp-fg-menu-item {
+  background-color: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color-translucent);
+}
+
+.flowhelp-fg-table tbody tr + tr th,
+.flowhelp-fg-table tbody tr + tr td {
+  border-top: 1px solid var(--bs-border-color-translucent);
+}
+
+.flowhelp-fg-cell-label {
+  width: 34%;
+  min-width: 10.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  vertical-align: top;
+  font-weight: 600;
+}
+
+.flowhelp-fg-cell-desc {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  vertical-align: top;
+}
+
+/* Stack label above description on narrow viewports */
+@media (max-width: 767.98px) {
+  .flowhelp-fg-table tbody tr {
+    display: block;
+    padding: 0.65rem 0;
+    border-top: 1px solid var(--bs-border-color-translucent);
+  }
+
+  .flowhelp-fg-table tbody tr:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .flowhelp-fg-table tbody tr th,
+  .flowhelp-fg-table tbody tr td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    border: none;
+  }
+
+  .flowhelp-fg-table tbody tr th {
+    padding-top: 0;
+    padding-bottom: 0.2rem;
+  }
+
+  .flowhelp-fg-table tbody tr td {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .flowhelp-fg-table tbody tr + tr th,
+  .flowhelp-fg-table tbody tr + tr td {
+    border-top: none;
+  }
+}

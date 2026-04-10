@@ -8,7 +8,7 @@ This document describes the **initial setup** wizard (`HubEnergieConfigFlow`) in
 
 **HA ↔ vitrine parity:** Any change to wizard steps, schemas, `section()` groups, selectors, or strings must be reflected **both** in the integration (`config_flow.py`, `strings.json`, `translations/*.json`) **and** in the vitrine: rerun the extract script above, and adjust `site/src/components/FlowSimulator.vue` or the extract script if a new pattern is not covered generically. The project Cursor rule `.cursor/rules/config-flow-vitrine-parity.mdc` restates this checklist for agents.
 
-**Doc site release label:** User-visible “doc snapshot **v…**” strings and HTML fallbacks use placeholders expanded from **`manifest.json` → `version`** (`{{HUB_ENERGIE_VERSION}}`, `{{HUB_ENERGIE_VERSION_SERIES}}`); see `site/scripts/manifest-version.mjs`, `site/scripts/sync-public.mjs`, and `site/vite.config.js`.
+**Doc site release label:** User-visible “doc snapshot **v…**” strings and HTML fallbacks use placeholders expanded at **build time** from **`manifest.json` → `version`** (`{{HUB_ENERGIE_VERSION}}`, `{{HUB_ENERGIE_VERSION_SERIES}}`) plus the doc bundle date (`{{HUB_ENERGIE_DOC_SNAPSHOT_ISO_DATE}}`, UTC `YYYY-MM-DD`); see `site/scripts/manifest-version.mjs` and `site/scripts/build-i18n.mjs`.
 
 - **Implementation:** `config_flow.py` → class `HubEnergieConfigFlow` (flow `VERSION = 3`).
 - **Dialog titles/descriptions (EN):** `translations/en.json` under `config.step.<step_id>`.

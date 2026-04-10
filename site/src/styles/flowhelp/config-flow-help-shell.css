@@ -1,0 +1,13 @@
+/* ConfigFlowHelpView — main column width & section chrome */
+
+.flowhelp-main {
+  max-width: 56rem;
+}
+
+.flowhelp-section-h {
+  letter-spacing: 0.02em;
+}
+
+.flowhelp-fieldguide {
+  max-width: 52rem;
+}

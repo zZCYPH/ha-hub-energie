@@ -1,6 +1,6 @@
 <template>
   <div
-    class="modal fade"
+    class="site-doc-image-modal modal fade"
     id="docImageModal"
     tabindex="-1"
     data-i18n-aria="doc.modal_aria"

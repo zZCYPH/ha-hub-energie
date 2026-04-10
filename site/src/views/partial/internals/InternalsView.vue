@@ -43,14 +43,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div id="view-internals" class="app-view">
-    <div ref="root">
+  <div id="view-internals" class="app-view site-page site-page--internals">
+    <div ref="root" class="site-page__internals-root">
       <InternalsMobileOffcanvas />
       <InternalsHero />
-      <div class="container-xxl px-3 py-4 py-lg-5">
-        <div class="row g-4 g-xl-5">
+      <div class="site-page__internals-container container-xxl px-3 py-4 py-lg-5">
+        <div class="site-page__internals-layout row g-4 g-xl-5">
           <InternalsDesktopSidebar />
-          <main class="col-lg-9">
+          <main class="site-page__internals-main col-lg-9">
             <InternalsSectionOverview />
             <InternalsSectionLovelaceResources />
             <InternalsSectionSsot />

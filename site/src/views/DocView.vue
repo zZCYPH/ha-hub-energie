@@ -1,5 +1,5 @@
 <script setup>
-import { createApp, nextTick, onMounted, onUnmounted, ref } from "vue";
+import { nextTick, onMounted, onUnmounted, provide, ref } from "vue";
 import { useRouter } from "vue-router";
 import DocOffcanvas from "./partial/doc/DocOffcanvas.vue";
 import DocHero from "./partial/doc/DocHero.vue";
@@ -13,52 +13,21 @@ import DocSectionServices from "./partial/doc/DocSectionServices.vue";
 import DocSectionLimitations from "./partial/doc/DocSectionLimitations.vue";
 import DocFooter from "./partial/doc/DocFooter.vue";
 import DocImageModal from "./partial/doc/DocImageModal.vue";
-import InstallReleasePicker from "../components/InstallReleasePicker.vue";
-import FlowSimulator from "../components/FlowSimulator.vue";
 import {
   wireCarouselPair,
   wireDocCarouselImages,
   wireImageLightbox,
   wireTocMobile,
 } from "../bootstrapDoc";
+import { DOC_FLOWSIM_JUMPS_KEY, createDocFlowsimJumpHandlers } from "../composables/docFlowsimJumps";
 import { attachInPageNav } from "../inPageNav";
 import { setupScrollSpy, teardownScrollSpy } from "../siteShell";
 
 const root = ref(null);
 const router = useRouter();
 let detachNav = () => {};
-let pickerApp = null;
-let flowSimApp = null;
-let flowOptionsSimApp = null;
 
-function bindFlowsimJumpButtons() {
-  root.value?.querySelectorAll("[data-flowsim-jump]").forEach((el) => {
-    el.addEventListener("click", () => {
-      const stepId = el.getAttribute("data-flowsim-jump");
-      if (!stepId) return;
-      router
-        .push({ name: "doc", hash: "#configure-flow-simulator" })
-        .then(() =>
-          nextTick(() => {
-            window.dispatchEvent(new CustomEvent("hub-energie-flowsim-jump", { detail: { stepId } }));
-          }),
-        );
-    });
-  });
-  root.value?.querySelectorAll("[data-options-flowsim-jump]").forEach((el) => {
-    el.addEventListener("click", () => {
-      const stepId = el.getAttribute("data-options-flowsim-jump");
-      if (!stepId) return;
-      router
-        .push({ name: "doc", hash: "#configure-advanced" })
-        .then(() =>
-          nextTick(() => {
-            window.dispatchEvent(new CustomEvent("hub-energie-options-flowsim-jump", { detail: { stepId } }));
-          }),
-        );
-    });
-  });
-}
+provide(DOC_FLOWSIM_JUMPS_KEY, createDocFlowsimJumpHandlers(router));
 
 onMounted(() => {
   nextTick(() => {
@@ -67,22 +36,6 @@ onMounted(() => {
     wireImageLightbox();
     wireTocMobile();
     if (root.value) detachNav = attachInPageNav(root.value, router, "/doc");
-    const mountEl = document.getElementById("hub-energie-install-release-mount");
-    if (mountEl && !pickerApp) {
-      pickerApp = createApp(InstallReleasePicker);
-      pickerApp.mount(mountEl);
-    }
-    const simEl = document.getElementById("flow-simulator-mount");
-    if (simEl && !flowSimApp) {
-      flowSimApp = createApp(FlowSimulator, { mode: "setup" });
-      flowSimApp.mount(simEl);
-    }
-    const optSimEl = document.getElementById("flow-options-simulator-mount");
-    if (optSimEl && !flowOptionsSimApp) {
-      flowOptionsSimApp = createApp(FlowSimulator, { mode: "options" });
-      flowOptionsSimApp.mount(optSimEl);
-    }
-    bindFlowsimJumpButtons();
     setupScrollSpy("doc");
   });
 });
@@ -90,32 +43,20 @@ onMounted(() => {
 onUnmounted(() => {
   detachNav();
   teardownScrollSpy();
-  if (pickerApp) {
-    pickerApp.unmount();
-    pickerApp = null;
-  }
-  if (flowSimApp) {
-    flowSimApp.unmount();
-    flowSimApp = null;
-  }
-  if (flowOptionsSimApp) {
-    flowOptionsSimApp.unmount();
-    flowOptionsSimApp = null;
-  }
 });
 </script>
 
 <template>
-  <div id="view-doc" class="app-view">
-    <div ref="root">
+  <div id="view-doc" class="app-view site-page site-page--doc">
+    <div ref="root" class="site-page__doc-root">
       <DocOffcanvas />
       <DocHero />
-      <div class="container-xxl px-3 py-4 py-lg-5">
-        <div class="row g-4 g-xl-5">
-          <aside class="col-lg-3 d-none d-lg-block">
+      <div class="site-page__doc-container container-xxl px-3 py-4 py-lg-5">
+        <div class="site-page__doc-layout row g-4 g-xl-5">
+          <aside class="site-page__doc-sidebar col-lg-3 d-none d-lg-block">
             <DocSidebarInner />
           </aside>
-          <main class="col-lg-9">
+          <main class="site-page__doc-main col-lg-9">
             <DocSectionOverview />
             <DocSectionInstall />
             <DocSectionConfigure />

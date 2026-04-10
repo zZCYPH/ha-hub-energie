@@ -10,7 +10,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="view-home" class="app-view">
+  <div id="view-home" class="app-view site-page site-page--home">
     <LandingHero />
     <LandingFeaturesGrid />
   </div>

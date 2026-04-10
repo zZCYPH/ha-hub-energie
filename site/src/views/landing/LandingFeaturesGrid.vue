@@ -3,7 +3,7 @@ import { LANDING_FEATURE_ITEMS } from "./landingFeatures.js";
 </script>
 
 <template>
-  <div class="container-xxl px-3 pb-5 landing-features">
+  <div class="site-landing-features container-xxl px-3 pb-5 landing-features">
     <div class="row g-4 g-lg-4">
       <div v-for="item in LANDING_FEATURE_ITEMS" :key="item.titleKey" class="col-md-6 col-lg-4">
         <div class="card h-100 border shadow-sm landing-feature-card">

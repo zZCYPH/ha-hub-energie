@@ -1,0 +1,23 @@
+/* ConfigFlowHelpView — per-step cards & titles */
+
+.flowhelp-step-card {
+  margin-bottom: 2rem;
+  padding: 1.35rem 1.35rem 1.5rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--bs-border-color-translucent);
+  background-color: var(--bs-body-bg);
+  box-shadow: var(--bs-box-shadow-sm);
+}
+
+@media (min-width: 768px) {
+  .flowhelp-step-card {
+    padding: 1.5rem 1.65rem 1.65rem;
+    margin-bottom: 2.25rem;
+  }
+}
+
+.flowhelp-step-title {
+  color: var(--bs-emphasis-color);
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+}
