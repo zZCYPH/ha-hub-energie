@@ -123,7 +123,7 @@ onUnmounted(() => {
                 {{ sectionTitle("options_" + rid) }}
               </a>
             </nav>
-            <router-link class="btn btn-sm btn-outline-secondary mt-4 w-100" to="/doc" data-i18n="flowhelp.back_doc">
+            <router-link class="btn btn-sm btn-outline-secondary mt-4 w-100" to="/showcase" data-i18n="flowhelp.back_doc">
               Back to documentation
             </router-link>
           </div>

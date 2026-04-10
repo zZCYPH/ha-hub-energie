@@ -1,5 +1,6 @@
 <script setup>
 import LandingHeroCables from "./LandingHeroCables.vue";
+import { pathTo } from "../../sitePaths";
 
 const base = import.meta.env.BASE_URL;
 
@@ -24,7 +25,7 @@ const feedbackMailto =
           </p>
           <div class="mb-4 d-flex justify-content-center">
             <a
-              href="#/doc"
+              :href="pathTo('/showcase')"
               class="landing-integration-badge text-decoration-none d-inline-flex align-items-center gap-3"
               data-i18n-aria="landing.hero_badge_aria"
             >
@@ -61,11 +62,11 @@ const feedbackMailto =
           >
             <a
               class="btn btn-primary btn-lg rounded-pill px-5 py-3 landing-discover shadow"
-              href="#/doc"
+              :href="pathTo('/showcase')"
               data-i18n="landing.cta_discover"
               >Discover</a
             >
-            <a class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-3" href="#/internals" data-i18n="landing.cta_internals"
+            <a class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-3" :href="pathTo('/internals')" data-i18n="landing.cta_internals"
               >How it works internally</a
             >
             <div class="dropdown">

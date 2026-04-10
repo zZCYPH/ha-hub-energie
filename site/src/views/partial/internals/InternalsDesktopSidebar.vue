@@ -1,4 +1,5 @@
 <script setup>
+import { pathTo } from "../../../sitePaths";
 import { INTERNALS_TOC_ITEMS } from "./internalsToc.js";
 </script>
 
@@ -20,7 +21,7 @@ import { INTERNALS_TOC_ITEMS } from "./internalsToc.js";
         </a>
       </nav>
       <div class="mt-4 pt-3 border-top small">
-        <a href="#/doc" class="link-secondary" data-i18n="internals.back_to_doc">Back to documentation</a>
+        <a :href="pathTo('/showcase')" class="link-secondary" data-i18n="internals.back_to_doc">Back to showcase</a>
       </div>
     </div>
   </aside>

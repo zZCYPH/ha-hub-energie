@@ -2,6 +2,7 @@
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import catalog from "../data/flowCatalog.generated.json";
 import FlowsimEntityPicker from "./FlowsimEntityPicker.vue";
+import { pathTo } from "../sitePaths";
 import { getLang } from "../siteShell";
 
 const props = defineProps({
@@ -102,13 +103,29 @@ function escapeAttr(s) {
   return escapeHtml(s).replace(/'/g, "&#39;");
 }
 
-/** Turn absolute vitrine URLs from the generated catalog into same-origin hash routes (SPA). */
+/** Turn catalog / legacy hash URLs into path-based in-app links (respects Vite `base`). */
 function normalizeVitrineHref(href) {
   const s = String(href).trim();
-  if (s.startsWith("#/")) return s;
+  function mapRoutePath(pathNoHash) {
+    const p = pathNoHash === "" || pathNoHash === "/" ? "/" : pathNoHash;
+    if (p === "/doc" || p.startsWith("/doc?")) return p.replace(/^\/doc/, "/showcase") || "/showcase";
+    return p;
+  }
+  if (s.startsWith("#/")) {
+    const tail = s.slice(1);
+    const [pathPart, ...hashParts] = tail.split("#");
+    const hash = hashParts.length ? `#${hashParts.join("#")}` : "";
+    return pathTo(mapRoutePath(pathPart)) + hash;
+  }
   const marker = "/#/";
   const i = s.indexOf(marker);
-  if (i !== -1) return s.slice(i + 1);
+  if (i !== -1) {
+    const rest = s.slice(i + marker.length);
+    const [pathPartRaw, ...hashParts] = rest.split("#");
+    const pathPart = pathPartRaw.startsWith("/") ? pathPartRaw : `/${pathPartRaw}`;
+    const hash = hashParts.length ? `#${hashParts.join("#")}` : "";
+    return pathTo(mapRoutePath(pathPart)) + hash;
+  }
   return s;
 }
 
@@ -122,7 +139,16 @@ function flowStepDescriptionHtml(raw) {
     const m = t.match(/^\[([^\]]+)\]\(([^)]+)\)\s*$/);
     if (m) {
       const hrefNorm = normalizeVitrineHref(m[2].trim());
-      const spa = hrefNorm.startsWith("#/");
+      let spa = false;
+      if (hrefNorm.startsWith("#/")) spa = true;
+      else if (hrefNorm.startsWith("/")) spa = true;
+      else if (/^https?:\/\//i.test(hrefNorm) && typeof window !== "undefined") {
+        try {
+          spa = new URL(hrefNorm).origin === window.location.origin;
+        } catch {
+          spa = false;
+        }
+      }
       const rel = spa ? "" : ' target="_blank" rel="noopener noreferrer"';
       blocks.push(
         `<p class="flow-sim-ha__description-par mb-2"><a href="${escapeAttr(hrefNorm)}"${rel} class="flow-sim-ha__doc-link">${escapeHtml(m[1])}</a></p>`,

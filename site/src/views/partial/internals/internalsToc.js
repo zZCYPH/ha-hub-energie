@@ -1,4 +1,4 @@
-/** In-page anchors for #/internals — keep ids in sync with router / inPageNav. */
+/** In-page anchors for /internals — keep ids in sync with router / inPageNav. */
 export const INTERNALS_TOC_ITEMS = [
   { href: "#internals-overview", labelKey: "toc.internals_overview" },
   { href: "#internals-lovelace-resources", labelKey: "toc.internals_lovelace" },

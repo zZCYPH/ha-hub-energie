@@ -1,3 +1,7 @@
+<script setup>
+import { pathTo } from "../../../sitePaths";
+</script>
+
 <template>
   <div
     class="site-doc-toc-offcanvas offcanvas offcanvas-start"
@@ -24,12 +28,12 @@
         data-i18n-aria="nav.toc_aria"
         aria-label="Page"
       >
-        <a class="nav-link" href="#/" data-bs-dismiss="offcanvas"><span data-i18n="nav.home">Home</span></a>
-        <a class="nav-link" href="#/internals" data-bs-dismiss="offcanvas"
+        <a class="nav-link" :href="pathTo('/')" data-bs-dismiss="offcanvas"><span data-i18n="nav.home">Home</span></a>
+        <a class="nav-link" :href="pathTo('/internals')" data-bs-dismiss="offcanvas"
           ><span data-i18n="nav.internals">How it works behind the scenes</span></a
         >
         <hr class="border-secondary my-2 opacity-25" />
-        <a class="nav-link" href="#/doc/setup-help" data-bs-dismiss="offcanvas"
+        <a class="nav-link" :href="pathTo('/doc/setup-help')" data-bs-dismiss="offcanvas"
           ><span data-i18n="toc.setup_help">Setup &amp; options — step help</span></a
         >
         <a class="nav-link" href="#overview" data-bs-dismiss="offcanvas"

@@ -35,8 +35,8 @@ onMounted(() => {
     wireCarouselPair("devicesGalleryCarousel", "devicesGalleryTree");
     wireImageLightbox();
     wireTocMobile();
-    if (root.value) detachNav = attachInPageNav(root.value, router, "/doc");
-    setupScrollSpy("doc");
+    if (root.value) detachNav = attachInPageNav(root.value, router, "/showcase");
+    setupScrollSpy("showcase");
   });
 });
 

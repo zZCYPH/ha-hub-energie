@@ -1,4 +1,5 @@
 <script setup>
+import { pathTo } from "../../../sitePaths";
 import { INTERNALS_TOC_ITEMS } from "./internalsToc.js";
 </script>
 
@@ -28,11 +29,11 @@ import { INTERNALS_TOC_ITEMS } from "./internalsToc.js";
         data-i18n-aria="nav.toc_aria"
         aria-label="Page"
       >
-        <a class="nav-link" href="#/" data-bs-dismiss="offcanvas"
+        <a class="nav-link" :href="pathTo('/')" data-bs-dismiss="offcanvas"
           ><span data-i18n="nav.home">Home</span></a
         >
-        <a class="nav-link" href="#/doc" data-bs-dismiss="offcanvas"
-          ><span data-i18n="nav.documentation">Documentation</span></a
+        <a class="nav-link" :href="pathTo('/showcase')" data-bs-dismiss="offcanvas"
+          ><span data-i18n="nav.showcase">Showcase</span></a
         >
         <hr class="border-secondary my-2 opacity-25" />
         <a
