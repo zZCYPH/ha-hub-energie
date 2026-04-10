@@ -1,10 +1,10 @@
 <template>
-  <section id="internals-lovelace-resources" class="doc-section pb-5">
+  <section id="lovelace-resources" class="doc-section pb-5">
     <h2 class="mb-3">
       <span data-i18n="internals.s_lovelace_h">Lovelace resource loading</span>
       <a
         class="doc-anchor text-secondary"
-        href="#internals-lovelace-resources"
+        href="#lovelace-resources"
         data-i18n-aria="section.link_aria"
         aria-label="Link"
         >#</a

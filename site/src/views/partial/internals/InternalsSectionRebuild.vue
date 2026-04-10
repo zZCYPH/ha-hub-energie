@@ -1,8 +1,8 @@
 <template>
-  <section id="internals-rebuild" class="doc-section pb-5">
+  <section id="rebuild" class="doc-section pb-5">
     <h2 class="mb-3">
       <span data-i18n="internals.s_rebuild_h"></span>
-      <a class="doc-anchor text-secondary" href="#internals-rebuild" data-i18n-aria="section.link_aria" aria-label="Link"
+      <a class="doc-anchor text-secondary" href="#rebuild" data-i18n-aria="section.link_aria" aria-label="Link"
         >#</a
       >
     </h2>

@@ -1,8 +1,8 @@
 <template>
-  <section id="internals-deltas" class="doc-section pb-5">
+  <section id="deltas" class="doc-section pb-5">
     <h2 class="mb-3">
       <span data-i18n="internals.s_delta_h"></span>
-      <a class="doc-anchor text-secondary" href="#internals-deltas" data-i18n-aria="section.link_aria" aria-label="Link"
+      <a class="doc-anchor text-secondary" href="#deltas" data-i18n-aria="section.link_aria" aria-label="Link"
         >#</a
       >
     </h2>

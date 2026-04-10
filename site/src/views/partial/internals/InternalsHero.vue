@@ -1,5 +1,5 @@
 <template>
-  <header class="doc-hero pt-5 mt-5" id="internals-top">
+  <header class="doc-hero pt-5 mt-5" id="hero">
     <div class="container-xxl px-3 py-4">
       <p class="text-uppercase small fw-semibold text-primary mb-2 tracking-wide" data-i18n="internals.kicker">
         Implementation notes

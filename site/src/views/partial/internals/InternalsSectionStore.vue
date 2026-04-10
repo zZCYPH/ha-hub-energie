@@ -1,9 +1,9 @@
 <template>
-  <section id="internals-store" class="doc-section pb-5">
+  <section id="store" class="doc-section pb-5">
     <h2 class="mb-3">
       <span data-i18n="internals.s_store_h"></span>
       <code class="font-mono small ms-1">hub_energie.&lt;entry_id&gt;</code>
-      <a class="doc-anchor text-secondary" href="#internals-store" data-i18n-aria="section.link_aria" aria-label="Link"
+      <a class="doc-anchor text-secondary" href="#store" data-i18n-aria="section.link_aria" aria-label="Link"
         >#</a
       >
     </h2>

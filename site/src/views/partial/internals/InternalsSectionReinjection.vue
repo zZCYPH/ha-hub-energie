@@ -1,10 +1,10 @@
 <template>
-  <section id="internals-reinjection" class="doc-section pb-5">
+  <section id="reinjection" class="doc-section pb-5">
     <h2 class="mb-3">
       <span data-i18n="internals.s_reinjection_h"></span>
       <a
         class="doc-anchor text-secondary"
-        href="#internals-reinjection"
+        href="#reinjection"
         data-i18n-aria="section.link_aria"
         aria-label="Link to section"
         >#</a

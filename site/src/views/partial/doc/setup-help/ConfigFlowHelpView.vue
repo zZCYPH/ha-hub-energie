@@ -105,7 +105,7 @@ onUnmounted(() => {
                 v-for="rid in FLOW_HELP_WIZARD_IDS"
                 :key="rid"
                 class="nav-link py-1"
-                :href="'#flow-step-' + rid"
+                :href="'#' + rid"
               >
                 {{ sectionTitle(rid) }}
               </a>
@@ -118,7 +118,7 @@ onUnmounted(() => {
                 v-for="rid in FLOW_HELP_OPTIONS_IDS"
                 :key="rid"
                 class="nav-link py-1"
-                :href="'#flow-step-options-' + rid"
+                :href="'#options-' + rid"
               >
                 {{ sectionTitle("options_" + rid) }}
               </a>
@@ -134,7 +134,7 @@ onUnmounted(() => {
             <h2 class="h5 mb-4 flowhelp-section-h" data-i18n="flowhelp.setup_heading">Initial setup wizard</h2>
             <article
               v-for="rid in FLOW_HELP_WIZARD_IDS"
-              :id="'flow-step-' + rid"
+              :id="rid"
               :key="'w-' + rid"
               class="flowhelp-step-card doc-section"
             >
@@ -160,7 +160,7 @@ onUnmounted(() => {
             <h2 class="h5 mb-4 flowhelp-section-h" data-i18n="flowhelp.options_heading">Settings → Hub Énergie → Configure</h2>
             <article
               v-for="rid in FLOW_HELP_OPTIONS_IDS"
-              :id="'flow-step-options-' + rid"
+              :id="'options-' + rid"
               :key="'o-' + rid"
               class="flowhelp-step-card doc-section"
             >

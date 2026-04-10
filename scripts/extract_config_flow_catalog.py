@@ -35,7 +35,8 @@ OUT_FIELD_GUIDE_JSON = REPO / "site/src/data/flowHelpFieldGuide.generated.json"
 
 STEP_HELP_DOC_PREFIX = "https://hub-energie.ts-devops.com/doc/setup-help#"
 
-# Keep in sync with ``site/src/data/flowStepHelpDefs.js`` (anchors on the doc site).
+# Keep in sync with ``site/src/data/flowStepHelpDefs.js`` and ``ConfigFlowHelpView.vue``:
+# wizard → ``#<step_id>``; options menu → ``#options-<step_id>``.
 FLOW_HELP_WIZARD_IDS: tuple[str, ...] = (
     "user",
     "supplier_custom",
@@ -204,7 +205,7 @@ def _expand_step_help_description(
     """``strings.json`` uses ``{step_help_url}``; runtime fills it from ``config_flow.py``."""
     if "{step_help_url}" not in description:
         return description
-    slug = f"flow-step-options-{step_id}" if options_flow else f"flow-step-{step_id}"
+    slug = f"options-{step_id}" if options_flow else step_id
     return description.replace("{step_help_url}", f"{STEP_HELP_DOC_PREFIX}{slug}")
 
 

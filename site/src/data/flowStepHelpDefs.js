@@ -1,7 +1,7 @@
 /**
- * Config flow step ids for on-site help anchors.
- * - Initial wizard: #flow-step-<step_id>
- * - Post-setup options: #flow-step-options-<step_id> (avoids collisions e.g. solar / battery)
+ * Config flow step ids for on-site help anchors (see ``ConfigFlowHelpView.vue``).
+ * - Initial wizard: ``#<step_id>``
+ * - Post-setup options: ``#options-<step_id>`` (avoids collisions with the same step_id on the wizard)
  */
 
 export const FLOW_HELP_WIZARD_IDS = [

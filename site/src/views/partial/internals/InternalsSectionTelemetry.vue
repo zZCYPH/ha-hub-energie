@@ -1,10 +1,10 @@
 <template>
-  <section id="internals-telemetry" class="doc-section pb-4">
+  <section id="telemetry" class="doc-section pb-4">
     <h2 class="mb-3">
       <span data-i18n="internals.s_tel_h"></span>
       <a
         class="doc-anchor text-secondary"
-        href="#internals-telemetry"
+        href="#telemetry"
         data-i18n-aria="section.link_aria"
         aria-label="Link"
         >#</a

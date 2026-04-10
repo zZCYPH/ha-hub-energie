@@ -1,10 +1,10 @@
 <template>
-  <section id="internals-ssot" class="doc-section pb-5">
+  <section id="ssot" class="doc-section pb-5">
     <h2 class="mb-3">
       <span data-i18n="ssot.title">Data sources (SSOT)</span>
       <a
         class="doc-anchor text-secondary"
-        href="#internals-ssot"
+        href="#ssot"
         data-i18n-aria="section.link_aria"
         aria-label="Link to section"
         >#</a

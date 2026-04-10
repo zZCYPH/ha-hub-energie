@@ -2,7 +2,7 @@
 
  * Per-step help for Home Assistant config / options dialogs.
 
- * Linked from HA via: /doc/setup-help#flow-step-<id> or #flow-step-options-<id>
+ * Linked from HA via: /doc/setup-help#<step_id> or #options-<step_id>
 
  *
 

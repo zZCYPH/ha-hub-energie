@@ -75,7 +75,7 @@ const navActive = (name) => route.name === name;
               </router-link>
             </li>
             <li class="nav-item">
-              <router-link class="nav-link" :class="{ active: navActive('internals') }" to="/internals/">
+              <router-link class="nav-link" :class="{ active: navActive('internals') }" to="/internals">
                 <span data-i18n="nav.internals_short">Behind the scenes</span>
               </router-link>
             </li>

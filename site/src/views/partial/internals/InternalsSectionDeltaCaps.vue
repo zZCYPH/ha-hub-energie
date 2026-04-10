@@ -1,10 +1,10 @@
 <template>
-  <section id="internals-delta-caps" class="doc-section pb-5">
+  <section id="delta-caps" class="doc-section pb-5">
     <h2 class="mb-3">
       <span data-i18n="configure.delta_caps_h"></span>
       <a
         class="doc-anchor text-secondary"
-        href="#internals-delta-caps"
+        href="#delta-caps"
         data-i18n-aria="section.link_aria"
         aria-label="Link to section"
         >#</a
