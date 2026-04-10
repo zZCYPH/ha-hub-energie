@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-10T07:59:34.346808+00:00",
+  "generated_at": "2026-04-10T08:17:55.633234+00:00",
   "source_files": {
     "strings_en": "custom_components/hub_energie/strings.json",
     "strings_fr": "custom_components/hub_energie/translations/fr.json"
@@ -1782,18 +1782,6 @@
         "sections": [],
         "menu_choices": []
       }
-    },
-    "reinjection": {
-      "en": {
-        "fields": [],
-        "sections": [],
-        "menu_choices": []
-      },
-      "fr": {
-        "fields": [],
-        "sections": [],
-        "menu_choices": []
-      }
     }
   },
   "options": {
@@ -2686,7 +2674,26 @@
             "key": "has_solar",
             "label": "Do you have solar panels?",
             "description": "Disable to remove solar from energy accounting."
-          },
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "has_solar",
+            "label": "Avez-vous des panneaux solaires ?",
+            "description": "Désactiver retire le solaire du bilan énergétique."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "solar_config": {
+      "en": {
+        "fields": [
           {
             "key": "solar_energy",
             "label": "Solar energy production (kWh)",
@@ -2718,11 +2725,6 @@
       },
       "fr": {
         "fields": [
-          {
-            "key": "has_solar",
-            "label": "Avez-vous des panneaux solaires ?",
-            "description": "Désactiver retire le solaire du bilan énergétique."
-          },
           {
             "key": "solar_energy",
             "label": "Énergie produite solaire (kWh)",

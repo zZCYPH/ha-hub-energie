@@ -144,7 +144,13 @@ function displayTitle(raw) {
 }
 
 function lookupStep(stepId) {
-  return catalog.steps.find((s) => s.step_id === stepId) ?? null;
+  const matches = catalog.steps.filter((s) => s.step_id === stepId);
+  if (!matches.length) return null;
+  if (matches.length === 1) return matches[0];
+  if (props.mode === "options") {
+    return matches.find((s) => s.source_class === "HubEnergieOptionsFlow") ?? matches[0];
+  }
+  return matches.find((s) => s.source_class === "HubEnergieConfigFlow") ?? matches[0];
 }
 
 const currentStepId = computed(() => {
@@ -214,6 +220,12 @@ function normalizeEnterGrid(s) {
 
 function computeNextOptions(stepId, s) {
   switch (stepId) {
+    case "solar":
+      return boolFromForm(s, "has_solar") ? "solar_config" : STEP_DONE;
+    case "solar_config":
+      return boolFromForm(s, "solar_estimation_enabled") ? "solar_estimation" : STEP_DONE;
+    case "solar_estimation":
+      return STEP_DONE;
     case "reinjection":
       return STEP_DONE;
     case "advanced_energy":

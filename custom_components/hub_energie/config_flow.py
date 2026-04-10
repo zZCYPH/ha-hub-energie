@@ -6,7 +6,7 @@ import json
 import logging
 import math
 import uuid
-from typing import Any, Final
+from typing import Any, Final, Mapping
 
 import voluptuous as vol
 from aiohttp import ClientError
@@ -66,6 +66,7 @@ from .config_validation import (
     ERR_RTE_CREDS_REQUIRED,
     ERR_TARIFF_PAYLOAD_INCOMPLETE,
     HubEnergieConfigValidator,
+    _SOLAR_CLEAR_KEYS,
 )
 from .providers.edf import tariff_payload_completeness_issues
 from .utils.grid_phases import ordered_phase_entity_ids
@@ -373,6 +374,12 @@ class _StepLoggingMixin:
 
         cache[name] = _wrapped
         return _wrapped
+
+
+def _solar_options_entry_patch(merged: Mapping[str, Any]) -> dict[str, Any]:
+    """Keys written when saving solar from the options flow (has_solar + all solar fields)."""
+    keys = (CONF_HAS_SOLAR, *_SOLAR_CLEAR_KEYS)
+    return {k: merged.get(k) for k in keys}
 
 
 def _apply_patch(target: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
@@ -1822,6 +1829,7 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
 
     def __init__(self) -> None:
         self._updated: dict[str, Any] = {}
+        self._solar_options_merged: dict[str, Any] | None = None
         self._batteries: list[dict[str, Any]] = []
         self._current_battery: dict[str, Any] = {}
         self._edit_batt_index: int | None = None
@@ -2294,49 +2302,89 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
             errors=errors,
         )
 
-    def _solar_options_schema(self, data: dict[str, Any]) -> vol.Schema:
-        schema: dict[Any, Any] = {
-            vol.Required(CONF_HAS_SOLAR, default=bool(data.get(CONF_HAS_SOLAR, False))): BooleanSelector()
-        }
-        if data.get(CONF_HAS_SOLAR):
-            schema.update(_solar_config_schema(data).schema)
-        return vol.Schema(schema)
-
     async def async_step_solar(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        base_data = self._updated or dict(self.config_entry.data)
+        base_data = dict(self.config_entry.data)
+        errors: dict[str, str] = {}
+        if user_input is None:
+            self._solar_options_merged = None
+        if user_input is not None:
+            patch, errors = _validate_step("solar_toggle", base_data, user_input)
+            if not errors:
+                if not patch.get(CONF_HAS_SOLAR):
+                    self._solar_options_merged = None
+                    try:
+                        return await self._persist(data_patch=patch, base_data=base_data)
+                    except ValueError as err:
+                        errors = dict(err.args[0])
+                else:
+                    self._solar_options_merged = _patched_copy(base_data, patch)
+                    return await self.async_step_solar_config()
+        return self._show_doc_form(
+            step_id="solar",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_HAS_SOLAR,
+                        default=bool(base_data.get(CONF_HAS_SOLAR, False)),
+                    ): BooleanSelector()
+                },
+                extra=vol.ALLOW_EXTRA,
+            ),
+            errors=errors,
+        )
+
+    async def async_step_solar_config(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        merged = self._solar_options_merged
+        if merged is None:
+            return await self.async_step_solar()
         errors: dict[str, str] = {}
         if user_input is not None:
-            wants_solar = bool(user_input.get(CONF_HAS_SOLAR, False))
-            if wants_solar and CONF_SOLAR_ENERGY not in user_input:
-                self._updated = _patched_copy(base_data, {CONF_HAS_SOLAR: True})
-                return self._show_doc_form(step_id="solar", data_schema=self._solar_options_schema(self._updated), errors={})
-            patch, errors = await _async_validate_step(self.hass, "solar_options", base_data, user_input)
+            patch, errors = await _async_validate_step(self.hass, "solar_config", merged, user_input)
             if not errors:
-                updated = _patched_copy(base_data, patch)
-                if updated.get(CONF_SOLAR_ESTIMATION_ENABLED):
-                    self._updated = updated
+                next_merged = _patched_copy(merged, patch)
+                if next_merged.get(CONF_SOLAR_ESTIMATION_ENABLED):
+                    self._solar_options_merged = next_merged
                     return await self.async_step_solar_estimation()
+                self._solar_options_merged = None
                 try:
-                    return await self._persist(data_patch=patch, base_data=base_data)
+                    return await self._persist(
+                        data_patch=_solar_options_entry_patch(next_merged),
+                        base_data=dict(self.config_entry.data),
+                    )
                 except ValueError as err:
+                    self._solar_options_merged = merged
                     errors = dict(err.args[0])
-        return self._show_doc_form(step_id="solar", data_schema=self._solar_options_schema(base_data), errors=errors)
+        return self._show_doc_form(
+            step_id="solar_config",
+            data_schema=_solar_config_schema(merged),
+            errors=errors,
+        )
 
     async def async_step_solar_estimation(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        data = self._updated or dict(self.config_entry.data)
+        data = self._solar_options_merged
+        if data is None:
+            return await self.async_step_solar()
         if not data.get(CONF_HAS_SOLAR):
             return self.async_abort(reason="no_solar_configured")
         errors: dict[str, str] = {}
         if user_input is not None:
             patch, errors = _validate_step("solar_estimation", data, user_input)
             if not errors:
+                next_merged = _patched_copy(data, patch)
+                self._solar_options_merged = None
                 try:
-                    return await self._persist(data_patch=patch, base_data=data)
+                    return await self._persist(
+                        data_patch=_solar_options_entry_patch(next_merged),
+                        base_data=dict(self.config_entry.data),
+                    )
                 except ValueError as err:
+                    self._solar_options_merged = data
                     errors = dict(err.args[0])
         return self._show_doc_form(
             step_id="solar_estimation",

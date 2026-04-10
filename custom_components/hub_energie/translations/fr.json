@@ -894,7 +894,16 @@
         "title": "Configuration solaire",
         "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})",
         "data": {
-          "has_solar": "Avez-vous des panneaux solaires ?",
+          "has_solar": "Avez-vous des panneaux solaires ?"
+        },
+        "data_description": {
+          "has_solar": "Désactiver retire le solaire du bilan énergétique."
+        }
+      },
+      "solar_config": {
+        "title": "Capteurs de production solaire",
+        "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})",
+        "data": {
           "solar_energy": "Énergie produite solaire (kWh)",
           "solar_power_sensor": "Puissance solaire (W, optionnel)",
           "solar_resale_contract": "Contrat de rachat de l'injection ?",
@@ -902,7 +911,6 @@
           "solar_estimation_enabled": "Activer l'estimation de production ?"
         },
         "data_description": {
-          "has_solar": "Désactiver retire le solaire du bilan énergétique.",
           "solar_energy": "Compteur total croissant de production.",
           "solar_power_sensor": "Améliore l'affichage temps réel et le diagnostic.",
           "solar_resale_contract": "À activer si vous êtes payé sur l'injection.",
@@ -1124,9 +1132,9 @@
     },
     "solar_performance": {
       "options": {
-        "high": "Élevé",
+        "high": "Optimiste",
         "standard": "Standard",
-        "low": "Faible"
+        "low": "Prudent"
       }
     },
     "batt_power_net_sign": {

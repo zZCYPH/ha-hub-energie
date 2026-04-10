@@ -54,8 +54,21 @@ def test_setup_async_step_handlers_all_in_catalog(extract_mod, committed_catalog
 
 
 def test_catalog_step_rows_unique_step_ids(committed_catalog):
+    from collections import Counter
+
+    allowed_dup = frozenset({"solar", "solar_config", "solar_estimation"})
     ids = [s["step_id"] for s in committed_catalog["steps"]]
-    assert len(ids) == len(set(ids)), f"Duplicate step_id in catalog: {ids}"
+    counts = Counter(ids)
+    bad = sorted(sid for sid, n in counts.items() if n > 1 and sid not in allowed_dup)
+    assert not bad, f"Unexpected duplicate step_id in catalog: {bad}"
+    for sid in allowed_dup:
+        rows = [s for s in committed_catalog["steps"] if s["step_id"] == sid]
+        if len(rows) <= 1:
+            continue
+        classes = {r.get("source_class") for r in rows}
+        assert classes == {"HubEnergieConfigFlow", "HubEnergieOptionsFlow"}, (
+            f"Expected setup+options rows for {sid!r}, got {rows!r}"
+        )
 
 
 def test_committed_catalog_matches_fresh_build_stable_blob(extract_mod, committed_catalog):

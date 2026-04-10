@@ -55,6 +55,7 @@ export const FLOW_HELP_OPTIONS_IDS = [
   "tri_grid_phase_2",
   "tri_grid_phase_3",
   "solar",
+  "solar_config",
   "solar_estimation",
   "battery",
   "battery_pick",

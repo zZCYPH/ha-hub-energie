@@ -66,7 +66,6 @@ FLOW_HELP_WIZARD_IDS: tuple[str, ...] = (
     "battery_add",
     "battery_advanced",
     "battery_more",
-    "reinjection",
 )
 
 FLOW_HELP_OPTIONS_IDS: tuple[str, ...] = (
@@ -87,6 +86,7 @@ FLOW_HELP_OPTIONS_IDS: tuple[str, ...] = (
     "tri_grid_phase_2",
     "tri_grid_phase_3",
     "solar",
+    "solar_config",
     "solar_estimation",
     "battery",
     "battery_pick",
@@ -97,15 +97,22 @@ FLOW_HELP_OPTIONS_IDS: tuple[str, ...] = (
 
 CLASS_NAMES = frozenset({"HubEnergieConfigFlow", "_BatteryWizardMixin"})
 OPTIONS_FLOW_CLASS = "HubEnergieOptionsFlow"
-# Options-only steps merged into the catalog (``step_id`` must not collide with setup flow).
+# Options-only steps merged into the catalog (``step_id`` must not collide with setup flow,
+# except ``OPTIONS_CATALOG_DUP_STEP_IDS`` where both setup and options rows are kept).
 OPTIONS_CATALOG_HANDLERS = frozenset(
     {
         "async_step_init",
         "async_step_expert",
+        "async_step_solar",
+        "async_step_solar_config",
+        "async_step_solar_estimation",
         "async_step_reinjection",
         "async_step_advanced_energy",
         "async_step_battery_pick",
     }
+)
+OPTIONS_CATALOG_DUP_STEP_IDS: frozenset[str] = frozenset(
+    {"solar", "solar_config", "solar_estimation"}
 )
 
 
@@ -451,13 +458,20 @@ def build_doc() -> dict[str, Any]:
     setup_steps = extract_steps()
     options_steps = extract_options_catalog_steps()
     by_id = {s["step_id"]: s for s in setup_steps}
+    dup_extras: list[dict[str, Any]] = []
     for s in options_steps:
-        if s["step_id"] in by_id:
+        sid = s["step_id"]
+        if sid in by_id and sid in OPTIONS_CATALOG_DUP_STEP_IDS:
+            dup_extras.append(s)
+            continue
+        if sid in by_id:
             raise RuntimeError(
-                f"Catalog step_id collision: {s['step_id']!r} exists in setup and options extract."
+                f"Catalog step_id collision: {sid!r} exists in setup and options extract."
             )
-        by_id[s["step_id"]] = s
-    steps = [by_id[k] for k in sorted(by_id)]
+        by_id[sid] = s
+    steps = sorted(by_id.values(), key=lambda x: x["step_id"]) + sorted(
+        dup_extras, key=lambda x: (x["step_id"], x.get("source_class", ""))
+    )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "source_files": {

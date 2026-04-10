@@ -331,11 +331,9 @@ def tempo_mode_selector() -> SelectSelector:
 def solar_shading_selector() -> SelectSelector:
     return SelectSelector(
         SelectSelectorConfig(
-            options=[
-                SelectOptionDict(value=value, label=value.capitalize())
-                for value in SOLAR_SHADING_OPTIONS
-            ],
+            options=list(SOLAR_SHADING_OPTIONS),
             mode=SelectSelectorMode.DROPDOWN,
+            translation_key="solar_shading",
         )
     )
 
@@ -343,11 +341,9 @@ def solar_shading_selector() -> SelectSelector:
 def solar_performance_selector() -> SelectSelector:
     return SelectSelector(
         SelectSelectorConfig(
-            options=[
-                SelectOptionDict(value=value, label=value.capitalize())
-                for value in SOLAR_PERF_OPTIONS
-            ],
+            options=list(SOLAR_PERF_OPTIONS),
             mode=SelectSelectorMode.DROPDOWN,
+            translation_key="solar_performance",
         )
     )
 

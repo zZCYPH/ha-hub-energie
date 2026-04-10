@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-10T07:59:34.343759+00:00",
+  "generated_at": "2026-04-10T08:17:55.630997+00:00",
   "source_files": {
     "config_flow": "custom_components/hub_energie/config_flow.py",
     "strings_en": "custom_components/hub_energie/strings.json",
@@ -170,9 +170,9 @@
       },
       "solar_performance": {
         "options": {
-          "high": "Élevé",
+          "high": "Optimiste",
           "standard": "Standard",
-          "low": "Faible"
+          "low": "Prudent"
         }
       },
       "batt_power_net_sign": {
@@ -2692,6 +2692,221 @@
               "key": "phase_type",
               "label": "Type de phase",
               "description": "Installation monophasée ou triphasée."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "solar",
+      "handler": "async_step_solar",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Solar configuration",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-solar)",
+          "fields": [
+            {
+              "key": "has_solar",
+              "label": "Do you have solar panels?",
+              "description": "Disable to remove solar from energy accounting."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Configuration solaire",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-solar)",
+          "fields": [
+            {
+              "key": "has_solar",
+              "label": "Avez-vous des panneaux solaires ?",
+              "description": "Désactiver retire le solaire du bilan énergétique."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "solar_config",
+      "handler": "async_step_solar_config",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Solar production sensors",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-solar_config)",
+          "fields": [
+            {
+              "key": "solar_energy",
+              "label": "Solar energy production (kWh)",
+              "description": "Total increasing energy counter for solar production."
+            },
+            {
+              "key": "solar_power_sensor",
+              "label": "Solar power (W, optional)",
+              "description": "Improves real-time power display and diagnostics."
+            },
+            {
+              "key": "solar_resale_contract",
+              "label": "Solar export re-sale contract?",
+              "description": "Enable if you are paid for exported energy."
+            },
+            {
+              "key": "solar_export_tariff",
+              "label": "Export tariff (per kWh)",
+              "description": "Re-sale price per kWh for exported solar energy."
+            },
+            {
+              "key": "solar_estimation_enabled",
+              "label": "Enable production estimation?",
+              "description": "If enabled, you will be asked for PV system parameters."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Capteurs de production solaire",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-solar_config)",
+          "fields": [
+            {
+              "key": "solar_energy",
+              "label": "Énergie produite solaire (kWh)",
+              "description": "Compteur total croissant de production."
+            },
+            {
+              "key": "solar_power_sensor",
+              "label": "Puissance solaire (W, optionnel)",
+              "description": "Améliore l'affichage temps réel et le diagnostic."
+            },
+            {
+              "key": "solar_resale_contract",
+              "label": "Contrat de rachat de l'injection ?",
+              "description": "À activer si vous êtes payé sur l'injection."
+            },
+            {
+              "key": "solar_export_tariff",
+              "label": "Tarif de rachat (par kWh)",
+              "description": "Prix de rachat par kWh injecté."
+            },
+            {
+              "key": "solar_estimation_enabled",
+              "label": "Activer l'estimation de production ?",
+              "description": "Si activé, des paramètres PV seront demandés."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "solar_estimation",
+      "handler": "async_step_solar_estimation",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Solar production estimation",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-solar_estimation)",
+          "fields": [
+            {
+              "key": "solar_lat",
+              "label": "Latitude",
+              "description": "Site latitude (decimal degrees); defaults may be prefilled from Home Assistant zone."
+            },
+            {
+              "key": "solar_lon",
+              "label": "Longitude",
+              "description": "Site longitude (decimal degrees)."
+            },
+            {
+              "key": "solar_peak_power",
+              "label": "Peak power (kWc)",
+              "description": "Installed DC peak power (kWc) of the PV array."
+            },
+            {
+              "key": "solar_orientation",
+              "label": "Panel orientation",
+              "description": "Azimuth in degrees (0–360); 180° is south in the northern hemisphere."
+            },
+            {
+              "key": "solar_tilt_mode",
+              "label": "Tilt mode",
+              "description": "Auto uses a typical roof tilt from latitude; manual unlocks the tilt field."
+            },
+            {
+              "key": "solar_tilt",
+              "label": "Tilt angle (°)",
+              "description": "Panel tilt from horizontal (°); used only when tilt mode is manual."
+            },
+            {
+              "key": "solar_shading",
+              "label": "Shading level",
+              "description": "Rough shading level for the clear-sky model."
+            },
+            {
+              "key": "solar_performance",
+              "label": "System performance",
+              "description": "Performance class (standard vs optimistic vs conservative) for the estimation model."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Estimation de production solaire",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-solar_estimation)",
+          "fields": [
+            {
+              "key": "solar_lat",
+              "label": "Latitude",
+              "description": "Latitude du site (degrés décimaux) ; peut être préremplie depuis la zone Home Assistant."
+            },
+            {
+              "key": "solar_lon",
+              "label": "Longitude",
+              "description": "Longitude du site (degrés décimaux)."
+            },
+            {
+              "key": "solar_peak_power",
+              "label": "Puissance crête (kWc)",
+              "description": "Puissance crête DC installée (kWc)."
+            },
+            {
+              "key": "solar_orientation",
+              "label": "Orientation des panneaux",
+              "description": "Azimut en degrés (0–360) ; 180° ≈ plein sud (hémisphère nord)."
+            },
+            {
+              "key": "solar_tilt_mode",
+              "label": "Mode d'inclinaison",
+              "description": "Auto estime une inclinaison type ; manuel déverrouille le champ d’inclinaison."
+            },
+            {
+              "key": "solar_tilt",
+              "label": "Angle d'inclinaison (°)",
+              "description": "Inclinaison des modules par rapport à l’horizontale (°), si mode manuel."
+            },
+            {
+              "key": "solar_shading",
+              "label": "Niveau d'ombrage",
+              "description": "Niveau d’ombrage approximatif pour le modèle « ciel clair »."
+            },
+            {
+              "key": "solar_performance",
+              "label": "Performance du système",
+              "description": "Classe de performance (standard / optimiste / prudent) pour le modèle."
             }
           ],
           "menu_choices": [],

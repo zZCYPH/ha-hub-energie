@@ -887,7 +887,16 @@
         "title": "Solar configuration",
         "description": "[I need help with this step]({step_help_url})",
         "data": {
-          "has_solar": "Do you have solar panels?",
+          "has_solar": "Do you have solar panels?"
+        },
+        "data_description": {
+          "has_solar": "Disable to remove solar from energy accounting."
+        }
+      },
+      "solar_config": {
+        "title": "Solar production sensors",
+        "description": "[I need help with this step]({step_help_url})",
+        "data": {
           "solar_energy": "Solar energy production (kWh)",
           "solar_power_sensor": "Solar power (W, optional)",
           "solar_resale_contract": "Solar export re-sale contract?",
@@ -895,7 +904,6 @@
           "solar_estimation_enabled": "Enable production estimation?"
         },
         "data_description": {
-          "has_solar": "Disable to remove solar from energy accounting.",
           "solar_energy": "Total increasing energy counter for solar production.",
           "solar_power_sensor": "Improves real-time power display and diagnostics.",
           "solar_resale_contract": "Enable if you are paid for exported energy.",
