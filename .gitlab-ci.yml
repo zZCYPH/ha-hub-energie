@@ -111,10 +111,18 @@ integration_release:
       fi
       PKG_API="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${GITLAB_PACKAGE_NAME}/${VERSION}/${ZIP_NAME}"
       echo "Uploading ${ZIP_NAME} to generic package ${GITLAB_PACKAGE_NAME}/${VERSION}..."
-      curl --fail --silent --show-error \
+      # Capture body on failure: GitLab returns JSON (permission, duplicate version, etc.); curl --fail hides it.
+      UPLOAD_HTTP="$(curl -sS -w "%{http_code}" -o /tmp/hub_energie_pkg_upload.txt \
         --header "${AUTH_HEADER}" \
         --upload-file "${CI_PROJECT_DIR}/${ZIP_NAME}" \
-        "$PKG_API"
+        "$PKG_API")"
+      if [ "${UPLOAD_HTTP}" != "201" ] && [ "${UPLOAD_HTTP}" != "200" ]; then
+        echo "Generic package upload failed: HTTP ${UPLOAD_HTTP}"
+        echo "Response body:"
+        cat /tmp/hub_energie_pkg_upload.txt
+        echo ""
+        exit 1
+      fi
       echo "Resolving package_files id for release link..."
       PKG_LIST_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_type=generic&package_name=${GITLAB_PACKAGE_NAME}&package_version=${VERSION}&per_page=20"
       FILE_ID=""
