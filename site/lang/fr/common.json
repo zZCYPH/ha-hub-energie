@@ -31,9 +31,10 @@
   "footer.brand_aria": "Hub Énergie",
   "footer.primary_links_aria": "Liens du projet",
   "footer.link_gitlab": "GitLab",
-  "footer.social_note": "Liens communautaires — bientôt disponibles.",
+  "footer.social_note": "Communauté — rejoignez le groupe Facebook ; d’autres canaux suivront.",
   "footer.social_group_aria": "Réseaux sociaux et inscription à la newsletter",
   "social.facebook": "Facebook",
+  "social.facebook_aria": "Communauté Hub Énergie sur Facebook (s’ouvre dans un nouvel onglet)",
   "social.discord": "Discord",
   "social.newsletter": "Newsletter",
   "social.coming_soon": "Bientôt disponible"
