@@ -169,7 +169,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="flow-sim-ha-ep">
+  <div class="site-flowsim-entity-picker flow-sim-ha-ep">
     <button
       ref="triggerRef"
       type="button"

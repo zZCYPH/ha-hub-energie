@@ -905,7 +905,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="flow-sim fs-card card border shadow-sm">
+  <div class="site-flow-simulator flow-sim fs-card card border shadow-sm" :data-flow-simulator-mode="props.mode">
     <div class="card-body">
       <div class="d-flex flex-column flex-md-row gap-3 align-items-md-end justify-content-between mb-3">
         <div class="flex-grow-1">

@@ -9,7 +9,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="flowhelp-fg-tables">
+  <div class="site-flowhelp-field-guide flowhelp-fg-tables">
     <template v-if="bundle.menu_choices?.length">
       <p class="flowhelp-fg-menu-heading small fw-semibold text-body mb-2">{{ menuHeading }}</p>
       <ul class="flowhelp-fg-menu list-unstyled small mb-3">

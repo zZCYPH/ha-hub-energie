@@ -3,7 +3,7 @@ import InstallReleasePicker from "../../../components/InstallReleasePicker.vue";
 </script>
 
 <template>
-  <section id="install" class="doc-section pb-5">
+  <section id="install" class="site-doc-section-install doc-section pb-5">
     <h2 class="mb-3">
       <span data-i18n="install.title">Installation</span>
       <a

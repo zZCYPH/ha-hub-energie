@@ -1,6 +1,6 @@
 <template>
   <div
-    class="offcanvas offcanvas-start"
+    class="site-doc-toc-offcanvas offcanvas offcanvas-start"
     tabindex="-1"
     id="tocOffcanvasDoc"
     aria-labelledby="tocOffcanvasDocLabel"

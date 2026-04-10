@@ -47,16 +47,16 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div id="view-doc" class="app-view">
-    <div ref="root">
+  <div id="view-doc" class="app-view site-page site-page--doc">
+    <div ref="root" class="site-page__doc-root">
       <DocOffcanvas />
       <DocHero />
-      <div class="container-xxl px-3 py-4 py-lg-5">
-        <div class="row g-4 g-xl-5">
-          <aside class="col-lg-3 d-none d-lg-block">
+      <div class="site-page__doc-container container-xxl px-3 py-4 py-lg-5">
+        <div class="site-page__doc-layout row g-4 g-xl-5">
+          <aside class="site-page__doc-sidebar col-lg-3 d-none d-lg-block">
             <DocSidebarInner />
           </aside>
-          <main class="col-lg-9">
+          <main class="site-page__doc-main col-lg-9">
             <DocSectionOverview />
             <DocSectionInstall />
             <DocSectionConfigure />

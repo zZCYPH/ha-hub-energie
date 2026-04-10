@@ -1,0 +1,5 @@
+/**
+ * Semantic hooks: `site-*` classes in Vue templates mark app regions (shell, pages, key widgets).
+ * Default look-and-feel stays on Bootstrap utilities plus existing `doc-*`, `landing-*`, `flow-*` BEM.
+ * Add rules here only when you need cross-cutting overrides tied to those hooks.
+ */

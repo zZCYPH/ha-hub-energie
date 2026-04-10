@@ -71,7 +71,7 @@ watch(releases, (list) => {
 </script>
 
 <template>
-  <div class="install-release-picker">
+  <div class="site-install-release-picker install-release-picker">
     <div v-if="loading" class="small text-secondary mb-0">{{ tr("install.release_loading") }}</div>
     <div v-else-if="error" class="small text-danger mb-0">{{ tr("install.release_fetch_error") }}</div>
     <div v-else-if="!releases.length" class="small text-secondary mb-0">{{ tr("install.release_none") }}</div>

@@ -4,7 +4,7 @@ import { INTERNALS_TOC_ITEMS } from "./internalsToc.js";
 
 <template>
   <div
-    class="offcanvas offcanvas-start"
+    class="site-internals-toc-offcanvas offcanvas offcanvas-start"
     tabindex="-1"
     id="tocOffcanvasInternals"
     aria-labelledby="tocOffcanvasInternalsLabel"
