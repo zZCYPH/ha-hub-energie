@@ -1,7 +1,7 @@
 import "./hub-energie-card-editor.js";
-import { i as c, a as h, b as d, I as n } from "./i18n.js";
-const r = "custom:hub-energie-flow-card", a = ["auto", "full", "compact"];
-class u extends c {
+import { i as c, a as h, b as u, I as r } from "./i18n.js";
+const a = "custom:hub-energie-flow-card", l = ["auto", "full", "compact"];
+class f extends c {
   static properties = {
     hass: { attribute: !1 },
     _config: { state: !0 }
@@ -25,11 +25,11 @@ class u extends c {
     }
   `;
   setConfig(e) {
-    this._config = e && typeof e == "object" ? { ...e } : { type: r }, this._config.type || (this._config.type = r);
+    this._config = e && typeof e == "object" ? { ...e } : { type: a }, this._config.type || (this._config.type = a);
   }
   render() {
-    const e = this._i18n(), t = a.includes(this._config?.layout) ? this._config.layout : "auto", i = this._config?.debug === !0 || this._config?.debug === "true";
-    return d`
+    const e = this._i18n(), t = l.includes(this._config?.layout) ? this._config.layout : "auto", i = this._config?.debug === !0 || this._config?.debug === "true";
+    return u`
       <div class="field">
         <ha-textfield
           label=${e.flowEditorTitle}
@@ -55,22 +55,43 @@ class u extends c {
         <ha-formfield .label=${e.flowEditorDebug}>
           <ha-switch
             .checked=${i}
-            @change=${(s) => this._setBool("debug", s.target.checked)}
+            @change=${(o) => this._setBool("debug", o.target.checked)}
           ></ha-switch>
         </ha-formfield>
         <p class="hint">${e.flowEditorDebugHint}</p>
       </div>
+      <div class="field">
+        <ha-entity-picker
+          .hass=${this.hass}
+          .value=${this._config?.frontend_data_entity ?? ""}
+          label=${e.flowEditorDataEntity}
+          .includeDomains=${["sensor"]}
+          allow-custom-entity
+          @value-changed=${(o) => this._onEntityChanged("frontend_data_entity", o)}
+        ></ha-entity-picker>
+      </div>
+      <div class="field">
+        <ha-entity-picker
+          .hass=${this.hass}
+          .value=${this._config?.frontend_meta_entity ?? ""}
+          label=${e.flowEditorMetaEntity}
+          .includeDomains=${["sensor"]}
+          allow-custom-entity
+          @value-changed=${(o) => this._onEntityChanged("frontend_meta_entity", o)}
+        ></ha-entity-picker>
+        <p class="hint">${e.flowEditorEntityHint}</p>
+      </div>
     `;
   }
   _i18n() {
-    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? n.en : n.fr;
+    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? r.en : r.fr;
   }
   _emit(e) {
     this.dispatchEvent(
       new CustomEvent("config-changed", {
         bubbles: !0,
         composed: !0,
-        detail: { config: { ...e, type: r } }
+        detail: { config: { ...e, type: a } }
       })
     );
   }
@@ -81,7 +102,7 @@ class u extends c {
   _onLayoutClosed(e) {
     e.stopPropagation();
     const t = String(e.target?.value ?? "auto");
-    if (!a.includes(t)) return;
+    if (!l.includes(t)) return;
     const i = { ...this._config };
     t === "auto" ? delete i.layout : i.layout = t, this._emit(i);
   }
@@ -89,35 +110,39 @@ class u extends c {
     const i = { ...this._config };
     t ? i[e] = !0 : delete i[e], this._emit(i);
   }
+  _onEntityChanged(e, t) {
+    const i = t.detail?.value ?? "", o = String(i).trim(), n = { ...this._config };
+    o ? n[e] = o : delete n[e], this._emit(n);
+  }
 }
-customElements.get("hub-energie-flow-card-editor") || customElements.define("hub-energie-flow-card-editor", u);
-function l(o) {
-  const e = new URL(import.meta.url), t = e.searchParams.get("v"), i = new URL(o, e);
+customElements.get("hub-energie-flow-card-editor") || customElements.define("hub-energie-flow-card-editor", f);
+function d(s) {
+  const e = new URL(import.meta.url), t = e.searchParams.get("v"), i = new URL(s, e);
   return t && i.searchParams.set("v", t), i.href;
 }
-import(l("./hub-energie-flow-card.js")).catch((o) => {
-  console.error("[hub-energie-card-boot] flow module failed to load", o);
+import(d("./hub-energie-flow-card.js")).catch((s) => {
+  console.error("[hub-energie-card-boot] flow module failed to load", s);
 });
-const f = `
+const g = `
   <style>
     :host { display: block; min-height: 96px; }
     .wrap { padding: 16px; font: 14px/1.4 var(--paper-font-body1_-_font-family, Roboto, sans-serif); color: var(--primary-text-color, #212121); }
   </style>
   <ha-card><div class="wrap">Hub Énergie…</div></ha-card>
 `;
-class g extends HTMLElement {
+class _ extends HTMLElement {
   constructor() {
     super(), this.attachShadow({ mode: "open" }), this._core = null, this._hass = void 0, this._config = void 0, this._loadPromise = null;
   }
   connectedCallback() {
-    this._loadPromise || (this.shadowRoot.innerHTML = f), this._ensureCore();
+    this._loadPromise || (this.shadowRoot.innerHTML = g), this._ensureCore();
   }
   _ensureCore() {
     return this._loadPromise ? this._loadPromise : (this._loadPromise = (async () => {
       try {
-        await import(l("./hub-energie-card.js"));
-      } catch (s) {
-        console.error("[hub-energie-card-boot] core module failed to load", s), this.shadowRoot.innerHTML = '<style>:host{display:block}</style><ha-card><div style="padding:16px">Hub Énergie (load error)</div></ha-card>';
+        await import(d("./hub-energie-card.js"));
+      } catch (o) {
+        console.error("[hub-energie-card-boot] core module failed to load", o), this.shadowRoot.innerHTML = '<style>:host{display:block}</style><ha-card><div style="padding:16px">Hub Énergie (load error)</div></ha-card>';
         return;
       }
       if (!customElements.get("hub-energie-card-core") || this._core) return;
@@ -163,12 +188,21 @@ class g extends HTMLElement {
     };
   }
 }
-customElements.get("hub-energie-card") || customElements.define("hub-energie-card", g);
+customElements.get("hub-energie-card") || customElements.define("hub-energie-card", _);
 window.customCards ??= [];
-window.customCards.push({
-  type: "hub-energie-card",
-  name: "Hub Énergie",
-  description: "Daily energy, cost and savings. Editor: layout, graph window, section visibility; YAML for refresh interval.",
-  preview: !1,
-  documentationURL: "https://gitlab.com/zzcyph1/home-assistant/hub-energie"
-});
+window.customCards.push(
+  {
+    type: "hub-energie-card",
+    name: "Hub Énergie — dashboard",
+    description: "Daily energy, cost and savings. Editor: layout, power graph window, section visibility; YAML for refresh interval.",
+    preview: !1,
+    documentationURL: "https://hub-energie.ts-devops.com"
+  },
+  {
+    type: "hub-energie-flow-card",
+    name: "Hub Énergie — power flow",
+    description: "Live power-flow diagram (frontend_data / frontend_meta). Editor: layout and debug; YAML for title.",
+    preview: !0,
+    documentationURL: "https://hub-energie.ts-devops.com"
+  }
+);

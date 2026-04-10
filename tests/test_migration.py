@@ -1,4 +1,4 @@
-"""Tests for config entry migration v1 -> v2 (entity_id prefix ``hub_energie_``)."""
+"""Tests for config entry migration (entity_id prefix ``hub_energie_``)."""
 
 from __future__ import annotations
 
@@ -100,7 +100,7 @@ def _run_migrate(hass: object, entry: object) -> bool:
 
 
 def test_migrate_v1_renames_legacy_hub_energie_entities() -> None:
-    """v1 legacy object_ids get ``hub_energie_`` prefix; entry version becomes 2."""
+    """v1 legacy object_ids get ``hub_energie_`` prefix; entry version becomes 3."""
     reg = _InMemoryEntityRegistry()
     reg.register("sensor.grid_power", DOMAIN, "ce_1")
     reg.register("binary_sensor.motion_flag", DOMAIN, "ce_1")
@@ -109,9 +109,10 @@ def test_migrate_v1_renames_legacy_hub_energie_entities() -> None:
     entry = SimpleNamespace(version=1, entry_id="ce_1")
 
     assert _run_migrate(hass, entry) is True
-    assert entry.version == migration.CONFIG_ENTRY_VERSION_ENTITY_ID_PREFIX
+    assert entry.version == migration.CONFIG_ENTRY_VERSION
     assert hass.config_entries.version_updates == [  # type: ignore[attr-defined]
-        migration.CONFIG_ENTRY_VERSION_ENTITY_ID_PREFIX
+        migration.CONFIG_ENTRY_VERSION_ENTITY_ID_PREFIX,
+        migration.CONFIG_ENTRY_VERSION,
     ]
 
     assert reg.async_get("sensor.grid_power") is None
@@ -130,23 +131,43 @@ def test_migrate_v1_skips_rename_when_target_entity_id_already_exists() -> None:
     entry = SimpleNamespace(version=1, entry_id="ce_2")
 
     assert _run_migrate(hass, entry) is True
-    assert entry.version == migration.CONFIG_ENTRY_VERSION_ENTITY_ID_PREFIX
+    assert entry.version == migration.CONFIG_ENTRY_VERSION
     assert reg.async_get("sensor.clash") is not None
     assert reg.async_get("sensor.hub_energie_clash") is not None
 
 
-def test_migrate_entry_already_at_v2_is_noop() -> None:
-    """Version already 2: no registry renames and no version update."""
+def test_migrate_v2_unprefixed_frontend_entities_renamed_to_v3() -> None:
+    """v2 entries get a second prefix pass (e.g. ``frontend_data`` added after v2 migration)."""
     reg = _InMemoryEntityRegistry()
-    reg.register("sensor.legacy", DOMAIN, "ce_3")
+    reg.register("sensor.hub_energie_cost_detail", DOMAIN, "ce_3")
+    reg.register("sensor.frontend_data", DOMAIN, "ce_3")
+    reg.register("sensor.frontend_meta", DOMAIN, "ce_3")
 
     hass = _hass_with_registry(reg)
     entry = SimpleNamespace(version=migration.CONFIG_ENTRY_VERSION_ENTITY_ID_PREFIX, entry_id="ce_3")
 
     assert _run_migrate(hass, entry) is True
-    assert entry.version == migration.CONFIG_ENTRY_VERSION_ENTITY_ID_PREFIX
+    assert entry.version == migration.CONFIG_ENTRY_VERSION
+    assert hass.config_entries.version_updates == [migration.CONFIG_ENTRY_VERSION]  # type: ignore[attr-defined]
+    assert reg.async_get("sensor.hub_energie_cost_detail") is not None
+    assert reg.async_get("sensor.frontend_data") is None
+    assert reg.async_get("sensor.hub_energie_frontend_data") is not None
+    assert reg.async_get("sensor.frontend_meta") is None
+    assert reg.async_get("sensor.hub_energie_frontend_meta") is not None
+
+
+def test_migrate_entry_already_at_v3_is_noop() -> None:
+    """Version already 3: no registry renames and no version update."""
+    reg = _InMemoryEntityRegistry()
+    reg.register("sensor.hub_energie_legacy", DOMAIN, "ce_3b")
+
+    hass = _hass_with_registry(reg)
+    entry = SimpleNamespace(version=migration.CONFIG_ENTRY_VERSION, entry_id="ce_3b")
+
+    assert _run_migrate(hass, entry) is True
+    assert entry.version == migration.CONFIG_ENTRY_VERSION
     assert hass.config_entries.version_updates == []  # type: ignore[attr-defined]
-    assert reg.async_get("sensor.legacy") is not None
+    assert reg.async_get("sensor.hub_energie_legacy") is not None
 
 
 def test_migrate_rejects_entry_newer_than_supported() -> None:
@@ -170,6 +191,7 @@ def test_migrate_v1_only_touches_hub_energie_platform_entities() -> None:
     entry = SimpleNamespace(version=1, entry_id="ce_5")
 
     assert _run_migrate(hass, entry) is True
+    assert entry.version == migration.CONFIG_ENTRY_VERSION
     assert reg.async_get("sensor.co2") is not None
     assert reg.async_get("sensor.native") is None
     assert reg.async_get("sensor.hub_energie_native") is not None
@@ -184,5 +206,6 @@ def test_migrate_v1_leaves_already_prefixed_entity_ids_unchanged() -> None:
     entry = SimpleNamespace(version=1, entry_id="ce_6")
 
     assert _run_migrate(hass, entry) is True
+    assert entry.version == migration.CONFIG_ENTRY_VERSION
     assert reg.async_get("sensor.hub_energie_day_rate") is not None
     assert reg.async_get("sensor.hub_energie_hub_energie_day_rate") is None

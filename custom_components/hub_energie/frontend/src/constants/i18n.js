@@ -149,9 +149,9 @@ export const I18N = Object.freeze({
     editorShowReinjection: "Réinjection par cause",
     editorShowRawControl: "Bouton Détails (données brutes)",
     flowCardTitle: "Flux de puissance",
-    flowCardWaiting: "En attente des entités frontend_data / frontend_meta…",
+    flowCardWaiting: "En attente des capteurs Frontend data / Frontend meta…",
     flowCardEntityHint:
-      "Vérifiez que <code>sensor.hub_energie_frontend_data</code> et <code>sensor.hub_energie_frontend_meta</code> existent dans Home Assistant.",
+      "IDs attendus : <code>sensor.hub_energie_frontend_data</code> + <code>…_meta</code>, ou les IDs courts <code>sensor.frontend_data</code> / <code>sensor.frontend_meta</code>. Sinon, forcez-les dans l’éditeur de carte.",
     flowNodeGrid: "Réseau",
     flowNodeSolar: "Solaire",
     flowNodeHome: "Maison",
@@ -176,6 +176,10 @@ export const I18N = Object.freeze({
     flowEditorDebug: "Mode debug",
     flowEditorDebugHint:
       "Affiche tous les flux, les valeurs faibles et le contrôle de conservation. Réservé au card editor.",
+    flowEditorDataEntity: "Capteur live (frontend_data)",
+    flowEditorMetaEntity: "Capteur meta (frontend_meta)",
+    flowEditorEntityHint:
+      "Vide = détection auto (<code>hub_energie_frontend_*</code> puis <code>frontend_*</code>).",
   },
   en: {
     date: "Date",
@@ -325,9 +329,9 @@ export const I18N = Object.freeze({
     editorShowReinjection: "Reinjection by cause",
     editorShowRawControl: "Details button (raw data)",
     flowCardTitle: "Power flow",
-    flowCardWaiting: "Waiting for frontend_data / frontend_meta entities…",
+    flowCardWaiting: "Waiting for Frontend data / Frontend meta sensors…",
     flowCardEntityHint:
-      "Check that <code>sensor.hub_energie_frontend_data</code> and <code>sensor.hub_energie_frontend_meta</code> exist in Home Assistant.",
+      "Expected IDs: <code>sensor.hub_energie_frontend_data</code> + <code>…_meta</code>, or short <code>sensor.frontend_data</code> / <code>sensor.frontend_meta</code>. Otherwise set them in the card editor.",
     flowNodeGrid: "Grid",
     flowNodeSolar: "Solar",
     flowNodeHome: "Home",
@@ -352,5 +356,9 @@ export const I18N = Object.freeze({
     flowEditorDebug: "Debug mode",
     flowEditorDebugHint:
       "Shows all flows, weak values and the conservation check. Exposed only from the card editor.",
+    flowEditorDataEntity: "Live sensor (frontend_data)",
+    flowEditorMetaEntity: "Meta sensor (frontend_meta)",
+    flowEditorEntityHint:
+      "Empty = auto-detect (<code>hub_energie_frontend_*</code> then <code>frontend_*</code>).",
   },
 });

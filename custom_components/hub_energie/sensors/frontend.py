@@ -173,7 +173,7 @@ class _HubEnergieFrontendPayloadSensor(HubEnergieSensor):
     """Shared change-gated payload entity."""
 
     _attr_should_poll = False
-    _attr_has_entity_name = False
+    _attr_has_entity_name = True
     _attr_native_value = "ok"
 
     def __init__(self, coordinator: HubEnergieCoordinator) -> None:
@@ -221,6 +221,7 @@ class HubEnergieFrontendDataSensor(_HubEnergieFrontendPayloadSensor):
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_frontend_data"
         self._attr_name = "Frontend data"
+        self._attr_suggested_object_id = "hub_energie_frontend_data"
 
     def _build_attributes(self, data: EnergyData | None) -> dict[str, Any]:
         return _frontend_live_attributes(data)
@@ -237,6 +238,7 @@ class HubEnergieFrontendMetaSensor(_HubEnergieFrontendPayloadSensor):
         self._entry = entry
         self._attr_unique_id = f"{entry.unique_id}_frontend_meta"
         self._attr_name = "Frontend meta"
+        self._attr_suggested_object_id = "hub_energie_frontend_meta"
 
     def _build_attributes(self, data: EnergyData | None) -> dict[str, Any]:
         return _frontend_meta_attributes(self.coordinator, data)

@@ -12,8 +12,11 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-# Bumped together with HubEnergieConfigFlow.VERSION
+# First entity_id prefix sweep (legacy slugs → hub_energie_*).
 CONFIG_ENTRY_VERSION_ENTITY_ID_PREFIX = 2
+# Current config entry version; keep in sync with HubEnergieConfigFlow.VERSION.
+# v3 re-runs the prefix sweep so entities created after v2 (e.g. frontend_data) are renamed.
+CONFIG_ENTRY_VERSION = 3
 
 
 def _entity_needs_domain_prefix(object_id: str) -> bool:
@@ -53,14 +56,14 @@ def _migrate_entity_ids_for_config_entry(
 
 
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
-    """Migrate config entry; v2 prefixes legacy entity IDs with hub_energie_."""
+    """Migrate config entry; v2/v3 ensure entity object_ids use the ``hub_energie_`` prefix."""
     version = config_entry.version
 
-    if version > CONFIG_ENTRY_VERSION_ENTITY_ID_PREFIX:
+    if version > CONFIG_ENTRY_VERSION:
         _LOGGER.error(
             "Migration not possible: config entry version %s is newer than %s",
             version,
-            CONFIG_ENTRY_VERSION_ENTITY_ID_PREFIX,
+            CONFIG_ENTRY_VERSION,
         )
         return False
 
@@ -69,6 +72,13 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
         hass.config_entries.async_update_entry(
             config_entry,
             version=CONFIG_ENTRY_VERSION_ENTITY_ID_PREFIX,
+        )
+
+    if config_entry.version < CONFIG_ENTRY_VERSION:
+        _migrate_entity_ids_for_config_entry(hass, config_entry)
+        hass.config_entries.async_update_entry(
+            config_entry,
+            version=CONFIG_ENTRY_VERSION,
         )
 
     return True

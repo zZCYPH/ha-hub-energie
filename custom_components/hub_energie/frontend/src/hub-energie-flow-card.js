@@ -3,9 +3,10 @@ import "./components/hub-power-flow-diagram.js";
 import { I18N } from "./constants/i18n.js";
 import {
   dayColorLabel,
-  makeEntityMap,
-} from "./utils/energy-utils.js";
-import { fmtPowerCompact, readAttrOptionalFloat } from "./utils/format-utils.js";
+  fmtPowerCompact,
+  readAttrOptionalFloat,
+  resolveHubFrontendPayloadEntities,
+} from "./utils/hub-flow-resolve.js";
 import {
   COLOR_BATTERY,
   COLOR_GRID_SOURCE,
@@ -19,15 +20,18 @@ const AUTO_LAYOUT_BREAKPOINT = 520;
 const EDGE_HIDE_W = 5;
 const EDGE_FADE_W = 20;
 
+/** Solar node cy; keep paths/labels in sync (was 48 — “0 W” overlapped the home bubble). */
+const SOLAR_CY = 32;
+
 const EDGE_CONFIG = Object.freeze([
   {
     key: "solar_to_home_power_w",
     from: "solar",
     to: "home",
     color: COLOR_SOLAR,
-    path: "M200 72 C200 86 200 100 200 112",
+    path: "M200 58 C200 78 200 100 200 114",
     labelX: 200,
-    labelY: 98,
+    labelY: 86,
   },
   {
     key: "battery_to_home_power_w",
@@ -43,7 +47,7 @@ const EDGE_CONFIG = Object.freeze([
     from: "grid",
     to: "home",
     color: COLOR_GRID_SOURCE,
-    path: "M84 132 C110 132 142 132 168 132",
+    path: "M84 132 C110 132 142 132 170 132",
     labelX: 126,
     labelY: 120,
   },
@@ -52,9 +56,9 @@ const EDGE_CONFIG = Object.freeze([
     from: "solar",
     to: "battery",
     color: COLOR_SOLAR,
-    path: "M214 70 C250 78 286 96 316 118",
-    labelX: 264,
-    labelY: 88,
+    path: "M214 54 C250 64 286 84 316 108",
+    labelX: 268,
+    labelY: 76,
   },
   {
     key: "grid_to_battery_power_w",
@@ -70,9 +74,9 @@ const EDGE_CONFIG = Object.freeze([
     from: "solar",
     to: "grid",
     color: COLOR_SOLAR_EXPORT,
-    path: "M186 70 C150 78 114 96 84 118",
-    labelX: 136,
-    labelY: 88,
+    path: "M186 54 C150 64 114 84 84 108",
+    labelX: 132,
+    labelY: 76,
   },
 ]);
 
@@ -125,7 +129,7 @@ function activeOpacity(value, debug) {
 
 function edgeWidth(value) {
   const abs = Math.max(0, Math.abs(Number(value) || 0));
-  return Math.max(2.4, Math.min(11.5, 2.4 + Math.log10(abs + 1) * 2.7));
+  return Math.max(1.85, Math.min(7.8, 1.85 + Math.log10(abs + 1) * 2.15));
 }
 
 function edgeDuration(value) {
@@ -207,7 +211,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
   const nodes = {
     grid: {
       kind: "grid",
-      icon: "G",
+      icon: "⚡",
       label: i18n.flowNodeGrid,
       value: gridDisplay != null ? fmtPowerCompact(gridDisplay) : null,
       detail: null,
@@ -218,18 +222,18 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
     },
     solar: {
       kind: "solar",
-      icon: "S",
+      icon: "☀",
       label: i18n.flowNodeSolar,
       value: solarFromEdges != null ? fmtPowerCompact(solarFromEdges) : null,
       detail: null,
       muted: false,
       status: "active",
       x: 200,
-      y: 48,
+      y: SOLAR_CY,
     },
     home: {
       kind: "home",
-      icon: "H",
+      icon: "⌂",
       label: i18n.flowNodeHome,
       value: homeFromEdges != null ? fmtPowerCompact(homeFromEdges) : null,
       detail: null,
@@ -400,6 +404,8 @@ export class HubEnergieFlowCard extends LitElement {
 
   setConfig(config) {
     this._config = config && typeof config === "object" ? { ...config, type: CARD_TYPE } : { type: CARD_TYPE };
+    this._lastFp = null;
+    this.requestUpdate();
   }
 
   getCardSize() {
@@ -537,9 +543,13 @@ export class HubEnergieFlowCard extends LitElement {
 
   _viewModel(i18n, layout) {
     const states = this.hass?.states;
-    const ids = makeEntityMap();
-    const liveState = states?.[ids.frontendData];
-    const metaState = states?.[ids.frontendMeta];
+    const resolved = resolveHubFrontendPayloadEntities(states, this._config);
+    if (!resolved) {
+      return { ready: false, model: null };
+    }
+    const { data: dataId, meta: metaId } = resolved;
+    const liveState = states[dataId];
+    const metaState = states[metaId];
     if (!liveState || !metaState) {
       return { ready: false, model: null };
     }
@@ -551,7 +561,7 @@ export class HubEnergieFlowCard extends LitElement {
         ...EDGE_CONFIG.map((edge) => edge.key),
         "battery_discharge_power_w",
         "home_power_w",
-      ].map((key) => [key, readAttrOptionalFloat(states, ids.frontendData, key)]),
+      ].map((key) => [key, readAttrOptionalFloat(states, dataId, key)]),
     );
 
     return {
@@ -563,17 +573,25 @@ export class HubEnergieFlowCard extends LitElement {
   _stateFingerprint() {
     const states = this.hass?.states;
     if (!states) return null;
-    const ids = makeEntityMap();
-    const liveState = states[ids.frontendData];
-    const metaState = states[ids.frontendMeta];
+    const resolved = resolveHubFrontendPayloadEntities(states, this._config);
     const layout = this._resolvedLayout();
     const debug = this._debugEnabled();
+    if (!resolved) {
+      const exD = String(this._config?.frontend_data_entity ?? "").trim();
+      const exM = String(this._config?.frontend_meta_entity ?? "").trim();
+      return `missing|${layout}|${debug}|${exD}|${exM}`;
+    }
+    const { data: dataId, meta: metaId } = resolved;
+    const liveState = states[dataId];
+    const metaState = states[metaId];
     if (!liveState || !metaState) {
-      return `missing|${layout}|${debug}|${Boolean(liveState)}|${Boolean(metaState)}`;
+      return `missing|${layout}|${debug}|${dataId}|${metaId}`;
     }
     const liveAttrs = liveState.attributes ?? {};
     const metaAttrs = metaState.attributes ?? {};
     const parts = [
+      dataId,
+      metaId,
       layout,
       debug,
       ...EDGE_CONFIG.map((edge) => fpPart(liveAttrs[edge.key])),
@@ -589,11 +607,4 @@ if (!customElements.get("hub-energie-flow-card")) {
   customElements.define("hub-energie-flow-card", HubEnergieFlowCard);
 }
 
-window.customCards ??= [];
-window.customCards.push({
-  type: "hub-energie-flow-card",
-  name: "Hub Énergie Flow",
-  description: "Live power-flow diagram using frontend_data/frontend_meta with debug and adaptive layout.",
-  preview: false,
-  documentationURL: "https://gitlab.com/zzcyph1/home-assistant/hub-energie",
-});
+/* Card picker metadata lives in hub-energie-card-boot.js so both cards appear with one Lovelace resource. */

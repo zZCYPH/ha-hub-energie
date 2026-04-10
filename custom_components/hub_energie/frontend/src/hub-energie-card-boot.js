@@ -133,11 +133,21 @@ if (!customElements.get("hub-energie-card")) {
 }
 
 window.customCards ??= [];
-window.customCards.push({
-  type: "hub-energie-card",
-  name: "Hub Énergie",
-  description:
-    "Daily energy, cost and savings. Editor: layout, graph window, section visibility; YAML for refresh interval.",
-  preview: false,
-  documentationURL: "https://gitlab.com/zzcyph1/home-assistant/hub-energie",
-});
+window.customCards.push(
+  {
+    type: "hub-energie-card",
+    name: "Hub Énergie — dashboard",
+    description:
+      "Daily energy, cost and savings. Editor: layout, power graph window, section visibility; YAML for refresh interval.",
+    preview: false,
+    documentationURL: "https://hub-energie.ts-devops.com",
+  },
+  {
+    type: "hub-energie-flow-card",
+    name: "Hub Énergie — power flow",
+    description:
+      "Live power-flow diagram (frontend_data / frontend_meta). Editor: layout and debug; YAML for title.",
+    preview: true,
+    documentationURL: "https://hub-energie.ts-devops.com",
+  },
+);

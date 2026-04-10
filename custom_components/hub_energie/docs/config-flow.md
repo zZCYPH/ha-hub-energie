@@ -10,7 +10,7 @@ This document describes the **initial setup** wizard (`HubEnergieConfigFlow`) in
 
 **Doc site release label:** User-visible “doc snapshot **v…**” strings and HTML fallbacks use placeholders expanded from **`manifest.json` → `version`** (`{{HUB_ENERGIE_VERSION}}`, `{{HUB_ENERGIE_VERSION_SERIES}}`); see `site/scripts/manifest-version.mjs`, `site/scripts/sync-public.mjs`, and `site/vite.config.js`.
 
-- **Implementation:** `config_flow.py` → class `HubEnergieConfigFlow` (flow `VERSION = 2`).
+- **Implementation:** `config_flow.py` → class `HubEnergieConfigFlow` (flow `VERSION = 3`).
 - **Dialog titles/descriptions (EN):** `translations/en.json` under `config.step.<step_id>`.
 - **French:** `translations/fr.json` (same keys).
 

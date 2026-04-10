@@ -69,6 +69,27 @@ export class HubEnergieFlowCardEditor extends LitElement {
         </ha-formfield>
         <p class="hint">${i18n.flowEditorDebugHint}</p>
       </div>
+      <div class="field">
+        <ha-entity-picker
+          .hass=${this.hass}
+          .value=${this._config?.frontend_data_entity ?? ""}
+          label=${i18n.flowEditorDataEntity}
+          .includeDomains=${["sensor"]}
+          allow-custom-entity
+          @value-changed=${(event) => this._onEntityChanged("frontend_data_entity", event)}
+        ></ha-entity-picker>
+      </div>
+      <div class="field">
+        <ha-entity-picker
+          .hass=${this.hass}
+          .value=${this._config?.frontend_meta_entity ?? ""}
+          label=${i18n.flowEditorMetaEntity}
+          .includeDomains=${["sensor"]}
+          allow-custom-entity
+          @value-changed=${(event) => this._onEntityChanged("frontend_meta_entity", event)}
+        ></ha-entity-picker>
+        <p class="hint">${i18n.flowEditorEntityHint}</p>
+      </div>
     `;
   }
 
@@ -108,6 +129,15 @@ export class HubEnergieFlowCardEditor extends LitElement {
   _setBool(key, on) {
     const next = { ...this._config };
     if (on) next[key] = true;
+    else delete next[key];
+    this._emit(next);
+  }
+
+  _onEntityChanged(key, event) {
+    const raw = event.detail?.value ?? "";
+    const value = String(raw).trim();
+    const next = { ...this._config };
+    if (value) next[key] = value;
     else delete next[key];
     this._emit(next);
   }
