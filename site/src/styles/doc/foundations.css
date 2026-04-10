@@ -1,0 +1,351 @@
+:root {
+  --doc-accent: #6ea8fe;
+  --doc-accent-rgb: 110, 168, 254;
+  --doc-step-line: rgba(var(--doc-accent-rgb), 0.35);
+}
+
+[data-bs-theme="light"] {
+  --doc-accent: #0d6efd;
+  --doc-accent-rgb: 13, 110, 253;
+  --doc-step-line: rgba(var(--doc-accent-rgb), 0.25);
+}
+
+body {
+  font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+  scroll-behavior: smooth;
+}
+
+.font-mono {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+
+.doc-navbar {
+  backdrop-filter: blur(10px);
+  background-color: rgba(var(--bs-body-bg-rgb), 0.88) !important;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+/* Same artwork as custom_components/hub_energie/brand/icon.png (copied to public/img for Pages). */
+.doc-brand-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.doc-hero {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--doc-accent-rgb), 0.12) 0%,
+    transparent 55%
+  );
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.doc-section {
+  scroll-margin-top: 5.5rem;
+}
+
+.doc-subsection {
+  scroll-margin-top: 5.75rem;
+}
+
+.doc-section h2 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.doc-anchor {
+  opacity: 0;
+  margin-left: 0.35rem;
+  font-size: 0.85em;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+h2:hover .doc-anchor {
+  opacity: 0.45;
+}
+
+.doc-anchor:hover {
+  opacity: 1 !important;
+}
+
+#toc-nav .nav-link {
+  font-size: 0.875rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.375rem;
+  color: var(--bs-secondary-color);
+}
+
+#toc-nav .nav-link:hover {
+  color: var(--bs-body-color);
+  background: var(--bs-tertiary-bg);
+}
+
+#toc-nav .nav-link.active {
+  color: var(--doc-accent);
+  background: rgba(var(--doc-accent-rgb), 0.12);
+  font-weight: 600;
+}
+
+.doc-steps {
+  counter-reset: doc-step;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.doc-steps > li {
+  position: relative;
+  padding-left: 0;
+  padding-bottom: 1.35rem;
+  margin-bottom: 0.25rem;
+}
+
+.doc-steps > li:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 1.125rem;
+  top: 2.75rem;
+  bottom: -0.35rem;
+  width: 2px;
+  background: var(--doc-step-line);
+}
+
+.doc-step-card {
+  position: relative;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.65rem;
+  overflow: hidden;
+  background: var(--bs-body-bg);
+}
+
+.doc-step-card .step-badge {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  background: rgba(var(--doc-accent-rgb), 0.2);
+  color: var(--doc-accent);
+  border: 2px solid rgba(var(--doc-accent-rgb), 0.45);
+}
+
+.doc-step-card .step-body {
+  padding: 1rem 1rem 1rem 4rem;
+}
+
+/* ZIP tab: no numbered badge — symmetric padding, roomier copy */
+.doc-step-card--zip .step-body {
+  padding: 1.35rem 1.4rem 1.5rem;
+}
+
+.doc-step-card--zip .step-body > p.small {
+  line-height: 1.65;
+}
+
+.doc-step-card .step-title {
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.doc-figure {
+  border-radius: 0.65rem;
+  overflow: hidden;
+  border: 2px dashed var(--bs-border-color) !important;
+  background: var(--bs-tertiary-bg);
+}
+
+.doc-figure .ratio {
+  min-height: 12rem;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 8px,
+    rgba(var(--bs-emphasis-color-rgb), 0.04) 8px,
+    rgba(var(--bs-emphasis-color-rgb), 0.04) 16px
+  );
+}
+
+.doc-figure figcaption {
+  border-top: 1px solid var(--bs-border-color);
+}
+
+.doc-figure img {
+  object-fit: cover;
+}
+
+.doc-figure--photo img.doc-carousel-img {
+  object-fit: contain;
+  height: auto;
+}
+
+.doc-figure--photo {
+  border-style: solid !important;
+  border-width: 1px !important;
+}
+
+/* Screenshots: natural aspect (no forced 16:9). Carousels get a scrollable cap; inline figures are full height. */
+.doc-screenshot-frame {
+  position: relative;
+  background: var(--bs-body-secondary);
+  border-radius: 0.65rem 0.65rem 0 0;
+  overflow: hidden;
+  min-height: 4rem;
+}
+
+.doc-screenshot-frame--carousel {
+  max-height: min(88vh, 1400px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.doc-screenshot-frame--full {
+  max-height: none;
+  overflow: visible;
+}
+
+.doc-screenshot-frame .doc-carousel-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  cursor: zoom-in;
+}
+
+.doc-screenshot-frame .doc-carousel-img:focus-visible {
+  outline: 3px solid var(--doc-accent);
+  outline-offset: 2px;
+}
+
+/* Device + config-flow carousels: slightly smaller in-frame (“zoom out”) so HA UI chrome isn’t so tight */
+#devicesGalleryCarousel .doc-screenshot-frame,
+#configFlowCarousel .doc-screenshot-frame,
+#configFlowCarouselApi .doc-screenshot-frame,
+#configFlowCarouselManual .doc-screenshot-frame,
+#configFlowCarouselOffers .doc-screenshot-frame {
+  padding: 0.65rem 1rem 0.85rem;
+}
+
+#devicesGalleryCarousel .doc-screenshot-frame .doc-carousel-img,
+#configFlowCarousel .doc-screenshot-frame .doc-carousel-img,
+#configFlowCarouselApi .doc-screenshot-frame .doc-carousel-img,
+#configFlowCarouselManual .doc-screenshot-frame .doc-carousel-img,
+#configFlowCarouselOffers .doc-screenshot-frame .doc-carousel-img {
+  width: auto;
+  max-width: 86%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.doc-config-flow-tabs .nav-link {
+  white-space: nowrap;
+}
+
+.doc-carousel-img {
+  object-fit: contain;
+}
+
+#docImageModal .modal-content {
+  background: rgba(var(--bs-body-bg-rgb), 0.97);
+}
+
+#docImageModal .modal-body {
+  max-height: 96vh;
+  overflow: auto;
+}
+
+#docImageModalImg {
+  max-width: 100%;
+  height: auto;
+  max-height: 92vh;
+  width: auto;
+  margin: 0 auto;
+  display: block;
+  cursor: default;
+}
+
+.doc-doc-carousel .carousel-inner {
+  border-radius: 0.65rem 0.65rem 0 0;
+  overflow: hidden;
+}
+
+.doc-doc-carousel.card {
+  overflow: hidden;
+}
+
+@media (min-width: 992px) {
+  .doc-carousel-tree.sticky-lg-top {
+    top: 5.5rem;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+    align-self: flex-start;
+  }
+}
+
+.doc-carousel-jump.active {
+  background-color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+  color: #fff !important;
+}
+
+.doc-carousel-jump.active .text-secondary {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Outline-primary hover/active fills blue; subtitles keep .text-secondary grey without this */
+.doc-carousel-jump:hover .text-secondary,
+.doc-carousel-jump:active .text-secondary {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+pre.doc-code {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  border-radius: 0.5rem;
+  padding: 1rem 1.1rem;
+  margin: 0;
+  border: 1px solid var(--bs-border-color);
+  background: var(--bs-tertiary-bg) !important;
+}
+
+.table-doc th {
+  font-weight: 600;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.table-doc td {
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.badge-doc {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+#langSwitch .btn.active,
+#themeSwitch .btn.active {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: #fff;
+}
+
+@media (min-width: 992px) {
+  .doc-sidebar {
+    position: sticky;
+    top: 5rem;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+  }
+}
+
