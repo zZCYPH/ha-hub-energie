@@ -30,8 +30,8 @@ const EDGE_CONFIG = Object.freeze([
     to: "home",
     color: COLOR_SOLAR,
     path: "M200 58 C200 78 200 100 200 114",
-    labelX: 200,
-    labelY: 86,
+    labelX: 212,
+    labelY: 100,
   },
   {
     key: "battery_to_home_power_w",
@@ -40,7 +40,7 @@ const EDGE_CONFIG = Object.freeze([
     color: COLOR_BATTERY,
     path: "M316 132 C290 132 258 132 232 132",
     labelX: 274,
-    labelY: 120,
+    labelY: 118,
   },
   {
     key: "grid_to_home_power_w",
@@ -49,7 +49,7 @@ const EDGE_CONFIG = Object.freeze([
     color: COLOR_GRID_SOURCE,
     path: "M84 132 C110 132 142 132 170 132",
     labelX: 126,
-    labelY: 120,
+    labelY: 118,
   },
   {
     key: "solar_to_battery_power_w",
@@ -57,8 +57,8 @@ const EDGE_CONFIG = Object.freeze([
     to: "battery",
     color: COLOR_SOLAR,
     path: "M214 54 C250 64 286 84 316 108",
-    labelX: 268,
-    labelY: 76,
+    labelX: 278,
+    labelY: 82,
   },
   {
     key: "grid_to_battery_power_w",
@@ -66,8 +66,8 @@ const EDGE_CONFIG = Object.freeze([
     to: "battery",
     color: COLOR_GRID_TO_BATT,
     path: "M84 148 C146 194 252 194 316 148",
-    labelX: 200,
-    labelY: 194,
+    labelX: 208,
+    labelY: 200,
   },
   {
     key: "solar_export_power_w",
@@ -75,8 +75,8 @@ const EDGE_CONFIG = Object.freeze([
     to: "grid",
     color: COLOR_SOLAR_EXPORT,
     path: "M186 54 C150 64 114 84 84 108",
-    labelX: 132,
-    labelY: 76,
+    labelX: 122,
+    labelY: 82,
   },
 ]);
 
@@ -169,6 +169,10 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
   const edges = EDGE_CONFIG.map((edge) => {
     const value = values[edge.key];
     const opacity = activeOpacity(value, debug);
+    const w = value == null ? 0 : Math.abs(Number(value) || 0);
+    const label =
+      value != null && w >= EDGE_HIDE_W ? fmtPowerCompact(value) : null;
+    const ghost = Boolean(debug && value != null && w < EDGE_HIDE_W);
     return {
       ...edge,
       value,
@@ -176,7 +180,8 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
       opacity,
       width: edgeWidth(value),
       duration: edgeDuration(value),
-      label: value != null ? fmtPowerCompact(value) : null,
+      label,
+      ghost,
     };
   });
 
@@ -208,6 +213,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
   const batteryDischargeW = values.battery_to_home_power_w ?? values.battery_discharge_power_w ?? 0;
   const batteryUi = batteryPresentation(i18n, batteryState, batteryDischargeW, batteryChargeW);
 
+  const pulse = (v) => v != null && Math.abs(v) >= EDGE_HIDE_W;
   const nodes = {
     grid: {
       kind: "grid",
@@ -219,6 +225,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
       status: "active",
       x: 56,
       y: 132,
+      pulse: pulse(gridDisplay),
     },
     solar: {
       kind: "solar",
@@ -230,6 +237,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
       status: "active",
       x: 200,
       y: SOLAR_CY,
+      pulse: pulse(solarFromEdges),
     },
     home: {
       kind: "home",
@@ -241,6 +249,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
       status: "active",
       x: 200,
       y: 132,
+      pulse: pulse(homeFromEdges),
     },
     battery: batteryConfigured
       ? {
@@ -253,6 +262,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
           status: batteryState,
           x: 344,
           y: 132,
+          pulse: batteryState === "active",
         }
       : null,
   };
