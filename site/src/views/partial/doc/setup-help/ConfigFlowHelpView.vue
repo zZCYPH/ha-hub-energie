@@ -189,50 +189,6 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style scoped>
-.flowhelp-main {
-  max-width: 56rem;
-}
-
-.flowhelp-section-h {
-  letter-spacing: 0.02em;
-}
-
-.flowhelp-step-card {
-  margin-bottom: 2rem;
-  padding: 1.35rem 1.35rem 1.5rem;
-  border-radius: 0.6rem;
-  border: 1px solid var(--bs-border-color-translucent);
-  background-color: var(--bs-body-bg);
-  box-shadow: var(--bs-box-shadow-sm);
-}
-
-@media (min-width: 768px) {
-  .flowhelp-step-card {
-    padding: 1.5rem 1.65rem 1.65rem;
-    margin-bottom: 2.25rem;
-  }
-}
-
-.flowhelp-step-title {
-  color: var(--bs-emphasis-color);
-  padding-bottom: 0.35rem;
-  border-bottom: 1px solid var(--bs-border-color-translucent);
-}
-
-.flowhelp-step-prose :deep(p:last-child) {
-  margin-bottom: 0;
-}
-
-.flowhelp-step-prose :deep(p + p) {
-  margin-top: 0.65rem;
-}
-
-.flowhelp-step-prose :deep(p) {
-  line-height: 1.58;
-}
-
-.flowhelp-fieldguide {
-  max-width: 52rem;
-}
-</style>
+<style scoped src="../../../../styles/flowhelp/config-flow-help-shell.css"></style>
+<style scoped src="../../../../styles/flowhelp/config-flow-help-step-cards.css"></style>
+<style scoped src="../../../../styles/flowhelp/config-flow-help-step-prose.css"></style>
