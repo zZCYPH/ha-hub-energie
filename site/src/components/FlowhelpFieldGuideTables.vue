@@ -106,10 +106,42 @@ defineProps({
   vertical-align: top;
 }
 
-@media (max-width: 575.98px) {
-  .flowhelp-fg-cell-label {
-    width: 42%;
-    min-width: 8rem;
+/* Stack field name above description on narrow viewports — full width reduces awkward wraps */
+@media (max-width: 767.98px) {
+  .flowhelp-fg-table tbody tr {
+    display: block;
+    padding: 0.65rem 0;
+    border-top: 1px solid var(--bs-border-color-translucent);
+  }
+
+  .flowhelp-fg-table tbody tr:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .flowhelp-fg-table tbody tr th,
+  .flowhelp-fg-table tbody tr td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    border: none;
+  }
+
+  .flowhelp-fg-table tbody tr th {
+    padding-top: 0;
+    padding-bottom: 0.2rem;
+  }
+
+  .flowhelp-fg-table tbody tr td {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .flowhelp-fg-table tbody tr + tr th,
+  .flowhelp-fg-table tbody tr + tr td {
+    border-top: none;
   }
 }
 </style>
