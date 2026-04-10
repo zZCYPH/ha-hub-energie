@@ -278,6 +278,9 @@ pages:
       # History-mode SPA: Vite base + GitLab Pages `_redirects` need the project path on *.gitlab.io URLs.
       export VITE_SITE_BASE="$(node -e "const u=process.env.CI_PAGES_URL||'';if(!u){process.stdout.write('/');process.exit(0)}try{let p=new URL(u).pathname||'/';if(p!=='/'&&!p.endsWith('/'))p+='/';process.stdout.write(p)}catch{process.stdout.write('/')}")"
       (cd site && npm ci && npm run build)
+      rm -rf public
+      mkdir -p public
+      cp -r site/dist/. public/
       if [ "${VITE_SITE_BASE:-/}" = "/" ] || [ -z "${VITE_SITE_BASE:-}" ]; then
         printf '%s\n' '/* /index.html 200' > public/_redirects
       else
@@ -285,9 +288,6 @@ pages:
         _b="${_b%/}"
         printf '%s/* %s/index.html 200\n' "${_b}" "${_b}" > public/_redirects
       fi
-      rm -rf public
-      mkdir -p public
-      cp -r site/dist/. public/
   artifacts:
     paths:
       - public
