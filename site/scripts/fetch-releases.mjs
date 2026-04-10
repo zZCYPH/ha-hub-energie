@@ -1,12 +1,10 @@
 /**
  * Writes site/public/releases.json (Vite copies it to dist/ as /releases.json).
  *
- * GitLab: the `pages` job runs this before `npm run build` on:
- *   - pushes to the default branch (master), and
- *   - semver tags v*.*.* (same pipeline as integration_release, so the new release is listed).
- * Uses CI_JOB_TOKEN + CI_API_V4_URL + CI_PROJECT_ID when GITLAB_CI is set.
+ * GitLab CI (`pages` job): same auth as `.gitlab-ci.yml` — if `GITLAB_RELEASE_TOKEN` is set,
+ * use `PRIVATE-TOKEN`; otherwise `JOB-TOKEN` + `CI_JOB_TOKEN`. Needs `CI_PROJECT_ID`.
  *
- * Locally: GITLAB_TOKEN + GITLAB_PROJECT_ID to refresh; otherwise keeps existing public/releases.json.
+ * Locally: `GITLAB_TOKEN` + `GITLAB_PROJECT_ID` to refresh; otherwise keeps existing public/releases.json.
  */
 import { existsSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -82,12 +80,17 @@ async function main() {
   const isGitLabCi = process.env.GITLAB_CI === "true";
   let releases = null;
 
-  if (isGitLabCi && process.env.CI_JOB_TOKEN && process.env.CI_PROJECT_ID) {
-    const data = await fetchAllReleases(
-      { "JOB-TOKEN": process.env.CI_JOB_TOKEN },
-      process.env.CI_PROJECT_ID,
-    );
-    releases = normalizePayload(data);
+  if (isGitLabCi && process.env.CI_PROJECT_ID) {
+    const pat = process.env.GITLAB_RELEASE_TOKEN;
+    const headers = pat
+      ? { "PRIVATE-TOKEN": pat }
+      : process.env.CI_JOB_TOKEN
+        ? { "JOB-TOKEN": process.env.CI_JOB_TOKEN }
+        : null;
+    if (headers) {
+      const data = await fetchAllReleases(headers, process.env.CI_PROJECT_ID);
+      releases = normalizePayload(data);
+    }
   } else if (process.env.GITLAB_TOKEN && process.env.GITLAB_PROJECT_ID) {
     const data = await fetchAllReleases(
       { "PRIVATE-TOKEN": process.env.GITLAB_TOKEN },
