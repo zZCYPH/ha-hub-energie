@@ -32,7 +32,7 @@
         <i class="bi bi-diagram-3 text-primary flex-shrink-0" aria-hidden="true"></i>
         <span class="text-secondary small">
           <span data-i18n="overview.intro_li_internals_before"></span>
-          <router-link class="text-body" to="/internals" data-i18n="doc.hero_internals_cta"></router-link>
+          <router-link class="text-body" to="/internals/" data-i18n="doc.hero_internals_cta"></router-link>
           <span data-i18n="overview.intro_li_internals_after"></span>
         </span>
       </li>

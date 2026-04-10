@@ -24,7 +24,9 @@ const router = createRouter({
     { path: "/", name: "home", component: HomeView },
     { path: "/showcase", name: "showcase", component: DocView },
     { path: "/doc/setup-help", name: "flowhelp", component: ConfigFlowHelpView },
-    { path: "/internals", name: "internals", component: InternalsView },
+    /* GitLab Pages (and similar) often 302 `/internals` → `/internals/`; keep slash so the SPA URL matches the host. */
+    { path: "/internals", redirect: "/internals/" },
+    { path: "/internals/", name: "internals", component: InternalsView },
     /* Not linked from the public nav yet — bookmark `/dev` to open. */
     { path: "/dev", name: "developers", component: DevelopersView },
   ],

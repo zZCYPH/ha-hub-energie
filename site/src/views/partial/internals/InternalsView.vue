@@ -31,7 +31,7 @@ let detachNav = () => {};
 onMounted(() => {
   nextTick(() => {
     wireTocMobile();
-    if (root.value) detachNav = attachInPageNav(root.value, router, "/internals");
+    if (root.value) detachNav = attachInPageNav(root.value, router, "/internals/");
     setupScrollSpy("internals");
   });
 });

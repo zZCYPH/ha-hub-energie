@@ -66,7 +66,7 @@ const feedbackMailto =
               data-i18n="landing.cta_discover"
               >Discover</a
             >
-            <a class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-3" :href="pathTo('/internals')" data-i18n="landing.cta_internals"
+            <a class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-3" :href="pathTo('/internals/')" data-i18n="landing.cta_internals"
               >How it works internally</a
             >
             <div class="dropdown">

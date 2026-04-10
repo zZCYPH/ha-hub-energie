@@ -24,7 +24,7 @@ import { pathTo } from "../../../sitePaths";
     <p class="small text-secondary mb-2">
       <a class="text-body" :href="pathTo('/doc/setup-help')" data-i18n="devices.gallery_link_setup"></a>
       <span class="text-secondary mx-1" aria-hidden="true">·</span>
-      <a class="text-body" :href="pathTo('/internals')" data-i18n="devices.gallery_link_internals"></a>
+      <a class="text-body" :href="pathTo('/internals/')" data-i18n="devices.gallery_link_internals"></a>
     </p>
     <div class="row g-3">
       <div class="col-lg-3">

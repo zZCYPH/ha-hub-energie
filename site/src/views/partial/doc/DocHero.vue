@@ -21,7 +21,7 @@ const { full } = useManifestVersion();
             <code class="font-mono small">/hub_energie/</code>
           </p>
           <div class="mt-4">
-            <a :href="pathTo('/internals')" class="btn btn-outline-primary btn-lg rounded-pill px-4 doc-internals-cta shadow-sm">
+            <a :href="pathTo('/internals/')" class="btn btn-outline-primary btn-lg rounded-pill px-4 doc-internals-cta shadow-sm">
               <i class="bi bi-diagram-3 me-2" aria-hidden="true"></i>
               <span data-i18n="doc.hero_internals_cta">How it works behind the scenes</span>
             </a>

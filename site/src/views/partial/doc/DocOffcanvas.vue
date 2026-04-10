@@ -29,7 +29,7 @@ import { pathTo } from "../../../sitePaths";
         aria-label="Page"
       >
         <a class="nav-link" :href="pathTo('/')" data-bs-dismiss="offcanvas"><span data-i18n="nav.home">Home</span></a>
-        <a class="nav-link" :href="pathTo('/internals')" data-bs-dismiss="offcanvas"
+        <a class="nav-link" :href="pathTo('/internals/')" data-bs-dismiss="offcanvas"
           ><span data-i18n="nav.internals">How it works behind the scenes</span></a
         >
         <hr class="border-secondary my-2 opacity-25" />
