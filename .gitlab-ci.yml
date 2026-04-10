@@ -6,8 +6,7 @@
 #   {CI_PROJECT_URL}/-/package_files/{id}/download
 # (The pretty URL .../packages/generic/.../file.zip often 404s; package_files/download works.)
 #
-# Permissions: enable API access for the CI job token (Settings → CI/CD → Job token permissions),
-# or set a project access token as CI variable GITLAB_RELEASE_TOKEN (api scope).
+# Permissions: CI job token must access package + releases APIs (Settings → CI/CD → Job token permissions).
 
 # Verify order (DAG via needs):
 #   1) flow_catalog_up_to_date  →  2) verify_docs_consistency + site_build_smoke (parallel)
@@ -104,13 +103,7 @@ integration_release:
         "$STAGE/custom_components/hub_energie/"
       ZIP_NAME="hub-energie-${VERSION}.zip"
       (cd "$STAGE" && zip -qr "${CI_PROJECT_DIR}/${ZIP_NAME}" custom_components)
-      if [ -n "${GITLAB_RELEASE_TOKEN:-}" ]; then
-        AUTH_HEADER="PRIVATE-TOKEN: ${GITLAB_RELEASE_TOKEN}"
-        echo "Package/release API auth: GITLAB_RELEASE_TOKEN (PRIVATE-TOKEN)"
-      else
-        AUTH_HEADER="JOB-TOKEN: ${CI_JOB_TOKEN}"
-        echo "Package/release API auth: CI_JOB_TOKEN (JOB-TOKEN). If upload returns 403, set CI variable GITLAB_RELEASE_TOKEN (unprotected if your tag is not protected)."
-      fi
+      AUTH_HEADER="JOB-TOKEN: ${CI_JOB_TOKEN}"
       PKG_API="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${GITLAB_PACKAGE_NAME}/${VERSION}/${ZIP_NAME}"
       echo "Uploading ${ZIP_NAME} to generic package ${GITLAB_PACKAGE_NAME}/${VERSION}..."
       # Capture body on failure: GitLab returns JSON (permission, duplicate version, etc.); curl --fail hides it.
@@ -179,7 +172,7 @@ integration_release:
       done
       if [ -z "$FILE_ID" ] || [ "$FILE_ID" = "null" ]; then
         echo "Could not resolve package file id for ${ZIP_NAME} (package_id=${PKG_ID:-?})."
-        echo "Set CI variable GITLAB_RELEASE_TOKEN (api, read_api) if JOB-TOKEN cannot read packages."
+        echo "If this persists, check Job token permissions (Packages) and that Package registry is enabled for the project."
         echo "package_files last response (truncated):"
         echo "${FILES_JSON:-}" | head -c 2500
         exit 1
@@ -257,13 +250,7 @@ pages:
       # Pushing vX.Y.Z and site-vX.Y.Z-i on the same commit creates two tag pipelines in parallel;
       # stages cannot order jobs across pipelines. Wait until the semver release (integration_release)
       # exists with a hub-energie ZIP asset before fetch-releases so /releases.json lists the new version.
-      if [ -n "${GITLAB_RELEASE_TOKEN:-}" ]; then
-        AUTH_HEADER="PRIVATE-TOKEN: ${GITLAB_RELEASE_TOKEN}"
-        echo "pages: release API auth: GITLAB_RELEASE_TOKEN (PRIVATE-TOKEN)"
-      else
-        AUTH_HEADER="JOB-TOKEN: ${CI_JOB_TOKEN}"
-        echo "pages: release API auth: CI_JOB_TOKEN (JOB-TOKEN)"
-      fi
+      AUTH_HEADER="JOB-TOKEN: ${CI_JOB_TOKEN}"
       SEMVER_TAG="v${MANIFEST_VER}"
       REL_ENC="$(printf '%s' "$SEMVER_TAG" | jq -sRr @uri)"
       RELEASE_API="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/${REL_ENC}"
@@ -283,7 +270,7 @@ pages:
       done
       if [ -z "$READY" ]; then
         echo "pages: timed out waiting for ${SEMVER_TAG}. Push the v*.*.* tag before or with site-v*," \
-             "or set GITLAB_RELEASE_TOKEN if JOB-TOKEN cannot read releases/assets."
+             "and ensure the job token can read releases (Job token permissions)."
         exit 1
       fi
       # GitLab Releases API → site/public/releases.json (bundled as /releases.json on the site)
