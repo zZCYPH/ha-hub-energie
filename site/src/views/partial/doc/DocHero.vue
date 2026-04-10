@@ -1,4 +1,6 @@
 <script setup>
+import DocShowcaseStrip from "./DocShowcaseStrip.vue";
+import { pathTo } from "../../../sitePaths";
 import { useManifestVersion } from "../../../useManifestVersion";
 
 const { full } = useManifestVersion();
@@ -12,13 +14,14 @@ const { full } = useManifestVersion();
           <p class="text-uppercase small fw-semibold text-primary mb-2 tracking-wide" data-i18n="hero.kicker">
             Home Assistant · Custom integration
           </p>
+          <DocShowcaseStrip />
           <h1 class="display-6 fw-bold mb-3" data-i18n="hero.title">Energy monitoring, costs &amp; diagnostics</h1>
           <p class="lead text-secondary mb-3 mb-lg-0">
             <span data-i18n="hero.lead"></span>
             <code class="font-mono small">/hub_energie/</code>
           </p>
           <div class="mt-4">
-            <a href="#/internals" class="btn btn-outline-primary btn-lg rounded-pill px-4 doc-internals-cta shadow-sm">
+            <a :href="pathTo('/internals')" class="btn btn-outline-primary btn-lg rounded-pill px-4 doc-internals-cta shadow-sm">
               <i class="bi bi-diagram-3 me-2" aria-hidden="true"></i>
               <span data-i18n="doc.hero_internals_cta">How it works behind the scenes</span>
             </a>

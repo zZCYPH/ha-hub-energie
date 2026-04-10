@@ -8,7 +8,7 @@ export function createDocFlowsimJumpHandlers(router) {
     jumpToSetupFlowsim(stepId) {
       if (!stepId) return Promise.resolve();
       return router
-        .push({ name: "doc", hash: "#configure-flow-simulator" })
+        .push({ name: "showcase", hash: "#configure-flow-simulator" })
         .then(() =>
           nextTick(() => {
             window.dispatchEvent(new CustomEvent("hub-energie-flowsim-jump", { detail: { stepId } }));
@@ -18,7 +18,7 @@ export function createDocFlowsimJumpHandlers(router) {
     jumpToOptionsFlowsim(stepId) {
       if (!stepId) return Promise.resolve();
       return router
-        .push({ name: "doc", hash: "#configure-advanced" })
+        .push({ name: "showcase", hash: "#configure-advanced" })
         .then(() =>
           nextTick(() => {
             window.dispatchEvent(

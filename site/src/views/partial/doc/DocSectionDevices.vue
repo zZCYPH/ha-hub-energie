@@ -1,5 +1,6 @@
 <script setup>
 import carouselInnerRaw from "../../../assets/doc-devices-carousel-inner.include.html?raw";
+import { pathTo } from "../../../sitePaths";
 </script>
 
 <template>
@@ -21,9 +22,9 @@ import carouselInnerRaw from "../../../assets/doc-devices-carousel-inner.include
     </h3>
     <p class="text-secondary small" data-i18n="devices.gallery_intro"></p>
     <p class="small text-secondary mb-2">
-      <a class="text-body" href="#/doc/setup-help" data-i18n="devices.gallery_link_setup"></a>
+      <a class="text-body" :href="pathTo('/doc/setup-help')" data-i18n="devices.gallery_link_setup"></a>
       <span class="text-secondary mx-1" aria-hidden="true">·</span>
-      <a class="text-body" href="#/internals" data-i18n="devices.gallery_link_internals"></a>
+      <a class="text-body" :href="pathTo('/internals')" data-i18n="devices.gallery_link_internals"></a>
     </p>
     <div class="row g-3">
       <div class="col-lg-3">

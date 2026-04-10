@@ -4,7 +4,7 @@
   "codeowners": ["@zzcyph1"],
   "config_flow": true,
   "dependencies": ["recorder", "http", "frontend", "lovelace"],
-  "documentation": "https://hub-energie.ts-devops.com/#/doc/setup-help",
+  "documentation": "https://hub-energie.ts-devops.com/doc/setup-help",
   "homeassistant": "2024.10.0",
   "integration_type": "hub",
   "iot_class": "local_polling",

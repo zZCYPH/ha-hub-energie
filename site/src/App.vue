@@ -6,7 +6,7 @@ const base = import.meta.env.BASE_URL;
 const route = useRoute();
 
 const showToc = computed(
-  () => route.name === "doc" || route.name === "internals",
+  () => route.name === "showcase" || route.name === "internals",
 );
 
 const tocTarget = computed(() =>
@@ -70,8 +70,8 @@ const navActive = (name) => route.name === name;
               </router-link>
             </li>
             <li class="nav-item">
-              <router-link class="nav-link" :class="{ active: navActive('doc') }" to="/doc">
-                <span data-i18n="nav.documentation">Documentation</span>
+              <router-link class="nav-link" :class="{ active: navActive('showcase') }" to="/showcase">
+                <span data-i18n="nav.showcase">Showcase</span>
               </router-link>
             </li>
             <li class="nav-item">
@@ -208,8 +208,8 @@ const navActive = (name) => route.name === name;
                   >
                 </li>
                 <li>
-                  <router-link class="link-secondary text-decoration-none" to="/doc">
-                    <span data-i18n="nav.documentation">Documentation</span>
+                  <router-link class="link-secondary text-decoration-none" to="/showcase">
+                    <span data-i18n="nav.showcase">Showcase</span>
                   </router-link>
                 </li>
                 <li>

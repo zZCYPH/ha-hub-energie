@@ -2,6 +2,8 @@
  * i18n meta, theme, lang toggles (ported from public/js/app.js).
  */
 import { nextTick } from "vue";
+import { applyRouteHead } from "./headManager";
+import { rewriteI18nHtmlAppLinks } from "./sitePaths";
 
 const THEME_KEY = "hub-energie-doc-theme";
 const LANG_KEY = "hub-energie-doc-lang";
@@ -38,7 +40,10 @@ export function applyLang(lang, page) {
   });
   document.querySelectorAll("[data-i18n-html]").forEach((el) => {
     const v = tr(lang, el.getAttribute("data-i18n-html"));
-    if (v !== "") el.innerHTML = v;
+    if (v !== "") {
+      el.innerHTML = v;
+      rewriteI18nHtmlAppLinks(el);
+    }
   });
   document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
     el.setAttribute("aria-label", tr(lang, el.getAttribute("data-i18n-aria")));
@@ -61,27 +66,6 @@ export function applyLang(lang, page) {
     if (vt !== "") el.setAttribute("title", vt);
   });
 
-  let titleKey = "meta.title";
-  let descKey = "meta.description";
-  if (page === "landing") {
-    titleKey = "meta.title.landing";
-    descKey = "meta.description.landing";
-  } else if (page === "doc") {
-    titleKey = "meta.title";
-    descKey = "meta.description";
-  } else if (page === "flowhelp") {
-    titleKey = "meta.title.flowhelp";
-    descKey = "meta.description.flowhelp";
-  } else if (page === "internals") {
-    titleKey = "meta.title.internals";
-    descKey = "meta.description.internals";
-  } else if (page === "developers") {
-    titleKey = "meta.title.developers";
-    descKey = "meta.description.developers";
-  }
-  document.title = tr(lang, titleKey);
-  const meta = document.querySelector('meta[name="description"]');
-  if (meta) meta.setAttribute("content", tr(lang, descKey));
   try {
     localStorage.setItem(LANG_KEY, lang);
   } catch (e) {
@@ -166,7 +150,7 @@ function readStoredTheme() {
 
 function pageFromRouteName(name) {
   if (name === "home") return "landing";
-  if (name === "doc") return "doc";
+  if (name === "showcase") return "showcase";
   if (name === "flowhelp") return "flowhelp";
   if (name === "internals") return "internals";
   if (name === "developers") return "developers";
@@ -202,6 +186,7 @@ function resyncShellAfterDom(router) {
         : "dark";
     setTheme(mode);
     applyLang(currentLang, pageFromRouteName(router.currentRoute.value.name));
+    applyRouteHead(router.currentRoute.value);
   });
 }
 
@@ -239,7 +224,7 @@ export function bindShellControls(router) {
 }
 
 export function setupScrollSpy(route) {
-  if (route !== "doc" && route !== "internals") {
+  if (route !== "showcase" && route !== "internals") {
     teardownScrollSpy();
     return;
   }

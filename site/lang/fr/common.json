@@ -1,6 +1,8 @@
 {
-  "meta.title": "Hub Énergie — Documentation",
-  "meta.description": "Parcours rapide Hub Énergie pour Home Assistant : installation, configuration, capteurs, carte Lovelace et appareils — avec liens vers les notes techniques.",
+  "meta.title.showcase": "Hub Énergie — Vitrine d’intégration",
+  "meta.description.showcase": "Parcours guidé de l’intégration Hub Énergie pour Home Assistant : installation, aperçu interactif du flux de configuration, carte Lovelace, appareils, services et liens vers les coulisses techniques.",
+  "meta.title": "Hub Énergie — Vitrine d’intégration",
+  "meta.description": "Parcours guidé de l’intégration Hub Énergie pour Home Assistant : installation, aperçu interactif du flux de configuration, carte Lovelace, appareils, services et liens vers les coulisses techniques.",
   "meta.title.landing": "Hub Énergie — L’énergie du foyer, centralisée",
   "meta.description.landing": "Hub Énergie — une seule intégration Home Assistant pour tarifs, énergie, coûts, solaire, batteries et diagnostics.",
   "meta.title.internals": "Hub Énergie — Coulisses techniques",
@@ -10,7 +12,8 @@
   "meta.title.developers": "Hub Énergie — Développeurs",
   "meta.description.developers": "Notes internes pour les mainteneurs du site de documentation Hub Énergie (aperçu du flux, catalogue généré, CI).",
   "nav.home": "Accueil",
-  "nav.documentation": "Documentation",
+  "nav.showcase": "Vitrine",
+  "nav.documentation": "Vitrine",
   "nav.internals": "Détails d’implémentation",
   "nav.internals_short": "Technique",
   "nav.home_assistant_site_aria": "Home Assistant — site officiel (s’ouvre dans un nouvel onglet)",
@@ -37,5 +40,13 @@
   "social.facebook_aria": "Communauté Hub Énergie sur Facebook (s’ouvre dans un nouvel onglet)",
   "social.discord": "Discord",
   "social.newsletter": "Newsletter",
-  "social.coming_soon": "Bientôt disponible"
+  "social.coming_soon": "Bientôt disponible",
+  "showcase.strip_title": "Ce que vous trouverez ici",
+  "showcase.strip_b1": "Parcours d’installation et téléchargements des releases",
+  "showcase.strip_b2": "Aperçu interactif du flux de configuration (assistant & menu Configurer)",
+  "showcase.strip_b3": "Carte Lovelace, appareils, services et limites assumées",
+  "showcase.cta_install": "Installation",
+  "showcase.cta_preview": "Aperçu du flux d’installation",
+  "showcase.cta_step_help": "Aide pas à pas des dialogues",
+  "showcase.cta_releases": "Releases GitLab"
 }

@@ -1,6 +1,8 @@
 {
-  "meta.title": "Hub Énergie — Documentation",
-  "meta.description": "Quick tour of Hub Énergie for Home Assistant: install, configure, sensors, Lovelace card, and devices — with links to deeper technical notes.",
+  "meta.title.showcase": "Hub Énergie — Integration showcase",
+  "meta.description.showcase": "Guided tour of the Hub Énergie Home Assistant integration: install, interactive config preview, Lovelace card, devices, services, and links to technical internals.",
+  "meta.title": "Hub Énergie — Integration showcase",
+  "meta.description": "Guided tour of the Hub Énergie Home Assistant integration: install, interactive config preview, Lovelace card, devices, services, and links to technical internals.",
   "meta.title.landing": "Hub Énergie — Home energy, centralized",
   "meta.description.landing": "Hub Énergie — a single Home Assistant integration for tariffs, energy, costs, solar, batteries, and diagnostics.",
   "meta.title.internals": "Hub Énergie — Behind the scenes",
@@ -10,7 +12,8 @@
   "meta.title.developers": "Hub Énergie — Developers",
   "meta.description.developers": "Internal maintainer notes for the Hub Énergie documentation site (config-flow preview, generated catalog, CI).",
   "nav.home": "Home",
-  "nav.documentation": "Documentation",
+  "nav.showcase": "Showcase",
+  "nav.documentation": "Showcase",
   "nav.internals": "Implementation details",
   "nav.internals_short": "Internals",
   "nav.home_assistant_site_aria": "Home Assistant — official website (opens in a new tab)",
@@ -37,5 +40,13 @@
   "social.facebook_aria": "Hub Énergie community on Facebook (opens in a new tab)",
   "social.discord": "Discord",
   "social.newsletter": "Newsletter",
-  "social.coming_soon": "Coming soon"
+  "social.coming_soon": "Coming soon",
+  "showcase.strip_title": "What you’ll find here",
+  "showcase.strip_b1": "Install paths and release downloads",
+  "showcase.strip_b2": "Interactive config-flow preview (setup & configure)",
+  "showcase.strip_b3": "Lovelace card, devices, services, and honest limitations",
+  "showcase.cta_install": "Install",
+  "showcase.cta_preview": "Live setup preview",
+  "showcase.cta_step_help": "Step-by-step dialog help",
+  "showcase.cta_releases": "GitLab releases"
 }

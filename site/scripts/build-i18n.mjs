@@ -52,8 +52,13 @@ function mapDeepStrings(value, fn) {
   return value;
 }
 
-function fixDocHashHref(s) {
-  return s.replace(/href=\\"#doc\\"/g, 'href=\\"#/doc\\"').replace(/href="#doc"/g, 'href="#/doc"');
+function fixLegacyDocLinks(s) {
+  return s
+    .replace(/href=\\"#doc\\"/g, 'href=\\"/showcase\\"')
+    .replace(/href="#doc"/g, 'href="/showcase"')
+    .replace(/href=\\"#\\\/doc\\"/g, 'href=\\"/showcase\\"')
+    .replace(/href="#\/doc"/g, 'href="/showcase"')
+    .replace(/href='#\/doc'/g, "href='/showcase'");
 }
 
 mkdirSync(vendorDir, { recursive: true });
@@ -63,7 +68,7 @@ const manifestSeries = hubEnergieVersionSeries(manifestFull);
 const docSnapshotIso = formatHubEnergieDocSnapshotIsoDate();
 
 function postProcessStrings(s) {
-  return fixDocHashHref(applyHubEnergieDocSnapshotTokens(s, manifestFull, docSnapshotIso));
+  return fixLegacyDocLinks(applyHubEnergieDocSnapshotTokens(s, manifestFull, docSnapshotIso));
 }
 
 const en = mapDeepStrings(mergeLocale("en"), postProcessStrings);

@@ -33,7 +33,7 @@ STRINGS_FR_JSON = REPO / "custom_components/hub_energie/translations/fr.json"
 OUT_JSON = REPO / "site/src/data/flowCatalog.generated.json"
 OUT_FIELD_GUIDE_JSON = REPO / "site/src/data/flowHelpFieldGuide.generated.json"
 
-STEP_HELP_DOC_PREFIX = "https://hub-energie.ts-devops.com/#/doc/setup-help#"
+STEP_HELP_DOC_PREFIX = "https://hub-energie.ts-devops.com/doc/setup-help#"
 
 # Keep in sync with ``site/src/data/flowStepHelpDefs.js`` (anchors on the doc site).
 FLOW_HELP_WIZARD_IDS: tuple[str, ...] = (

@@ -1,0 +1,2 @@
+# SPA fallback is written at deploy time in `.gitlab-ci.yml` (path depends on `CI_PAGES_URL`).
+# Local `vite preview` uses history fallback built into Vite.

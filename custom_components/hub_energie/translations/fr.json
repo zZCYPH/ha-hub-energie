@@ -656,7 +656,7 @@
       },
       "reinjection": {
         "title": "Réglages avancés de réinjection",
-        "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})\n\n[Détails d’implémentation — export réseau & réinjection](https://hub-energie.ts-devops.com/#/internals#internals-reinjection)",
+        "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})\n\n[Détails d’implémentation — export réseau & réinjection](https://hub-energie.ts-devops.com/internals#internals-reinjection)",
         "data": {
           "reinjection_export_ignore_below_w": "Ignorer export en dessous de (W)",
           "reinjection_batt_charge_significant_w": "Charge batterie significative au-dessus de (W)",
@@ -680,7 +680,7 @@
       },
       "advanced_energy": {
         "title": "Plafonds de delta d'énergie",
-        "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})\n\n[Détails d’implémentation — plafonds de delta d’énergie](https://hub-energie.ts-devops.com/#/internals#internals-delta-caps)",
+        "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})\n\n[Détails d’implémentation — plafonds de delta d’énergie](https://hub-energie.ts-devops.com/internals#internals-delta-caps)",
         "data": {
           "max_delta_kwh_grid": "Réseau import & export",
           "max_delta_kwh_solar": "Production solaire",

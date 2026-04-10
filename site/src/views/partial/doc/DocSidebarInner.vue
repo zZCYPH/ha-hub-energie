@@ -1,9 +1,13 @@
+<script setup>
+import { pathTo } from "../../../sitePaths";
+</script>
+
 <template>
   <div class="doc-sidebar">
     <div class="small text-uppercase text-secondary fw-semibold mb-2" data-i18n="toc.on_this_page">
       On this page
     </div>
-    <a class="nav-link mb-2" href="#/doc/setup-help"
+    <a class="nav-link mb-2" :href="pathTo('/doc/setup-help')"
       ><span data-i18n="toc.setup_help">Setup &amp; options — step help</span></a
     >
     <nav

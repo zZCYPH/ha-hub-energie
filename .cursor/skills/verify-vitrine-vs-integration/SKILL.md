@@ -34,7 +34,7 @@ python3 scripts/verify_vitrine_integration_docs.py
 - Exit **0** → version tokens on `site/lang/**` + any remaining `site/src/assets/*.html`, HACS HA field, and README service list are consistent with `manifest.json` / `services.yaml`.
 - Exit **non-zero** → follow the printed list; update literals so only **one** integration semver and **one** HA minimum appear in each scanned file (calendar-style `20xx.y.z` is treated as the HA minimum, not as a second “release” version).
 - **Internals page** copy lives in `site/lang/*/internals.json` and Vue partials under `site/src/views/partial/internals/`; internals are not version-gated like the main doc page — still review when behaviour changes.
-- **Doc page** layout and sections are Vue partials under `site/src/views/partial/doc/*.vue` (composed by `DocView.vue`); the devices carousel mock is still `site/src/assets/doc-devices-carousel-inner.include.html` (injected via `DocSectionDevices.vue`). `#/doc/setup-help` is `ConfigFlowHelpView.vue` under `site/src/views/partial/doc/setup-help/`.
+- **Showcase page** layout and sections are Vue partials under `site/src/views/partial/doc/*.vue` (composed by `DocView.vue`); the devices carousel mock is still `site/src/assets/doc-devices-carousel-inner.include.html` (injected via `DocSectionDevices.vue`). `/doc/setup-help` is `ConfigFlowHelpView.vue` under `site/src/views/partial/doc/setup-help/`.
 
 ## Manual pass (features & honesty)
 
@@ -42,7 +42,7 @@ After the script passes, skim for **marketing drift**:
 
 1. **Landing cards** (`landing.f1_*` … `f6_*` in `site/lang/*/landing.json`) vs README **Supported scope** / **Features** / **Limitations** — no promise of cloud-only features, “real” solar where the README says model/estimate, etc.
 2. **Internals page** (`internals.*` / `ssot.*` in `site/lang/*/internals.json`) vs `ARCHITECTURE.md` and `README.md` **Data sources (SSOT)** — SSOT wording, Paris TZ, unknown bucket, rebuild behaviour.
-3. **New integration features** — if code or `CHANGELOG.md` adds user-visible behaviour, add or adjust copy on `#/doc` and landing as needed, then re-run the script.
+3. **New integration features** — if code or `CHANGELOG.md` adds user-visible behaviour, add or adjust copy on `/showcase` and landing as needed, then re-run the script.
 
 ## After a version bump
 

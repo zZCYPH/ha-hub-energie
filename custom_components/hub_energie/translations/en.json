@@ -649,7 +649,7 @@
       },
       "reinjection": {
         "title": "Advanced reinjection tuning",
-        "description": "[I need help with this step]({step_help_url})\n\n[Implementation details — grid export & reinjection](https://hub-energie.ts-devops.com/#/internals#internals-reinjection)",
+        "description": "[I need help with this step]({step_help_url})\n\n[Implementation details — grid export & reinjection](https://hub-energie.ts-devops.com/internals#internals-reinjection)",
         "data": {
           "reinjection_export_ignore_below_w": "Ignore export below (W)",
           "reinjection_batt_charge_significant_w": "Battery charge significant above (W)",
@@ -673,7 +673,7 @@
       },
       "advanced_energy": {
         "title": "Energy delta caps",
-        "description": "[I need help with this step]({step_help_url})\n\n[Implementation details — energy delta caps](https://hub-energie.ts-devops.com/#/internals#internals-delta-caps)",
+        "description": "[I need help with this step]({step_help_url})\n\n[Implementation details — energy delta caps](https://hub-energie.ts-devops.com/internals#internals-delta-caps)",
         "data": {
           "max_delta_kwh_grid": "Grid import & export",
           "max_delta_kwh_solar": "Solar production",
