@@ -1,3 +1,7 @@
+<script setup>
+import InstallReleasePicker from "../../../components/InstallReleasePicker.vue";
+</script>
+
 <template>
   <section id="install" class="doc-section pb-5">
     <h2 class="mb-3">
@@ -91,7 +95,9 @@
               <code class="font-mono">configuration.yaml</code>
               <span data-i18n="install.zip_intro_2"></span>
             </p>
-            <div id="hub-energie-install-release-mount" class="flex-shrink-0"></div>
+            <div class="flex-shrink-0">
+              <InstallReleasePicker />
+            </div>
             <p class="small text-secondary mb-0 lh-lg">
               <span data-i18n="install.zip_after_before"></span>
               <a href="#configure" data-i18n="install.zip_after_configure"></a>
