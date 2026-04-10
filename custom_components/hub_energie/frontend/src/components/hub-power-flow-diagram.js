@@ -54,14 +54,6 @@ export class HubPowerFlowDiagram extends LitElement {
       );
       -webkit-font-smoothing: antialiased;
     }
-    /* No color-mix / SVG filters here: some HA WebViews drop the whole diagram if a paint is invalid. */
-    .backdrop {
-      fill: var(--card-background-color, #1e1e1e);
-      fill-opacity: 0.92;
-      stroke: var(--divider-color, #3d3d3d);
-      stroke-opacity: 0.65;
-      stroke-width: 1;
-    }
     .edge-base,
     .edge-glow,
     .edge-flow {
@@ -136,6 +128,50 @@ export class HubPowerFlowDiagram extends LitElement {
     this.i18n = {};
     this.layout = "full";
     this.debug = false;
+    /** Unique SVG defs ids when several flow cards share a view. */
+    this._gid = Math.random().toString(36).slice(2, 10);
+  }
+
+  _renderDefs() {
+    const u = this._gid;
+    return svg`
+      <defs>
+        <linearGradient id="hub-${u}-panel" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#353535" stop-opacity="0.88"></stop>
+          <stop offset="55%" stop-color="#1c1c1c" stop-opacity="0.94"></stop>
+          <stop offset="100%" stop-color="#0f0f0f" stop-opacity="1"></stop>
+        </linearGradient>
+        <pattern id="hub-${u}-grain" width="22" height="22" patternUnits="userSpaceOnUse">
+          <circle cx="5" cy="7" r="0.55" fill="#ffffff" opacity="0.04"></circle>
+          <circle cx="15" cy="4" r="0.45" fill="#ffffff" opacity="0.03"></circle>
+          <circle cx="11" cy="16" r="0.4" fill="#ffffff" opacity="0.025"></circle>
+        </pattern>
+        <radialGradient id="hub-${u}-core-grid" cx="32%" cy="28%" r="72%">
+          <stop offset="0%" stop-color="#e1bee7" stop-opacity="0.65"></stop>
+          <stop offset="55%" stop-color="#7e57c2" stop-opacity="0.95"></stop>
+          <stop offset="100%" stop-color="#4527a0" stop-opacity="1"></stop>
+        </radialGradient>
+        <radialGradient id="hub-${u}-core-solar" cx="30%" cy="26%" r="75%">
+          <stop offset="0%" stop-color="#fffde7" stop-opacity="0.75"></stop>
+          <stop offset="45%" stop-color="#fdd835" stop-opacity="1"></stop>
+          <stop offset="100%" stop-color="#f57f17" stop-opacity="1"></stop>
+        </radialGradient>
+        <radialGradient id="hub-${u}-core-home" cx="32%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#b2ebf2" stop-opacity="0.7"></stop>
+          <stop offset="50%" stop-color="#00acc1" stop-opacity="0.95"></stop>
+          <stop offset="100%" stop-color="#006064" stop-opacity="1"></stop>
+        </radialGradient>
+        <radialGradient id="hub-${u}-core-battery" cx="30%" cy="28%" r="72%">
+          <stop offset="0%" stop-color="#c8e6c9" stop-opacity="0.65"></stop>
+          <stop offset="55%" stop-color="#66bb6a" stop-opacity="1"></stop>
+          <stop offset="100%" stop-color="#2e7d32" stop-opacity="1"></stop>
+        </radialGradient>
+        <radialGradient id="hub-${u}-core-idle" cx="35%" cy="35%" r="68%">
+          <stop offset="0%" stop-color="#9e9e9e" stop-opacity="0.35"></stop>
+          <stop offset="100%" stop-color="#424242" stop-opacity="0.92"></stop>
+        </radialGradient>
+      </defs>
+    `;
   }
 
   render() {
@@ -144,9 +180,8 @@ export class HubPowerFlowDiagram extends LitElement {
     const nodes = Object.values(model.nodes).filter(Boolean);
     const showEdgeLabels = this.debug || this.layout !== "compact";
     const showNodeDetails = this.debug || this.layout !== "compact";
-    const backdropStyle =
-      "fill:var(--card-background-color,#1e1e1e);fill-opacity:0.92;stroke:var(--divider-color,#3d3d3d);stroke-opacity:0.65;stroke-width:1";
     const title = this.i18n.flowCardTitle ?? "Live power flows";
+    const u = this._gid;
     /* Inside <svg>, nested `html` fragments use the HTML namespace; use `svg` for real SVG nodes (Lit docs). */
     return html`
       <svg
@@ -157,15 +192,30 @@ export class HubPowerFlowDiagram extends LitElement {
         aria-label=${title}
         style="display:block;width:100%;max-width:100%;height:auto;min-height:200px"
       >
+        ${this._renderDefs()}
         ${svg`
           <rect
-            class="backdrop"
-            style=${backdropStyle}
-            x="6"
-            y="6"
-            width="388"
-            height="228"
-            rx="26"
+            x="10"
+            y="12"
+            width="380"
+            height="216"
+            rx="22"
+            fill="url(#hub-${u}-panel)"
+            stroke="#666666"
+            stroke-opacity="0.45"
+            stroke-width="1"
+          ></rect>
+          <rect x="10" y="12" width="380" height="216" rx="22" fill="url(#hub-${u}-grain)"></rect>
+          <rect
+            x="11.5"
+            y="13.5"
+            width="377"
+            height="213"
+            rx="20.5"
+            fill="none"
+            stroke="#ffffff"
+            stroke-opacity="0.06"
+            stroke-width="1"
           ></rect>
         `}
         ${model.edges.map((edge) => this._renderEdge(edge, showEdgeLabels))}
@@ -211,21 +261,23 @@ export class HubPowerFlowDiagram extends LitElement {
     const labelClass = node.muted ? "node-muted" : "";
     const detail = showDetails && node.detail ? node.detail : null;
     const idle = node.status === "idle" || node.status === "unknown";
+    const gid = this._gid;
+    const coreFill = idle
+      ? `url(#hub-${gid}-core-idle)`
+      : `url(#hub-${gid}-core-${node.kind})`;
     const ringStyle = idle
-      ? "fill:var(--disabled-text-color,#9e9e9e);fill-opacity:0.12;stroke:var(--disabled-text-color,#9e9e9e);stroke-opacity:0.65;stroke-width:2"
-      : `fill:${color};fill-opacity:0.12;stroke:${color};stroke-opacity:0.82;stroke-width:2`;
-    const coreStyle = idle
-      ? "fill:var(--disabled-text-color,#9e9e9e);fill-opacity:0.14;stroke:var(--divider-color,#3d3d3d);stroke-opacity:0.45;stroke-width:1"
-      : `fill:${color};fill-opacity:0.2;stroke:var(--divider-color,#3d3d3d);stroke-opacity:0.42;stroke-width:1`;
+      ? "fill:#757575;fill-opacity:0.1;stroke:#9e9e9e;stroke-opacity:0.5;stroke-width:1.75"
+      : `fill:${color};fill-opacity:0.09;stroke:${color};stroke-opacity:0.75;stroke-width:1.75`;
+    const coreStyle = `fill:${coreFill};stroke:#000000;stroke-opacity:0.22;stroke-width:1`;
     const textFill =
       labelClass === "node-muted"
         ? "fill:var(--disabled-text-color,#9e9e9e)"
         : "fill:var(--primary-text-color,#e0e0e0)";
     const detailFill = "fill:var(--secondary-text-color,#b0b0b0)";
     const home = node.kind === "home";
-    const labelY = radius + (home ? 20 : 16);
-    const valueY = radius + (home ? 38 : 30);
-    const detailY = radius + (home ? 54 : 44);
+    const labelY = radius + (home ? 20 : 14);
+    const valueY = radius + (home ? 38 : 24);
+    const detailY = radius + (home ? 54 : 40);
     return svg`
       <g transform="translate(${node.x} ${node.y})">
         <circle class="node-ring ${node.status}" r=${radius + 6} style=${ringStyle}></circle>

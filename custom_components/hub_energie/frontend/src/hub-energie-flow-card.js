@@ -20,8 +20,10 @@ const AUTO_LAYOUT_BREAKPOINT = 520;
 const EDGE_HIDE_W = 5;
 const EDGE_FADE_W = 20;
 
-/** Solar node cy; keep paths/labels in sync (was 48 — “0 W” overlapped the home bubble). */
-const SOLAR_CY = 32;
+/** Horizontal row (grid / home / battery); lowered so solar fits inside the inner frame. */
+const ROW_CY = 140;
+/** Solar cy; outer ring top = SOLAR_CY − 28 must stay ≥ backdrop top + margin (~18). */
+const SOLAR_CY = 48;
 
 const EDGE_CONFIG = Object.freeze([
   {
@@ -29,54 +31,54 @@ const EDGE_CONFIG = Object.freeze([
     from: "solar",
     to: "home",
     color: COLOR_SOLAR,
-    path: "M200 58 C200 78 200 100 200 114",
+    path: "M200 78 C200 98 200 116 200 128",
     labelX: 200,
-    labelY: 86,
+    labelY: 96,
   },
   {
     key: "battery_to_home_power_w",
     from: "battery",
     to: "home",
     color: COLOR_BATTERY,
-    path: "M316 132 C290 132 258 132 232 132",
+    path: "M316 140 C290 140 258 140 232 140",
     labelX: 274,
-    labelY: 120,
+    labelY: 128,
   },
   {
     key: "grid_to_home_power_w",
     from: "grid",
     to: "home",
     color: COLOR_GRID_SOURCE,
-    path: "M84 132 C110 132 142 132 170 132",
+    path: "M84 140 C110 140 142 140 172 140",
     labelX: 126,
-    labelY: 120,
+    labelY: 128,
   },
   {
     key: "solar_to_battery_power_w",
     from: "solar",
     to: "battery",
     color: COLOR_SOLAR,
-    path: "M214 54 C250 64 286 84 316 108",
-    labelX: 268,
-    labelY: 76,
+    path: "M214 76 C252 88 290 108 316 128",
+    labelX: 270,
+    labelY: 88,
   },
   {
     key: "grid_to_battery_power_w",
     from: "grid",
     to: "battery",
     color: COLOR_GRID_TO_BATT,
-    path: "M84 148 C146 194 252 194 316 148",
+    path: "M84 156 C146 202 252 202 316 156",
     labelX: 200,
-    labelY: 194,
+    labelY: 200,
   },
   {
     key: "solar_export_power_w",
     from: "solar",
     to: "grid",
     color: COLOR_SOLAR_EXPORT,
-    path: "M186 54 C150 64 114 84 84 108",
+    path: "M186 76 C148 88 110 108 84 128",
     labelX: 132,
-    labelY: 76,
+    labelY: 88,
   },
 ]);
 
@@ -218,7 +220,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
       muted: false,
       status: "active",
       x: 56,
-      y: 132,
+      y: ROW_CY,
     },
     solar: {
       kind: "solar",
@@ -240,7 +242,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
       muted: false,
       status: "active",
       x: 200,
-      y: 132,
+      y: ROW_CY,
     },
     battery: batteryConfigured
       ? {
@@ -252,7 +254,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
           muted: batteryUi.muted,
           status: batteryState,
           x: 344,
-          y: 132,
+          y: ROW_CY,
         }
       : null,
   };
@@ -295,7 +297,8 @@ export class HubEnergieFlowCard extends LitElement {
       display: block;
     }
     ha-card {
-      overflow: hidden;
+      /* Let SVG strokes / rings breathe at rounded corners (diagram uses overflow: visible). */
+      overflow: visible;
     }
     .wrap {
       padding: 14px 14px 10px;
