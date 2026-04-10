@@ -592,11 +592,6 @@ const progressLabel = computed(() => {
   return tr("flowsim.step_depth").replace("{n}", String(history.value.length));
 });
 
-const shellDisclaimer = computed(() => {
-  langTick.value;
-  return props.mode === "options" ? tr("flowsim.disclaimer_options") : tr("flowsim.disclaimer");
-});
-
 const doneTitleText = computed(() => {
   langTick.value;
   if (!finished.value) return "";
@@ -907,11 +902,27 @@ onUnmounted(() => {
 <template>
   <div class="site-flow-simulator flow-sim fs-card card border shadow-sm" :data-flow-simulator-mode="props.mode">
     <div class="card-body">
+      <section
+        class="simulator-intro flow-sim__intro mb-3 pb-3 border-bottom border-secondary border-opacity-25"
+        :aria-labelledby="props.mode === 'options' ? 'flowsim-intro-heading-options' : 'flowsim-intro-heading-setup'"
+      >
+        <h2
+          :id="props.mode === 'options' ? 'flowsim-intro-heading-options' : 'flowsim-intro-heading-setup'"
+          class="flow-sim__intro-heading h6 fw-semibold text-body mb-2"
+        >
+          {{ props.mode === "options" ? tr("flowsim.intro_heading_options") : tr("flowsim.intro_heading") }}
+        </h2>
+        <p class="flow-sim__intro-body small text-secondary mb-2">
+          {{ props.mode === "options" ? tr("flowsim.intro_body_options") : tr("flowsim.intro_body") }}
+        </p>
+        <p
+          class="flow-sim__intro-meta simulator-meta small text-secondary mb-0"
+          v-html="props.mode === 'options' ? tr('flowsim.intro_meta_options') : tr('flowsim.intro_meta')"
+        ></p>
+      </section>
+
       <div class="d-flex flex-column flex-md-row gap-3 align-items-md-end justify-content-between mb-3">
         <div class="flex-grow-1">
-          <p class="small text-secondary mb-1">
-            {{ props.mode === "options" ? tr("flowsim.branching_hint_options") : tr("flowsim.branching_hint") }}
-          </p>
           <button type="button" class="btn btn-sm btn-outline-secondary" @click="restartWizard">
             {{ tr("flowsim.start_over") }}
           </button>
@@ -1209,10 +1220,6 @@ onUnmounted(() => {
         </footer>
       </div>
 
-      <p class="small text-secondary mt-3 mb-0" data-flow-simulator-disclaimer>
-        {{ shellDisclaimer }}
-      </p>
-      <p v-if="props.mode === 'setup'" class="small text-secondary mt-2 mb-0">{{ tr("flowsim.sync_note") }}</p>
     </div>
   </div>
 </template>

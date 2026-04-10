@@ -1,5 +1,13 @@
 /* FlowSimulator — outer shell; inner dialog mimics HA config-flow (dark) */
 
+.flow-sim__intro-heading {
+  letter-spacing: -0.01em;
+}
+
+.flow-sim__intro-meta :deep(em) {
+  font-style: italic;
+}
+
 .flow-sim-ha {
   --fs-ha-bg: #1c1c1c;
   --fs-ha-ink: rgba(255, 255, 255, 0.87);

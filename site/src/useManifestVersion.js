@@ -7,7 +7,9 @@ function readGlobals() {
     typeof globalThis.HubEnergieManifestVersionSeries === "string"
       ? globalThis.HubEnergieManifestVersionSeries
       : "";
-  return { full, series };
+  const docSnapshotIso =
+    typeof globalThis.HubEnergieDocSnapshotIsoDate === "string" ? globalThis.HubEnergieDocSnapshotIsoDate : "";
+  return { full, series, docSnapshotIso };
 }
 
 /**
@@ -17,11 +19,13 @@ function readGlobals() {
 export function useManifestVersion() {
   const full = ref("");
   const series = ref("");
+  const docSnapshotIso = ref("");
 
   function sync() {
     const g = readGlobals();
     full.value = g.full;
     series.value = g.series;
+    docSnapshotIso.value = g.docSnapshotIso;
   }
 
   onMounted(() => {
@@ -33,5 +37,5 @@ export function useManifestVersion() {
     window.removeEventListener("hub-energie-lang", sync);
   });
 
-  return { full, series };
+  return { full, series, docSnapshotIso };
 }
