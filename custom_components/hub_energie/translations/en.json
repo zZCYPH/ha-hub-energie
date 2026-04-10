@@ -635,8 +635,16 @@
           "battery": "Battery systems",
           "tariff_refresh": "EDF tariffs: refresh from API",
           "tempo": "Tempo: source (API vs RTE)",
-          "reinjection": "Advanced: reinjection tuning",
-          "advanced_energy": "Advanced: energy delta caps"
+          "expert": "Expert settings"
+        }
+      },
+      "expert": {
+        "title": "Expert settings",
+        "description": "[I need help with this step]({step_help_url})",
+        "menu_options": {
+          "reinjection": "Reinjection tuning",
+          "advanced_energy": "Energy delta caps (kWh)",
+          "expert_back": "Back"
         }
       },
       "reinjection": {

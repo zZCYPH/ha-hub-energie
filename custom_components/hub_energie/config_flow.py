@@ -1836,9 +1836,21 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
             options.append("tariff_refresh")
             if data.get(CONF_TARIFF_OFFER) == TARIFF_OFFER_TEMPO:
                 options.append("tempo")
-        options.append("reinjection")
-        options.append("advanced_energy")
+        options.append("expert")
         return options
+
+    async def async_step_expert(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        return self._show_doc_menu(
+            step_id="expert",
+            menu_options=["reinjection", "advanced_energy", "expert_back"],
+        )
+
+    async def async_step_expert_back(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        return self._show_doc_menu(step_id="init", menu_options=self._menu_options())
 
     async def _persist(
         self,

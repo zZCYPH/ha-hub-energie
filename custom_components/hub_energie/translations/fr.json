@@ -642,8 +642,16 @@
           "battery": "Systèmes de batterie",
           "tariff_refresh": "Tarifs EDF : actualiser via l'API",
           "tempo": "Tempo : source (API vs RTE)",
-          "reinjection": "Avancé : réglages de réinjection",
-          "advanced_energy": "Avancé : plafonds de delta (kWh)"
+          "expert": "Paramétrage expert"
+        }
+      },
+      "expert": {
+        "title": "Paramétrage expert",
+        "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})",
+        "menu_options": {
+          "reinjection": "Réglages de réinjection",
+          "advanced_energy": "Plafonds de delta (kWh)",
+          "expert_back": "Retour"
         }
       },
       "reinjection": {

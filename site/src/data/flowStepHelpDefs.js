@@ -43,6 +43,7 @@ export const FLOW_HELP_OPTIONS_IDS = [
   "tariff_refresh",
   "tempo",
   "tempo_rte",
+  "expert",
   "reinjection",
   "advanced_energy",
   "grid",

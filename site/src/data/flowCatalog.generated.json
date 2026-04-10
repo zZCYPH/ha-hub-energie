@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-09T19:52:20.762996+00:00",
+  "generated_at": "2026-04-10T07:59:34.343759+00:00",
   "source_files": {
     "config_flow": "custom_components/hub_energie/config_flow.py",
     "strings_en": "custom_components/hub_energie/strings.json",
@@ -797,6 +797,55 @@
       }
     },
     {
+      "step_id": "expert",
+      "handler": "async_step_expert",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Expert settings",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-expert)",
+          "fields": [],
+          "menu_choices": [
+            {
+              "key": "reinjection",
+              "label": "Reinjection tuning"
+            },
+            {
+              "key": "advanced_energy",
+              "label": "Energy delta caps (kWh)"
+            },
+            {
+              "key": "expert_back",
+              "label": "Back"
+            }
+          ],
+          "sections": []
+        },
+        "fr": {
+          "title": "Paramétrage expert",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/#/doc/setup-help#flow-step-options-expert)",
+          "fields": [],
+          "menu_choices": [
+            {
+              "key": "reinjection",
+              "label": "Réglages de réinjection"
+            },
+            {
+              "key": "advanced_energy",
+              "label": "Plafonds de delta (kWh)"
+            },
+            {
+              "key": "expert_back",
+              "label": "Retour"
+            }
+          ],
+          "sections": []
+        }
+      }
+    },
+    {
       "step_id": "grid",
       "handler": "async_step_grid",
       "source_class": "HubEnergieConfigFlow",
@@ -1232,12 +1281,8 @@
               "label": "Tempo source (API vs RTE)"
             },
             {
-              "key": "reinjection",
-              "label": "Advanced: reinjection tuning"
-            },
-            {
-              "key": "advanced_energy",
-              "label": "Advanced: energy delta caps"
+              "key": "expert",
+              "label": "Expert settings"
             }
           ],
           "sections": []
@@ -1276,12 +1321,8 @@
               "label": "Tempo : source (API vs RTE)"
             },
             {
-              "key": "reinjection",
-              "label": "Avancé : réglages de réinjection"
-            },
-            {
-              "key": "advanced_energy",
-              "label": "Avancé : plafonds de delta (kWh)"
+              "key": "expert",
+              "label": "Paramétrage expert"
             }
           ],
           "sections": []

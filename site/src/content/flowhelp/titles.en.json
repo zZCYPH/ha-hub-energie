@@ -33,6 +33,7 @@
   "options_tariff_refresh": "Options — EDF tariff refresh",
   "options_tempo": "Options — Tempo source",
   "options_tempo_rte": "Options — RTE credentials",
+  "options_expert": "Options — expert settings",
   "options_reinjection": "Options — reinjection tuning",
   "options_advanced_energy": "Options — energy delta caps",
   "options_grid": "Options — grid sensors",

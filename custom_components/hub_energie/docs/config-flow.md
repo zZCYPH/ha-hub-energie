@@ -128,7 +128,7 @@ flowchart TD
 
 ## 3. Options flow (after setup)
 
-Post-setup changes use `HubEnergieOptionsFlow` (menu entries depend on config: offer, grid, optional `grid_tri`, solar, battery, and for EDF possibly `tariff_refresh` and `tempo`). This guide focuses on **initial** setup; options reuse many of the same step schemas. After install, **entity grouping per device** is illustrated on the doc site under **Devices** (compact HTML preview, not a second config-flow walkthrough).
+Post-setup changes use `HubEnergieOptionsFlow` (menu entries depend on config: offer, grid, optional `grid_tri`, solar, battery, and for EDF possibly `tariff_refresh` and `tempo`). Advanced tuning is grouped under **`expert`**: a submenu with `reinjection`, `advanced_energy`, and `expert_back` (return to the main options menu). This guide focuses on **initial** setup; options reuse many of the same step schemas. After install, **entity grouping per device** is illustrated on the doc site under **Devices** (compact HTML preview, not a second config-flow walkthrough).
 
 ---
 

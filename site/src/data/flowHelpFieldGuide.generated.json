@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-09T19:52:20.763995+00:00",
+  "generated_at": "2026-04-10T07:59:34.346808+00:00",
   "source_files": {
     "strings_en": "custom_components/hub_energie/strings.json",
     "strings_fr": "custom_components/hub_energie/translations/fr.json"
@@ -1831,12 +1831,8 @@
             "label": "Tempo source (API vs RTE)"
           },
           {
-            "key": "reinjection",
-            "label": "Advanced: reinjection tuning"
-          },
-          {
-            "key": "advanced_energy",
-            "label": "Advanced: energy delta caps"
+            "key": "expert",
+            "label": "Expert settings"
           }
         ]
       },
@@ -1873,12 +1869,8 @@
             "label": "Tempo : source (API vs RTE)"
           },
           {
-            "key": "reinjection",
-            "label": "Avancé : réglages de réinjection"
-          },
-          {
-            "key": "advanced_energy",
-            "label": "Avancé : plafonds de delta (kWh)"
+            "key": "expert",
+            "label": "Paramétrage expert"
           }
         ]
       }
@@ -2027,6 +2019,44 @@
         ],
         "sections": [],
         "menu_choices": []
+      }
+    },
+    "expert": {
+      "en": {
+        "fields": [],
+        "sections": [],
+        "menu_choices": [
+          {
+            "key": "reinjection",
+            "label": "Reinjection tuning"
+          },
+          {
+            "key": "advanced_energy",
+            "label": "Energy delta caps (kWh)"
+          },
+          {
+            "key": "expert_back",
+            "label": "Back"
+          }
+        ]
+      },
+      "fr": {
+        "fields": [],
+        "sections": [],
+        "menu_choices": [
+          {
+            "key": "reinjection",
+            "label": "Réglages de réinjection"
+          },
+          {
+            "key": "advanced_energy",
+            "label": "Plafonds de delta (kWh)"
+          },
+          {
+            "key": "expert_back",
+            "label": "Retour"
+          }
+        ]
       }
     },
     "reinjection": {

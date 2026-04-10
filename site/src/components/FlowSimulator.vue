@@ -176,6 +176,15 @@ const menuLabels = computed(() => {
   return m;
 });
 
+/** Menu option ids: AST extract often leaves ``menu_options`` null when built dynamically; strings still carry ``menu_choices``. */
+const flowsimMenuOptionKeys = computed(() => {
+  const mo = currentMeta.value?.menu_options;
+  if (mo?.length) return mo;
+  const ch = stepCopy.value?.menu_choices;
+  if (ch?.length) return ch.map((c) => c.key);
+  return [];
+});
+
 function boolFromForm(s, key) {
   const v = s[key];
   if (v === true) return true;
@@ -302,7 +311,7 @@ const canGoNext = computed(() => {
   if (finished.value) return false;
   const cur = currentStepId.value;
   if (!cur || cur === STEP_DONE) return false;
-  if (currentMeta.value?.kind === "menu") return false;
+  if (currentMeta.value?.kind === "menu" || flowsimMenuOptionKeys.value.length) return false;
   const n = computeNext(cur, formState);
   return n !== null && n !== undefined;
 });
@@ -445,7 +454,7 @@ function goNext() {
   if (finished.value) return;
   const cur = currentStepId.value;
   if (!cur || cur === STEP_DONE) return;
-  if (currentMeta.value?.kind === "menu") return;
+  if (currentMeta.value?.kind === "menu" || flowsimMenuOptionKeys.value.length) return;
   if (props.mode === "options" && cur === "advanced_energy") {
     if (!canFinishAdvancedEnergy.value) return;
     finished.value = true;
@@ -494,6 +503,16 @@ function chooseMenuOption(opt) {
   const cur = history.value[history.value.length - 1];
   if (props.mode === "options" && cur === "init") {
     chooseOptionsMenuOption(opt);
+    return;
+  }
+  if (props.mode === "options" && cur === "expert") {
+    if (opt === "expert_back") {
+      history.value = ["init"];
+      return;
+    }
+    if (opt === "reinjection" || opt === "advanced_energy") {
+      history.value = [...history.value, opt];
+    }
     return;
   }
   if (cur !== "manual_schedule") return;
@@ -574,17 +593,7 @@ function chooseOptionsMenuOption(opt) {
   if (props.mode !== "options") return;
   const cur = history.value[history.value.length - 1];
   if (cur !== "init") return;
-  if (opt === "battery") {
-    history.value = [...history.value, "battery"];
-    return;
-  }
-  if (opt === "reinjection") {
-    history.value = [...history.value, "reinjection"];
-    return;
-  }
-  if (opt === "advanced_energy") {
-    history.value = [...history.value, "advanced_energy"];
-  }
+  history.value = [...history.value, opt];
 }
 
 const progressLabel = computed(() => {
@@ -942,11 +951,11 @@ onUnmounted(() => {
             <p class="flow-sim-ha__description mb-2">{{ doneBodyText }}</p>
           </template>
 
-          <template v-else-if="currentMeta?.kind === 'menu' && currentMeta.menu_options?.length">
+          <template v-else-if="flowsimMenuOptionKeys.length">
             <p class="flow-sim-ha__hint flow-sim-ha__hint--muted mb-2">{{ tr("flowsim.choose_menu") }}</p>
             <div class="flow-sim-ha__menu">
               <button
-                v-for="opt in currentMeta.menu_options"
+                v-for="opt in flowsimMenuOptionKeys"
                 :key="opt"
                 type="button"
                 class="flow-sim-ha__menu-btn flow-sim-ha__menu-btn--active"
