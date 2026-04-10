@@ -1,0 +1,6 @@
+/* DevelopersView — i18n HTML bodies */
+
+.flowhelp-step-prose :deep(p) {
+  margin-bottom: 0;
+  line-height: 1.58;
+}

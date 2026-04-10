@@ -10,7 +10,7 @@ const feedbackMailto =
 </script>
 
 <template>
-  <header class="landing-hero position-relative overflow-hidden">
+  <header class="site-landing-hero landing-hero position-relative overflow-hidden">
     <LandingHeroCables />
     <div class="landing-hero-glow" aria-hidden="true"></div>
     <div class="container-xxl landing-hero-content px-3 pt-5 mt-5 pb-5 position-relative">

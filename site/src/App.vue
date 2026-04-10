@@ -21,9 +21,9 @@ const navActive = (name) => route.name === name;
 </script>
 
 <template>
-  <div id="spa-shell" class="landing-body" tabindex="0">
-    <nav class="navbar navbar-expand-lg doc-navbar fixed-top">
-      <div class="container-xxl px-3">
+  <div id="spa-shell" class="site-shell landing-body" tabindex="0">
+    <nav class="site-navbar navbar navbar-expand-lg doc-navbar fixed-top" aria-label="Primary">
+      <div class="site-navbar__inner container-xxl px-3">
         <button
           v-show="showToc"
           type="button"
@@ -37,7 +37,7 @@ const navActive = (name) => route.name === name;
           <span class="d-none d-sm-inline ms-1" data-i18n="nav.contents">Contents</span>
         </button>
         <router-link
-          class="navbar-brand fw-semibold d-flex align-items-center gap-2 text-decoration-none"
+          class="site-navbar__brand navbar-brand fw-semibold d-flex align-items-center gap-2 text-decoration-none"
           id="appBrandHome"
           to="/"
         >
@@ -81,7 +81,7 @@ const navActive = (name) => route.name === name;
             </li>
           </ul>
           <div
-            class="d-flex align-items-center gap-2 ms-lg-3 mt-3 mt-lg-0 flex-wrap justify-content-lg-end"
+            class="site-navbar__toolbar d-flex align-items-center gap-2 ms-lg-3 mt-3 mt-lg-0 flex-wrap justify-content-lg-end"
           >
             <div
               class="btn-group btn-group-sm"
@@ -171,14 +171,14 @@ const navActive = (name) => route.name === name;
       </div>
     </nav>
 
-    <div class="d-flex flex-column flex-grow-1 min-vh-0">
+    <div class="site-shell__main d-flex flex-column flex-grow-1 min-vh-0">
       <router-view />
     </div>
 
-    <footer class="site-app-footer border-top py-4 mt-auto small text-secondary">
-      <div class="container-xxl px-3">
-        <div class="row g-4 align-items-start justify-content-between">
-          <div class="col-12 col-md-6 text-center text-md-start">
+    <footer class="site-footer site-app-footer border-top py-4 mt-auto small text-secondary">
+      <div class="site-footer__inner container-xxl px-3">
+        <div class="site-footer__grid row g-4 align-items-start justify-content-between">
+          <div class="site-footer__primary col-12 col-md-6 text-center text-md-start">
             <div
               class="d-inline-flex align-items-center gap-2 mb-3 site-footer-brand"
               data-i18n-aria="footer.brand_aria"
@@ -225,9 +225,9 @@ const navActive = (name) => route.name === name;
               </ul>
             </nav>
           </div>
-          <div class="col-12 col-md-5 col-lg-4">
+          <div class="site-footer__aside col-12 col-md-5 col-lg-4">
             <div
-              class="site-footer-social-panel border rounded-3 px-3 py-3 bg-body-secondary bg-opacity-10 text-center text-md-end"
+              class="site-footer__social-panel site-footer-social-panel border rounded-3 px-3 py-3 bg-body-secondary bg-opacity-10 text-center text-md-end"
             >
               <p class="mb-2 mb-md-3 text-secondary" data-i18n="footer.social_note">
                 Community links — coming soon.
@@ -237,18 +237,16 @@ const navActive = (name) => route.name === name;
                 role="group"
                 data-i18n-aria="footer.social_group_aria"
               >
-                <span
-                  class="d-inline-block site-social-tooltip-host"
-                  tabindex="0"
-                  data-bs-toggle="tooltip"
-                  data-i18n-bs-title="social.coming_soon"
-                  data-bs-title=""
+                <a
+                  class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                  href="https://www.facebook.com/groups/hubenergie"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-i18n-aria="social.facebook_aria"
                 >
-                  <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" disabled>
-                    <i class="bi bi-facebook me-1" aria-hidden="true"></i
-                    ><span data-i18n="social.facebook">Facebook</span>
-                  </button>
-                </span>
+                  <i class="bi bi-facebook me-1" aria-hidden="true"></i
+                  ><span data-i18n="social.facebook">Facebook</span>
+                </a>
                 <span
                   class="d-inline-block site-social-tooltip-host"
                   tabindex="0"
@@ -282,14 +280,4 @@ const navActive = (name) => route.name === name;
   </div>
 </template>
 
-<style scoped>
-.site-footer-brand-title {
-  font-size: 1.125rem;
-  letter-spacing: 0.03em;
-  line-height: 1.2;
-}
-
-.nav-ha-mark {
-  display: block;
-}
-</style>
+<style scoped src="./styles/app/shell.css"></style>

@@ -1,4 +1,5 @@
 import "./vendor/hub-energie-i18n.js";
+import "./styles/doc/doc.css";
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
