@@ -171,6 +171,10 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
   const edges = EDGE_CONFIG.map((edge) => {
     const value = values[edge.key];
     const opacity = activeOpacity(value, debug);
+    const w = value == null ? 0 : Math.abs(Number(value) || 0);
+    const label =
+      value != null && w >= EDGE_HIDE_W ? fmtPowerCompact(value) : null;
+    const ghost = Boolean(debug && value != null && w < EDGE_HIDE_W);
     return {
       ...edge,
       value,
@@ -178,7 +182,8 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
       opacity,
       width: edgeWidth(value),
       duration: edgeDuration(value),
-      label: value != null ? fmtPowerCompact(value) : null,
+      label,
+      ghost,
     };
   });
 
@@ -210,6 +215,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
   const batteryDischargeW = values.battery_to_home_power_w ?? values.battery_discharge_power_w ?? 0;
   const batteryUi = batteryPresentation(i18n, batteryState, batteryDischargeW, batteryChargeW);
 
+  const pulse = (v) => v != null && Math.abs(v) >= EDGE_HIDE_W;
   const nodes = {
     grid: {
       kind: "grid",
@@ -221,6 +227,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
       status: "active",
       x: 56,
       y: ROW_CY,
+      pulse: pulse(gridDisplay),
     },
     solar: {
       kind: "solar",
@@ -232,6 +239,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
       status: "active",
       x: 200,
       y: SOLAR_CY,
+      pulse: pulse(solarFromEdges),
     },
     home: {
       kind: "home",
@@ -243,6 +251,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
       status: "active",
       x: 200,
       y: ROW_CY,
+      pulse: pulse(homeFromEdges),
     },
     battery: batteryConfigured
       ? {
@@ -255,6 +264,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
           status: batteryState,
           x: 344,
           y: ROW_CY,
+          pulse: batteryState === "active",
         }
       : null,
   };
