@@ -1,6 +1,5 @@
 <script setup>
 import LandingHeroCables from "./LandingHeroCables.vue";
-import { pathTo } from "../../sitePaths";
 
 const base = import.meta.env.BASE_URL;
 
@@ -24,8 +23,8 @@ const feedbackMailto =
             Hub Énergie · Home Assistant custom integration
           </p>
           <div class="mb-4 d-flex justify-content-center">
-            <a
-              :href="pathTo('/showcase')"
+            <router-link
+              to="/showcase"
               class="landing-integration-badge text-decoration-none d-inline-flex align-items-center gap-3"
               data-i18n-aria="landing.hero_badge_aria"
             >
@@ -46,7 +45,7 @@ const feedbackMailto =
                   >Custom integration for Home Assistant</span
                 >
               </span>
-            </a>
+            </router-link>
           </div>
           <h1 class="display-4 fw-bold mb-4 landing-title" data-i18n="landing.headline">
             Centralize your home’s energy data
@@ -60,15 +59,18 @@ const feedbackMailto =
           <div
             class="d-flex flex-column flex-sm-row flex-wrap align-items-stretch align-items-sm-center justify-content-center gap-3 mb-5"
           >
-            <a
+            <router-link
               class="btn btn-primary btn-lg rounded-pill px-5 py-3 landing-discover shadow"
-              :href="pathTo('/showcase')"
-              data-i18n="landing.cta_discover"
-              >Discover</a
+              to="/showcase"
             >
-            <a class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-3" :href="pathTo('/internals/')" data-i18n="landing.cta_internals"
-              >How it works internally</a
+              <span data-i18n="landing.cta_discover">Discover</span>
+            </router-link>
+            <router-link
+              class="btn btn-outline-secondary btn-lg rounded-pill px-4 py-3"
+              to="/internals/"
             >
+              <span data-i18n="landing.cta_internals">How it works internally</span>
+            </router-link>
             <div class="dropdown">
               <button
                 type="button"

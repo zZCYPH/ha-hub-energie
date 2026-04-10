@@ -1,5 +1,4 @@
 <script setup>
-import { pathTo } from "../../sitePaths";
 import { LANDING_FEATURE_ITEMS } from "./landingFeatures.js";
 </script>
 
@@ -20,12 +19,12 @@ import { LANDING_FEATURE_ITEMS } from "./landingFeatures.js";
     </div>
 
     <div class="text-center mt-5 pt-4 border-top">
-      <a
+      <router-link
         class="btn btn-primary btn-lg rounded-pill px-5 py-3 landing-discover shadow-sm"
-        :href="pathTo('/showcase')"
-        data-i18n="landing.cta_discover_footer"
-        >Discover the documentation</a
+        to="/showcase"
       >
+        <span data-i18n="landing.cta_discover_footer">Discover the documentation</span>
+      </router-link>
     </div>
   </div>
 </template>
