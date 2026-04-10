@@ -28,9 +28,4 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped>
-.flowhelp-step-prose :deep(p) {
-  margin-bottom: 0;
-  line-height: 1.58;
-}
-</style>
+<style scoped src="../styles/developers/prose.css"></style>

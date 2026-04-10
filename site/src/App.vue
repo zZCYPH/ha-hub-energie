@@ -282,14 +282,4 @@ const navActive = (name) => route.name === name;
   </div>
 </template>
 
-<style scoped>
-.site-footer-brand-title {
-  font-size: 1.125rem;
-  letter-spacing: 0.03em;
-  line-height: 1.2;
-}
-
-.nav-ha-mark {
-  display: block;
-}
-</style>
+<style scoped src="./styles/app/shell.css"></style>

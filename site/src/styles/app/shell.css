@@ -1,0 +1,11 @@
+/* App.vue — shell chrome */
+
+.site-footer-brand-title {
+  font-size: 1.125rem;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+}
+
+.nav-ha-mark {
+  display: block;
+}

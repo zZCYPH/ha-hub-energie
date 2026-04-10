@@ -189,6 +189,4 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style scoped src="../../../../styles/flowhelp/config-flow-help-shell.css"></style>
-<style scoped src="../../../../styles/flowhelp/config-flow-help-step-cards.css"></style>
-<style scoped src="../../../../styles/flowhelp/config-flow-help-step-prose.css"></style>
+<style scoped src="../../../../styles/flowhelp/config-flow-help.css"></style>

@@ -1,0 +1,378 @@
+/* FlowSimulator — outer shell; inner dialog mimics HA config-flow (dark) */
+
+.flow-sim-ha {
+  --fs-ha-bg: #1c1c1c;
+  --fs-ha-ink: rgba(255, 255, 255, 0.87);
+  --fs-ha-muted: rgba(255, 255, 255, 0.55);
+  --fs-ha-divider: rgba(255, 255, 255, 0.08);
+  --fs-ha-field: #2b2b2b;
+  --fs-ha-accent: #03a9f4;
+  --fs-ha-radius: 12px;
+  max-width: 560px;
+  margin-inline: auto;
+  background: var(--fs-ha-bg);
+  color: var(--fs-ha-ink);
+  border-radius: var(--fs-ha-radius);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow: hidden;
+}
+
+.flow-sim-ha__toolbar {
+  display: grid;
+  grid-template-columns: 2rem 1fr 2rem;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 56px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--fs-ha-divider);
+}
+
+.flow-sim-ha__title {
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.25;
+  margin: 0;
+  text-align: center;
+  color: var(--fs-ha-ink);
+}
+
+.flow-sim-ha__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  color: var(--fs-ha-muted);
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.flow-sim-ha__icon--muted {
+  opacity: 0.55;
+}
+
+.flow-sim-ha__content {
+  padding: 16px 20px 8px;
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
+}
+
+.flow-sim-ha__description {
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--fs-ha-muted);
+  margin-bottom: 1rem;
+}
+
+.flow-sim-ha__description-par {
+  margin: 0;
+}
+
+.flow-sim-ha__description :deep(.flow-sim-ha__doc-link) {
+  color: var(--fs-ha-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 500;
+}
+
+.flow-sim-ha__description :deep(.flow-sim-ha__doc-link):hover {
+  filter: brightness(1.12);
+}
+
+.flow-sim-ha__group {
+  margin-bottom: 1.1rem;
+}
+
+/* Time-of-use (HC/HP): HA-like bordered expandable sections */
+.flow-sim-ha__group--tou-card {
+  border: 1px solid var(--fs-ha-divider);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--fs-ha-bg) 88%, #fff);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.flow-sim-ha__section-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+  padding: 12px 14px;
+  border: none;
+  border-bottom: 1px solid var(--fs-ha-divider);
+  background: color-mix(in srgb, var(--fs-ha-field) 70%, var(--fs-ha-bg));
+  color: var(--fs-ha-ink);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.flow-sim-ha__section-head:hover {
+  filter: brightness(1.06);
+}
+
+.flow-sim-ha__section-head-text {
+  flex: 1;
+}
+
+.flow-sim-ha__chevron {
+  display: inline-block;
+  font-size: 0.55rem;
+  line-height: 1;
+  color: var(--fs-ha-muted);
+  transition: transform 0.2s ease;
+  transform: rotate(0deg);
+}
+
+.flow-sim-ha__chevron::before {
+  content: "▼";
+}
+
+.flow-sim-ha__chevron--collapsed {
+  transform: rotate(-90deg);
+}
+
+.flow-sim-ha__section-body {
+  padding: 14px 14px 6px;
+}
+
+.flow-sim-ha__group--tou-card .flow-sim-ha__field:last-child {
+  margin-bottom: 0.75rem;
+}
+
+.flow-sim-ha__control--time {
+  min-height: 44px;
+  padding-inline: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.flow-sim-ha__suffix-wrap {
+  position: relative;
+  display: block;
+}
+
+.flow-sim-ha__suffix-wrap .flow-sim-ha__control--suffix-in {
+  width: 100%;
+  padding-inline-end: 5rem;
+  box-sizing: border-box;
+}
+
+.flow-sim-ha__suffix {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--fs-ha-muted);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.flow-sim-ha__group-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: none;
+  color: var(--fs-ha-ink);
+  margin-bottom: 0.35rem;
+}
+
+.flow-sim-ha__field {
+  margin-bottom: 1rem;
+}
+
+.flow-sim-ha__label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--fs-ha-muted);
+  margin-bottom: 0.25rem;
+}
+
+.flow-sim-ha__control {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 4px 10px;
+  font-size: 1rem;
+  color: var(--fs-ha-ink);
+  background: var(--fs-ha-field);
+  border: none;
+  border-bottom: 2px solid var(--fs-ha-accent);
+  border-radius: 4px 4px 0 0;
+  outline: none;
+}
+
+.flow-sim-ha__control:focus {
+  border-bottom-color: #4fc3f7;
+  background: color-mix(in srgb, var(--fs-ha-field) 92%, #000);
+}
+
+.flow-sim-ha__textarea {
+  min-height: 96px;
+  resize: vertical;
+  border: 1px solid var(--fs-ha-divider);
+  border-bottom: 2px solid var(--fs-ha-accent);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.flow-sim-ha__hint {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--fs-ha-muted);
+  margin-top: 0.35rem;
+}
+
+.flow-sim-ha__hint--muted {
+  opacity: 0.85;
+}
+
+.flow-sim-ha__menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flow-sim-ha__menu-btn {
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--fs-ha-divider);
+  background: color-mix(in srgb, var(--fs-ha-field) 88%, transparent);
+  color: var(--fs-ha-ink);
+  cursor: pointer;
+}
+
+.flow-sim-ha__menu-btn--active {
+  opacity: 1;
+}
+
+.flow-sim-ha__menu-btn--active:hover {
+  filter: brightness(1.06);
+}
+
+.flow-sim-ha__footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 12px 16px;
+  border-top: 1px solid var(--fs-ha-divider);
+}
+
+.flow-sim-ha__flow-nav-wrap {
+  margin-inline-end: auto;
+  min-width: 0;
+  flex: 1;
+  max-width: min(100%, 20rem);
+}
+
+.flow-sim-ha__flow-nav {
+  width: 100%;
+  cursor: pointer;
+}
+
+.flow-sim-ha__btn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.flow-sim-ha__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.flow-sim-ha__btn--text {
+  background: transparent;
+  color: var(--fs-ha-accent);
+  margin-inline-end: auto;
+}
+
+.flow-sim-ha__btn--primary {
+  background: var(--fs-ha-accent);
+  color: #0a0a0a;
+}
+
+.flow-sim-ha__btn--primary:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+/* HA-like boolean row: label left, switch right */
+.flow-sim-ha__row--toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
+  padding-block: 4px;
+}
+
+.flow-sim-ha__toggle-text {
+  flex: 1;
+  font-size: 0.9375rem;
+  line-height: 1.35;
+  color: var(--fs-ha-ink);
+}
+
+.flow-sim-ha__switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 24px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.flow-sim-ha__switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.flow-sim-ha__slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fs-ha-muted) 55%, var(--fs-ha-field));
+  transition: background 0.22s ease;
+}
+
+.flow-sim-ha__slider::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: #e0e0e0;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 35%);
+  transition: transform 0.22s ease, background 0.22s ease;
+}
+
+.flow-sim-ha__switch input:focus-visible + .flow-sim-ha__slider {
+  outline: 2px solid var(--fs-ha-accent);
+  outline-offset: 2px;
+}
+
+.flow-sim-ha__switch input:checked + .flow-sim-ha__slider {
+  background: color-mix(in srgb, var(--fs-ha-accent) 72%, #1a1a1a);
+}
+
+.flow-sim-ha__switch input:checked + .flow-sim-ha__slider::before {
+  transform: translate(16px, -50%);
+  background: #fff;
+}
