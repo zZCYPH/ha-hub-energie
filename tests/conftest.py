@@ -178,6 +178,18 @@ def _ensure_ha_persistence_stubs() -> None:
     components.__path__ = []  # type: ignore[attr-defined]
     sys.modules["homeassistant.components"] = components
 
+    diag_comp = types.ModuleType("homeassistant.components.diagnostics")
+
+    def async_redact_data(data: dict[str, Any], to_redact: list[str] | tuple[str, ...]) -> dict[str, Any]:
+        redacted = dict(data)
+        for key in to_redact:
+            if key in redacted:
+                redacted[key] = "**REDACTED**"
+        return redacted
+
+    diag_comp.async_redact_data = async_redact_data
+    sys.modules["homeassistant.components.diagnostics"] = diag_comp
+
     sensor_mod = types.ModuleType("homeassistant.components.sensor")
 
     class SensorStateClass:
