@@ -50,7 +50,8 @@ from ..const.tariff_edf import (
     TARIFF_OFFER_HPHC,
     TARIFF_OFFER_TEMPO,
 )
-from ..coordinator import EnergyData, HubEnergieCoordinator
+from ..coordinator import HubEnergieCoordinator
+from ..coordinator_types import EnergyData
 
 _MAX_INPUT_ENTITY_ATTRS = 50
 
