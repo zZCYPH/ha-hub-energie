@@ -105,6 +105,15 @@ import { pathTo } from "../../../sitePaths";
               <span class="fw-semibold d-block" data-i18n="devices.g8_t">Diagnostics</span>
               <span class="small text-secondary" data-i18n="devices.g8_d">Health &amp; quality</span>
             </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+              data-doc-carousel="#devicesGalleryCarousel"
+              data-doc-slide-to="8"
+            >
+              <span class="fw-semibold d-block" data-i18n="devices.g9_t">Frontend</span>
+              <span class="small text-secondary" data-i18n="devices.g9_d">Lovelace payloads</span>
+            </button>
           </nav>
         </div>
       </div>
