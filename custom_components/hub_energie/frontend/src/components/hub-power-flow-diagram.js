@@ -68,14 +68,40 @@ export class HubPowerFlowDiagram extends LitElement {
     }
     .edge-base,
     .edge-glow,
-    .edge-flow {
+    .edge-bolt,
+    .edge-bolt-glow {
       transition: stroke-width 0.2s ease, opacity 0.2s ease;
     }
-    .edge-flow {
-      stroke-dasharray: 7 6;
+    /**
+     * Moving blaster-style bolt along the path. pathLength=100 on the path makes
+     * dash units consistent; offset -100 = one full lap regardless of geometry length.
+     */
+    @keyframes hub-edge-bolt {
+      from {
+        stroke-dashoffset: 0;
+      }
+      to {
+        stroke-dashoffset: -100;
+      }
     }
-    .edge-flow.edge-flow--ghost {
-      stroke-dasharray: 3 7;
+    .edge-bolt {
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      stroke-dasharray: 9 91;
+      animation: hub-edge-bolt var(--hub-bolt-period, 2.4s) linear infinite;
+    }
+    .edge-bolt-glow {
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      stroke-dasharray: 22 78;
+      animation: hub-edge-bolt var(--hub-bolt-period, 2.4s) linear infinite;
+    }
+    .edge-bolt.edge-bolt--ghost,
+    .edge-bolt-glow.edge-bolt-glow--ghost {
+      stroke-dasharray: 5 95;
+      opacity: 0.35;
     }
     .edge-label {
       font-size: 9px;
@@ -122,14 +148,6 @@ export class HubPowerFlowDiagram extends LitElement {
     .node-muted {
       fill: var(--disabled-text-color, #9e9e9e);
     }
-    @keyframes flow-dash {
-      from {
-        stroke-dashoffset: 0;
-      }
-      to {
-        stroke-dashoffset: -26;
-      }
-    }
     @keyframes node-pulse {
       0%,
       100% {
@@ -143,12 +161,14 @@ export class HubPowerFlowDiagram extends LitElement {
       animation: node-pulse 2.8s ease-in-out infinite;
     }
     @media (prefers-reduced-motion: reduce) {
-      .edge-flow {
+      .edge-bolt,
+      .edge-bolt-glow {
         animation: none !important;
       }
       .edge-base,
       .edge-glow,
-      .edge-flow {
+      .edge-bolt,
+      .edge-bolt-glow {
         transition: none !important;
       }
       .node-halo--live {
@@ -290,17 +310,44 @@ export class HubPowerFlowDiagram extends LitElement {
     const ghost = Boolean(edge.ghost);
     const baseMul = ghost ? 0.14 : 0.26;
     const glowMul = ghost ? 0.06 : 0.11;
-    const flowMul = ghost ? 0.55 : 1;
     const baseStyle = edgePathCommon(color, width + 2, opacity * baseMul);
-    const glowStyle = edgePathCommon(color, width + 5, opacity * glowMul);
-    const flowAnim = ghost ? "none" : `flow-dash ${duration}s linear infinite`;
-    const flowClass = ghost ? "edge-flow edge-flow--ghost" : "edge-flow";
-    const flowStyle = `${edgePathCommon(color, width, opacity * flowMul)};animation:${flowAnim}`;
+    const cableGlowStyle = edgePathCommon(color, width + 5, opacity * glowMul);
+    const period = ghost ? duration * 1.65 : duration;
+    const boltGlowW = Math.max(width * 1.25 + 2.8, 4.5);
+    const boltCoreW = Math.max(width * 0.42 + 1.1, 1.65);
+    const boltGlowOp = ghost ? opacity * 0.22 : opacity * 0.5;
+    const boltCoreOp = ghost ? opacity * 0.4 : Math.min(1, opacity * 1.02);
+    const boltGlowStyle = [
+      edgePathCommon(color, boltGlowW, boltGlowOp),
+      `--hub-bolt-period:${period}s`,
+    ].join(";");
+    const boltCoreStyle = [
+      "fill:none",
+      "stroke:#ffffff",
+      `stroke-width:${boltCoreW}px`,
+      `stroke-opacity:${boltCoreOp}`,
+      `stroke-linecap:round`,
+      `stroke-linejoin:round`,
+      `--hub-bolt-period:${period}s`,
+    ].join(";");
+    const boltGlowClass = ghost ? "edge-bolt-glow edge-bolt-glow--ghost" : "edge-bolt-glow";
+    const boltCoreClass = ghost ? "edge-bolt edge-bolt--ghost" : "edge-bolt";
     return svg`
       <g>
         <path class="edge-base" d=${edge.path} style=${baseStyle}></path>
-        <path class="edge-glow" d=${edge.path} style=${glowStyle}></path>
-        <path class=${flowClass} d=${edge.path} style=${flowStyle}></path>
+        <path class="edge-glow" d=${edge.path} style=${cableGlowStyle}></path>
+        <path
+          class=${boltGlowClass}
+          d=${edge.path}
+          pathLength="100"
+          style=${boltGlowStyle}
+        ></path>
+        <path
+          class=${boltCoreClass}
+          d=${edge.path}
+          pathLength="100"
+          style=${boltCoreStyle}
+        ></path>
         ${showEdgeLabels && edge.label
           ? svg`<text
               class="edge-label"
