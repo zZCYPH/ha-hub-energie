@@ -246,6 +246,27 @@ function normalizeEnterGrid(s) {
 
 function computeNextOptions(stepId, s) {
   switch (stepId) {
+    case "offer":
+    case "grid":
+    case "tariff_refresh":
+      return STEP_DONE;
+    case "tempo":
+      return s.tempo_mode === "rte" ? "tempo_rte" : STEP_DONE;
+    case "tempo_rte":
+      return STEP_DONE;
+    case "grid_tri_energy_mode":
+      return s.grid_tri_energy_mode === "per_phase" ? "grid_tri_per_phase" : "grid_tri_layout";
+    case "grid_tri_layout":
+      return s.grid_tri_sensor_layout === "per_phase" ? "tri_grid_phase_1" : "grid_phases";
+    case "grid_tri_per_phase":
+    case "grid_phases":
+      return STEP_DONE;
+    case "tri_grid_phase_1":
+      return "tri_grid_phase_2";
+    case "tri_grid_phase_2":
+      return "tri_grid_phase_3";
+    case "tri_grid_phase_3":
+      return STEP_DONE;
     case "solar":
       return boolFromForm(s, "has_solar") ? "solar_config" : STEP_DONE;
     case "solar_config":
@@ -631,6 +652,11 @@ function chooseOptionsMenuOption(opt) {
   if (props.mode !== "options") return;
   const cur = history.value[history.value.length - 1];
   if (cur !== "init") return;
+  /** ``grid_tri`` is a redirect in HA (no standalone ``step_id``); start the tri sub-flow like ``async_step_grid_tri``. */
+  if (opt === "grid_tri") {
+    history.value = [...history.value, "grid_tri_energy_mode"];
+    return;
+  }
   history.value = [...history.value, opt];
 }
 
