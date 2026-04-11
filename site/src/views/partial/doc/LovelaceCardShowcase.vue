@@ -1,110 +1,55 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from "vue";
+import { I18N } from "../../../../../custom_components/hub_energie/frontend/src/constants/i18n.js";
+import {
+  COLOR_BATTERY,
+  COLOR_GRID_SOURCE,
+  COLOR_SOLAR,
+  COLOR_SOLAR_EXPORT,
+  COLOR_SUBSCRIPTION,
+} from "../../../../../custom_components/hub_energie/frontend/src/constants/colors.js";
+import { SLOTS } from "../../../../../custom_components/hub_energie/frontend/src/constants/slots.js";
+import { offerLabel, slotLabel, dayColorLabel, dayColorClass } from "../../../../../custom_components/hub_energie/frontend/src/utils/energy-utils.js";
+import {
+  makeSectionEnergyFormatter,
+  fmtPowerCompact,
+  iconForLabel,
+  labelLooksHc,
+  isLightHexColor,
+  formatEtaTimeOnly,
+} from "../../../../../custom_components/hub_energie/frontend/src/utils/format-utils.js";
+import { buildPowerNowData } from "../../../../../custom_components/hub_energie/frontend/src/utils/live-widget-data.js";
 import { getLang } from "../../../siteShell";
 
-/** One full animation cycle (mock “day” of varying loads), then repeat. */
-const CYCLE_MS = 60_000;
+/** Wall-clock span mapped to one Paris calendar day (mock). */
+const DAY_CYCLE_MS = 72_000;
 
 const lang = ref("en");
-
-const COPY = {
-  en: {
-    date: "Date",
-    range: "Range",
-    day: "Day",
-    week: "Week",
-    month: "Month",
-    year: "Year",
-    today: "Today",
-    tomorrow: "Tomorrow",
-    tempoBlue: "Blue",
-    tempoWhite: "White",
-    tempoRed: "Red",
-    powerNow: "Instant power",
-    houseLoad: "House load",
-    colGrid: "Grid",
-    colSolar: "Solar",
-    colBatt: "Battery",
-    colExport: "Export",
-    sectionConsumption: "Consumption",
-    totalEnergy: "Total energy",
-    stripGrid: "Grid import by slot & colour",
-    stripHome: "House supply mix",
-    stripBatt: "Battery charge by source",
-    costStrip: "Cost by tariff",
-    reinjStrip: "Reinjection by cause",
-    insightAutosuff: "Self-suff.",
-    insightVsGrid: "saved vs grid",
-    demoNote: "Animated mock for the marketing site — not the real Home Assistant card.",
-    slotBleuHc: "bleu_hc",
-    slotBlancHp: "blanc_hp",
-    slotRougeHc: "rouge_hc",
-    colorBlue: "Blue",
-    colorWhite: "White",
-    colorRed: "Red",
-    emDash: "—",
-  },
-  fr: {
-    date: "Date",
-    range: "Période",
-    day: "Jour",
-    week: "Semaine",
-    month: "Mois",
-    year: "Année",
-    today: "Aujourd'hui",
-    tomorrow: "Demain",
-    tempoBlue: "Bleu",
-    tempoWhite: "Blanc",
-    tempoRed: "Rouge",
-    powerNow: "Puissance instantanée",
-    houseLoad: "Charge maison",
-    colGrid: "Réseau",
-    colSolar: "Solaire",
-    colBatt: "Batterie",
-    colExport: "Export",
-    sectionConsumption: "Consommation",
-    totalEnergy: "Énergie totale",
-    stripGrid: "Import Enedis par créneau et couleur",
-    stripHome: "Source alimentation maison",
-    stripBatt: "Charge batterie par source",
-    costStrip: "Coût par tarif",
-    reinjStrip: "Réinjection par cause",
-    insightAutosuff: "Autosuff.",
-    insightVsGrid: "éco. via sol./bat.",
-    demoNote: "Maquette animée pour le site vitrine — pas la vraie carte Home Assistant.",
-    slotBleuHc: "bleu_hc",
-    slotBlancHp: "blanc_hp",
-    slotRougeHc: "rouge_hc",
-    colorBlue: "Bleu",
-    colorWhite: "Blanc",
-    colorRed: "Rouge",
-    emDash: "—",
-  },
-};
-
-const t = computed(() => COPY[lang.value] || COPY.en);
 
 function syncLang() {
   const l = getLang();
   lang.value = l === "fr" ? "fr" : "en";
 }
 
-/** 0..1 over CYCLE_MS, loops. */
-const phase = ref(0);
+const i18n = computed(() => (lang.value === "fr" ? I18N.fr : I18N.en));
+
+/** 0..<24 — virtual hour of the mocked day (0 = midnight). */
+const hourDecimal = ref(0);
 let raf = 0;
 let startMs = 0;
 
-function loop(now) {
+function tick(now) {
   const elapsed = now - startMs;
-  phase.value = (elapsed % CYCLE_MS) / CYCLE_MS;
-  raf = requestAnimationFrame(loop);
+  const u = (elapsed % DAY_CYCLE_MS) / DAY_CYCLE_MS;
+  hourDecimal.value = u * 24;
+  raf = requestAnimationFrame(tick);
 }
 
 onMounted(() => {
   syncLang();
   window.addEventListener("hub-energie-lang", syncLang);
   startMs = performance.now();
-  raf = requestAnimationFrame(loop);
+  raf = requestAnimationFrame(tick);
 });
 
 onUnmounted(() => {
@@ -112,10 +57,19 @@ onUnmounted(() => {
   cancelAnimationFrame(raf);
 });
 
-const TAU = Math.PI * 2;
+const h = computed(() => hourDecimal.value);
 
-function sinPhase(offset) {
-  return Math.sin(TAU * phase.value + offset);
+/** Sun curve: 0 at night, ~1 around solar noon (mock). */
+const sunFactor = computed(() => {
+  const x = h.value;
+  if (x < 6 || x > 20) return 0;
+  return Math.max(0, Math.sin(((x - 6) / 14) * Math.PI));
+});
+
+/** Smooth wobble for “live” feel (still tied to time of day). */
+function wobble(seed, amp = 1) {
+  const t = h.value * 0.9 + seed;
+  return Math.sin(t * 1.7) * amp;
 }
 
 const mockDate = computed(() => {
@@ -126,7 +80,7 @@ const mockDate = computed(() => {
   return `${y}-${m}-${day}`;
 });
 
-const rangeLabel = computed(() => {
+const rangeLabelShort = computed(() => {
   const d = new Date();
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -134,284 +88,893 @@ const rangeLabel = computed(() => {
   return lang.value === "fr" ? `${day}/${m}/${y}` : `${y}-${m}-${day}`;
 });
 
-const currentSlotKey = computed(() => {
-  const u = phase.value;
-  if (u < 1 / 3) return "bleu_hc";
-  if (u < 2 / 3) return "blanc_hp";
-  return "rouge_hc";
+const clockLabel = computed(() => {
+  const totalMin = Math.floor(h.value * 60);
+  const hh = Math.floor(totalMin / 60) % 24;
+  const mm = totalMin % 60;
+  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
 });
 
-const currentSlotLabel = computed(() => {
-  const k = currentSlotKey.value;
-  if (k === "bleu_hc") return t.value.slotBleuHc;
-  if (k === "blanc_hp") return t.value.slotBlancHp;
-  return t.value.slotRougeHc;
+const timelineTicks = computed(() => {
+  const ticks = [];
+  for (let hr = 0; hr <= 24; hr += 3) {
+    ticks.push({
+      key: hr,
+      label: hr === 0 ? "0h" : hr === 24 ? "24h" : `${hr}h`,
+    });
+  }
+  return ticks;
 });
 
-const tomorrowColorLabel = computed(() => {
-  const u = phase.value;
-  if (u < 0.33) return t.value.colorWhite;
-  if (u < 0.66) return t.value.colorBlue;
-  return t.value.colorRed;
-});
+const playheadPct = computed(() => (h.value / 24) * 100);
 
-const tempoRemaining = computed(() => {
-  const wobble = (n) => Math.max(0, Math.round(n + 4 * sinPhase(n * 0.7)));
+const offer = "tempo";
+const contractPower = "9";
+
+const subtitle = computed(() => `${offerLabel(offer)} ${contractPower}kVA`);
+
+/** Mock cost_detail attributes (partial) for power + battery widgets. */
+const mockCostAttrs = computed(() => {
+  const sf = sunFactor.value;
+  const hv = h.value;
+
+  const gridImport = Math.max(
+    150,
+    380 * (1 - sf) + 900 * (hv >= 18 && hv <= 23 ? 1 : 0.35) + 120 * wobble(0, 1),
+  );
+  const solar = Math.max(0, sf * (2200 + 400 * wobble(1, 1)));
+  const battDis = Math.max(0, (1 - sf) * 520 + (hv >= 19 ? 280 : 0) + 80 * wobble(2, 1));
+  const battChg = Math.max(0, sf * 480 + 60 * wobble(3, 1));
+  const load = Math.max(200, gridImport + battDis + solar * 0.15 + 180 * wobble(4, 1));
+  const exportW = Math.max(0, sf * 180 - battChg * 0.08 + 40 * wobble(5, 1));
+
+  const gridSigned = exportW > 80 && gridImport < 400 ? -exportW : gridImport;
+
+  const cap = 10;
+  const socMin = 5;
+  const socMax = 100;
+  const soc = Math.max(socMin, Math.min(92, 48 + sf * 38 + 4 * wobble(6, 1)));
+  const avail = (cap * Math.max(0, soc - socMin)) / 100;
+
   return {
-    blue: { rem: wobble(9), el: 12 },
-    white: { rem: wobble(10), el: 11 },
-    red: { rem: wobble(2), el: 3 },
+    grid_power_signed_w: gridSigned,
+    solar_power_w: solar,
+    batt_discharge_power_w: battDis,
+    batt_charge_power_w: battChg,
+    load_power_w: load,
+    export_power_w: exportW,
+    battery_capacity_kwh: cap,
+    battery_soc_percent: soc,
+    battery_soc_min_percent: socMin,
+    battery_soc_max_percent: socMax,
+    battery_available_kwh: avail,
   };
 });
 
-/** Watts (mock). */
-const powerW = computed(() => {
-  const g = Math.max(120, 520 + 380 * sinPhase(0));
-  const s = Math.max(0, 1800 + 900 * sinPhase(1.1));
-  const b = Math.max(0, 400 + 550 * sinPhase(2.2));
-  const e = Math.max(0, 80 + 420 * sinPhase(0.4));
-  return { grid: g, solar: s, batt: b, export: e };
+const mockStates = computed(() => ({
+  sensor_hub_energie_cost_detail: {
+    state: "ok",
+    attributes: mockCostAttrs.value,
+  },
+}));
+
+const powerNowData = computed(() =>
+  buildPowerNowData(mockStates.value, "sensor_hub_energie_cost_detail", i18n.value),
+);
+
+const powerSegs = computed(() => {
+  const d = powerNowData.value;
+  if (!d) return [];
+  const gridImp = d.gridSigned != null ? Math.max(0, d.gridSigned) : 0;
+  const segs = [];
+  if (d.gridSigned != null && gridImp > 0) {
+    segs.push({ w: gridImp, c: COLOR_GRID_SOURCE, t: `${i18n.value.segImport} +${fmtPowerCompact(gridImp)}` });
+  }
+  if (d.battDis != null && d.battDis > 0) {
+    segs.push({ w: d.battDis, c: COLOR_BATTERY, t: `${i18n.value.segBattDis} +${fmtPowerCompact(d.battDis)}` });
+  }
+  if (d.solar != null && d.solar > 0) {
+    segs.push({ w: d.solar, c: COLOR_SOLAR, t: `${i18n.value.segSolar} ${fmtPowerCompact(d.solar)}` });
+  }
+  return segs;
 });
 
-const powerTotal = computed(() => {
-  const p = powerW.value;
-  return p.grid + p.solar + p.batt + p.export || 1;
+const powerSegTotal = computed(() => powerSegs.value.reduce((a, s) => a + s.w, 0));
+
+const gridCell = computed(() => {
+  const d = powerNowData.value;
+  if (!d) return "—";
+  if (d.gridSigned != null) return fmtPowerCompact(d.gridSigned);
+  if (d.exportW != null && d.exportW > 0) return fmtPowerCompact(-d.exportW);
+  return "—";
 });
 
-function pct(n) {
-  return `${(100 * n) / powerTotal.value}%`;
+const solarCell = computed(() => {
+  const d = powerNowData.value;
+  return d?.solar != null ? fmtPowerCompact(d.solar) : "—";
+});
+
+const battCell = computed(() => {
+  const d = powerNowData.value;
+  if (!d) return "—";
+  const net = (d.battDis ?? 0) - (d.battChg ?? 0);
+  return fmtPowerCompact(net);
+});
+
+const loadStr = computed(() => {
+  const d = powerNowData.value;
+  return d?.load != null ? fmtPowerCompact(d.load) : "—";
+});
+
+const powerTooltip = computed(() => powerNowData.value?.tooltip ?? "");
+
+/** Tempo slot + colours (slow vs hour hand). */
+const slotPhase = computed(() => (h.value / 24 + 0.08 * Math.sin(h.value * 0.4)) % 1);
+const slotIndex = computed(() => Math.floor(slotPhase.value * 6) % 6);
+const currentSlotId = computed(() => SLOTS[slotIndex.value].id);
+const currentSlotText = computed(() => slotLabel(currentSlotId.value, offer, i18n.value));
+
+const todayColorRaw = computed(() => {
+  const idx = Math.floor(h.value / 24) % 3;
+  return ["blue", "white", "red"][idx];
+});
+
+const tomorrowColorRaw = computed(() => {
+  const idx = (Math.floor(h.value / 24) + 1) % 3;
+  return ["blue", "white", "red"][idx];
+});
+
+const todayTileClass = computed(() => `he-day-tile ${dayColorClass(todayColorRaw.value)}`);
+const tomorrowTileClass = computed(() => `he-day-tile ${dayColorClass(tomorrowColorRaw.value)}`);
+
+const tempoDays = computed(() => ({
+  blue: { remaining: Math.max(0, Math.round(8 + 3 * wobble(10))), elapsed: Math.round(11 + 2 * wobble(11)) },
+  white: { remaining: Math.max(0, Math.round(9 + 2 * wobble(12))), elapsed: Math.round(10 + 2 * wobble(13)) },
+  red: { remaining: Math.max(0, Math.round(2 + wobble(14))), elapsed: Math.round(3 + wobble(15)) },
+}));
+
+const tempoSlotsNoUnknown = computed(() => SLOTS.filter((s) => s.id !== "unknown"));
+
+const gridSlotBreakdownRows = computed(() =>
+  tempoSlotsNoUnknown.value
+    .map((s) => {
+      const v = gridBySlot.value[s.id] ?? 0;
+      if (v <= 0.0001) return null;
+      const lbl = slotLabel(s.id, offer, i18n.value);
+      return {
+        slot: s,
+        label: lbl,
+        value: gridEnergyFmt.value(v),
+        rawV: v,
+        swatchClass: [labelLooksHc(lbl) ? "fill-hc" : "", swatchIconClass(s.color)].filter(Boolean).join(" "),
+      };
+    })
+    .filter(Boolean),
+);
+
+/** kWh totals (scale with “day progress” + sun). */
+const dayFrac = computed(() => h.value / 24);
+const baseScale = computed(() => 0.35 + 0.65 * dayFrac.value);
+
+const gridBySlot = computed(() => {
+  const scale = baseScale.value * (0.85 + 0.15 * sunFactor.value);
+  const out = {};
+  for (const s of SLOTS) {
+    if (s.id === "unknown") continue;
+    const slotHash = (s.id.length + s.id.charCodeAt(0)) % 7;
+    out[s.id] = Math.max(0, scale * (0.15 + 0.12 * Math.sin(slotHash + h.value * 0.2)));
+  }
+  return out;
+});
+
+const totalGridKwh = computed(() => Object.values(gridBySlot.value).reduce((a, v) => a + v, 0));
+
+const gridStripSegs = computed(() =>
+  SLOTS.filter((s) => s.id !== "unknown")
+    .map((s) => {
+      const v = gridBySlot.value[s.id] ?? 0;
+      if (v <= 0.0001) return null;
+      return {
+        value: v,
+        color: s.color,
+        className: s.id.endsWith("_hc") ? "fill-hc" : "",
+      };
+    })
+    .filter(Boolean),
+);
+
+const gridStripTotal = computed(() => gridStripSegs.value.reduce((a, s) => a + s.value, 0));
+
+const gridEnergyFmt = computed(() => makeSectionEnergyFormatter(Object.values(gridBySlot.value)));
+
+const homeBySource = computed(() => {
+  const scale = baseScale.value;
+  const g = scale * (1.4 + 0.9 * (1 - sunFactor.value) + 0.2 * wobble(20));
+  const s = scale * (0.55 + 1.6 * sunFactor.value + 0.15 * wobble(21));
+  const b = scale * (0.35 + 0.7 * sunFactor.value + 0.1 * wobble(22));
+  return { g, s, b };
+});
+
+const totalHomeKwh = computed(() => {
+  const u = homeBySource.value;
+  return u.g + u.s + u.b;
+});
+
+const homeStripSegs = computed(() => {
+  const u = homeBySource.value;
+  return [
+    { value: u.g, color: COLOR_GRID_SOURCE, className: "" },
+    { value: u.s, color: COLOR_SOLAR, className: "" },
+    { value: u.b, color: COLOR_BATTERY, className: "" },
+  ].filter((x) => x.value > 0.001);
+});
+
+const homeStripTotal = computed(() => homeStripSegs.value.reduce((a, s) => a + s.value, 0));
+
+const homeEnergyFmt = computed(() => makeSectionEnergyFormatter([totalHomeKwh.value]));
+
+const homeBreakdown = computed(() => {
+  const u = homeBySource.value;
+  const fmt = homeEnergyFmt.value;
+  const tot = totalHomeKwh.value || 1;
+  return [
+    { label: i18n.value.usageGridDirect, value: fmt(u.g), color: COLOR_GRID_SOURCE, rawV: u.g, icon: "mdi:transmission-tower" },
+    { label: i18n.value.usageSolarDirect, value: fmt(u.s), color: COLOR_SOLAR, rawV: u.s, icon: "mdi:weather-sunny" },
+    { label: i18n.value.usageBattHome, value: fmt(u.b), color: COLOR_BATTERY, rawV: u.b, icon: "mdi:battery" },
+  ];
+});
+
+const battChargeBySource = computed(() => {
+  const scale = baseScale.value;
+  const fromSolar = scale * (0.25 + 1.1 * sunFactor.value + 0.12 * wobble(30));
+  const fromGrid = scale * (0.08 + 0.35 * (1 - sunFactor.value) + 0.08 * wobble(31));
+  return { fromSolar, fromGrid };
+});
+
+const totalBattChgKwh = computed(() => {
+  const u = battChargeBySource.value;
+  return u.fromSolar + u.fromGrid;
+});
+
+const battStripSegs = computed(() => {
+  const u = battChargeBySource.value;
+  return [
+    { value: u.fromSolar, color: COLOR_SOLAR, className: "" },
+    { value: u.fromGrid, color: COLOR_GRID_SOURCE, className: "" },
+  ].filter((x) => x.value > 0.001);
+});
+
+const battStripTotal = computed(() => battStripSegs.value.reduce((a, s) => a + s.value, 0));
+
+const battChgRows = computed(() => [
+  { label: i18n.value.usageSolarBatt, v: battChargeBySource.value.fromSolar, color: COLOR_SOLAR },
+  { label: i18n.value.usageGridBatt, v: battChargeBySource.value.fromGrid, color: COLOR_GRID_SOURCE },
+]);
+
+const battChgEnergyFmt = computed(() => makeSectionEnergyFormatter([totalBattChgKwh.value]));
+
+const battBreakdown = computed(() =>
+  battChgRows.value.map((r) => ({
+    label: r.label,
+    value: battChgEnergyFmt.value(r.v),
+    color: r.color,
+    rawV: r.v,
+    icon: iconForLabel(r.label),
+  })),
+);
+
+const costBySlot = computed(() => {
+  const scale = 0.12 * baseScale.value;
+  const out = {};
+  for (const s of SLOTS) {
+    if (s.id === "unknown") continue;
+    out[s.id] = Math.max(0, (gridBySlot.value[s.id] ?? 0) * 0.045 * (1 + 0.2 * wobble(s.id.length)));
+  }
+  return out;
+});
+
+const aboEur = computed(() => 0.35 * (0.5 + 0.5 * dayFrac.value));
+const totalCostEur = computed(() => aboEur.value + Object.values(costBySlot.value).reduce((a, v) => a + v, 0));
+
+const costStripSegs = computed(() => {
+  const segs = SLOTS.filter((s) => s.id !== "unknown")
+    .map((s) => {
+      const v = costBySlot.value[s.id] ?? 0;
+      if (v <= 0.0001) return null;
+      return { value: v, color: s.color, className: s.id.endsWith("_hc") ? "fill-hc" : "" };
+    })
+    .filter(Boolean);
+  if (aboEur.value > 0.0005) {
+    segs.push({ value: aboEur.value, color: COLOR_SUBSCRIPTION, className: "" });
+  }
+  return segs;
+});
+
+const costStripTotal = computed(() => costStripSegs.value.reduce((a, s) => a + s.value, 0));
+
+const costBreakdown = computed(() => {
+  const rows = SLOTS.filter((s) => s.id !== "unknown")
+    .map((s) => {
+      const v = costBySlot.value[s.id] ?? 0;
+      if (v <= 0.0001) return null;
+      return {
+        label: slotLabel(s.id, offer, i18n.value),
+        value: `${v.toFixed(2)} €`,
+        color: s.color,
+        rawV: v,
+        icon: "mdi:transmission-tower",
+      };
+    })
+    .filter(Boolean);
+  if (aboEur.value > 0.0005) {
+    rows.push({
+      label: i18n.value.costSubscription,
+      value: `${aboEur.value.toFixed(2)} €`,
+      color: COLOR_SUBSCRIPTION,
+      rawV: aboEur.value,
+      icon: "mdi:calendar-month",
+    });
+  }
+  return rows;
+});
+
+const reinj = computed(() => {
+  const scale = baseScale.value * 0.08;
+  const solarSurplus = scale * (0.4 + 2.2 * sunFactor.value);
+  const batteryFull = scale * (0.15 + 0.4 * (1 - sunFactor.value));
+  const switchLatency = scale * (0.05 + 0.12 * wobble(40));
+  const unattributed = scale * (0.04 + 0.08 * wobble(41));
+  return { solarSurplus, batteryFull, switchLatency, unattributed };
+});
+
+const reinjItems = computed(() => [
+  { label: `${i18n.value.reinjLabelSolarSurplus} ${i18n.value.reinjCauseSolarSurplus}`, v: reinj.value.solarSurplus, eur: reinj.value.solarSurplus * 0.12, color: COLOR_SOLAR_EXPORT },
+  { label: `${i18n.value.reinjLabelBatteryFull} ${i18n.value.reinjCauseBatteryFull}`, v: reinj.value.batteryFull, eur: reinj.value.batteryFull * 0.1, color: COLOR_BATTERY },
+  { label: `${i18n.value.reinjLabelSwitchLatency} ${i18n.value.reinjCauseSwitchLatency}`, v: reinj.value.switchLatency, eur: reinj.value.switchLatency * 0.08, color: "#78909c" },
+  { label: `${i18n.value.reinjLabelOther} ${i18n.value.reinjCauseOther}`, v: reinj.value.unattributed, eur: reinj.value.unattributed * 0.06, color: "#9e9e9e" },
+]);
+
+const totalReinjKwh = computed(() => reinjItems.value.reduce((a, x) => a + x.v, 0));
+const reinjOppTotal = computed(() => reinjItems.value.reduce((a, x) => a + x.eur, 0));
+
+const reinjEnergyFmt = computed(() => makeSectionEnergyFormatter([totalReinjKwh.value]));
+
+const reinjStripSegs = computed(() =>
+  reinjItems.value.filter((x) => x.v > 0.0001).map((x) => ({ value: x.v, color: x.color, className: "" })),
+);
+
+const reinjStripTotal = computed(() => reinjStripSegs.value.reduce((a, s) => a + s.value, 0));
+
+const reinjBreakdown = computed(() =>
+  reinjItems.value
+    .filter((x) => x.v > 0.0001)
+    .map((x) => ({
+      label: x.label,
+      value: `${reinjEnergyFmt.value(x.v)} · ${x.eur.toFixed(2)} €`,
+      color: x.color,
+      rawV: x.v,
+      icon: iconForLabel(x.label),
+    })),
+);
+
+const ecoSolar = computed(() => (0.25 + 0.55 * sunFactor.value) * baseScale.value);
+const ecoBatt = computed(() => (0.08 + 0.22 * sunFactor.value) * baseScale.value);
+const ecoTotal = computed(() => ecoSolar.value + ecoBatt.value);
+
+const ecoParts = computed(() => [
+  { label: i18n.value.ecoSourceSolar, vAbs: Math.abs(ecoSolar.value), color: COLOR_SOLAR, fmt: `${ecoSolar.value >= 0 ? "+" : ""}${ecoSolar.value.toFixed(2)} €`, rawV: ecoSolar.value },
+  { label: i18n.value.ecoSourceBatt, vAbs: Math.abs(ecoBatt.value), color: COLOR_BATTERY, fmt: `${ecoBatt.value >= 0 ? "+" : ""}${ecoBatt.value.toFixed(2)} €`, rawV: ecoBatt.value },
+].filter((x) => x.vAbs > 0.0005));
+
+const totalEcoAbs = computed(() => ecoParts.value.reduce((a, x) => a + x.vAbs, 0));
+
+const ecoSegments = computed(() => {
+  if (ecoParts.value.length) {
+    return ecoParts.value.map((x) => ({ value: x.vAbs, color: x.color }));
+  }
+  return Math.abs(ecoTotal.value) > 0.0005 ? [{ value: 1, color: ecoTotal.value >= 0 ? "#1976d2" : "#c62828" }] : [];
+});
+
+const ecoStripTotal = computed(() => ecoSegments.value.reduce((a, s) => a + s.value, 0));
+
+const ecoBreakdown = computed(() =>
+  ecoParts.value.length
+    ? ecoParts.value.map((x) => ({ label: x.label, value: x.fmt, color: x.color, rawV: x.vAbs }))
+    : [],
+);
+
+const homeSolarKwh = computed(() => homeBySource.value.s);
+const solarKwhTotal = computed(() => homeSolarKwh.value + battChargeBySource.value.fromSolar + reinj.value.solarSurplus);
+
+const solarKwhData = computed(() => {
+  const total = solarKwhTotal.value;
+  if (total <= 0.001) return null;
+  const home = homeSolarKwh.value;
+  const toBatt = battChargeBySource.value.fromSolar;
+  const toGrid = reinj.value.solarSurplus;
+  const fmt = makeSectionEnergyFormatter([total, home, toBatt, toGrid]);
+  return {
+    segments: [
+      { label: i18n.value.solarProdSegHome, value: home, color: COLOR_SOLAR, icon: "mdi:home-lightning-bolt-outline" },
+      { label: i18n.value.solarProdSegBattery, value: toBatt, color: COLOR_BATTERY, icon: "mdi:battery-plus-variant" },
+      { label: i18n.value.solarProdSegExport, value: toGrid, color: COLOR_SOLAR_EXPORT, icon: "mdi:transmission-tower-export" },
+    ],
+    total,
+    formatter: (v) => fmt(v),
+    tooltip: i18n.value.solarProdKwhTip,
+  };
+});
+
+const originGrid = computed(() => homeBySource.value.g);
+const insightPct = computed(() => {
+  const th = totalHomeKwh.value;
+  if (!(th > 0)) return 0;
+  return Math.max(0, Math.min(100, Math.round((1 - Math.min(originGrid.value, th) / th) * 100)));
+});
+
+const insightAutoClass = computed(() => {
+  const p = insightPct.value;
+  if (p >= 60) return "eco";
+  if (p >= 30) return "";
+  return "warn";
+});
+
+const vsGridSign = computed(() => (ecoTotal.value >= 0 ? "−" : "+"));
+const vsGridClass = computed(() => (ecoTotal.value >= 0 ? "eco" : "neg"));
+
+/** Battery bar cells (port of hub-battery-bar.js). */
+const segmentCount = 18;
+
+const battOverlay = computed(() => {
+  const d = mockCostAttrs.value;
+  const cap = d.battery_capacity_kwh;
+  const soc = d.battery_soc_percent;
+  const socMin = d.battery_soc_min_percent;
+  const socMax = d.battery_soc_max_percent;
+  const avail = d.battery_available_kwh;
+  const loc = lang.value === "fr" ? "fr-FR" : "en-US";
+  const fmtK = (v) =>
+    Number(v).toLocaleString(loc, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const availShow = avail != null && Number.isFinite(avail) ? avail : (cap * Math.max(0, soc - socMin)) / 100;
+  const pctLabel = Math.round(soc).toLocaleString(loc);
+  return `${fmtK(availShow)} / ${fmtK(cap)} kWh (${pctLabel}\u00a0%)`;
+});
+
+const battEta = computed(() => {
+  const d = mockCostAttrs.value;
+  const cap = d.battery_capacity_kwh;
+  const soc = d.battery_soc_percent ?? 0;
+  if (cap == null || cap <= 0) return null;
+  const chargeW = d.batt_charge_power_w ?? 0;
+  const dischargeW = d.batt_discharge_power_w ?? 0;
+  if (chargeW > 40) {
+    const remainingKwh = cap * (1 - soc / 100);
+    const chargePowerKw = chargeW / 1000;
+    if (chargePowerKw > 0) {
+      return { icon: "mdi:battery-charging-high", time: formatEtaTimeOnly((remainingKwh / chargePowerKw) * 60) };
+    }
+  } else if (dischargeW > 40) {
+    const storedKwh = (cap * soc) / 100;
+    const dischargePowerKw = dischargeW / 1000;
+    if (dischargePowerKw > 0) {
+      return { icon: "mdi:battery-low", time: formatEtaTimeOnly((storedKwh / dischargePowerKw) * 60) };
+    }
+  }
+  return null;
+});
+
+const battFlowMode = computed(() => {
+  const d = mockCostAttrs.value;
+  const charge = d.batt_charge_power_w ?? 0;
+  const discharge = d.batt_discharge_power_w ?? 0;
+  const threshold = 40;
+  if (charge > threshold) return "charging";
+  if (discharge > threshold) return "discharging";
+  return "idle";
+});
+
+const battSegmentClass = computed(() => {
+  const f = battFlowMode.value;
+  if (f === "charging") return "he-batt-segments batt-green--charging";
+  if (f === "discharging") return "he-batt-segments batt-green--discharging";
+  return "he-batt-segments";
+});
+
+const battCells = computed(() => {
+  const d = mockCostAttrs.value;
+  const socMin = Math.max(0, Math.min(100, Number(d.battery_soc_min_percent ?? 0)));
+  let socMax = Math.max(socMin, Math.min(100, Number(d.battery_soc_max_percent ?? 100)));
+  const socRaw = Math.max(0, Math.min(100, Number(d.battery_soc_percent ?? 0)));
+  const soc = Math.min(socMax, Math.max(socMin, socRaw));
+  const cap = d.battery_capacity_kwh ?? 10;
+  const avail = d.battery_available_kwh;
+  let greenEnd = soc;
+  if (avail != null && Number.isFinite(avail) && cap > 0) {
+    const fromAvail = socMin + (avail / cap) * 100;
+    greenEnd = Math.min(Math.max(fromAvail, socMin), soc, socMax);
+  }
+  const clamp01 = (x) => Math.max(0, Math.min(1, x));
+  const pctSpan = (a, b, start, end) => Math.max(0, Math.min(b, end) - Math.max(a, start));
+  const cellPct = 100 / segmentCount;
+  const cells = [];
+  for (let i = 0; i < segmentCount; i++) {
+    const start = i * cellPct;
+    const end = (i + 1) * cellPct;
+    const hatchL = (pctSpan(start, end, start, socMin) / cellPct) * 100;
+    const hatchR = (pctSpan(start, end, socMax, end) / cellPct) * 100;
+    const fillStart = Math.max(start, socMin);
+    const fillEnd = Math.min(end, greenEnd, socMax);
+    const fillW = (pctSpan(start, end, fillStart, fillEnd) / cellPct) * 100;
+    const fillX = clamp01((fillStart - start) / cellPct) * 100;
+    cells.push({
+      style: `--hatch-l:${hatchL.toFixed(3)};--hatch-r:${hatchR.toFixed(3)};--fill-x:${fillX.toFixed(3)};--fill-w:${fillW.toFixed(3)};`,
+    });
+  }
+  return cells;
+});
+
+/** mdi → Bootstrap Icons (subset for vitrine). */
+function mdiToBi(icon) {
+  const m = {
+    "mdi:transmission-tower": "bi-broadcast",
+    "mdi:weather-sunny": "bi-sun-fill",
+    "mdi:battery": "bi-battery-half",
+    "mdi:home-lightning-bolt-outline": "bi-house-fill",
+    "mdi:battery-plus-variant": "bi-battery-charging",
+    "mdi:transmission-tower-export": "bi-box-arrow-up-right",
+    "mdi:calendar-month": "bi-calendar3",
+    "mdi:help-circle-outline": "bi-question-circle",
+    "mdi:timer-sand": "bi-hourglass-split",
+    "mdi:battery-charging-high": "bi-battery-charging",
+    "mdi:battery-low": "bi-battery",
+  };
+  return m[icon] || "bi-circle-fill";
 }
 
-const houseW = computed(() => Math.round(2100 + 450 * sinPhase(0.55)));
-
-const fmtKwh = (v) => `${v.toFixed(2)} kWh`;
-const fmtEur = (v) => `${v.toFixed(2)} €`;
-
-/** Energy strips (kWh) — same rhythm as phase. */
-const energyKwh = computed(() => {
-  const grid = 6.2 + 2.1 * sinPhase(0.3);
-  const home = 8.1 + 1.4 * sinPhase(0.8);
-  const batt = 2.4 + 1.2 * sinPhase(1.4);
-  const cost = 1.35 + 0.45 * sinPhase(0.6);
-  const reinj = 0.55 + 0.35 * sinPhase(1.7);
-  return { grid, home, batt, cost, reinj };
-});
-
-const gridStripParts = computed(() => {
-  const base = energyKwh.value.grid;
-  return [
-    { key: "hp", w: base * (0.38 + 0.08 * sinPhase(0.1)), color: "var(--he-c-grid)" },
-    { key: "hc", w: base * (0.35 + 0.06 * sinPhase(0.5)), color: "#5c6bc0" },
-    { key: "rest", w: Math.max(0.1, base * 0.27), color: "#9575cd" },
-  ];
-});
-
-const homeStripParts = computed(() => {
-  const h = energyKwh.value.home;
-  return [
-    { key: "g", w: h * (0.42 + 0.05 * sinPhase(0.2)), color: "var(--he-c-grid)" },
-    { key: "s", w: h * (0.33 + 0.07 * sinPhase(0.9)), color: "var(--he-c-solar)" },
-    { key: "b", w: Math.max(0.05, h * 0.25), color: "var(--he-c-batt)" },
-  ];
-});
-
-const battStripParts = computed(() => {
-  const b = energyKwh.value.batt;
-  return [
-    { key: "s", w: b * (0.55 + 0.1 * sinPhase(1.1)), color: "var(--he-c-solar)" },
-    { key: "g", w: Math.max(0.05, b * 0.45), color: "var(--he-c-grid)" },
-  ];
-});
-
-const costStripParts = computed(() => {
-  const c = energyKwh.value.cost;
-  return [
-    { w: c * 0.4, color: "#42a5f5" },
-    { w: c * 0.35, color: "#78909c" },
-    { w: c * 0.25, color: "#ef5350" },
-  ];
-});
-
-const reinjStripParts = computed(() => {
-  const r = energyKwh.value.reinj;
-  return [
-    { w: r * 0.45, color: "var(--he-c-solar-exp)" },
-    { w: r * 0.3, color: "var(--he-c-batt)" },
-    { w: Math.max(0.02, r * 0.25), color: "var(--he-c-sub)" },
-  ];
-});
-
-function stripTotal(parts) {
-  return parts.reduce((a, x) => a + x.w, 0) || 1;
+function swatchIconClass(color) {
+  return isLightHexColor(color) ? "he-swatch-icon-dark" : "";
 }
 
-const ecoEuro = computed(() => 2.15 + 1.1 * sinPhase(1.25));
-const insightPct = computed(() => Math.round(38 + 22 * sinPhase(0.15)));
-
-function stripSegStyle(parts, seg) {
-  const tot = stripTotal(parts);
-  return { width: `${(100 * seg.w) / tot}%`, background: seg.color };
+/** Stacked strip segment width vs section total (matches hub-energy-strip fill). */
+function stripSegBarStyle(seg, sectionTotal) {
+  const tot = sectionTotal > 0 ? sectionTotal : 1;
+  const w = (100 * seg.value) / tot;
+  const style = {
+    width: `${w.toFixed(1)}%`,
+    backgroundColor: seg.color,
+  };
+  if (seg.className === "fill-hc") {
+    style.backgroundImage =
+      "repeating-linear-gradient(135deg, rgba(255,255,255,0.35) 0px, rgba(255,255,255,0.35) 4px, transparent 4px, transparent 8px)";
+  }
+  return style;
 }
+
+const footnote = computed(() =>
+  lang.value === "fr"
+    ? "Démo vitrine : styles alignés sur la carte Lovelace ; ligne du temps 24 h = 72 s."
+    : "Showcase demo: styles match the Lovelace card; the 24 h timeline runs in 72 s.",
+);
 </script>
 
 <template>
-  <div class="he-card-showcase" role="img" :aria-label="t.demoNote">
-    <div class="he-card-showcase__header">
-      <div class="he-card-showcase__title-block">
-        <h2>Hub Énergie</h2>
-        <span class="he-card-showcase__subtitle">EDF · TEMPO · 9kVA</span>
-      </div>
-      <div class="he-card-showcase__controls">
-        <label for="he-card-showcase-date">{{ t.date }}</label>
-        <input id="he-card-showcase-date" class="he-card-showcase__date" type="date" :value="mockDate" readonly tabindex="-1" />
-        <span>{{ t.range }}</span>
-        <div class="he-card-showcase__range-btns" role="group" :aria-label="t.range">
-          <span class="he-card-showcase__range-btn he-card-showcase__range-btn--active">{{ t.day }}</span>
-          <span class="he-card-showcase__range-btn">{{ t.week }}</span>
-          <span class="he-card-showcase__range-btn">{{ t.month }}</span>
-          <span class="he-card-showcase__range-btn">{{ t.year }}</span>
+  <div class="he-vitrine-card-wrap">
+    <div class="he-vitrine-day-rail" aria-hidden="true">
+      <p class="he-vitrine-day-rail__label">{{ i18n.powerHistoryTitle }}</p>
+      <p class="he-vitrine-day-rail__clock">{{ clockLabel }}</p>
+        <div class="he-vitrine-day-rail__track">
+        <div class="he-vitrine-day-rail__ticks">
+          <div v-for="tk in timelineTicks" :key="'tk' + tk.key" class="he-vitrine-day-rail__tick">
+            <span>{{ tk.label }}</span>
+          </div>
         </div>
-        <span class="he-card-showcase__range-label">{{ rangeLabel }}</span>
+        <div class="he-vitrine-day-rail__playhead" :style="{ left: playheadPct + '%' }" />
       </div>
     </div>
 
-    <div class="he-card-showcase__meta" aria-hidden="true">
-      <div class="he-card-showcase__day-stack">
-        <div class="he-card-showcase__tile he-card-showcase__tile--blue">
-          <span class="he-card-showcase__tile-line">{{ t.today }} : {{ currentSlotLabel }}</span>
+    <div class="he-ha-card">
+      <div class="he-header">
+        <div class="he-header-title-side">
+          <h2>Hub Énergie</h2>
+          <span class="he-header-subtitle">{{ subtitle }}</span>
         </div>
-        <div class="he-card-showcase__tile he-card-showcase__tile--white">
-          <span class="he-card-showcase__tile-line">{{ t.tomorrow }} : {{ tomorrowColorLabel }}</span>
+        <div class="he-controls">
+          <label for="he-vitrine-date">{{ i18n.date }}</label>
+          <input id="he-vitrine-date" class="he-date-input" type="date" :value="mockDate" readonly tabindex="-1" />
+          <label>{{ i18n.range }}</label>
+          <div class="he-range-btns" role="group" :aria-label="i18n.range">
+            <span class="he-range-btn he-range-btn--active">{{ i18n.day }}</span>
+            <span class="he-range-btn">{{ i18n.week }}</span>
+            <span class="he-range-btn">{{ i18n.month }}</span>
+            <span class="he-range-btn">{{ i18n.year }}</span>
+          </div>
+          <span class="he-range-label">{{ rangeLabelShort }}</span>
         </div>
       </div>
-      <div class="he-card-showcase__tempo-days">
-        <div class="he-card-showcase__tempo-day">
-          {{ t.tempoBlue }} : {{ tempoRemaining.blue.rem }}/{{ tempoRemaining.blue.rem + tempoRemaining.blue.el }}
-        </div>
-        <div class="he-card-showcase__tempo-day">
-          {{ t.tempoWhite }} : {{ tempoRemaining.white.rem }}/{{ tempoRemaining.white.rem + tempoRemaining.white.el }}
-        </div>
-        <div class="he-card-showcase__tempo-day">
-          {{ t.tempoRed }} : {{ tempoRemaining.red.rem }}/{{ tempoRemaining.red.rem + tempoRemaining.red.el }}
-        </div>
-      </div>
-    </div>
 
-    <div class="he-card-showcase__power">
-      <div class="he-card-showcase__power-head">
-        <span>{{ t.powerNow }}</span>
-        <b>{{ Math.round(powerTotal) }} W</b>
+      <div class="he-meta-tempo-wrap">
+        <div class="he-meta-days-stack">
+          <div :class="todayTileClass">
+            <span class="he-day-tile-line">{{ i18n.today }} : {{ currentSlotText }}</span>
+          </div>
+          <div :class="tomorrowTileClass">
+            <span class="he-day-tile-line">{{ i18n.tomorrow }} : {{ dayColorLabel(tomorrowColorRaw, i18n) }}</span>
+          </div>
+        </div>
+        <div class="he-tempo-days">
+          <div class="he-tempo-day tempo-blue">
+            {{ i18n.tempoDayBlue }} : {{ tempoDays.blue.remaining }}/{{ tempoDays.blue.remaining + tempoDays.blue.elapsed }}
+          </div>
+          <div class="he-tempo-day tempo-white">
+            {{ i18n.tempoDayWhite }} : {{ tempoDays.white.remaining }}/{{ tempoDays.white.remaining + tempoDays.white.elapsed }}
+          </div>
+          <div class="he-tempo-day tempo-red">
+            {{ i18n.tempoDayRed }} : {{ tempoDays.red.remaining }}/{{ tempoDays.red.remaining + tempoDays.red.elapsed }}
+          </div>
+        </div>
       </div>
-      <div class="he-card-showcase__power-bar" aria-hidden="true">
-        <span class="he-card-showcase__power-seg" :style="{ width: pct(powerW.grid), background: 'var(--he-c-grid)' }" />
-        <span class="he-card-showcase__power-seg" :style="{ width: pct(powerW.solar), background: 'var(--he-c-solar)' }" />
-        <span class="he-card-showcase__power-seg" :style="{ width: pct(powerW.batt), background: 'var(--he-c-batt)' }" />
-        <span class="he-card-showcase__power-seg" :style="{ width: pct(powerW.export), background: 'var(--he-c-solar-exp)' }" />
-      </div>
-      <div class="he-card-showcase__power-legend">
-        <span
-          ><i class="he-card-showcase__dot" style="background: var(--he-c-grid)" />{{ t.colGrid }}
-          {{ Math.round(powerW.grid) }} W</span
-        >
-        <span
-          ><i class="he-card-showcase__dot" style="background: var(--he-c-solar)" />{{ t.colSolar }}
-          {{ Math.round(powerW.solar) }} W</span
-        >
-        <span
-          ><i class="he-card-showcase__dot" style="background: var(--he-c-batt)" />{{ t.colBatt }}
-          {{ Math.round(powerW.batt) }} W</span
-        >
-        <span
-          ><i class="he-card-showcase__dot" style="background: var(--he-c-solar-exp)" />{{ t.colExport }}
-          {{ Math.round(powerW.export) }} W</span
-        >
-      </div>
-      <div class="he-card-showcase__power-head" style="margin-top: 0.45rem; margin-bottom: 0">
-        <span>{{ t.houseLoad }}</span>
-        <b>{{ houseW }} W</b>
-      </div>
-    </div>
 
-    <div class="he-card-showcase__insight">
-      <span
-        ><strong>{{ insightPct }}%</strong> {{ t.insightAutosuff }}</span
-      >
-      <span
-        ><strong>{{ ecoEuro >= 0 ? "+" : "" }}{{ ecoEuro.toFixed(2) }} €</strong> {{ t.insightVsGrid }}</span
-      >
-    </div>
+      <div v-if="powerNowData" class="he-power-now-wrap" role="img" :title="powerTooltip">
+        <div class="he-cons-strip-cap">{{ i18n.powerNow }}</div>
+        <div class="he-pnl-wrap">
+          <div class="he-pnl-bar">
+            <template v-if="powerSegTotal > 1">
+              <span
+                v-for="(s, idx) in powerSegs"
+                :key="'pnl' + idx"
+                class="he-pnl-seg"
+                :style="{ width: ((s.w / powerSegTotal) * 100).toFixed(1) + '%', background: s.c }"
+                :title="s.t"
+              />
+            </template>
+            <span v-else class="he-pnl-seg" style="width: 100%; background: color-mix(in srgb, var(--divider-color) 85%, transparent)" title="—" />
+          </div>
+          <div class="he-pnl-load-overlay">{{ loadStr }} {{ i18n.loadConsumed }}</div>
+        </div>
+        <div class="he-icon-brk">
+          <span class="he-icon-brk-item">
+            <span class="he-icon-brk-swatch" :style="{ backgroundColor: COLOR_GRID_SOURCE }">
+              <i class="bi bi-broadcast" aria-hidden="true" />
+            </span>
+            <span>{{ i18n.colGrid }}</span>&nbsp;<b>{{ gridCell }}</b>
+          </span>
+          <span class="he-icon-brk-item">
+            <span class="he-icon-brk-swatch" :style="{ backgroundColor: COLOR_SOLAR }">
+              <i class="bi bi-sun-fill" aria-hidden="true" />
+            </span>
+            <span>{{ i18n.colSolar }}</span>&nbsp;<b>{{ solarCell }}</b>
+          </span>
+          <span class="he-icon-brk-item" :title="i18n.colBattTip || undefined">
+            <span class="he-icon-brk-swatch" :style="{ backgroundColor: COLOR_BATTERY }">
+              <i class="bi bi-battery-half" aria-hidden="true" />
+            </span>
+            <span>{{ i18n.colBatt }}</span>&nbsp;<b>{{ battCell }}</b>
+          </span>
+        </div>
+      </div>
 
-    <div class="he-card-showcase__section">
-      <div class="he-card-showcase__section-head">
-        <h3>{{ t.sectionConsumption }}</h3>
-        <div class="he-card-showcase__section-metric">{{ t.totalEnergy }} <b>{{ fmtKwh(energyKwh.home) }}</b></div>
+      <div v-if="totalHomeKwh > 0.0005" class="he-insight-bar">
+        <span class="he-insight-chip" :class="insightAutoClass">☀️ {{ insightPct }}% {{ i18n.insightAutosuff }}</span>
+        <span class="he-insight-chip">💸 {{ totalCostEur.toFixed(2) }} €</span>
+        <span class="he-insight-chip" :class="vsGridClass"> ⚡ {{ vsGridSign }}{{ Math.abs(ecoTotal).toFixed(2) }}€ {{ i18n.insightVsGrid }} </span>
       </div>
-      <div class="he-card-showcase__strip">
-        <div class="he-card-showcase__strip-title">{{ t.stripGrid }}</div>
-        <div class="he-card-showcase__strip-bar">
-          <span
-            v-for="(seg, i) in gridStripParts"
-            :key="'g' + i"
-            class="he-card-showcase__strip-seg"
-            :style="stripSegStyle(gridStripParts, seg)"
-          />
-        </div>
-        <div class="he-card-showcase__strip-foot">{{ fmtKwh(energyKwh.grid) }}</div>
-      </div>
-      <div class="he-card-showcase__strip">
-        <div class="he-card-showcase__strip-title">{{ t.stripHome }}</div>
-        <div class="he-card-showcase__strip-bar">
-          <span
-            v-for="(seg, i) in homeStripParts"
-            :key="'h' + i"
-            class="he-card-showcase__strip-seg"
-            :style="stripSegStyle(homeStripParts, seg)"
-          />
-        </div>
-        <div class="he-card-showcase__strip-foot">{{ fmtKwh(energyKwh.home) }}</div>
-      </div>
-      <div class="he-card-showcase__strip">
-        <div class="he-card-showcase__strip-title">{{ t.stripBatt }}</div>
-        <div class="he-card-showcase__strip-bar">
-          <span
-            v-for="(seg, i) in battStripParts"
-            :key="'b' + i"
-            class="he-card-showcase__strip-seg"
-            :style="stripSegStyle(battStripParts, seg)"
-          />
-        </div>
-        <div class="he-card-showcase__strip-foot">{{ fmtKwh(energyKwh.batt) }}</div>
-      </div>
-    </div>
 
-    <div class="he-card-showcase__section">
-      <div class="he-card-showcase__strip">
-        <div class="he-card-showcase__strip-title">{{ t.costStrip }}</div>
-        <div class="he-card-showcase__strip-bar">
-          <span
-            v-for="(seg, i) in costStripParts"
-            :key="'c' + i"
-            class="he-card-showcase__strip-seg"
-            :style="stripSegStyle(costStripParts, seg)"
-          />
+      <div class="he-batt-bar-container">
+        <div class="he-batt-section-head">
+          <h3>{{ i18n.battSocTitle }}</h3>
         </div>
-        <div class="he-card-showcase__strip-foot">{{ fmtEur(energyKwh.cost) }}</div>
-      </div>
-      <div class="he-card-showcase__strip">
-        <div class="he-card-showcase__strip-title">{{ t.reinjStrip }}</div>
-        <div class="he-card-showcase__strip-bar">
-          <span
-            v-for="(seg, i) in reinjStripParts"
-            :key="'r' + i"
-            class="he-card-showcase__strip-seg"
-            :style="stripSegStyle(reinjStripParts, seg)"
-          />
+        <div class="he-batt-track-wrap" :title="`${Math.round(mockCostAttrs.battery_soc_percent ?? 0)} % SOC`">
+          <div class="he-batt-track">
+            <div :class="battSegmentClass">
+              <div v-for="(c, i) in battCells" :key="'cell' + i" class="he-batt-cell" :style="c.style">
+                <div class="he-batt-cell-hatch he-batt-cell-hatch--left" />
+                <div class="he-batt-cell-hatch he-batt-cell-hatch--right" />
+                <div class="he-batt-cell-fill" />
+              </div>
+            </div>
+          </div>
+          <div class="he-batt-bar-total">
+              <div class="he-batt-bar-stack">
+              <div class="he-batt-bar-row-main">
+                <span class="he-batt-bar-total-text">{{ battOverlay }}</span>
+              </div>
+              <div v-if="battEta" class="he-batt-bar-eta-inline">
+                <i class="bi batt-eta-icon" :class="mdiToBi(battEta.icon)" aria-hidden="true" />
+                <span>{{ battEta.time }}</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="he-card-showcase__strip-foot">{{ fmtKwh(energyKwh.reinj) }}</div>
       </div>
-    </div>
 
-    <p class="he-card-showcase__note">{{ t.demoNote }}</p>
+      <div class="he-section">
+        <div class="he-section-head">
+          <h3>{{ i18n.sectionConsumption }}</h3>
+          <div class="he-section-metric">{{ i18n.totalEnergy }} <b>{{ homeEnergyFmt(totalHomeKwh) }}</b></div>
+        </div>
+        <div class="he-bars">
+          <div v-if="gridStripSegs.length" class="he-cons-strip">
+            <div class="he-cons-strip-cap">{{ i18n.consStripGridTitleTempo }}</div>
+            <div class="he-bar-wrap">
+              <div class="he-track">
+                <div class="he-fill-stack" style="width: 100%">
+                  <span v-for="(seg, i) in gridStripSegs" :key="'gs' + i" class="he-fill-seg" :style="stripSegBarStyle(seg, gridStripTotal)" />
+                </div>
+              </div>
+              <div class="he-bar-total">
+                <span class="he-bar-total-text">{{ gridEnergyFmt(totalGridKwh) }}</span>
+              </div>
+            </div>
+            <div class="he-icon-brk">
+              <span v-for="(row, i) in gridSlotBreakdownRows" :key="'gb' + i" class="he-icon-brk-item">
+                <span class="he-icon-brk-swatch" :class="row.swatchClass" :style="{ backgroundColor: row.slot.color }">
+                  <i class="bi bi-broadcast" aria-hidden="true" />
+                </span>
+                <span>{{ row.label }}</span>&nbsp;<b>{{ row.value }}</b>
+                <span v-if="totalGridKwh > 0" class="he-icon-brk-pct">({{ Math.round((row.rawV / totalGridKwh) * 100) }}%)</span>
+              </span>
+            </div>
+          </div>
+
+          <div v-if="solarKwhData" class="he-cons-strip">
+            <div class="he-cons-strip-cap">{{ i18n.solarProdTitle }}</div>
+            <div class="he-bar-wrap" :title="solarKwhData.tooltip">
+              <div class="he-track">
+                <div class="he-fill-stack" style="width: 100%">
+                  <span
+                    v-for="(seg, i) in solarKwhData.segments.filter((x) => x.value > 0.0005)"
+                    :key="'sol' + i"
+                    class="he-fill-seg"
+                    :style="{ width: ((seg.value / solarKwhData.total) * 100).toFixed(1) + '%', backgroundColor: seg.color }"
+                  />
+                </div>
+              </div>
+              <div class="he-bar-total">
+                <span class="he-bar-total-text">{{ solarKwhData.formatter(solarKwhData.total) }}</span>
+              </div>
+            </div>
+            <div class="he-icon-brk">
+              <span v-for="(seg, i) in solarKwhData.segments.filter((x) => x.value > 0.0005)" :key="'sbr' + i" class="he-icon-brk-item">
+                <span class="he-icon-brk-swatch" :class="swatchIconClass(seg.color)" :style="{ backgroundColor: seg.color }">
+                  <i class="bi" :class="mdiToBi(seg.icon)" aria-hidden="true" />
+                </span>
+                <span>{{ seg.label }}</span>&nbsp;<b>{{ solarKwhData.formatter(seg.value) }}</b>
+                <span class="he-icon-brk-pct">({{ Math.round((seg.value / solarKwhData.total) * 100) }}%)</span>
+              </span>
+            </div>
+          </div>
+
+          <div v-if="homeStripSegs.length" class="he-cons-strip">
+            <div class="he-cons-strip-cap">{{ i18n.consStripHomeTitle }}</div>
+            <div class="he-bar-wrap">
+              <div class="he-track">
+                <div class="he-fill-stack" style="width: 100%">
+                  <span v-for="(seg, i) in homeStripSegs" :key="'hs' + i" class="he-fill-seg" :style="stripSegBarStyle(seg, homeStripTotal)" />
+                </div>
+              </div>
+              <div class="he-bar-total">
+                <span class="he-bar-total-text">{{ homeEnergyFmt(totalHomeKwh) }}</span>
+              </div>
+            </div>
+            <div class="he-icon-brk">
+              <span v-for="(r, i) in homeBreakdown" :key="'hb' + i" class="he-icon-brk-item">
+                <span
+                  class="he-icon-brk-swatch"
+                  :class="[labelLooksHc(r.label) ? 'fill-hc' : '', swatchIconClass(r.color)]"
+                  :style="{ backgroundColor: r.color }"
+                >
+                  <i class="bi" :class="mdiToBi(r.icon)" aria-hidden="true" />
+                </span>
+                <span>{{ r.label }}</span>&nbsp;<b>{{ r.value }}</b>
+                <span v-if="totalHomeKwh > 0" class="he-icon-brk-pct">({{ Math.round((r.rawV / totalHomeKwh) * 100) }}%)</span>
+              </span>
+            </div>
+          </div>
+
+          <div v-if="battStripSegs.length" class="he-cons-strip">
+            <div class="he-cons-strip-cap">{{ i18n.consStripBattTitle }}</div>
+            <div class="he-bar-wrap">
+              <div class="he-track">
+                <div class="he-fill-stack" style="width: 100%">
+                  <span v-for="(seg, i) in battStripSegs" :key="'bs' + i" class="he-fill-seg" :style="stripSegBarStyle(seg, battStripTotal)" />
+                </div>
+              </div>
+              <div class="he-bar-total">
+                <span class="he-bar-total-text">{{ battChgEnergyFmt(totalBattChgKwh) }}</span>
+              </div>
+            </div>
+            <div class="he-icon-brk">
+              <span v-for="(r, i) in battBreakdown" :key="'bb' + i" class="he-icon-brk-item">
+                <span class="he-icon-brk-swatch" :class="swatchIconClass(r.color)" :style="{ backgroundColor: r.color }">
+                  <i class="bi" :class="mdiToBi(r.icon || 'mdi:help-circle-outline')" aria-hidden="true" />
+                </span>
+                <span>{{ r.label }}</span>&nbsp;<b>{{ r.value }}</b>
+                <span v-if="totalBattChgKwh > 0" class="he-icon-brk-pct">({{ Math.round((r.rawV / totalBattChgKwh) * 100) }}%)</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="he-section">
+        <div class="he-bars">
+          <div v-if="costStripSegs.length" class="he-cons-strip">
+            <div class="he-cons-strip-cap">{{ i18n.costStripTitle }}</div>
+            <div class="he-bar-wrap">
+              <div class="he-track">
+                <div class="he-fill-stack" style="width: 100%">
+                  <span v-for="(seg, i) in costStripSegs" :key="'cs' + i" class="he-fill-seg" :style="stripSegBarStyle(seg, costStripTotal)" />
+                </div>
+              </div>
+              <div class="he-bar-total">
+                <span class="he-bar-total-text">{{ totalCostEur.toFixed(2) }} €</span>
+              </div>
+            </div>
+            <div class="he-icon-brk">
+              <span v-for="(r, i) in costBreakdown" :key="'cb' + i" class="he-icon-brk-item">
+                <span
+                  class="he-icon-brk-swatch"
+                  :class="[labelLooksHc(r.label) ? 'fill-hc' : '', swatchIconClass(r.color)]"
+                  :style="{ backgroundColor: r.color }"
+                >
+                  <i class="bi" :class="mdiToBi(r.icon)" aria-hidden="true" />
+                </span>
+                <span>{{ r.label }}</span>&nbsp;<b>{{ r.value }}</b>
+                <span v-if="totalCostEur > 0 && r.rawV != null" class="he-icon-brk-pct">({{ Math.round((r.rawV / totalCostEur) * 100) }}%)</span>
+              </span>
+            </div>
+          </div>
+
+          <div v-if="reinjStripSegs.length" class="he-cons-strip">
+            <div class="he-cons-strip-cap">{{ i18n.reinjStripTitle }}</div>
+            <div class="he-bar-wrap">
+              <div class="he-track">
+                <div class="he-fill-stack" style="width: 100%">
+                  <span v-for="(seg, i) in reinjStripSegs" :key="'rs' + i" class="he-fill-seg" :style="stripSegBarStyle(seg, reinjStripTotal)" />
+                </div>
+              </div>
+              <div class="he-bar-total">
+                <span class="he-bar-total-text">{{ reinjEnergyFmt(totalReinjKwh) }} · {{ reinjOppTotal.toFixed(2) }} €</span>
+              </div>
+            </div>
+            <div class="he-icon-brk">
+              <span v-for="(r, i) in reinjBreakdown" :key="'rb' + i" class="he-icon-brk-item">
+                <span class="he-icon-brk-swatch" :class="swatchIconClass(r.color)" :style="{ backgroundColor: r.color }">
+                  <i class="bi" :class="mdiToBi(r.icon || 'mdi:help-circle-outline')" aria-hidden="true" />
+                </span>
+                <span>{{ r.label }}</span>&nbsp;<b>{{ r.value }}</b>
+                <span v-if="totalReinjKwh > 0 && r.rawV != null" class="he-icon-brk-pct">({{ Math.round((r.rawV / totalReinjKwh) * 100) }}%)</span>
+              </span>
+            </div>
+          </div>
+
+          <div v-if="ecoSegments.length" class="he-cons-strip">
+            <div class="he-cons-strip-cap">{{ i18n.ecoStripTitle }}</div>
+            <div class="he-bar-wrap">
+              <div class="he-track">
+                <div class="he-fill-stack" style="width: 100%">
+                  <span v-for="(seg, i) in ecoSegments" :key="'es' + i" class="he-fill-seg" :style="stripSegBarStyle(seg, ecoStripTotal)" />
+                </div>
+              </div>
+              <div class="he-bar-total">
+                <span class="he-bar-total-text">{{ ecoTotal >= 0 ? "+" : "" }}{{ ecoTotal.toFixed(2) }} €</span>
+              </div>
+            </div>
+            <div class="he-icon-brk">
+              <span v-for="(r, i) in ecoBreakdown" :key="'eb' + i" class="he-icon-brk-item">
+                <span class="he-icon-brk-swatch" :class="swatchIconClass(r.color)" :style="{ backgroundColor: r.color }">
+                  <i class="bi" :class="mdiToBi(iconForLabel(r.label) || 'mdi:help-circle-outline')" aria-hidden="true" />
+                </span>
+                <span>{{ r.label }}</span>&nbsp;<b>{{ r.value }}</b>
+                <span v-if="totalEcoAbs > 0" class="he-icon-brk-pct">({{ Math.round((r.rawV / totalEcoAbs) * 100) }}%)</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="he-vitrine-footnote">{{ footnote }}</p>
+    </div>
   </div>
 </template>
 
