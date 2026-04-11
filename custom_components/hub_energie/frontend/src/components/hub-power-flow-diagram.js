@@ -40,12 +40,14 @@ export class HubPowerFlowDiagram extends LitElement {
     :host {
       display: block;
       /* Avoid a zero-height SVG when the parent flex/grid sizing is odd in HA. */
-      min-height: 180px;
+      min-height: 200px;
     }
     svg {
       display: block;
       width: 100%;
       max-width: 100%;
+      /* 1:1 viewBox — height tracks width like a square tile. */
+      aspect-ratio: 1 / 1;
       height: auto;
       overflow: visible;
       font-family: var(
@@ -222,11 +224,11 @@ export class HubPowerFlowDiagram extends LitElement {
     return html`
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 400 292"
+        viewBox="0 0 400 400"
         width="100%"
         preserveAspectRatio="xMidYMid meet"
         aria-label=${title}
-        style="display:block;width:100%;max-width:100%;height:auto;min-height:240px"
+        style="display:block;width:100%;max-width:100%;height:auto;min-height:200px"
       >
         ${this._renderDefs()}
         ${svg`
@@ -236,7 +238,7 @@ export class HubPowerFlowDiagram extends LitElement {
               x="6"
               y="6"
               width="388"
-              height="280"
+              height="388"
               rx="26"
               fill="var(--card-background-color,#1e1e1e)"
               fill-opacity="0.94"
@@ -245,7 +247,7 @@ export class HubPowerFlowDiagram extends LitElement {
               x="6"
               y="6"
               width="388"
-              height="280"
+              height="388"
               rx="26"
               fill="url(#hub-${u}-grid)"
               pointer-events="none"
@@ -254,7 +256,7 @@ export class HubPowerFlowDiagram extends LitElement {
               x="6"
               y="6"
               width="388"
-              height="280"
+              height="388"
               rx="26"
               fill="url(#hub-${u}-surface)"
               pointer-events="none"
@@ -264,7 +266,7 @@ export class HubPowerFlowDiagram extends LitElement {
               x="6"
               y="6"
               width="388"
-              height="280"
+              height="388"
               rx="26"
               fill="none"
             ></rect>

@@ -20,12 +20,15 @@ const AUTO_LAYOUT_BREAKPOINT = 520;
 const EDGE_HIDE_W = 5;
 const EDGE_FADE_W = 20;
 
+/** Vertical padding so the flow geometry fits a square viewBox (see diagram viewBox height). */
+const FLOW_Y_PAD = 54;
+
 /** Grid / battery row — raised slightly vs home so lateral cables arc above the home label block. */
-const ROW_CY = 156;
+const ROW_CY = 156 + FLOW_Y_PAD;
 /** Home sits lower so the solar→home segment is tall enough for labels and flow lines. */
-const HOME_CY = 194;
+const HOME_CY = 194 + FLOW_Y_PAD;
 /** Solar cy; keep halo (r+14) inside the rounded backdrop (y ≥ ~8). */
-const SOLAR_CY = 40;
+const SOLAR_CY = 40 + FLOW_Y_PAD;
 
 const EDGE_CONFIG = Object.freeze([
   {
@@ -33,54 +36,54 @@ const EDGE_CONFIG = Object.freeze([
     from: "solar",
     to: "home",
     color: COLOR_SOLAR,
-    path: "M200 62 C200 102 200 138 200 166",
+    path: "M200 116 C200 156 200 192 200 220",
     labelX: 200,
-    labelY: 112,
+    labelY: 166,
   },
   {
     key: "battery_to_home_power_w",
     from: "battery",
     to: "home",
     color: COLOR_BATTERY,
-    path: "M322 156 C288 172 252 186 228 192",
+    path: "M322 210 C288 226 252 240 228 246",
     labelX: 278,
-    labelY: 166,
+    labelY: 220,
   },
   {
     key: "grid_to_home_power_w",
     from: "grid",
     to: "home",
     color: COLOR_GRID_SOURCE,
-    path: "M78 156 C112 172 148 186 172 192",
+    path: "M78 210 C112 226 148 240 172 246",
     labelX: 124,
-    labelY: 166,
+    labelY: 220,
   },
   {
     key: "solar_to_battery_power_w",
     from: "solar",
     to: "battery",
     color: COLOR_SOLAR,
-    path: "M214 58 C252 74 292 102 322 134",
+    path: "M214 112 C252 128 292 156 322 188",
     labelX: 268,
-    labelY: 90,
+    labelY: 144,
   },
   {
     key: "grid_to_battery_power_w",
     from: "grid",
     to: "battery",
     color: COLOR_GRID_TO_BATT,
-    path: "M78 168 C200 258 322 168",
+    path: "M78 222 C200 312 322 222",
     labelX: 200,
-    labelY: 232,
+    labelY: 286,
   },
   {
     key: "solar_export_power_w",
     from: "solar",
     to: "grid",
     color: COLOR_SOLAR_EXPORT,
-    path: "M186 58 C142 76 102 108 78 134",
+    path: "M186 112 C142 130 102 162 78 188",
     labelX: 128,
-    labelY: 90,
+    labelY: 144,
   },
 ]);
 
@@ -424,7 +427,7 @@ export class HubEnergieFlowCard extends LitElement {
   }
 
   getCardSize() {
-    return 6;
+    return 7;
   }
 
   getGridOptions() {
@@ -433,7 +436,7 @@ export class HubEnergieFlowCard extends LitElement {
     return {
       columns: span * 12,
       min_columns: 3,
-      rows: 6,
+      rows: 7,
       min_rows: 3,
     };
   }
