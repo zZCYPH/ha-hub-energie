@@ -1,0 +1,6 @@
+"""Constants for Hub Énergie integration (package; see submodules per domain)."""
+
+from __future__ import annotations
+
+from .core import *  # noqa: F403
+from ._bundle import *  # noqa: F403

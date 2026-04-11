@@ -64,12 +64,20 @@ assert 5000 < yearly < 12000, f"Yearly {yearly} out of expected range for 6kWc P
 print("  ✓ Solar model assertions passed\n")
 
 # ── 2. Tariff manager ────────────────────────────────────────────────
-# tariff_manager imports from .const — load const first as a standalone module
-const_mod = _load_module("hub_energie_const", ROOT / "const.py")
-# Patch it so tariff_manager's `from .const import ...` works via a fake package
-sys.modules["hub_energie"] = type(sys)("hub_energie")
-sys.modules["hub_energie"].const = const_mod
+# tariff_manager imports from .const — load const package (subdir) like HA does
+hub_pkg = type(sys)("hub_energie")
+hub_pkg.__path__ = [str(ROOT)]
+sys.modules["hub_energie"] = hub_pkg
+_load_module("hub_energie.const.core", ROOT / "const" / "core.py")
+_load_module("hub_energie.const._bundle", ROOT / "const" / "_bundle.py")
+_const_spec = importlib.util.spec_from_file_location(
+    "hub_energie.const",
+    ROOT / "const" / "__init__.py",
+    submodule_search_locations=[str(ROOT / "const")],
+)
+const_mod = importlib.util.module_from_spec(_const_spec)
 sys.modules["hub_energie.const"] = const_mod
+_const_spec.loader.exec_module(const_mod)
 
 tariff_mod = _load_module("hub_energie.tariff_manager", ROOT / "tariff_manager.py")
 TariffResolver = tariff_mod.TariffResolver
