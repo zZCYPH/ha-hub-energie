@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 import math
 from datetime import datetime
@@ -58,11 +57,7 @@ from .const.energy_data import (
     DATA_COST_BY_SLOT,
     DATA_COST_TOTAL,
     DATA_CURRENT_SLOT,
-    DATA_DATA_QUALITY,
     DATA_DAY,
-    DATA_DELTA_DISCARDS,
-    DATA_DELTA_LAST_REJECTION,
-    DATA_DELTA_TELEMETRY,
     DATA_ECO_BATT,
     DATA_ECO_SOLAR,
     DATA_ENERGY_BATT_CHARGE_TODAY_KWH,
@@ -90,12 +85,7 @@ from .const.energy_data import (
     DATA_GRID_POWER_SIGNED_W,
     DATA_GRID_TO_BATTERY_POWER_W,
     DATA_GRID_TO_HOME_POWER_W,
-    DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY,
     DATA_HOME_POWER_W,
-    DATA_INPUT_MISSING_ENTITY_IDS,
-    DATA_INPUT_STATUS,
-    DATA_INPUT_STATUS_REASONS,
-    DATA_INPUT_UNAVAILABLE_ENTITY_IDS,
     DATA_LOAD_POWER_INFERRED,
     DATA_LOAD_POWER_W,
     DATA_LOGIC_VERSION,
@@ -108,7 +98,6 @@ from .const.energy_data import (
     DATA_REINJECTION_CAUSE,
     DATA_REINJECTION_CONFIDENCE,
     DATA_RTE_CALENDAR_FETCHED_AT,
-    DATA_SECONDS_SINCE_LAST_APPLIED_DELTA,
     DATA_SOLAR_ESTIMATE_DAILY_KWH,
     DATA_SOLAR_ESTIMATE_POWER_W,
     DATA_SOLAR_ESTIMATE_YEARLY_KWH,
@@ -125,9 +114,6 @@ from .const.energy_data import (
     DATA_TEMPO_NEXT_HC_START_AT,
     DATA_TODAY_COLOR,
     DATA_TOMORROW_COLOR,
-    DATA_TRUST_CAUSE,
-    DATA_TRUST_CAUSE_CODE,
-    DATA_TRUST_LEVEL,
     DATA_USAGE_BATT_CHARGE_METHOD,
     DATA_USAGE_BATT_HOME,
     DATA_USAGE_GRID_BATT_CHARGE,
@@ -142,9 +128,6 @@ from .const.energy_data import (
     DELTA_CAP_KWH_MAX,
     DELTA_CAP_KWH_MIN,
     ENERGY_ROUND_DECIMALS,
-    INPUT_STATUS_ERROR,
-    INPUT_STATUS_NO_INPUT,
-    INPUT_STATUS_OK,
     MAX_DELTA_KWH_DEFAULT,
     OPT_MAX_DELTA_KWH_BATTERY,
     OPT_MAX_DELTA_KWH_GRID,
@@ -180,9 +163,7 @@ from .const.tariff_edf import (
     TEMPO_MODE_SENSOR,
 )
 from .diagnostics.reinjection_state import ReinjectionState
-from .energy.delta_observability import seconds_since_last_applied_delta
 from .energy.delta_policy import DeltaPolicy
-from .energy.trust_level import TrustInputs, compute_trust
 from .ha.reader import HAReader
 from .runtime.events import create_state_changed_handler
 from .runtime.persistence import PersistenceManager
@@ -192,6 +173,7 @@ from .scheduler import Scheduler
 from .snapshot.coordinator_bridge import build_pipeline_deps
 from .snapshot.inputs_builder import build_snapshot_inputs
 from .snapshot.pipeline import SnapshotPipeline
+from .coordinator_snapshot_post import finalize_snapshot_after_pipeline
 from .storage.statistics import statistic_id as statistic_id_for_domain
 from .storage.store_manager import StoreManager
 from .tariff import EdfRuntimeFields, TariffRefreshOutcome, refresh_tariffs, update_edf_state
@@ -200,12 +182,6 @@ from .tariff_manager import TariffResolver
 from .time.paris_time import ParisTime
 from .utils.energy import normalize_kwh
 from .utils.grid_phases import ordered_phase_entity_ids
-from .utils.input_availability import (
-    compute_input_probe,
-    derive_input_status,
-    format_probe_log_dict,
-    probe_signature,
-)
 from .utils.numbers import safe_float
 from .providers.edf import is_off_peak, parse_slot_from_sensor_state
 
@@ -976,84 +952,29 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
                 result.snapshot["debug_flow_gap_w"],
             )
         snap = dict(result.snapshot)
-        snap[DATA_DATA_QUALITY] = self._compute_data_quality()
-        snap[DATA_DELTA_TELEMETRY] = {
-            k: dict(v) if isinstance(v, dict) else v
-            for k, v in self._runtime_state.delta_telemetry.items()
-        }
-        snap[DATA_DELTA_DISCARDS] = dict(self._runtime_state.delta_discards)
-        snap[DATA_DELTA_LAST_REJECTION] = dict(
-            self._runtime_state.last_delta_rejection_by_source,
-        )
-        day_today = ParisTime.today()
-        grid_day = self._runtime_state.snapshot_data(day_today).get(SOURCE_GRID, {})
-        unk_today = (
-            float(grid_day.get(SLOT_UNKNOWN, 0.0))
-            if isinstance(grid_day, dict)
-            else 0.0
-        )
-        snap[DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY] = unk_today
-        snap[DATA_SECONDS_SINCE_LAST_APPLIED_DELTA] = seconds_since_last_applied_delta(
-            self._runtime_state.delta_telemetry,
-            now_utc=dt_util.utcnow(),
-        )
-        slot_raw = snap.get(DATA_CURRENT_SLOT)
-        slot_str = str(slot_raw).strip() if slot_raw is not None else ""
-        trust = compute_trust(
-            TrustInputs(
-                post_recorder_rebuild_pending=self._trust_rebuilding_after_recorder,
-                delta_telemetry=snap[DATA_DELTA_TELEMETRY],
-                delta_discards=snap[DATA_DELTA_DISCARDS],
-                grid_unknown_bucket_kwh_today=float(snap[DATA_GRID_UNKNOWN_BUCKET_KWH_TODAY]),
-                seconds_since_last_applied_delta=snap[DATA_SECONDS_SINCE_LAST_APPLIED_DELTA],
-                has_configured_energy_sources=bool(self._expected_source_keys()),
-                current_slot=slot_str if slot_str else None,
-                is_edf_tempo_rte_not_ready=(
-                    self.is_edf
-                    and self.tariff_offer == TARIFF_OFFER_TEMPO
-                    and self.tempo_mode == TEMPO_MODE_RTE
-                    and not self.tempo_rte_calendar_ready
-                ),
+        snap, self._first_input_probe_logged, self._last_input_probe_signature = (
+            finalize_snapshot_after_pipeline(
+                snap=snap,
+                runtime_delta_telemetry=self._runtime_state.delta_telemetry,
+                runtime_delta_discards=self._runtime_state.delta_discards,
+                runtime_last_delta_rejection=self._runtime_state.last_delta_rejection_by_source,
+                snapshot_data_for_day=self._runtime_state.snapshot_data,
+                compute_data_quality=self._compute_data_quality,
+                expected_source_keys=self._expected_source_keys,
+                hass=self.hass,
+                entry=self.entry,
+                reader=self._reader,
+                trust_rebuilding_after_recorder=self._trust_rebuilding_after_recorder,
+                is_edf=self.is_edf,
+                tariff_offer=self.tariff_offer,
+                tempo_mode=self.tempo_mode,
+                tempo_rte_calendar_ready=self.tempo_rte_calendar_ready,
                 tariff_refresh_rejected_incomplete=self._tariff_refresh_rejected_incomplete,
-                battery_data_quality=str(snap.get("battery_data_quality") or "ok"),
-                data_quality=str(snap[DATA_DATA_QUALITY]),
-            ),
-        )
-        snap[DATA_TRUST_LEVEL] = trust.level
-        snap[DATA_TRUST_CAUSE_CODE] = trust.cause_code
-        snap[DATA_TRUST_CAUSE] = trust.cause_message
-
-        probe = compute_input_probe(self.hass, self.entry, self._reader)
-        input_status, input_reasons = derive_input_status(
-            probe,
-            trust_level=str(snap[DATA_TRUST_LEVEL]),
-            data_quality=str(snap[DATA_DATA_QUALITY]),
-        )
-        snap[DATA_INPUT_STATUS] = input_status
-        snap[DATA_INPUT_STATUS_REASONS] = list(input_reasons)
-        snap[DATA_INPUT_MISSING_ENTITY_IDS] = list(probe.missing_entity_ids)
-        snap[DATA_INPUT_UNAVAILABLE_ENTITY_IDS] = list(probe.unavailable_entity_ids)
-
-        sig = probe_signature(input_status, probe)
-        log_payload = format_probe_log_dict(
-            entry_id=self.entry.entry_id,
-            input_status=input_status,
-            reasons=input_reasons,
-            probe=probe,
-        )
-        line = json.dumps(log_payload, ensure_ascii=False)
-        if not self._first_input_probe_logged:
-            self._first_input_probe_logged = True
-            # Degraded (e.g. optional entities restarting) is normal; avoid HA "integration error" noise.
-            lvl = (
-                logging.WARNING
-                if input_status in (INPUT_STATUS_NO_INPUT, INPUT_STATUS_ERROR)
-                else logging.INFO
+                first_input_probe_logged=self._first_input_probe_logged,
+                last_input_probe_signature=self._last_input_probe_signature,
+                logger=_LOGGER,
             )
-            _LOGGER.log(lvl, "Hub Énergie input probe (first refresh): %s", line)
-        elif sig != self._last_input_probe_signature:
-            _LOGGER.info("Hub Énergie input probe (status changed): %s", line)
-        self._last_input_probe_signature = sig
+        )
 
         return cast(EnergyData, snap)
 
