@@ -1096,6 +1096,36 @@
       }
     }
   },
+  "exceptions": {
+    "service_unknown_config_entry": {
+      "message": "No Hub Énergie configuration entry with id `{config_entry_id}` is loaded."
+    },
+    "service_invalid_config_entry_id": {
+      "message": "Invalid config_entry_id: {detail}"
+    }
+  },
+  "services": {
+    "refresh": {
+      "name": "Refresh Hub Énergie",
+      "description": "Force a refresh of Hub Énergie coordinator data (all entries, or one if specified).",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config entry",
+          "description": "Optional. When set, only this Hub Énergie configuration entry is refreshed."
+        }
+      }
+    },
+    "refresh_tariffs": {
+      "name": "Refresh tariffs",
+      "description": "Force a tariff fetch (auto-mode only) and update stored options for one or all entries.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Config entry",
+          "description": "Optional. When set, only this Hub Énergie configuration entry is updated."
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "health": {

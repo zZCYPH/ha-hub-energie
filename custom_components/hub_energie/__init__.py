@@ -21,6 +21,7 @@ from homeassistant.helpers.start import async_at_started
 
 from .const.core import DOMAIN
 from .coordinator import HubEnergieCoordinator
+from .service_handlers import async_register_domain_services
 from .utils.startup_failure import log_first_refresh_failure
 from .migration import async_migrate_entry  # noqa: F401 — entry point for HA
 
@@ -220,19 +221,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     await _async_register_card_http_route(hass)
     _schedule_lovelace_resource(hass)
     if not hass.data.get(_SERVICE_FLAG):
-
-        async def _handle_refresh(_call) -> None:
-            for coordinator in hass.data.get(DOMAIN, {}).values():
-                if isinstance(coordinator, HubEnergieCoordinator):
-                    await coordinator.async_request_refresh()
-
-        async def _handle_refresh_tariffs(_call) -> None:
-            for coordinator in hass.data.get(DOMAIN, {}).values():
-                if isinstance(coordinator, HubEnergieCoordinator):
-                    await coordinator.async_manual_tariff_refresh()
-
-        hass.services.async_register(DOMAIN, "refresh", _handle_refresh)
-        hass.services.async_register(DOMAIN, "refresh_tariffs", _handle_refresh_tariffs)
+        async_register_domain_services(hass)
         hass.data[_SERVICE_FLAG] = True
     return True
 
