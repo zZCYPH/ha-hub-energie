@@ -25,6 +25,7 @@ _ensure_pkg("hub_energie", HUB_DIR)
 
 const = importlib.import_module("hub_energie.const")
 coord_mod = importlib.import_module("hub_energie.coordinator")
+coordinator_policy = importlib.import_module("hub_energie.coordinator_policy")
 slot_attribution = importlib.import_module("hub_energie.tariff.slot_attribution")
 
 
@@ -59,7 +60,7 @@ async def _unknown_then_bleu_hp() -> None:
     coord._async_notify_all = AsyncMock()
     coord._reader.read_energy_kwh = lambda _eid: 12.0
     # Skip Tempo day-boundary refresh so we only count the UNKNOWN-slot retry.
-    coord._energy_attrib_date = coord_mod._paris_today_iso()
+    coord._energy_attrib_date = coordinator_policy.paris_today_iso()
 
     results = [
         slot_attribution.SlotAttributionResult(const.SLOT_UNKNOWN, "unknown"),
