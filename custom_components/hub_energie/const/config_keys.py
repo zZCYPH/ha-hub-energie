@@ -1,4 +1,4 @@
-# Remaining integration constants (split across PRs into domain modules).
+"""Config-entry and config-flow key strings (phase, grid, solar, battery)."""
 
 from __future__ import annotations
 
