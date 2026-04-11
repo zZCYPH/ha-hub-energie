@@ -1,43 +1,8 @@
-"""Constants for Hub Énergie integration."""
+# Remaining integration constants (split across PRs into domain modules).
 
 from __future__ import annotations
 
 from typing import Final
-
-DOMAIN: Final = "hub_energie"
-LOGIC_VERSION: Final = "1"
-INTEGRATION_TITLE: Final = "Hub Énergie"
-
-DOCUMENTATION_SITE_URL: Final = "https://hub-energie.ts-devops.com"
-
-
-def documentation_config_step_help_url(step_id: str) -> str:
-    """Public doc vitrine URL for the initial setup wizard step (matches the site help anchors)."""
-    return f"{DOCUMENTATION_SITE_URL}/doc/setup-help#{step_id}"
-
-
-def documentation_options_step_help_url(step_id: str) -> str:
-    """Public doc vitrine URL for Settings → Hub Énergie → Configure steps (``options-`` avoids id clashes with the wizard)."""
-    return f"{DOCUMENTATION_SITE_URL}/doc/setup-help#options-{step_id}"
-
-
-def scoped_device_name(short_label: str) -> str:
-    """DeviceInfo `name` prefix so HA slugifies entity_ids as hub_energie_<scope>_<sensor>."""
-    label = (short_label or "").strip()
-    if not label:
-        return INTEGRATION_TITLE
-    return f"{INTEGRATION_TITLE} {label}"
-
-# ---------------------------------------------------------------------------
-# Device identifiers (one device per scope)
-# ---------------------------------------------------------------------------
-DEVICE_OFFER: Final = "offer"
-DEVICE_GRID_CONFIG: Final = "grid_config"
-DEVICE_SOLAR_CONFIG: Final = "solar_config"
-DEVICE_ENERGY_BALANCE: Final = "energy_balance"
-DEVICE_COST: Final = "cost"
-DEVICE_DIAGNOSTICS: Final = "diagnostics"
-DEVICE_BATTERY_SUMMARY: Final = "battery_summary"
 
 # ---------------------------------------------------------------------------
 # Supplier constants
@@ -218,15 +183,19 @@ SOLAR_SHADING_LIGHT: Final = "light"
 SOLAR_SHADING_MEDIUM: Final = "medium"
 SOLAR_SHADING_HEAVY: Final = "heavy"
 SOLAR_SHADING_OPTIONS: Final[list[str]] = [
-    SOLAR_SHADING_NONE, SOLAR_SHADING_LIGHT,
-    SOLAR_SHADING_MEDIUM, SOLAR_SHADING_HEAVY,
+    SOLAR_SHADING_NONE,
+    SOLAR_SHADING_LIGHT,
+    SOLAR_SHADING_MEDIUM,
+    SOLAR_SHADING_HEAVY,
 ]
 
 SOLAR_PERF_HIGH: Final = "high"
 SOLAR_PERF_STANDARD: Final = "standard"
 SOLAR_PERF_LOW: Final = "low"
 SOLAR_PERF_OPTIONS: Final[list[str]] = [
-    SOLAR_PERF_HIGH, SOLAR_PERF_STANDARD, SOLAR_PERF_LOW,
+    SOLAR_PERF_HIGH,
+    SOLAR_PERF_STANDARD,
+    SOLAR_PERF_LOW,
 ]
 
 # ---------------------------------------------------------------------------
@@ -321,9 +290,12 @@ TARIFF_OFFER_OPTIONS: Final[list[str]] = [
 ]
 
 SLOTS: Final[tuple[str, ...]] = (
-    "bleu_hc", "bleu_hp",
-    "blanc_hc", "blanc_hp",
-    "rouge_hc", "rouge_hp",
+    "bleu_hc",
+    "bleu_hp",
+    "blanc_hc",
+    "blanc_hp",
+    "rouge_hc",
+    "rouge_hp",
 )
 
 # Attribution bucket when no tariff slot can be resolved (energy still accumulated).
@@ -396,11 +368,21 @@ DEFAULT_TARIFF_REFRESH_HOURS: Final[int] = 24
 TARIFF_REFRESH_HOURS_OPTIONS: Final[list[int]] = [6, 12, 24, 48, 72, 168]
 
 TEMPO_SEASON_DAY_QUOTAS: Final[dict[str, int]] = {
-    "blue": 300, "white": 43, "red": 22,
+    "blue": 300,
+    "white": 43,
+    "red": 22,
 }
 
 CONTRACT_POWER_OPTIONS: Final[list[str]] = [
-    "3", "6", "9", "12", "15", "18", "24", "30", "36",
+    "3",
+    "6",
+    "9",
+    "12",
+    "15",
+    "18",
+    "24",
+    "30",
+    "36",
 ]
 
 # ---------------------------------------------------------------------------
@@ -494,7 +476,9 @@ DATA_EXPORT_DUE_TO_SWITCH_LATENCY_KWH: Final = "export_due_to_switch_latency_kwh
 DATA_EXPORT_UNATTRIBUTED_KWH: Final = "export_unattributed_kwh"
 DATA_EXPORT_OPPORTUNITY_COST_TOTAL_EUR: Final = "export_opportunity_cost_total_eur"
 DATA_EXPORT_OPPORTUNITY_COST_SOLAR_SURPLUS_EUR: Final = "export_opportunity_cost_solar_surplus_eur"
-DATA_EXPORT_OPPORTUNITY_COST_BATTERY_FULL_OR_ABSENT_EUR: Final = "export_opportunity_cost_battery_full_or_absent_eur"
+DATA_EXPORT_OPPORTUNITY_COST_BATTERY_FULL_OR_ABSENT_EUR: Final = (
+    "export_opportunity_cost_battery_full_or_absent_eur"
+)
 DATA_EXPORT_OPPORTUNITY_COST_SWITCH_LATENCY_EUR: Final = "export_opportunity_cost_switch_latency_eur"
 DATA_EXPORT_OPPORTUNITY_COST_UNATTRIBUTED_EUR: Final = "export_opportunity_cost_unattributed_eur"
 DATA_USAGE_GRID_DIRECT: Final = "usage_grid_direct"
