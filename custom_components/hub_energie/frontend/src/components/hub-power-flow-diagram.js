@@ -40,7 +40,7 @@ export class HubPowerFlowDiagram extends LitElement {
     :host {
       display: block;
       /* Avoid a zero-height SVG when the parent flex/grid sizing is odd in HA. */
-      min-height: 140px;
+      min-height: 180px;
     }
     svg {
       display: block;
@@ -222,11 +222,11 @@ export class HubPowerFlowDiagram extends LitElement {
     return html`
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 400 240"
+        viewBox="0 0 400 292"
         width="100%"
         preserveAspectRatio="xMidYMid meet"
         aria-label=${title}
-        style="display:block;width:100%;max-width:100%;height:auto;min-height:200px"
+        style="display:block;width:100%;max-width:100%;height:auto;min-height:240px"
       >
         ${this._renderDefs()}
         ${svg`
@@ -236,7 +236,7 @@ export class HubPowerFlowDiagram extends LitElement {
               x="6"
               y="6"
               width="388"
-              height="228"
+              height="280"
               rx="26"
               fill="var(--card-background-color,#1e1e1e)"
               fill-opacity="0.94"
@@ -245,7 +245,7 @@ export class HubPowerFlowDiagram extends LitElement {
               x="6"
               y="6"
               width="388"
-              height="228"
+              height="280"
               rx="26"
               fill="url(#hub-${u}-grid)"
               pointer-events="none"
@@ -254,7 +254,7 @@ export class HubPowerFlowDiagram extends LitElement {
               x="6"
               y="6"
               width="388"
-              height="228"
+              height="280"
               rx="26"
               fill="url(#hub-${u}-surface)"
               pointer-events="none"
@@ -264,7 +264,7 @@ export class HubPowerFlowDiagram extends LitElement {
               x="6"
               y="6"
               width="388"
-              height="228"
+              height="280"
               rx="26"
               fill="none"
             ></rect>
@@ -313,11 +313,25 @@ export class HubPowerFlowDiagram extends LitElement {
     `;
   }
 
+  /** Extra line spacing when labels + values + details are all shown (full layout / debug). */
+  _nodeTextYs(radius, home, loose) {
+    if (home) {
+      return loose
+        ? { labelY: radius + 22, valueY: radius + 44, detailY: radius + 64 }
+        : { labelY: radius + 20, valueY: radius + 38, detailY: radius + 54 };
+    }
+    return loose
+      ? { labelY: radius + 16, valueY: radius + 32, detailY: radius + 48 }
+      : { labelY: radius + 14, valueY: radius + 24, detailY: radius + 40 };
+  }
+
   _renderNode(node, showDetails) {
     const radius = nodeRadius(node.kind);
     const color = NODE_COLORS[node.kind] ?? NODE_COLORS.neutral;
     const labelClass = node.muted ? "node-muted" : "";
     const detail = showDetails && node.detail ? node.detail : null;
+    const loose = showDetails && Boolean(node.value);
+    const { labelY, valueY, detailY } = this._nodeTextYs(radius, node.kind === "home", loose);
     const idle = node.status === "idle" || node.status === "unknown";
     const live = !idle && node.pulse;
     const haloClass = live ? "node-halo node-halo--live" : "node-halo";
@@ -340,10 +354,6 @@ export class HubPowerFlowDiagram extends LitElement {
         ? "fill:var(--disabled-text-color,#9e9e9e)"
         : "fill:var(--primary-text-color,#e0e0e0)";
     const detailFill = "fill:var(--secondary-text-color,#b0b0b0)";
-    const home = node.kind === "home";
-    const labelY = radius + (home ? 20 : 14);
-    const valueY = radius + (home ? 38 : 24);
-    const detailY = radius + (home ? 54 : 40);
     return svg`
       <g transform="translate(${node.x} ${node.y})">
         <circle class=${haloClass} r=${radius + 14} style=${haloStyle}></circle>

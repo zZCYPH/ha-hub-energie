@@ -1,18 +1,18 @@
-import { i as j, a as I, w as v, A as g, b as $, I as A } from "./i18n.js";
-import { C as U, a as R, c as H, b as K, e as V } from "./colors.js";
-const Y = Object.freeze({
+import { i as j, a as I, w as v, A as g, b as $, I as L } from "./i18n.js";
+import { C as U, a as Y, c as H, b as K, e as V } from "./colors.js";
+const G = Object.freeze({
   grid: H,
-  solar: R,
+  solar: Y,
   home: "var(--primary-color, #03a9f4)",
   battery: U,
   neutral: "var(--secondary-text-color, #9e9e9e)"
 });
-function q(o) {
-  return o === "home" ? 28 : 22;
+function q(r) {
+  return r === "home" ? 28 : 22;
 }
-function T(o, t, r) {
-  const e = Number(t), s = Number(r), a = Number.isFinite(e) ? e : 2, i = Number.isFinite(s) ? s : 1;
-  return `fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:${o};stroke-width:${a}px;opacity:${i}`;
+function z(r, t, o) {
+  const e = Number(t), s = Number(o), a = Number.isFinite(e) ? e : 2, i = Number.isFinite(s) ? s : 1;
+  return `fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:${r};stroke-width:${a}px;opacity:${i}`;
 }
 class J extends j {
   static properties = {
@@ -25,7 +25,7 @@ class J extends j {
     :host {
       display: block;
       /* Avoid a zero-height SVG when the parent flex/grid sizing is odd in HA. */
-      min-height: 140px;
+      min-height: 180px;
     }
     svg {
       display: block;
@@ -189,15 +189,15 @@ class J extends j {
   render() {
     const t = this.data;
     if (!t) return g;
-    const r = Object.values(t.nodes).filter(Boolean), e = this.debug || this.layout !== "compact", s = this.debug || this.layout !== "compact", a = this.i18n.flowCardTitle ?? "Live power flows", i = this._gid;
+    const o = Object.values(t.nodes).filter(Boolean), e = this.debug || this.layout !== "compact", s = this.debug || this.layout !== "compact", a = this.i18n.flowCardTitle ?? "Live power flows", i = this._gid;
     return $`
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 400 240"
+        viewBox="0 0 400 292"
         width="100%"
         preserveAspectRatio="xMidYMid meet"
         aria-label=${a}
-        style="display:block;width:100%;max-width:100%;height:auto;min-height:200px"
+        style="display:block;width:100%;max-width:100%;height:auto;min-height:240px"
       >
         ${this._renderDefs()}
         ${v`
@@ -207,7 +207,7 @@ class J extends j {
               x="6"
               y="6"
               width="388"
-              height="228"
+              height="280"
               rx="26"
               fill="var(--card-background-color,#1e1e1e)"
               fill-opacity="0.94"
@@ -216,7 +216,7 @@ class J extends j {
               x="6"
               y="6"
               width="388"
-              height="228"
+              height="280"
               rx="26"
               fill="url(#hub-${i}-grid)"
               pointer-events="none"
@@ -225,7 +225,7 @@ class J extends j {
               x="6"
               y="6"
               width="388"
-              height="228"
+              height="280"
               rx="26"
               fill="url(#hub-${i}-surface)"
               pointer-events="none"
@@ -235,26 +235,26 @@ class J extends j {
               x="6"
               y="6"
               width="388"
-              height="228"
+              height="280"
               rx="26"
               fill="none"
             ></rect>
           </g>
         `}
-        ${t.edges.map((l) => this._renderEdge(l, e))}
-        ${r.map((l) => this._renderNode(l, s))}
+        ${t.edges.map((n) => this._renderEdge(n, e))}
+        ${o.map((n) => this._renderNode(n, s))}
       </svg>
     `;
   }
-  _renderEdge(t, r) {
+  _renderEdge(t, o) {
     if (!t.visible) return g;
-    const e = t.color, s = Number(t.width), a = Number(t.opacity), i = Number(t.duration), l = Number.isFinite(s) ? s : 2.4, n = Number.isFinite(a) ? a : 0.96, d = Number.isFinite(i) && i > 0 ? i : 2.5, p = !!t.ghost, u = p ? 0.14 : 0.26, f = p ? 0.06 : 0.11, y = p ? 0.55 : 1, h = T(e, l + 2, n * u), C = T(e, l + 5, n * f), w = p ? "none" : `flow-dash ${d}s linear infinite`, x = p ? "edge-flow edge-flow--ghost" : "edge-flow", _ = `${T(e, l, n * y)};animation:${w}`;
+    const e = t.color, s = Number(t.width), a = Number(t.opacity), i = Number(t.duration), n = Number.isFinite(s) ? s : 2.4, l = Number.isFinite(a) ? a : 0.96, u = Number.isFinite(i) && i > 0 ? i : 2.5, p = !!t.ghost, c = p ? 0.14 : 0.26, f = p ? 0.06 : 0.11, b = p ? 0.55 : 1, h = z(e, n + 2, l * c), k = z(e, n + 5, l * f), C = p ? "none" : `flow-dash ${u}s linear infinite`, w = p ? "edge-flow edge-flow--ghost" : "edge-flow", x = `${z(e, n, l * b)};animation:${C}`;
     return v`
       <g>
         <path class="edge-base" d=${t.path} style=${h}></path>
-        <path class="edge-glow" d=${t.path} style=${C}></path>
-        <path class=${x} d=${t.path} style=${_}></path>
-        ${r && t.label ? v`<text
+        <path class="edge-glow" d=${t.path} style=${k}></path>
+        <path class=${w} d=${t.path} style=${x}></path>
+        ${o && t.label ? v`<text
               class="edge-label"
               x=${t.labelX}
               y=${t.labelY}
@@ -265,123 +265,127 @@ class J extends j {
       </g>
     `;
   }
-  _renderNode(t, r) {
-    const e = q(t.kind), s = Y[t.kind] ?? Y.neutral, a = t.muted ? "node-muted" : "", i = r && t.detail ? t.detail : null, l = t.status === "idle" || t.status === "unknown", d = !l && t.pulse ? "node-halo node-halo--live" : "node-halo", p = l ? "fill:none;stroke:var(--disabled-text-color,#9e9e9e);stroke-opacity:0.22;stroke-width:1" : `fill:none;stroke:${s};stroke-opacity:0.35;stroke-width:1.5`, u = this._gid, f = l ? `url(#hub-${u}-core-idle)` : `url(#hub-${u}-core-${t.kind})`, y = l ? "fill:#757575;fill-opacity:0.1;stroke:#9e9e9e;stroke-opacity:0.5;stroke-width:1.75" : `fill:${s};fill-opacity:0.09;stroke:${s};stroke-opacity:0.75;stroke-width:1.75`, h = `fill:${f};stroke:#000000;stroke-opacity:0.22;stroke-width:1`, C = l ? "fill:#ffffff;fill-opacity:0.04" : `fill:${s};fill-opacity:0.14`, w = a === "node-muted" ? "fill:var(--disabled-text-color,#9e9e9e)" : "fill:var(--primary-text-color,#e0e0e0)", x = "fill:var(--secondary-text-color,#b0b0b0)", _ = t.kind === "home", z = e + (_ ? 20 : 14), k = e + (_ ? 38 : 24), N = e + (_ ? 54 : 40);
+  /** Extra line spacing when labels + values + details are all shown (full layout / debug). */
+  _nodeTextYs(t, o, e) {
+    return o ? e ? { labelY: t + 22, valueY: t + 44, detailY: t + 64 } : { labelY: t + 20, valueY: t + 38, detailY: t + 54 } : e ? { labelY: t + 16, valueY: t + 32, detailY: t + 48 } : { labelY: t + 14, valueY: t + 24, detailY: t + 40 };
+  }
+  _renderNode(t, o) {
+    const e = q(t.kind), s = G[t.kind] ?? G.neutral, a = t.muted ? "node-muted" : "", i = o && t.detail ? t.detail : null, n = o && !!t.value, { labelY: l, valueY: u, detailY: p } = this._nodeTextYs(e, t.kind === "home", n), c = t.status === "idle" || t.status === "unknown", b = !c && t.pulse ? "node-halo node-halo--live" : "node-halo", h = c ? "fill:none;stroke:var(--disabled-text-color,#9e9e9e);stroke-opacity:0.22;stroke-width:1" : `fill:none;stroke:${s};stroke-opacity:0.35;stroke-width:1.5`, k = this._gid, C = c ? `url(#hub-${k}-core-idle)` : `url(#hub-${k}-core-${t.kind})`, w = c ? "fill:#757575;fill-opacity:0.1;stroke:#9e9e9e;stroke-opacity:0.5;stroke-width:1.75" : `fill:${s};fill-opacity:0.09;stroke:${s};stroke-opacity:0.75;stroke-width:1.75`, x = `fill:${C};stroke:#000000;stroke-opacity:0.22;stroke-width:1`, T = c ? "fill:#ffffff;fill-opacity:0.04" : `fill:${s};fill-opacity:0.14`, y = a === "node-muted" ? "fill:var(--disabled-text-color,#9e9e9e)" : "fill:var(--primary-text-color,#e0e0e0)";
     return v`
       <g transform="translate(${t.x} ${t.y})">
-        <circle class=${d} r=${e + 14} style=${p}></circle>
-        <circle class="node-ring ${t.status}" r=${e + 5} style=${y}></circle>
-        <circle class="node-core" r=${e} style=${h}></circle>
-        <circle cx="0" cy=${-e * 0.35} r=${e * 0.42} style=${C}></circle>
-        <text class="node-icon ${a}" x="0" y="1" style=${w}>${t.icon}</text>
-        <text class="node-label ${a}" x="0" y=${z} style=${w}>${t.label}</text>
-        ${t.value ? v`<text class="node-value ${a}" x="0" y=${k} style=${w}>${t.value}</text>` : g}
-        ${i ? v`<text class="node-detail ${a}" x="0" y=${N} style=${x}>${i}</text>` : g}
+        <circle class=${b} r=${e + 14} style=${h}></circle>
+        <circle class="node-ring ${t.status}" r=${e + 5} style=${w}></circle>
+        <circle class="node-core" r=${e} style=${x}></circle>
+        <circle cx="0" cy=${-e * 0.35} r=${e * 0.42} style=${T}></circle>
+        <text class="node-icon ${a}" x="0" y="1" style=${y}>${t.icon}</text>
+        <text class="node-label ${a}" x="0" y=${l} style=${y}>${t.label}</text>
+        ${t.value ? v`<text class="node-value ${a}" x="0" y=${u} style=${y}>${t.value}</text>` : g}
+        ${i ? v`<text class="node-detail ${a}" x="0" y=${p} style=${"fill:var(--secondary-text-color,#b0b0b0)"}>${i}</text>` : g}
       </g>
     `;
   }
 }
 customElements.get("hub-power-flow-diagram") || customElements.define("hub-power-flow-diagram", J);
 const Q = "sensor.hub_energie_";
-function Z(o = Q) {
-  const t = o;
+function Z(r = Q) {
+  const t = r;
   return {
     frontendData: `${t}frontend_data`,
     frontendMeta: `${t}frontend_meta`
   };
 }
-function B(o, t) {
-  if (!o || typeof o != "object") return null;
-  const r = (n) => typeof n == "string" ? n.trim() : "", e = r(t?.frontend_data_entity), s = r(t?.frontend_meta_entity), a = (n, d) => {
-    if (!n || !d) return null;
-    const p = o[n], u = o[d];
-    return p && u ? { data: n, meta: d } : null;
+function A(r, t) {
+  if (!r || typeof r != "object") return null;
+  const o = (l) => typeof l == "string" ? l.trim() : "", e = o(t?.frontend_data_entity), s = o(t?.frontend_meta_entity), a = (l, u) => {
+    if (!l || !u) return null;
+    const p = r[l], c = r[u];
+    return p && c ? { data: l, meta: u } : null;
   };
   if (e && s) {
-    const n = a(e, s);
-    if (n) return n;
+    const l = a(e, s);
+    if (l) return l;
   }
   const i = Z();
-  let l = a(i.frontendData, i.frontendMeta);
-  return l || (l = a("sensor.frontend_data", "sensor.frontend_meta"), l) ? l : null;
+  let n = a(i.frontendData, i.frontendMeta);
+  return n || (n = a("sensor.frontend_data", "sensor.frontend_meta"), n) ? n : null;
 }
-function W(o, t) {
-  const r = String(o ?? "").toLowerCase();
-  return r.includes("blue") || r.includes("bleu") ? t?.tempoDayBlue ?? "Blue" : r.includes("white") || r.includes("blanc") ? t?.tempoDayWhite ?? "White" : r.includes("red") || r.includes("rouge") ? t?.tempoDayRed ?? "Red" : r === "n/a" ? t?.dayColorNA ?? "N/A" : r || (t?.emDash ?? "—");
+function B(r, t) {
+  const o = String(r ?? "").toLowerCase();
+  return o.includes("blue") || o.includes("bleu") ? t?.tempoDayBlue ?? "Blue" : o.includes("white") || o.includes("blanc") ? t?.tempoDayWhite ?? "White" : o.includes("red") || o.includes("rouge") ? t?.tempoDayRed ?? "Red" : o === "n/a" ? t?.dayColorNA ?? "N/A" : o || (t?.emDash ?? "—");
 }
-function tt(o, t, r) {
-  const e = o?.[t]?.attributes?.[r];
+function tt(r, t, o) {
+  const e = r?.[t]?.attributes?.[o];
   if (e == null || e === "") return null;
   const s = Number(e);
   return Number.isFinite(s) ? s : null;
 }
-function b(o) {
-  const t = Number(o);
+function _(r) {
+  const t = Number(r);
   if (!Number.isFinite(t)) return "—";
-  const r = Math.abs(t);
-  return r >= 1e3 ? `${(t / 1e3).toFixed(r >= 1e4 ? 0 : 1)} kW` : `${Math.round(t)} W`;
+  const o = Math.abs(t);
+  return o >= 1e3 ? `${(t / 1e3).toFixed(o >= 1e4 ? 0 : 1)} kW` : `${Math.round(t)} W`;
 }
-const M = "custom:hub-energie-flow-card", et = 520, S = 5, ot = 20, F = 140, rt = 48, O = Object.freeze([
+const M = "custom:hub-energie-flow-card", et = 520, O = 5, ot = 20, W = 156, rt = 194, at = 40, S = Object.freeze([
   {
     key: "solar_to_home_power_w",
     from: "solar",
     to: "home",
-    color: R,
-    path: "M200 78 C200 98 200 116 200 128",
+    color: Y,
+    path: "M200 62 C200 102 200 138 200 166",
     labelX: 200,
-    labelY: 96
+    labelY: 112
   },
   {
     key: "battery_to_home_power_w",
     from: "battery",
     to: "home",
     color: U,
-    path: "M316 140 C290 140 258 140 232 140",
-    labelX: 274,
-    labelY: 128
+    path: "M322 156 C288 172 252 186 228 192",
+    labelX: 278,
+    labelY: 166
   },
   {
     key: "grid_to_home_power_w",
     from: "grid",
     to: "home",
     color: H,
-    path: "M84 140 C110 140 142 140 172 140",
-    labelX: 126,
-    labelY: 128
+    path: "M78 156 C112 172 148 186 172 192",
+    labelX: 124,
+    labelY: 166
   },
   {
     key: "solar_to_battery_power_w",
     from: "solar",
     to: "battery",
-    color: R,
-    path: "M214 76 C252 88 290 108 316 128",
-    labelX: 270,
-    labelY: 88
+    color: Y,
+    path: "M214 58 C252 74 292 102 322 134",
+    labelX: 268,
+    labelY: 90
   },
   {
     key: "grid_to_battery_power_w",
     from: "grid",
     to: "battery",
     color: K,
-    path: "M84 156 C146 202 252 202 316 156",
+    path: "M78 168 C200 258 322 168",
     labelX: 200,
-    labelY: 200
+    labelY: 232
   },
   {
     key: "solar_export_power_w",
     from: "solar",
     to: "grid",
     color: V,
-    path: "M186 76 C148 88 110 108 84 128",
-    labelX: 132,
-    labelY: 88
+    path: "M186 58 C142 76 102 108 78 134",
+    labelX: 128,
+    labelY: 90
   }
-]), at = ["solar_to_home_power_w", "battery_to_home_power_w", "grid_to_home_power_w"], st = [
+]), st = ["solar_to_home_power_w", "battery_to_home_power_w", "grid_to_home_power_w"], it = [
   "battery_to_home_power_w",
   "solar_to_battery_power_w",
   "grid_to_battery_power_w",
   "battery_discharge_power_w"
-], it = [
+], lt = [
   "battery_configured",
   "solar_configured",
   "battery_system_count",
@@ -390,137 +394,137 @@ const M = "custom:hub-energie-flow-card", et = 520, S = 5, ot = 20, F = 140, rt 
   "tomorrow_color",
   "input_status"
 ];
-function lt(o) {
-  return o === !0 || o === "true";
+function nt(r) {
+  return r === !0 || r === "true";
 }
-function nt(o) {
-  return o === "compact" || o === "full" ? o : "auto";
+function ct(r) {
+  return r === "compact" || r === "full" ? r : "auto";
 }
-function E(o) {
-  return Array.isArray(o) ? o.join(",") : o == null ? "" : String(o);
+function E(r) {
+  return Array.isArray(r) ? r.join(",") : r == null ? "" : String(r);
 }
-function D(o) {
-  return o.every((t) => t != null) ? o.reduce((t, r) => t + r, 0) : null;
+function N(r) {
+  return r.every((t) => t != null) ? r.reduce((t, o) => t + o, 0) : null;
 }
-function ct(o, t) {
-  if (o == null) return 0;
-  const r = Math.abs(o);
-  return t ? r > 0 ? 0.96 : 0.18 : r < S ? 0 : r < ot ? 0.2 : 0.96;
+function dt(r, t) {
+  if (r == null) return 0;
+  const o = Math.abs(r);
+  return t ? o > 0 ? 0.96 : 0.18 : o < O ? 0 : o < ot ? 0.2 : 0.96;
 }
-function dt(o) {
-  const t = Math.max(0, Math.abs(Number(o) || 0));
+function ut(r) {
+  const t = Math.max(0, Math.abs(Number(r) || 0));
   return Math.max(1.85, Math.min(7.8, 1.85 + Math.log10(t + 1) * 2.15));
 }
-function ut(o) {
-  const t = Math.max(0, Math.abs(Number(o) || 0)), r = 4.8 - Math.log10(t + 1) * 0.92;
-  return Math.max(1.1, Math.min(4.8, r));
+function pt(r) {
+  const t = Math.max(0, Math.abs(Number(r) || 0)), o = 4.8 - Math.log10(t + 1) * 0.92;
+  return Math.max(1.1, Math.min(4.8, o));
 }
-function pt(o) {
-  const t = String(o ?? "").trim();
+function ft(r) {
+  const t = String(r ?? "").trim();
   return t ? t.replace(/_/g, " ") : "ok";
 }
-function ft(o, t, r, e) {
-  return t === "unknown" ? { value: "?", detail: o.flowBatteryUnknown, muted: !0 } : t === "idle" ? { value: null, detail: o.flowBatteryIdle, muted: !0 } : e > 0 ? { value: b(e), detail: o.flowBatteryCharging, muted: !1 } : r > 0 ? { value: b(r), detail: o.flowBatteryDischarging, muted: !1 } : { value: null, detail: null, muted: !1 };
+function ht(r, t, o, e) {
+  return t === "unknown" ? { value: "?", detail: r.flowBatteryUnknown, muted: !0 } : t === "idle" ? { value: null, detail: r.flowBatteryIdle, muted: !0 } : e > 0 ? { value: _(e), detail: r.flowBatteryCharging, muted: !1 } : o > 0 ? { value: _(o), detail: r.flowBatteryDischarging, muted: !1 } : { value: null, detail: null, muted: !1 };
 }
-function ht(o, t, r, e, s) {
+function mt(r, t, o, e, s) {
   const a = Object.fromEntries(
-    O.map((c) => [c.key, t[c.key] ?? null])
+    S.map((d) => [d.key, t[d.key] ?? null])
   );
   a.battery_discharge_power_w = t.battery_discharge_power_w ?? null, a.home_power_w = t.home_power_w ?? null;
-  const i = O.map((c) => {
-    const m = a[c.key], L = ct(m, s), G = m == null ? 0 : Math.abs(Number(m) || 0), P = m != null && G >= S ? b(m) : null, X = !!(s && m != null && G < S);
+  const i = S.map((d) => {
+    const m = a[d.key], D = dt(m, s), R = m == null ? 0 : Math.abs(Number(m) || 0), P = m != null && R >= O ? _(m) : null, X = !!(s && m != null && R < O);
     return {
-      ...c,
+      ...d,
       value: m,
-      visible: s ? m != null : L > 0,
-      opacity: L,
-      width: dt(m),
-      duration: ut(m),
+      visible: s ? m != null : D > 0,
+      opacity: D,
+      width: ut(m),
+      duration: pt(m),
       label: P,
       ghost: X
     };
-  }), l = Object.fromEntries(i.map((c) => [c.key, c])), n = D(at.map((c) => a[c])), d = D([
+  }), n = Object.fromEntries(i.map((d) => [d.key, d])), l = N(st.map((d) => a[d])), u = N([
     a.solar_to_home_power_w,
     a.solar_to_battery_power_w,
     a.solar_export_power_w
-  ]), u = D([
+  ]), c = N([
     a.grid_to_home_power_w,
     a.grid_to_battery_power_w,
     a.solar_export_power_w
-  ]) == null ? null : a.grid_to_home_power_w + a.grid_to_battery_power_w - a.solar_export_power_w, f = r.battery_configured === !0, y = st.map((c) => a[c]).filter((c) => c != null);
+  ]) == null ? null : a.grid_to_home_power_w + a.grid_to_battery_power_w - a.solar_export_power_w, f = o.battery_configured === !0, b = it.map((d) => a[d]).filter((d) => d != null);
   let h = "absent";
-  f && (y.length === 0 ? h = "unknown" : y.some((c) => Math.abs(c) >= 0.5) ? h = "active" : h = "idle");
-  const C = (a.solar_to_battery_power_w ?? 0) + (a.grid_to_battery_power_w ?? 0), w = a.battery_to_home_power_w ?? a.battery_discharge_power_w ?? 0, x = ft(o, h, w, C), _ = (c) => c != null && Math.abs(c) >= S, z = {
+  f && (b.length === 0 ? h = "unknown" : b.some((d) => Math.abs(d) >= 0.5) ? h = "active" : h = "idle");
+  const k = (a.solar_to_battery_power_w ?? 0) + (a.grid_to_battery_power_w ?? 0), C = a.battery_to_home_power_w ?? a.battery_discharge_power_w ?? 0, w = ht(r, h, C, k), x = (d) => d != null && Math.abs(d) >= O, T = {
     grid: {
       kind: "grid",
       icon: "⚡",
-      label: o.flowNodeGrid,
-      value: u != null ? b(u) : null,
+      label: r.flowNodeGrid,
+      value: c != null ? _(c) : null,
       detail: null,
       muted: !1,
       status: "active",
       x: 56,
-      y: F,
-      pulse: _(u)
+      y: W,
+      pulse: x(c)
     },
     solar: {
       kind: "solar",
       icon: "☀",
-      label: o.flowNodeSolar,
-      value: d != null ? b(d) : null,
+      label: r.flowNodeSolar,
+      value: u != null ? _(u) : null,
+      detail: null,
+      muted: !1,
+      status: "active",
+      x: 200,
+      y: at,
+      pulse: x(u)
+    },
+    home: {
+      kind: "home",
+      icon: "⌂",
+      label: r.flowNodeHome,
+      value: l != null ? _(l) : null,
       detail: null,
       muted: !1,
       status: "active",
       x: 200,
       y: rt,
-      pulse: _(d)
-    },
-    home: {
-      kind: "home",
-      icon: "⌂",
-      label: o.flowNodeHome,
-      value: n != null ? b(n) : null,
-      detail: null,
-      muted: !1,
-      status: "active",
-      x: 200,
-      y: F,
-      pulse: _(n)
+      pulse: x(l)
     },
     battery: f ? {
       kind: "battery",
       icon: h === "unknown" ? "?" : "B",
-      label: o.flowNodeBattery,
-      value: x.value,
-      detail: x.detail,
-      muted: x.muted,
+      label: r.flowNodeBattery,
+      value: w.value,
+      detail: w.detail,
+      muted: w.muted,
       status: h,
       x: 344,
-      y: F,
+      y: W,
       pulse: h === "active"
     } : null
-  }, k = a.home_power_w, N = s && n != null && k != null ? {
-    expected: n,
-    reported: k,
-    delta: k - n,
-    tolerance: Math.max(25, Math.abs(k) * 0.04)
+  }, y = a.home_power_w, F = s && l != null && y != null ? {
+    expected: l,
+    reported: y,
+    delta: y - l,
+    tolerance: Math.max(25, Math.abs(y) * 0.04)
   } : null;
   return {
     layout: e,
     debug: s,
-    nodes: z,
+    nodes: T,
     edges: i,
-    edgeMap: l,
+    edgeMap: n,
     meta: {
-      currentSlot: r.current_slot ?? null,
-      todayColor: r.today_color ?? null,
-      tomorrowColor: r.tomorrow_color ?? null,
-      inputStatus: r.input_status ?? null
+      currentSlot: o.current_slot ?? null,
+      todayColor: o.today_color ?? null,
+      tomorrowColor: o.tomorrow_color ?? null,
+      inputStatus: o.input_status ?? null
     },
-    mismatch: N
+    mismatch: F
   };
 }
-class mt extends j {
+class _t extends j {
   static properties = {
     hass: { attribute: !1 },
     _config: { state: !0 },
@@ -627,14 +631,14 @@ class mt extends j {
     this._config = t && typeof t == "object" ? { ...t, type: M } : { type: M }, this._lastFp = null, this.requestUpdate();
   }
   getCardSize() {
-    return 5;
+    return 6;
   }
   getGridOptions() {
     const t = Number(this._config?.grid_span ?? 1);
     return {
       columns: (Number.isFinite(t) ? Math.max(1, Math.min(3, Math.trunc(t))) : 1) * 12,
       min_columns: 3,
-      rows: 5,
+      rows: 6,
       min_rows: 3
     };
   }
@@ -650,13 +654,13 @@ class mt extends j {
   }
   shouldUpdate(t) {
     if (t.has("hass") && t.size === 1) {
-      const r = this._stateFingerprint();
-      return r !== null && r === this._lastFp ? !1 : (this._lastFp = r, !0);
+      const o = this._stateFingerprint();
+      return o !== null && o === this._lastFp ? !1 : (this._lastFp = o, !0);
     }
     return !0;
   }
   render() {
-    const t = this._i18n(), r = this._resolvedLayout(), e = this._viewModel(t, r), s = this._debugEnabled();
+    const t = this._i18n(), o = this._resolvedLayout(), e = this._viewModel(t, o), s = this._debugEnabled();
     if (!e.ready)
       return $`
         <ha-card>
@@ -667,8 +671,8 @@ class mt extends j {
           </div>
         </ha-card>
       `;
-    const a = e.model.mismatch && Math.abs(e.model.mismatch.delta) > e.model.mismatch.tolerance ? t.flowDebugConservationWarn.replace("{derived}", b(e.model.mismatch.expected)).replace("{reported}", b(e.model.mismatch.reported)).replace("{delta}", b(e.model.mismatch.delta)) : null, i = [];
-    return e.model.meta.currentSlot && i.push(`${t.flowMetaSlot}: ${e.model.meta.currentSlot}`), e.model.meta.todayColor && i.push(`${t.flowMetaToday}: ${W(e.model.meta.todayColor, t)}`), e.model.meta.tomorrowColor && i.push(`${t.flowMetaTomorrow}: ${W(e.model.meta.tomorrowColor, t)}`), e.model.meta.inputStatus && e.model.meta.inputStatus !== "ok" && i.push(`${t.flowMetaInputStatus}: ${pt(e.model.meta.inputStatus)}`), $`
+    const a = e.model.mismatch && Math.abs(e.model.mismatch.delta) > e.model.mismatch.tolerance ? t.flowDebugConservationWarn.replace("{derived}", _(e.model.mismatch.expected)).replace("{reported}", _(e.model.mismatch.reported)).replace("{delta}", _(e.model.mismatch.delta)) : null, i = [];
+    return e.model.meta.currentSlot && i.push(`${t.flowMetaSlot}: ${e.model.meta.currentSlot}`), e.model.meta.todayColor && i.push(`${t.flowMetaToday}: ${B(e.model.meta.todayColor, t)}`), e.model.meta.tomorrowColor && i.push(`${t.flowMetaTomorrow}: ${B(e.model.meta.tomorrowColor, t)}`), e.model.meta.inputStatus && e.model.meta.inputStatus !== "ok" && i.push(`${t.flowMetaInputStatus}: ${ft(e.model.meta.inputStatus)}`), $`
       <ha-card class=${s ? "debug-card" : ""}>
         <div class="wrap">
           <div class="header">
@@ -679,13 +683,13 @@ class mt extends j {
           <hub-power-flow-diagram
             .data=${e.model}
             .i18n=${t}
-            .layout=${r}
+            .layout=${o}
             .debug=${s}
           ></hub-power-flow-diagram>
           ${i.length ? $`
                 <div class="meta">
-                  ${i.map((l) => $`
-                    <span class="chip ${l.includes(t.flowMetaInputStatus) ? "alert" : ""}">${l}</span>
+                  ${i.map((n) => $`
+                    <span class="chip ${n.includes(t.flowMetaInputStatus) ? "alert" : ""}">${n}</span>
                   `)}
                 </div>
               ` : g}
@@ -704,60 +708,60 @@ class mt extends j {
     }, 100);
   }
   _i18n() {
-    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? A.en : A.fr;
+    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? L.en : L.fr;
   }
   _debugEnabled() {
-    return lt(this._config?.debug);
+    return nt(this._config?.debug);
   }
   _resolvedLayout() {
-    const t = nt(this._config?.layout);
+    const t = ct(this._config?.layout);
     return t === "auto" ? this._autoCompact ? "compact" : "full" : t;
   }
-  _viewModel(t, r) {
-    const e = this.hass?.states, s = B(e, this._config);
+  _viewModel(t, o) {
+    const e = this.hass?.states, s = A(e, this._config);
     if (!s)
       return { ready: !1, model: null };
-    const { data: a, meta: i } = s, l = e[a], n = e[i];
-    if (!l || !n)
+    const { data: a, meta: i } = s, n = e[a], l = e[i];
+    if (!n || !l)
       return { ready: !1, model: null };
-    l.attributes;
-    const d = n.attributes ?? {}, p = Object.fromEntries(
+    n.attributes;
+    const u = l.attributes ?? {}, p = Object.fromEntries(
       [
-        ...O.map((u) => u.key),
+        ...S.map((c) => c.key),
         "battery_discharge_power_w",
         "home_power_w"
-      ].map((u) => [u, tt(e, a, u)])
+      ].map((c) => [c, tt(e, a, c)])
     );
     return {
       ready: !0,
-      model: ht(t, p, d, r, this._debugEnabled())
+      model: mt(t, p, u, o, this._debugEnabled())
     };
   }
   _stateFingerprint() {
     const t = this.hass?.states;
     if (!t) return null;
-    const r = B(t, this._config), e = this._resolvedLayout(), s = this._debugEnabled();
-    if (!r) {
-      const f = String(this._config?.frontend_data_entity ?? "").trim(), y = String(this._config?.frontend_meta_entity ?? "").trim();
-      return `missing|${e}|${s}|${f}|${y}`;
+    const o = A(t, this._config), e = this._resolvedLayout(), s = this._debugEnabled();
+    if (!o) {
+      const f = String(this._config?.frontend_data_entity ?? "").trim(), b = String(this._config?.frontend_meta_entity ?? "").trim();
+      return `missing|${e}|${s}|${f}|${b}`;
     }
-    const { data: a, meta: i } = r, l = t[a], n = t[i];
-    if (!l || !n)
+    const { data: a, meta: i } = o, n = t[a], l = t[i];
+    if (!n || !l)
       return `missing|${e}|${s}|${a}|${i}`;
-    const d = l.attributes ?? {}, p = n.attributes ?? {};
+    const u = n.attributes ?? {}, p = l.attributes ?? {};
     return [
       a,
       i,
       e,
       s,
-      ...O.map((f) => E(d[f.key])),
-      E(d.battery_discharge_power_w),
-      s ? E(d.home_power_w) : "",
-      ...it.map((f) => E(p[f]))
+      ...S.map((f) => E(u[f.key])),
+      E(u.battery_discharge_power_w),
+      s ? E(u.home_power_w) : "",
+      ...lt.map((f) => E(p[f]))
     ].join("|");
   }
 }
-customElements.get("hub-energie-flow-card") || customElements.define("hub-energie-flow-card", mt);
+customElements.get("hub-energie-flow-card") || customElements.define("hub-energie-flow-card", _t);
 export {
-  mt as HubEnergieFlowCard
+  _t as HubEnergieFlowCard
 };
