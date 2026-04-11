@@ -1,9 +1,9 @@
 <script setup>
 import { nextTick, ref, watch } from "vue";
 import { applyLang, getLang } from "../../../siteShell";
+import LovelaceCardShowcase from "./LovelaceCardShowcase.vue";
 
 const base = import.meta.env.BASE_URL;
-const imgCard = `${base}img/hub-energie-card.png`;
 const imgEditor = `${base}img/lovelace-editor-01.png`;
 
 const showLovelaceTroubleshoot = ref(false);
@@ -77,21 +77,8 @@ watch(showLovelaceTroubleshoot, (open) => {
     </h3>
     <figure class="doc-figure doc-figure--photo card mt-2">
       <div class="doc-screenshot-frame doc-screenshot-frame--full position-relative bg-body-secondary">
-        <img
-          :src="imgCard"
-          alt=""
-          class="doc-carousel-img doc-zoomable"
-          width="1920"
-          height="1080"
-          decoding="async"
-          data-i18n-alt="lovelace.fig_alt"
-        />
-        <div
-          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
-        >
-          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
-          <span data-i18n="common.img_placeholder">Add screenshot to</span>
-          <code class="font-mono small mt-1">public/img/hub-energie-card.png</code>
+        <div class="doc-lovelace-showcase-wrap p-2 p-md-3">
+          <LovelaceCardShowcase />
         </div>
       </div>
       <figcaption class="card-body py-2 px-3 small text-secondary mb-0" data-i18n="lovelace.fig_cap"></figcaption>

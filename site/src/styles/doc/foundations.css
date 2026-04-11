@@ -225,6 +225,12 @@ h2:hover .doc-anchor {
   outline-offset: 2px;
 }
 
+.doc-lovelace-showcase-wrap {
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* Device + config-flow carousels: slightly smaller in-frame (“zoom out”) so HA UI chrome isn’t so tight */
 #devicesGalleryCarousel .doc-screenshot-frame,
 #configFlowCarousel .doc-screenshot-frame,
