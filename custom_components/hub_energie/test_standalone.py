@@ -72,7 +72,7 @@ _load_module("hub_energie.const.core", ROOT / "const" / "core.py")
 _load_module("hub_energie.const.tariff_edf", ROOT / "const" / "tariff_edf.py")
 _load_module("hub_energie.const.reinjection", ROOT / "const" / "reinjection.py")
 _load_module("hub_energie.const.energy_data", ROOT / "const" / "energy_data.py")
-_load_module("hub_energie.const._bundle", ROOT / "const" / "_bundle.py")
+_load_module("hub_energie.const.config_keys", ROOT / "const" / "config_keys.py")
 _const_spec = importlib.util.spec_from_file_location(
     "hub_energie.const",
     ROOT / "const" / "__init__.py",
