@@ -11,7 +11,7 @@ import logging
 from datetime import datetime, time
 from typing import Any
 
-from .const import (
+from .const.tariff_edf import (
     CONF_CURRENCY,
     CONF_ENERGY_PRICE,
     CONF_PRICE_BASIS,
@@ -28,9 +28,9 @@ from .const import (
     OPT_BLEU_HP,
     OPT_BLANC_HC,
     OPT_BLANC_HP,
+    OPT_FIXED_TTC,
     OPT_ROUGE_HC,
     OPT_ROUGE_HP,
-    OPT_FIXED_TTC,
     PRICING_FLAT,
     PRICING_SCHEDULE,
     PRICING_TIME_OF_USE,

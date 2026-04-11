@@ -1,9 +1,8 @@
-"""Constants for Hub Énergie integration (package; see submodules per domain)."""
+"""Integration package marker; import symbols from ``const.*`` submodules directly."""
 
 from __future__ import annotations
 
-from .core import *  # noqa: F403
-from .tariff_edf import *  # noqa: F403
-from .reinjection import *  # noqa: F403
-from .energy_data import *  # noqa: F403
-from .config_keys import *  # noqa: F403
+# Stable entry point for ``hub_energie.const`` (manifest, ``__init__``, migrations).
+from .core import DOMAIN
+
+__all__ = ("DOMAIN",)

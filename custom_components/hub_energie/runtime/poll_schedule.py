@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from ..const import TARIFF_OFFER_TEMPO, TEMPO_MODE_API
+from ..const.tariff_edf import TARIFF_OFFER_TEMPO, TEMPO_MODE_API
 from ..time.paris_time import PARIS_TZ
 
 __all__ = (

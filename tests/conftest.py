@@ -268,6 +268,36 @@ _ensure_stub_homeassistant()
 _ensure_ha_persistence_stubs()
 _ensure_ha_coordinator_stubs()
 
+
+def _register_hub_energie_const_test_barrel() -> None:
+    """Expose const submodules on ``hub_energie.const`` for ``importlib…hub_energie.const``.
+
+    Match ``pytest_configure``: keep a lightweight ``hub_energie`` package stub so
+    submodule imports do not execute the full integration ``__init__.py``.
+    """
+    import importlib
+
+    repo_root = Path(__file__).resolve().parents[1]
+    hub_dir = repo_root / "custom_components" / "hub_energie"
+    if "hub_energie" not in sys.modules:
+        pkg = types.ModuleType("hub_energie")
+        pkg.__path__ = [str(hub_dir)]  # type: ignore[attr-defined]
+        sys.modules["hub_energie"] = pkg
+    for sub in ("core", "tariff_edf", "reinjection", "energy_data", "config_keys"):
+        importlib.import_module(f"hub_energie.const.{sub}")
+    barrel = types.ModuleType("hub_energie.const")
+    barrel.__path__ = [str(hub_dir / "const")]  # type: ignore[attr-defined]
+    for sub in ("core", "tariff_edf", "reinjection", "energy_data", "config_keys"):
+        mod = importlib.import_module(f"hub_energie.const.{sub}")
+        for name in dir(mod):
+            if name.startswith("_"):
+                continue
+            setattr(barrel, name, getattr(mod, name))
+    sys.modules["hub_energie.const"] = barrel
+
+
+_register_hub_energie_const_test_barrel()
+
 _skipped_nodeids: set[str] = set()
 
 

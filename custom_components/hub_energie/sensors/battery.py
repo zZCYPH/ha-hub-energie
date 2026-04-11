@@ -11,7 +11,7 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfEnergy, UnitOfPower
 
-from ..const import (
+from ..const.energy_data import (
     DATA_BATTERY_AVAILABLE_ENERGY_KWH,
     DATA_BATTERY_CHARGE_KWH,
     DATA_BATTERY_DISCHARGE_KWH,

@@ -8,11 +8,8 @@ from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from ..const import (
-    CONF_RTE_CLIENT_ID,
-    CONF_RTE_CLIENT_SECRET,
-    DOMAIN,
-)
+from ..const.core import DOMAIN
+from ..const.tariff_edf import CONF_RTE_CLIENT_ID, CONF_RTE_CLIENT_SECRET
 from ..utils.config_display import config_overview_attributes, redact_entry_data_for_display
 
 # Keys never shipped in diagnostics JSON (secrets / credentials).

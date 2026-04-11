@@ -13,17 +13,14 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import (
+from .const.config_keys import (
     CONF_BATT_NAME,
     CONF_BATTERY_SYSTEMS,
     CONF_HAS_SOLAR,
     CONF_SOLAR_ESTIMATION_ENABLED,
-    CONF_SUPPLIER,
-    CONF_TARIFF_OFFER,
-    DOMAIN,
-    SUPPLIER_EDF,
-    TARIFF_OFFER_TEMPO,
 )
+from .const.core import DOMAIN
+from .const.tariff_edf import CONF_SUPPLIER, CONF_TARIFF_OFFER, SUPPLIER_EDF, TARIFF_OFFER_TEMPO
 from .coordinator import HubEnergieCoordinator
 from .device_info import (
     _device_battery,

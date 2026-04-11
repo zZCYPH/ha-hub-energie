@@ -8,7 +8,7 @@ from typing import Callable, cast
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, State
 
-from ..const import (
+from ..const.config_keys import (
     CONF_GRID_POWER_PHASES,
     CONF_GRID_POWER_SENSOR,
     CONF_HAS_SOLAR,

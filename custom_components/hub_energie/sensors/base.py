@@ -12,7 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from ..const import (
+from ..const.config_keys import (
     BATT_SIGN_POSITIVE_CHARGE,
     BATT_SIGN_POSITIVE_DISCHARGE,
     CONF_BATT_POWER_IN,
@@ -26,21 +26,25 @@ from ..const import (
     CONF_HAS_SOLAR,
     CONF_LOAD_POWER_SENSOR,
     CONF_SOLAR_POWER_SENSOR,
-    CONF_SUPPLIER,
-    CONF_TARIFF_OFFER,
+)
+from ..const.core import DOMAIN
+from ..const.energy_data import (
     DATA_INPUT_MISSING_ENTITY_IDS,
     DATA_INPUT_STATUS,
     DATA_INPUT_STATUS_REASONS,
     DATA_INPUT_UNAVAILABLE_ENTITY_IDS,
-    DOMAIN,
     INPUT_STATUS_ERROR,
     INPUT_STATUS_NO_INPUT,
-    SLOTS,
-    SLOT_UNKNOWN,
     SOURCE_BATT_CHARGE,
     SOURCE_BATT_DISCHARGE,
     SOURCE_GRID,
     SOURCE_SOLAR,
+)
+from ..const.tariff_edf import (
+    CONF_SUPPLIER,
+    CONF_TARIFF_OFFER,
+    SLOTS,
+    SLOT_UNKNOWN,
     SUPPLIER_EDF,
     TARIFF_OFFER_BASE,
     TARIFF_OFFER_HPHC,

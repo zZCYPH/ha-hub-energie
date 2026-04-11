@@ -5,9 +5,11 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from ..const import (
+from ..const.config_keys import (
     BATT_SIGN_POSITIVE_CHARGE,
     BATT_SIGN_POSITIVE_DISCHARGE,
+    CONF_BATT_CAPACITY_KWH,
+    CONF_BATT_CAPACITY_KWH_ENTITY,
     CONF_BATT_POWER_IN,
     CONF_BATT_POWER_NET,
     CONF_BATT_POWER_NET_SIGN,
@@ -15,8 +17,6 @@ from ..const import (
     CONF_BATT_SOC,
     CONF_BATT_SOC_MAX,
     CONF_BATT_SOC_MAX_ENTITY,
-    CONF_BATT_CAPACITY_KWH,
-    CONF_BATT_CAPACITY_KWH_ENTITY,
 )
 
 

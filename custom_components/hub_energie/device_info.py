@@ -5,13 +5,8 @@ from __future__ import annotations
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 
-from .const import (
-    DOMAIN,
-    INTEGRATION_TITLE,
-    SOURCE_GRID,
-    SOURCE_SOLAR,
-    scoped_device_name,
-)
+from .const.core import DOMAIN, INTEGRATION_TITLE, scoped_device_name
+from .const.energy_data import SOURCE_GRID, SOURCE_SOLAR
 from .coordinator import HubEnergieCoordinator
 
 __all__ = (

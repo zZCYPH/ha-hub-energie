@@ -19,7 +19,7 @@ from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers.start import async_at_started
 
-from .const import DOMAIN
+from .const.core import DOMAIN
 from .coordinator import HubEnergieCoordinator
 from .utils.startup_failure import log_first_refresh_failure
 from .migration import async_migrate_entry  # noqa: F401 — entry point for HA

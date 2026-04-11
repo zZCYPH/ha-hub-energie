@@ -9,7 +9,8 @@ from typing import Literal, cast
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from ..const import (
+from ..const.config_keys import (
+    CONF_BATT_ADVANCED,
     CONF_BATT_CAPACITY_KWH_ENTITY,
     CONF_BATT_ENERGY_IN,
     CONF_BATT_ENERGY_OUT,
@@ -21,9 +22,7 @@ from ..const import (
     CONF_BATT_SOC,
     CONF_BATT_SOC_MAX_ENTITY,
     CONF_BATT_SOC_MIN_ENTITY,
-    CONF_BATT_ADVANCED,
     CONF_BATTERY_SYSTEMS,
-    CONF_CURRENT_SLOT_SENSOR,
     CONF_GRID_EXPORT_ENERGY,
     CONF_GRID_EXPORT_ENERGY_PHASES,
     CONF_GRID_IMPORT_ENERGY,
@@ -34,12 +33,12 @@ from ..const import (
     CONF_HAS_BATTERIES,
     CONF_HAS_SOLAR,
     CONF_LOAD_POWER_SENSOR,
-    CONF_PHASE_TYPE,
     CONF_SOLAR_ENERGY,
     CONF_SOLAR_POWER_SENSOR,
-    CONF_SUPPLIER,
-    CONF_TARIFF_OFFER,
-    CONF_TEMPO_MODE,
+    PHASE_TRI,
+    TRI_GRID_ENERGY_PER_PHASE,
+)
+from ..const.energy_data import (
     INPUT_REASON_DATA_QUALITY_DEGRADED,
     INPUT_REASON_MISSING_ENTITIES,
     INPUT_REASON_NO_GRID_IMPORT_READABLE,
@@ -50,11 +49,16 @@ from ..const import (
     INPUT_STATUS_ERROR,
     INPUT_STATUS_NO_INPUT,
     INPUT_STATUS_OK,
-    PHASE_TRI,
+)
+from ..const.tariff_edf import (
+    CONF_CURRENT_SLOT_SENSOR,
+    CONF_PHASE_TYPE,
+    CONF_SUPPLIER,
+    CONF_TARIFF_OFFER,
+    CONF_TEMPO_MODE,
     SUPPLIER_EDF,
     TARIFF_OFFER_TEMPO,
     TEMPO_MODE_SENSOR,
-    TRI_GRID_ENERGY_PER_PHASE,
 )
 from ..ha.reader import HAReader
 from ..utils.grid_phases import ordered_phase_entity_ids

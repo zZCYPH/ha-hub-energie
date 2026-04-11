@@ -12,7 +12,8 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfEnergy
 
-from ..const import (
+from ..const.core import LOGIC_VERSION
+from ..const.energy_data import (
     ATTR_DIRECT_MAISON,
     ATTR_VIA_BATTERIE,
     DATA_BATT_CHARGE_METER_KWH,
@@ -41,7 +42,6 @@ from ..const import (
     DATA_USAGE_SOLAR_BATT_CHARGE,
     DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH,
     DATA_USAGE_SOLAR_DIRECT,
-    LOGIC_VERSION,
 )
 from ..coordinator import HubEnergieCoordinator
 from ..device_info import (

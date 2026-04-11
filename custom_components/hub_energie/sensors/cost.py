@@ -12,8 +12,8 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CURRENCY_EURO
 
-from ..const import (
-    ATTRIBUTION_SLOTS,
+from ..const.core import LOGIC_VERSION
+from ..const.energy_data import (
     DATA_ABONNEMENT_EUR,
     DATA_BATT_CHARGE_METER_KWH,
     DATA_BATT_CHARGE_POWER_W,
@@ -59,8 +59,8 @@ from ..const import (
     DATA_USAGE_BATT_CHARGE_METHOD,
     DATA_USAGE_GRID_BATT_CHARGE_BY_SLOT_KWH,
     DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH,
-    LOGIC_VERSION,
 )
+from ..const.tariff_edf import ATTRIBUTION_SLOTS
 from ..coordinator import HubEnergieCoordinator
 from ..device_info import _device_battery_summary, _device_cost, _device_solar_config
 from .base import (

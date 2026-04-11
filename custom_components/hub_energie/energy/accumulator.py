@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, Mapping
 
-from ..const import NEGATIVE_DELTA_REBASE_BAND_KWH
+from ..const.energy_data import NEGATIVE_DELTA_REBASE_BAND_KWH
 
 __all__ = ("DeltaApplyResult", "DeltaStatePatch", "compute_delta_decision")
 

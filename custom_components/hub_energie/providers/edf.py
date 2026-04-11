@@ -20,7 +20,7 @@ from .http_retry import (
     TransientHttpError,
     async_run_with_transient_retry,
 )
-from ..const import (
+from ..const.tariff_edf import (
     API_CALENDAR_URL,
     API_COULEUR_TEMPO_BASE_URL,
     API_DATE_QUERY_FORMAT,

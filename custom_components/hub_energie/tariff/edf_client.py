@@ -7,7 +7,7 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from ..const import CONF_RTE_CLIENT_ID, CONF_RTE_CLIENT_SECRET
+from ..const.tariff_edf import CONF_RTE_CLIENT_ID, CONF_RTE_CLIENT_SECRET
 from ..providers.edf import (
     async_get_calendar_rows,
     async_get_tempo_stats_with_raw,

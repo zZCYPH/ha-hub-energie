@@ -11,15 +11,13 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
-from ..const import (
-    CONF_CURRENT_SLOT_SENSOR,
+from ..const.energy_data import (
     DATA_RTE_CALENDAR_FETCHED_AT,
     DATA_TEMPO_DAYS,
     DATA_TEMPO_NEXT_COLOUR_CHANGE_AT,
     DATA_TEMPO_NEXT_HC_START_AT,
-    TEMPO_MODE_SENSOR,
-    TEMPO_SEASON_DAY_QUOTAS,
 )
+from ..const.tariff_edf import CONF_CURRENT_SLOT_SENSOR, TEMPO_MODE_SENSOR, TEMPO_SEASON_DAY_QUOTAS
 from ..coordinator import HubEnergieCoordinator
 from ..device_info import _device_offer
 from .base import _safe_int

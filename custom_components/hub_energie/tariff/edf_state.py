@@ -12,7 +12,13 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
-from ..const import TARIFF_OFFER_BASE, TARIFF_OFFER_HPHC, TARIFF_OFFER_TEMPO, TEMPO_MODE_API, TEMPO_MODE_RTE
+from ..const.tariff_edf import (
+    TARIFF_OFFER_BASE,
+    TARIFF_OFFER_HPHC,
+    TARIFF_OFFER_TEMPO,
+    TEMPO_MODE_API,
+    TEMPO_MODE_RTE,
+)
 from ..providers.edf import (
     build_current_slot,
     current_colour_from_calendar,

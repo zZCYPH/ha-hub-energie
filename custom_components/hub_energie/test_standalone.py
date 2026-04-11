@@ -73,14 +73,16 @@ _load_module("hub_energie.const.tariff_edf", ROOT / "const" / "tariff_edf.py")
 _load_module("hub_energie.const.reinjection", ROOT / "const" / "reinjection.py")
 _load_module("hub_energie.const.energy_data", ROOT / "const" / "energy_data.py")
 _load_module("hub_energie.const.config_keys", ROOT / "const" / "config_keys.py")
-_const_spec = importlib.util.spec_from_file_location(
-    "hub_energie.const",
-    ROOT / "const" / "__init__.py",
-    submodule_search_locations=[str(ROOT / "const")],
-)
-const_mod = importlib.util.module_from_spec(_const_spec)
+# ``tariff_manager`` uses ``from .const import …`` — merge submodules (runtime __init__ is DOMAIN-only).
+const_mod = type(sys)("hub_energie.const")
+const_mod.__path__ = [str(ROOT / "const")]
+for _sub in ("core", "tariff_edf", "reinjection", "energy_data", "config_keys"):
+    _sm = sys.modules[f"hub_energie.const.{_sub}"]
+    for _name in dir(_sm):
+        if _name.startswith("_"):
+            continue
+        setattr(const_mod, _name, getattr(_sm, _name))
 sys.modules["hub_energie.const"] = const_mod
-_const_spec.loader.exec_module(const_mod)
 
 tariff_mod = _load_module("hub_energie.tariff_manager", ROOT / "tariff_manager.py")
 TariffResolver = tariff_mod.TariffResolver
