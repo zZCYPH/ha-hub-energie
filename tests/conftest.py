@@ -94,6 +94,25 @@ def _ensure_stub_homeassistant() -> None:
     sys.modules["homeassistant.core"] = core
     ha.core = core
 
+    exc_mod = types.ModuleType("homeassistant.exceptions")
+
+    class ServiceValidationError(Exception):
+        """Minimal stub for service schema / entry validation errors."""
+
+        def __init__(
+            self,
+            *args: object,
+            translation_domain: object = None,
+            translation_key: object = None,
+            translation_placeholders: object = None,
+            **kwargs: object,
+        ) -> None:
+            super().__init__(translation_key or (args[0] if args else "validation_error"))
+
+    exc_mod.ServiceValidationError = ServiceValidationError
+    sys.modules["homeassistant.exceptions"] = exc_mod
+    ha.exceptions = exc_mod
+
     entries = types.ModuleType("homeassistant.config_entries")
     entries.ConfigEntry = type("ConfigEntry", (), {})
     sys.modules["homeassistant.config_entries"] = entries
