@@ -4,6 +4,7 @@ import { I18N } from "./constants/i18n.js";
 import {
   dayColorLabel,
   fmtPowerCompact,
+  formatFlowDataAge,
   readAttrOptionalFloat,
   resolveHubFrontendPayloadEntities,
 } from "./utils/hub-flow-resolve.js";
@@ -305,6 +306,8 @@ export class HubEnergieFlowCard extends LitElement {
     hass: { attribute: false },
     _config: { state: true },
     _autoCompact: { state: true },
+    /** Bumps periodically so the live-data age line refreshes when values are unchanged. */
+    _dataAgePulse: { state: true },
   };
 
   static styles = css`
@@ -329,11 +332,21 @@ export class HubEnergieFlowCard extends LitElement {
     .header {
       margin-bottom: 8px;
     }
+    .head-main {
+      flex: 1;
+      min-width: 0;
+    }
     .title {
       font-size: 1rem;
       font-weight: 700;
       line-height: 1.25;
       color: var(--primary-text-color);
+    }
+    .subtitle {
+      margin-top: 2px;
+      font-size: 0.72rem;
+      line-height: 1.3;
+      color: var(--secondary-text-color);
     }
     .badge,
     .chip {
@@ -398,14 +411,19 @@ export class HubEnergieFlowCard extends LitElement {
     this.hass = undefined;
     this._config = { type: CARD_TYPE };
     this._autoCompact = false;
+    this._dataAgePulse = 0;
     this._lastFp = null;
     this._resizeObserver = null;
     this._resizeTimer = null;
+    this._dataAgeTimer = null;
   }
 
   connectedCallback() {
     super.connectedCallback();
     this._attachResizeObserver();
+    this._dataAgeTimer = window.setInterval(() => {
+      this._dataAgePulse += 1;
+    }, 15000);
   }
 
   disconnectedCallback() {
@@ -414,6 +432,10 @@ export class HubEnergieFlowCard extends LitElement {
     this._resizeObserver = null;
     if (this._resizeTimer != null) clearTimeout(this._resizeTimer);
     this._resizeTimer = null;
+    if (this._dataAgeTimer != null) {
+      window.clearInterval(this._dataAgeTimer);
+      this._dataAgeTimer = null;
+    }
   }
 
   firstUpdated() {
@@ -454,6 +476,7 @@ export class HubEnergieFlowCard extends LitElement {
   }
 
   shouldUpdate(changedProps) {
+    if (changedProps.has("_dataAgePulse")) return true;
     if (changedProps.has("hass") && changedProps.size === 1) {
       const fp = this._stateFingerprint();
       if (fp !== null && fp === this._lastFp) return false;
@@ -487,6 +510,13 @@ export class HubEnergieFlowCard extends LitElement {
           .replace("{delta}", fmtPowerCompact(vm.model.mismatch.delta))
       : null;
 
+    const liveEnt = vm.dataEntityId ? this.hass.states[vm.dataEntityId] : null;
+    const liveTs = liveEnt?.last_updated ?? liveEnt?.last_changed ?? "";
+    const ageStr = formatFlowDataAge(String(liveTs), Date.now(), i18n);
+    const subtitle = ageStr
+      ? i18n.flowDataAgeLabel.replace("{age}", ageStr)
+      : i18n.flowDataAgeUnknown;
+
     const chips = [];
     if (vm.model.meta.currentSlot) {
       chips.push(`${i18n.flowMetaSlot}: ${vm.model.meta.currentSlot}`);
@@ -505,7 +535,10 @@ export class HubEnergieFlowCard extends LitElement {
       <ha-card class=${debug ? "debug-card" : ""}>
         <div class="wrap">
           <div class="header">
-            <div class="title">${this._config?.title || i18n.flowCardTitle}</div>
+            <div class="head-main">
+              <div class="title">${this._config?.title || i18n.flowCardTitle}</div>
+              <div class="subtitle">${subtitle}</div>
+            </div>
             ${debug ? html`<span class="badge">${i18n.flowDebugBadge}</span>` : nothing}
           </div>
           ${mismatchWarning ? html`<div class="warning">${mismatchWarning}</div>` : nothing}
@@ -584,6 +617,7 @@ export class HubEnergieFlowCard extends LitElement {
 
     return {
       ready: true,
+      dataEntityId: dataId,
       model: buildDiagramModel(i18n, live, metaAttrs, layout, this._debugEnabled()),
     };
   }
@@ -612,6 +646,7 @@ export class HubEnergieFlowCard extends LitElement {
       metaId,
       layout,
       debug,
+      fpPart(liveState.last_updated ?? liveState.last_changed),
       ...EDGE_CONFIG.map((edge) => fpPart(liveAttrs[edge.key])),
       fpPart(liveAttrs.battery_discharge_power_w),
       debug ? fpPart(liveAttrs.home_power_w) : "",

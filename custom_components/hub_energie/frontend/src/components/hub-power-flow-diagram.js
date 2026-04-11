@@ -34,6 +34,8 @@ export class HubPowerFlowDiagram extends LitElement {
     i18n: { attribute: false },
     layout: { type: String },
     debug: { type: Boolean },
+    /** 'node:grid' | 'edge:solar_to_home_power_w' | null */
+    _focusKey: { state: true },
   };
 
   static styles = css`
@@ -114,6 +116,7 @@ export class HubPowerFlowDiagram extends LitElement {
       stroke-opacity: 0.92;
       stroke-width: 4px;
       stroke-linejoin: round;
+      transition: opacity 0.45s ease, fill 0.45s ease;
     }
     .node-icon {
       fill: var(--primary-text-color);
@@ -121,6 +124,7 @@ export class HubPowerFlowDiagram extends LitElement {
       font-weight: 600;
       text-anchor: middle;
       dominant-baseline: middle;
+      transition: opacity 0.45s ease, fill 0.45s ease;
     }
     .node-label,
     .node-value,
@@ -134,16 +138,19 @@ export class HubPowerFlowDiagram extends LitElement {
       letter-spacing: 0.08em;
       text-transform: uppercase;
       opacity: 0.92;
+      transition: opacity 0.45s ease, fill 0.45s ease;
     }
     .node-value {
       font-size: 13px;
       font-weight: 800;
       letter-spacing: 0.02em;
       font-variant-numeric: tabular-nums;
+      transition: opacity 0.45s ease, fill 0.45s ease;
     }
     .node-detail {
       font-size: 11px;
       fill: var(--secondary-text-color);
+      transition: opacity 0.45s ease, fill 0.45s ease;
     }
     .node-muted {
       fill: var(--disabled-text-color, #9e9e9e);
@@ -160,7 +167,20 @@ export class HubPowerFlowDiagram extends LitElement {
     .node-halo--live {
       animation: node-pulse 2.8s ease-in-out infinite;
     }
+    .flow-dim {
+      transition: opacity 0.38s ease;
+    }
     @media (prefers-reduced-motion: reduce) {
+      .flow-dim {
+        transition: none;
+      }
+      .node-icon,
+      .node-label,
+      .node-value,
+      .node-detail,
+      .edge-label {
+        transition: none;
+      }
       .edge-bolt,
       .edge-bolt-glow {
         animation: none !important;
@@ -183,8 +203,75 @@ export class HubPowerFlowDiagram extends LitElement {
     this.i18n = {};
     this.layout = "full";
     this.debug = false;
+    this._focusKey = null;
     /** Unique SVG defs ids when several flow cards share a view. */
     this._gid = Math.random().toString(36).slice(2, 10);
+    this._onDocPointerDown = this._onDocPointerDown.bind(this);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    /* Bubble so taps on the diagram run before we clear focus. */
+    document.addEventListener("pointerdown", this._onDocPointerDown, false);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    document.removeEventListener("pointerdown", this._onDocPointerDown, false);
+  }
+
+  _onDocPointerDown(event) {
+    if (!this._focusKey) return;
+    const path = event.composedPath?.() ?? [];
+    if (path.includes(this)) return;
+    this._focusKey = null;
+    this.requestUpdate();
+  }
+
+  _toggleFocus(key) {
+    this._focusKey = this._focusKey === key ? null : key;
+    this.requestUpdate();
+  }
+
+  updated(changed) {
+    super.updated(changed);
+    if (!changed.has("data") || !this.data || !this._focusKey) return;
+    if (this._focusKey.startsWith("edge:")) {
+      const k = this._focusKey.slice(5);
+      const e = this.data.edgeMap?.[k];
+      if (!e || !e.visible) {
+        this._focusKey = null;
+        this.requestUpdate();
+      }
+    } else if (this._focusKey.startsWith("node:")) {
+      const kind = this._focusKey.slice(5);
+      if (!this.data.nodes?.[kind]) {
+        this._focusKey = null;
+        this.requestUpdate();
+      }
+    }
+  }
+
+  _edgeTouchesNode(edge, kind) {
+    return edge.from === kind || edge.to === kind;
+  }
+
+  _nodeDim(model, node) {
+    const fk = this._focusKey;
+    if (!fk || !model) return 1;
+    if (fk.startsWith("node:")) return fk === `node:${node.kind}` ? 1 : 0.34;
+    const key = fk.slice(5);
+    const edge = model.edgeMap?.[key];
+    if (!edge) return 1;
+    return this._edgeTouchesNode(edge, node.kind) ? 1 : 0.34;
+  }
+
+  _edgeDim(model, edge) {
+    const fk = this._focusKey;
+    if (!fk || !model) return 1;
+    if (fk.startsWith("edge:")) return fk === `edge:${edge.key}` ? 1 : 0.22;
+    const kind = fk.slice(5);
+    return this._edgeTouchesNode(edge, kind) ? 1 : 0.22;
   }
 
   _renderDefs() {
@@ -292,13 +379,13 @@ export class HubPowerFlowDiagram extends LitElement {
             ></rect>
           </g>
         `}
-        ${model.edges.map((edge) => this._renderEdge(edge, showEdgeLabels))}
-        ${nodes.map((node) => this._renderNode(node, showNodeDetails))}
+        ${model.edges.map((edge) => this._renderEdge(edge, showEdgeLabels, model))}
+        ${nodes.map((node) => this._renderNode(node, showNodeDetails, model))}
       </svg>
     `;
   }
 
-  _renderEdge(edge, showEdgeLabels) {
+  _renderEdge(edge, showEdgeLabels, model) {
     if (!edge.visible) return nothing;
     const color = edge.color;
     const w = Number(edge.width);
@@ -332,32 +419,43 @@ export class HubPowerFlowDiagram extends LitElement {
     ].join(";");
     const boltGlowClass = ghost ? "edge-bolt-glow edge-bolt-glow--ghost" : "edge-bolt-glow";
     const boltCoreClass = ghost ? "edge-bolt edge-bolt--ghost" : "edge-bolt";
+    const dim = this._edgeDim(model, edge);
+    const onEdgeTap = (event) => {
+      event.stopPropagation();
+      this._toggleFocus(`edge:${edge.key}`);
+    };
+    const hitStyle =
+      "fill:none;stroke:transparent;stroke-width:18px;stroke-linecap:round;stroke-linejoin:round;pointer-events:stroke;cursor:pointer";
     return svg`
-      <g>
-        <path class="edge-base" d=${edge.path} style=${baseStyle}></path>
-        <path class="edge-glow" d=${edge.path} style=${cableGlowStyle}></path>
+      <g class="flow-dim" style=${`opacity:${dim}`}>
+        <path class="edge-base" d=${edge.path} style=${baseStyle} pointer-events="none"></path>
+        <path class="edge-glow" d=${edge.path} style=${cableGlowStyle} pointer-events="none"></path>
         <path
           class=${boltGlowClass}
           d=${edge.path}
           pathLength="100"
           style=${boltGlowStyle}
+          pointer-events="none"
         ></path>
         <path
           class=${boltCoreClass}
           d=${edge.path}
           pathLength="100"
           style=${boltCoreStyle}
+          pointer-events="none"
         ></path>
         ${showEdgeLabels && edge.label
           ? svg`<text
               class="edge-label"
               x=${edge.labelX}
               y=${edge.labelY}
-              style="fill:var(--primary-text-color,#e0e0e0)"
+              style="fill:var(--primary-text-color,#e0e0e0);cursor:pointer"
+              @pointerdown=${onEdgeTap}
             >
               ${edge.label}
             </text>`
           : nothing}
+        <path d=${edge.path} style=${hitStyle} @pointerdown=${onEdgeTap}></path>
       </g>
     `;
   }
@@ -374,13 +472,18 @@ export class HubPowerFlowDiagram extends LitElement {
       : { labelY: radius + 14, valueY: radius + 24, detailY: radius + 40 };
   }
 
-  _renderNode(node, showDetails) {
+  _renderNode(node, showDetails, model) {
     const radius = nodeRadius(node.kind);
     const color = NODE_COLORS[node.kind] ?? NODE_COLORS.neutral;
     const labelClass = node.muted ? "node-muted" : "";
     const detail = showDetails && node.detail ? node.detail : null;
     const loose = showDetails && Boolean(node.value);
     const { labelY, valueY, detailY } = this._nodeTextYs(radius, node.kind === "home", loose);
+    const dim = this._nodeDim(model, node);
+    const onNodeTap = (event) => {
+      event.stopPropagation();
+      this._toggleFocus(`node:${node.kind}`);
+    };
     const idle = node.status === "idle" || node.status === "unknown";
     const live = !idle && node.pulse;
     const haloClass = live ? "node-halo node-halo--live" : "node-halo";
@@ -403,8 +506,14 @@ export class HubPowerFlowDiagram extends LitElement {
         ? "fill:var(--disabled-text-color,#9e9e9e)"
         : "fill:var(--primary-text-color,#e0e0e0)";
     const detailFill = "fill:var(--secondary-text-color,#b0b0b0)";
+    const cursor = "cursor:pointer";
     return svg`
-      <g transform="translate(${node.x} ${node.y})">
+      <g
+        class="flow-dim"
+        style=${`opacity:${dim};${cursor}`}
+        transform="translate(${node.x} ${node.y})"
+        @pointerdown=${onNodeTap}
+      >
         <circle class=${haloClass} r=${radius + 14} style=${haloStyle}></circle>
         <circle class="node-ring ${node.status}" r=${radius + 5} style=${ringStyle}></circle>
         <circle class="node-core" r=${radius} style=${coreStyle}></circle>

@@ -186,6 +186,14 @@ export const I18N = Object.freeze({
     flowEditorMetaEntity: "Capteur meta (frontend_meta)",
     flowEditorEntityHint:
       "Vide = détection auto (<code>hub_energie_frontend_*</code> puis <code>frontend_*</code>).",
+    flowEditorReducedMotionNote:
+      "Les animations des câbles suivent le réglage d’accessibilité « réduire les mouvements » du système (pas une option de performance).",
+    flowDataAgeLabel: "Live · {age}",
+    flowDataAgeUnknown: "Live · —",
+    flowAgeSeconds: "{n} s",
+    flowAgeMinutes: "{n} min",
+    flowAgeHours: "{n} h",
+    flowAgeDays: "{n} j",
   },
   en: {
     date: "Date",
@@ -372,5 +380,13 @@ export const I18N = Object.freeze({
     flowEditorMetaEntity: "Meta sensor (frontend_meta)",
     flowEditorEntityHint:
       "Empty = auto-detect (<code>hub_energie_frontend_*</code> then <code>frontend_*</code>).",
+    flowEditorReducedMotionNote:
+      "Cable animations follow the system “reduce motion” accessibility setting (not a performance toggle).",
+    flowDataAgeLabel: "Live · {age}",
+    flowDataAgeUnknown: "Live · —",
+    flowAgeSeconds: "{n} s",
+    flowAgeMinutes: "{n} min",
+    flowAgeHours: "{n} h",
+    flowAgeDays: "{n} d",
   },
 });

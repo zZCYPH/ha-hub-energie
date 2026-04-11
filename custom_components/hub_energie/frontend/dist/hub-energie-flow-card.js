@@ -1,25 +1,27 @@
-import { i as I, a as U, w as $, A as y, b as k, I as R } from "./i18n.js";
-import { C as H, a as F, c as P, b as V, e as q } from "./colors.js";
-const A = Object.freeze({
-  grid: P,
-  solar: F,
+import { i as I, a as U, w as x, A as w, b as $, I as P } from "./i18n.js";
+import { C as H, a as L, c as X, b as V, e as J } from "./colors.js";
+const W = Object.freeze({
+  grid: X,
+  solar: L,
   home: "var(--primary-color, #03a9f4)",
   battery: H,
   neutral: "var(--secondary-text-color, #9e9e9e)"
 });
-function J(r) {
+function Q(r) {
   return r === "home" ? 28 : 22;
 }
-function z(r, t, o) {
-  const e = Number(t), s = Number(o), a = Number.isFinite(e) ? e : 2, i = Number.isFinite(s) ? s : 1;
-  return `fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:${r};stroke-width:${a}px;opacity:${i}`;
+function z(r, t, e) {
+  const o = Number(t), a = Number(e), s = Number.isFinite(o) ? o : 2, i = Number.isFinite(a) ? a : 1;
+  return `fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:${r};stroke-width:${s}px;opacity:${i}`;
 }
-class Q extends I {
+class Z extends I {
   static properties = {
     data: { attribute: !1 },
     i18n: { attribute: !1 },
     layout: { type: String },
-    debug: { type: Boolean }
+    debug: { type: Boolean },
+    /** 'node:grid' | 'edge:solar_to_home_power_w' | null */
+    _focusKey: { state: !0 }
   };
   static styles = U`
     :host {
@@ -99,6 +101,7 @@ class Q extends I {
       stroke-opacity: 0.92;
       stroke-width: 4px;
       stroke-linejoin: round;
+      transition: opacity 0.45s ease, fill 0.45s ease;
     }
     .node-icon {
       fill: var(--primary-text-color);
@@ -106,6 +109,7 @@ class Q extends I {
       font-weight: 600;
       text-anchor: middle;
       dominant-baseline: middle;
+      transition: opacity 0.45s ease, fill 0.45s ease;
     }
     .node-label,
     .node-value,
@@ -119,16 +123,19 @@ class Q extends I {
       letter-spacing: 0.08em;
       text-transform: uppercase;
       opacity: 0.92;
+      transition: opacity 0.45s ease, fill 0.45s ease;
     }
     .node-value {
       font-size: 13px;
       font-weight: 800;
       letter-spacing: 0.02em;
       font-variant-numeric: tabular-nums;
+      transition: opacity 0.45s ease, fill 0.45s ease;
     }
     .node-detail {
       font-size: 11px;
       fill: var(--secondary-text-color);
+      transition: opacity 0.45s ease, fill 0.45s ease;
     }
     .node-muted {
       fill: var(--disabled-text-color, #9e9e9e);
@@ -145,7 +152,20 @@ class Q extends I {
     .node-halo--live {
       animation: node-pulse 2.8s ease-in-out infinite;
     }
+    .flow-dim {
+      transition: opacity 0.38s ease;
+    }
     @media (prefers-reduced-motion: reduce) {
+      .flow-dim {
+        transition: none;
+      }
+      .node-icon,
+      .node-label,
+      .node-value,
+      .node-detail,
+      .edge-label {
+        transition: none;
+      }
       .edge-bolt,
       .edge-bolt-glow {
         animation: none !important;
@@ -162,11 +182,51 @@ class Q extends I {
     }
   `;
   constructor() {
-    super(), this.data = null, this.i18n = {}, this.layout = "full", this.debug = !1, this._gid = Math.random().toString(36).slice(2, 10);
+    super(), this.data = null, this.i18n = {}, this.layout = "full", this.debug = !1, this._focusKey = null, this._gid = Math.random().toString(36).slice(2, 10), this._onDocPointerDown = this._onDocPointerDown.bind(this);
+  }
+  connectedCallback() {
+    super.connectedCallback(), document.addEventListener("pointerdown", this._onDocPointerDown, !1);
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback(), document.removeEventListener("pointerdown", this._onDocPointerDown, !1);
+  }
+  _onDocPointerDown(t) {
+    !this._focusKey || (t.composedPath?.() ?? []).includes(this) || (this._focusKey = null, this.requestUpdate());
+  }
+  _toggleFocus(t) {
+    this._focusKey = this._focusKey === t ? null : t, this.requestUpdate();
+  }
+  updated(t) {
+    if (super.updated(t), !(!t.has("data") || !this.data || !this._focusKey)) {
+      if (this._focusKey.startsWith("edge:")) {
+        const e = this._focusKey.slice(5), o = this.data.edgeMap?.[e];
+        (!o || !o.visible) && (this._focusKey = null, this.requestUpdate());
+      } else if (this._focusKey.startsWith("node:")) {
+        const e = this._focusKey.slice(5);
+        this.data.nodes?.[e] || (this._focusKey = null, this.requestUpdate());
+      }
+    }
+  }
+  _edgeTouchesNode(t, e) {
+    return t.from === e || t.to === e;
+  }
+  _nodeDim(t, e) {
+    const o = this._focusKey;
+    if (!o || !t) return 1;
+    if (o.startsWith("node:")) return o === `node:${e.kind}` ? 1 : 0.34;
+    const a = o.slice(5), s = t.edgeMap?.[a];
+    return s ? this._edgeTouchesNode(s, e.kind) ? 1 : 0.34 : 1;
+  }
+  _edgeDim(t, e) {
+    const o = this._focusKey;
+    if (!o || !t) return 1;
+    if (o.startsWith("edge:")) return o === `edge:${e.key}` ? 1 : 0.22;
+    const a = o.slice(5);
+    return this._edgeTouchesNode(e, a) ? 1 : 0.22;
   }
   _renderDefs() {
     const t = this._gid;
-    return $`
+    return x`
       <defs>
         <linearGradient id="hub-${t}-surface" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stop-color="#ffffff" stop-opacity="0.06"></stop>
@@ -210,19 +270,19 @@ class Q extends I {
   }
   render() {
     const t = this.data;
-    if (!t) return y;
-    const o = Object.values(t.nodes).filter(Boolean), e = this.debug || this.layout !== "compact", s = this.debug || this.layout !== "compact", a = this.i18n.flowCardTitle ?? "Live power flows", i = this._gid;
-    return k`
+    if (!t) return w;
+    const e = Object.values(t.nodes).filter(Boolean), o = this.debug || this.layout !== "compact", a = this.debug || this.layout !== "compact", s = this.i18n.flowCardTitle ?? "Live power flows", i = this._gid;
+    return $`
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 400 400"
         width="100%"
         preserveAspectRatio="xMidYMid meet"
-        aria-label=${a}
+        aria-label=${s}
         style="display:block;width:100%;max-width:100%;height:auto;min-height:200px"
       >
         ${this._renderDefs()}
-        ${$`
+        ${x`
           <g style="color:var(--divider-color,#5c5c5c)">
             <rect
               class="backdrop"
@@ -263,75 +323,88 @@ class Q extends I {
             ></rect>
           </g>
         `}
-        ${t.edges.map((n) => this._renderEdge(n, e))}
-        ${o.map((n) => this._renderNode(n, s))}
+        ${t.edges.map((l) => this._renderEdge(l, o, t))}
+        ${e.map((l) => this._renderNode(l, a, t))}
       </svg>
     `;
   }
-  _renderEdge(t, o) {
-    if (!t.visible) return y;
-    const e = t.color, s = Number(t.width), a = Number(t.opacity), i = Number(t.duration), n = Number.isFinite(s) ? s : 2.4, l = Number.isFinite(a) ? a : 0.96, u = Number.isFinite(i) && i > 0 ? i : 2.5, p = !!t.ghost, d = p ? 0.14 : 0.26, f = p ? 0.06 : 0.11, g = z(e, n + 2, l * d), m = z(e, n + 5, l * f), w = p ? u * 1.65 : u, C = Math.max(n * 1.25 + 2.8, 4.5), x = Math.max(n * 0.42 + 1.1, 1.65), v = p ? l * 0.22 : l * 0.5, M = p ? l * 0.4 : Math.min(1, l * 1.02), b = [
-      z(e, C, v),
-      `--hub-bolt-period:${w}s`
-    ].join(";"), E = [
+  _renderEdge(t, e, o) {
+    if (!t.visible) return w;
+    const a = t.color, s = Number(t.width), i = Number(t.opacity), l = Number(t.duration), n = Number.isFinite(s) ? s : 2.4, c = Number.isFinite(i) ? i : 0.96, p = Number.isFinite(l) && l > 0 ? l : 2.5, d = !!t.ghost, m = d ? 0.14 : 0.26, _ = d ? 0.06 : 0.11, f = z(a, n + 2, c * m), T = z(a, n + 5, c * _), k = d ? p * 1.65 : p, v = Math.max(n * 1.25 + 2.8, 4.5), g = Math.max(n * 0.42 + 1.1, 1.65), M = d ? c * 0.22 : c * 0.5, y = d ? c * 0.4 : Math.min(1, c * 1.02), E = [
+      z(a, v, M),
+      `--hub-bolt-period:${k}s`
+    ].join(";"), u = [
       "fill:none",
       "stroke:#ffffff",
-      `stroke-width:${x}px`,
-      `stroke-opacity:${M}`,
+      `stroke-width:${g}px`,
+      `stroke-opacity:${y}`,
       "stroke-linecap:round",
       "stroke-linejoin:round",
-      `--hub-bolt-period:${w}s`
-    ].join(";"), c = p ? "edge-bolt-glow edge-bolt-glow--ghost" : "edge-bolt-glow", h = p ? "edge-bolt edge-bolt--ghost" : "edge-bolt";
-    return $`
-      <g>
-        <path class="edge-base" d=${t.path} style=${g}></path>
-        <path class="edge-glow" d=${t.path} style=${m}></path>
-        <path
-          class=${c}
-          d=${t.path}
-          pathLength="100"
-          style=${b}
-        ></path>
+      `--hub-bolt-period:${k}s`
+    ].join(";"), h = d ? "edge-bolt-glow edge-bolt-glow--ghost" : "edge-bolt-glow", S = d ? "edge-bolt edge-bolt--ghost" : "edge-bolt", D = this._edgeDim(o, t), C = (q) => {
+      q.stopPropagation(), this._toggleFocus(`edge:${t.key}`);
+    };
+    return x`
+      <g class="flow-dim" style=${`opacity:${D}`}>
+        <path class="edge-base" d=${t.path} style=${f} pointer-events="none"></path>
+        <path class="edge-glow" d=${t.path} style=${T} pointer-events="none"></path>
         <path
           class=${h}
           d=${t.path}
           pathLength="100"
           style=${E}
+          pointer-events="none"
         ></path>
-        ${o && t.label ? $`<text
+        <path
+          class=${S}
+          d=${t.path}
+          pathLength="100"
+          style=${u}
+          pointer-events="none"
+        ></path>
+        ${e && t.label ? x`<text
               class="edge-label"
               x=${t.labelX}
               y=${t.labelY}
-              style="fill:var(--primary-text-color,#e0e0e0)"
+              style="fill:var(--primary-text-color,#e0e0e0);cursor:pointer"
+              @pointerdown=${C}
             >
               ${t.label}
-            </text>` : y}
+            </text>` : w}
+        <path d=${t.path} style=${"fill:none;stroke:transparent;stroke-width:18px;stroke-linecap:round;stroke-linejoin:round;pointer-events:stroke;cursor:pointer"} @pointerdown=${C}></path>
       </g>
     `;
   }
   /** Extra line spacing when labels + values + details are all shown (full layout / debug). */
-  _nodeTextYs(t, o, e) {
-    return o ? e ? { labelY: t + 22, valueY: t + 44, detailY: t + 64 } : { labelY: t + 20, valueY: t + 38, detailY: t + 54 } : e ? { labelY: t + 16, valueY: t + 32, detailY: t + 48 } : { labelY: t + 14, valueY: t + 24, detailY: t + 40 };
+  _nodeTextYs(t, e, o) {
+    return e ? o ? { labelY: t + 22, valueY: t + 44, detailY: t + 64 } : { labelY: t + 20, valueY: t + 38, detailY: t + 54 } : o ? { labelY: t + 16, valueY: t + 32, detailY: t + 48 } : { labelY: t + 14, valueY: t + 24, detailY: t + 40 };
   }
-  _renderNode(t, o) {
-    const e = J(t.kind), s = A[t.kind] ?? A.neutral, a = t.muted ? "node-muted" : "", i = o && t.detail ? t.detail : null, n = o && !!t.value, { labelY: l, valueY: u, detailY: p } = this._nodeTextYs(e, t.kind === "home", n), d = t.status === "idle" || t.status === "unknown", g = !d && t.pulse ? "node-halo node-halo--live" : "node-halo", m = d ? "fill:none;stroke:var(--disabled-text-color,#9e9e9e);stroke-opacity:0.22;stroke-width:1" : `fill:none;stroke:${s};stroke-opacity:0.35;stroke-width:1.5`, w = this._gid, C = d ? `url(#hub-${w}-core-idle)` : `url(#hub-${w}-core-${t.kind})`, x = d ? "fill:#757575;fill-opacity:0.1;stroke:#9e9e9e;stroke-opacity:0.5;stroke-width:1.75" : `fill:${s};fill-opacity:0.09;stroke:${s};stroke-opacity:0.75;stroke-width:1.75`, v = `fill:${C};stroke:#000000;stroke-opacity:0.22;stroke-width:1`, M = d ? "fill:#ffffff;fill-opacity:0.04" : `fill:${s};fill-opacity:0.14`, b = a === "node-muted" ? "fill:var(--disabled-text-color,#9e9e9e)" : "fill:var(--primary-text-color,#e0e0e0)";
-    return $`
-      <g transform="translate(${t.x} ${t.y})">
-        <circle class=${g} r=${e + 14} style=${m}></circle>
-        <circle class="node-ring ${t.status}" r=${e + 5} style=${x}></circle>
-        <circle class="node-core" r=${e} style=${v}></circle>
-        <circle cx="0" cy=${-e * 0.35} r=${e * 0.42} style=${M}></circle>
-        <text class="node-icon ${a}" x="0" y="1" style=${b}>${t.icon}</text>
-        <text class="node-label ${a}" x="0" y=${l} style=${b}>${t.label}</text>
-        ${t.value ? $`<text class="node-value ${a}" x="0" y=${u} style=${b}>${t.value}</text>` : y}
-        ${i ? $`<text class="node-detail ${a}" x="0" y=${p} style=${"fill:var(--secondary-text-color,#b0b0b0)"}>${i}</text>` : y}
+  _renderNode(t, e, o) {
+    const a = Q(t.kind), s = W[t.kind] ?? W.neutral, i = t.muted ? "node-muted" : "", l = e && t.detail ? t.detail : null, n = e && !!t.value, { labelY: c, valueY: p, detailY: d } = this._nodeTextYs(a, t.kind === "home", n), m = this._nodeDim(o, t), _ = (C) => {
+      C.stopPropagation(), this._toggleFocus(`node:${t.kind}`);
+    }, f = t.status === "idle" || t.status === "unknown", k = !f && t.pulse ? "node-halo node-halo--live" : "node-halo", v = f ? "fill:none;stroke:var(--disabled-text-color,#9e9e9e);stroke-opacity:0.22;stroke-width:1" : `fill:none;stroke:${s};stroke-opacity:0.35;stroke-width:1.5`, g = this._gid, M = f ? `url(#hub-${g}-core-idle)` : `url(#hub-${g}-core-${t.kind})`, y = f ? "fill:#757575;fill-opacity:0.1;stroke:#9e9e9e;stroke-opacity:0.5;stroke-width:1.75" : `fill:${s};fill-opacity:0.09;stroke:${s};stroke-opacity:0.75;stroke-width:1.75`, E = `fill:${M};stroke:#000000;stroke-opacity:0.22;stroke-width:1`, u = f ? "fill:#ffffff;fill-opacity:0.04" : `fill:${s};fill-opacity:0.14`, h = i === "node-muted" ? "fill:var(--disabled-text-color,#9e9e9e)" : "fill:var(--primary-text-color,#e0e0e0)";
+    return x`
+      <g
+        class="flow-dim"
+        style=${`opacity:${m};cursor:pointer`}
+        transform="translate(${t.x} ${t.y})"
+        @pointerdown=${_}
+      >
+        <circle class=${k} r=${a + 14} style=${v}></circle>
+        <circle class="node-ring ${t.status}" r=${a + 5} style=${y}></circle>
+        <circle class="node-core" r=${a} style=${E}></circle>
+        <circle cx="0" cy=${-a * 0.35} r=${a * 0.42} style=${u}></circle>
+        <text class="node-icon ${i}" x="0" y="1" style=${h}>${t.icon}</text>
+        <text class="node-label ${i}" x="0" y=${c} style=${h}>${t.label}</text>
+        ${t.value ? x`<text class="node-value ${i}" x="0" y=${p} style=${h}>${t.value}</text>` : w}
+        ${l ? x`<text class="node-detail ${i}" x="0" y=${d} style=${"fill:var(--secondary-text-color,#b0b0b0)"}>${l}</text>` : w}
       </g>
     `;
   }
 }
-customElements.get("hub-power-flow-diagram") || customElements.define("hub-power-flow-diagram", Q);
-const Z = "sensor.hub_energie_";
-function tt(r = Z) {
+customElements.get("hub-power-flow-diagram") || customElements.define("hub-power-flow-diagram", Z);
+const tt = "sensor.hub_energie_";
+function et(r = tt) {
   const t = r;
   return {
     frontendData: `${t}frontend_data`,
@@ -340,41 +413,54 @@ function tt(r = Z) {
 }
 function B(r, t) {
   if (!r || typeof r != "object") return null;
-  const o = (l) => typeof l == "string" ? l.trim() : "", e = o(t?.frontend_data_entity), s = o(t?.frontend_meta_entity), a = (l, u) => {
-    if (!l || !u) return null;
-    const p = r[l], d = r[u];
-    return p && d ? { data: l, meta: u } : null;
+  const e = (n) => typeof n == "string" ? n.trim() : "", o = e(t?.frontend_data_entity), a = e(t?.frontend_meta_entity), s = (n, c) => {
+    if (!n || !c) return null;
+    const p = r[n], d = r[c];
+    return p && d ? { data: n, meta: c } : null;
   };
-  if (e && s) {
-    const l = a(e, s);
-    if (l) return l;
+  if (o && a) {
+    const n = s(o, a);
+    if (n) return n;
   }
-  const i = tt();
-  let n = a(i.frontendData, i.frontendMeta);
-  return n || (n = a("sensor.frontend_data", "sensor.frontend_meta"), n) ? n : null;
+  const i = et();
+  let l = s(i.frontendData, i.frontendMeta);
+  return l || (l = s("sensor.frontend_data", "sensor.frontend_meta"), l) ? l : null;
 }
-function j(r, t) {
-  const o = String(r ?? "").toLowerCase();
-  return o.includes("blue") || o.includes("bleu") ? t?.tempoDayBlue ?? "Blue" : o.includes("white") || o.includes("blanc") ? t?.tempoDayWhite ?? "White" : o.includes("red") || o.includes("rouge") ? t?.tempoDayRed ?? "Red" : o === "n/a" ? t?.dayColorNA ?? "N/A" : o || (t?.emDash ?? "—");
+function K(r, t) {
+  const e = String(r ?? "").toLowerCase();
+  return e.includes("blue") || e.includes("bleu") ? t?.tempoDayBlue ?? "Blue" : e.includes("white") || e.includes("blanc") ? t?.tempoDayWhite ?? "White" : e.includes("red") || e.includes("rouge") ? t?.tempoDayRed ?? "Red" : e === "n/a" ? t?.dayColorNA ?? "N/A" : e || (t?.emDash ?? "—");
 }
-function et(r, t, o) {
-  const e = r?.[t]?.attributes?.[o];
-  if (e == null || e === "") return null;
-  const s = Number(e);
-  return Number.isFinite(s) ? s : null;
+function ot(r, t, e) {
+  const o = r?.[t]?.attributes?.[e];
+  if (o == null || o === "") return null;
+  const a = Number(o);
+  return Number.isFinite(a) ? a : null;
 }
-function _(r) {
+function b(r) {
   const t = Number(r);
   if (!Number.isFinite(t)) return "—";
-  const o = Math.abs(t);
-  return o >= 1e3 ? `${(t / 1e3).toFixed(o >= 1e4 ? 0 : 1)} kW` : `${Math.round(t)} W`;
+  const e = Math.abs(t);
+  return e >= 1e3 ? `${(t / 1e3).toFixed(e >= 1e4 ? 0 : 1)} kW` : `${Math.round(t)} W`;
 }
-const O = "custom:hub-energie-flow-card", ot = 520, T = 5, rt = 20, D = 54, W = 156 + D, at = 194 + D, st = 40 + D, Y = Object.freeze([
+function rt(r, t, e) {
+  if (!r) return null;
+  const o = Date.parse(r);
+  if (!Number.isFinite(o)) return null;
+  const a = Math.max(0, Math.floor((t - o) / 1e3));
+  if (a < 60) return e.flowAgeSeconds.replace("{n}", String(a));
+  const s = Math.floor(a / 60);
+  if (s < 60) return e.flowAgeMinutes.replace("{n}", String(s));
+  const i = Math.floor(s / 60);
+  if (i < 48) return e.flowAgeHours.replace("{n}", String(i));
+  const l = Math.floor(i / 24);
+  return e.flowAgeDays.replace("{n}", String(l));
+}
+const N = "custom:hub-energie-flow-card", st = 520, F = 5, at = 20, G = 54, j = 156 + G, it = 194 + G, nt = 40 + G, A = Object.freeze([
   {
     key: "solar_to_home_power_w",
     from: "solar",
     to: "home",
-    color: F,
+    color: L,
     path: "M200 116 C200 156 200 192 200 220",
     labelX: 200,
     labelY: 166
@@ -392,7 +478,7 @@ const O = "custom:hub-energie-flow-card", ot = 520, T = 5, rt = 20, D = 54, W = 
     key: "grid_to_home_power_w",
     from: "grid",
     to: "home",
-    color: P,
+    color: X,
     path: "M78 210 C112 226 148 240 172 246",
     labelX: 124,
     labelY: 220
@@ -401,7 +487,7 @@ const O = "custom:hub-energie-flow-card", ot = 520, T = 5, rt = 20, D = 54, W = 
     key: "solar_to_battery_power_w",
     from: "solar",
     to: "battery",
-    color: F,
+    color: L,
     path: "M214 112 C252 128 292 156 322 188",
     labelX: 268,
     labelY: 144
@@ -419,17 +505,17 @@ const O = "custom:hub-energie-flow-card", ot = 520, T = 5, rt = 20, D = 54, W = 
     key: "solar_export_power_w",
     from: "solar",
     to: "grid",
-    color: q,
+    color: J,
     path: "M186 112 C142 130 102 162 78 188",
     labelX: 128,
     labelY: 144
   }
-]), lt = ["solar_to_home_power_w", "battery_to_home_power_w", "grid_to_home_power_w"], it = [
+]), lt = ["solar_to_home_power_w", "battery_to_home_power_w", "grid_to_home_power_w"], ct = [
   "battery_to_home_power_w",
   "solar_to_battery_power_w",
   "grid_to_battery_power_w",
   "battery_discharge_power_w"
-], nt = [
+], dt = [
   "battery_configured",
   "solar_configured",
   "battery_system_count",
@@ -438,141 +524,143 @@ const O = "custom:hub-energie-flow-card", ot = 520, T = 5, rt = 20, D = 54, W = 
   "tomorrow_color",
   "input_status"
 ];
-function ct(r) {
+function ut(r) {
   return r === !0 || r === "true";
 }
-function dt(r) {
+function pt(r) {
   return r === "compact" || r === "full" ? r : "auto";
 }
-function S(r) {
+function O(r) {
   return Array.isArray(r) ? r.join(",") : r == null ? "" : String(r);
 }
-function N(r) {
-  return r.every((t) => t != null) ? r.reduce((t, o) => t + o, 0) : null;
+function Y(r) {
+  return r.every((t) => t != null) ? r.reduce((t, e) => t + e, 0) : null;
 }
-function ut(r, t) {
+function ht(r, t) {
   if (r == null) return 0;
-  const o = Math.abs(r);
-  return t ? o > 0 ? 0.96 : 0.18 : o < T ? 0 : o < rt ? 0.2 : 0.96;
+  const e = Math.abs(r);
+  return t ? e > 0 ? 0.96 : 0.18 : e < F ? 0 : e < at ? 0.2 : 0.96;
 }
-function pt(r) {
+function ft(r) {
   const t = Math.max(0, Math.abs(Number(r) || 0));
   return Math.max(1.85, Math.min(7.8, 1.85 + Math.log10(t + 1) * 2.15));
 }
-function ht(r) {
-  const t = Math.max(0, Math.abs(Number(r) || 0)), o = 4.8 - Math.log10(t + 1) * 0.92;
-  return Math.max(1.1, Math.min(4.8, o));
+function mt(r) {
+  const t = Math.max(0, Math.abs(Number(r) || 0)), e = 4.8 - Math.log10(t + 1) * 0.92;
+  return Math.max(1.1, Math.min(4.8, e));
 }
-function ft(r) {
+function bt(r) {
   const t = String(r ?? "").trim();
   return t ? t.replace(/_/g, " ") : "ok";
 }
-function mt(r, t, o, e) {
-  return t === "unknown" ? { value: "?", detail: r.flowBatteryUnknown, muted: !0 } : t === "idle" ? { value: null, detail: r.flowBatteryIdle, muted: !0 } : e > 0 ? { value: _(e), detail: r.flowBatteryCharging, muted: !1 } : o > 0 ? { value: _(o), detail: r.flowBatteryDischarging, muted: !1 } : { value: null, detail: null, muted: !1 };
+function _t(r, t, e, o) {
+  return t === "unknown" ? { value: "?", detail: r.flowBatteryUnknown, muted: !0 } : t === "idle" ? { value: null, detail: r.flowBatteryIdle, muted: !0 } : o > 0 ? { value: b(o), detail: r.flowBatteryCharging, muted: !1 } : e > 0 ? { value: b(e), detail: r.flowBatteryDischarging, muted: !1 } : { value: null, detail: null, muted: !1 };
 }
-function bt(r, t, o, e, s) {
-  const a = Object.fromEntries(
-    Y.map((c) => [c.key, t[c.key] ?? null])
+function gt(r, t, e, o, a) {
+  const s = Object.fromEntries(
+    A.map((u) => [u.key, t[u.key] ?? null])
   );
-  a.battery_discharge_power_w = t.battery_discharge_power_w ?? null, a.home_power_w = t.home_power_w ?? null;
-  const i = Y.map((c) => {
-    const h = a[c.key], G = ut(h, s), L = h == null ? 0 : Math.abs(Number(h) || 0), X = h != null && L >= T ? _(h) : null, K = !!(s && h != null && L < T);
+  s.battery_discharge_power_w = t.battery_discharge_power_w ?? null, s.home_power_w = t.home_power_w ?? null;
+  const i = A.map((u) => {
+    const h = s[u.key], S = ht(h, a), D = h == null ? 0 : Math.abs(Number(h) || 0), C = h != null && D >= F ? b(h) : null, R = !!(a && h != null && D < F);
     return {
-      ...c,
+      ...u,
       value: h,
-      visible: s ? h != null : G > 0,
-      opacity: G,
-      width: pt(h),
-      duration: ht(h),
-      label: X,
-      ghost: K
+      visible: a ? h != null : S > 0,
+      opacity: S,
+      width: ft(h),
+      duration: mt(h),
+      label: C,
+      ghost: R
     };
-  }), n = Object.fromEntries(i.map((c) => [c.key, c])), l = N(lt.map((c) => a[c])), u = N([
-    a.solar_to_home_power_w,
-    a.solar_to_battery_power_w,
-    a.solar_export_power_w
-  ]), d = N([
-    a.grid_to_home_power_w,
-    a.grid_to_battery_power_w,
-    a.solar_export_power_w
-  ]) == null ? null : a.grid_to_home_power_w + a.grid_to_battery_power_w - a.solar_export_power_w, f = o.battery_configured === !0, g = it.map((c) => a[c]).filter((c) => c != null);
-  let m = "absent";
-  f && (g.length === 0 ? m = "unknown" : g.some((c) => Math.abs(c) >= 0.5) ? m = "active" : m = "idle");
-  const w = (a.solar_to_battery_power_w ?? 0) + (a.grid_to_battery_power_w ?? 0), C = a.battery_to_home_power_w ?? a.battery_discharge_power_w ?? 0, x = mt(r, m, C, w), v = (c) => c != null && Math.abs(c) >= T, M = {
+  }), l = Object.fromEntries(i.map((u) => [u.key, u])), n = Y(lt.map((u) => s[u])), c = Y([
+    s.solar_to_home_power_w,
+    s.solar_to_battery_power_w,
+    s.solar_export_power_w
+  ]), d = Y([
+    s.grid_to_home_power_w,
+    s.grid_to_battery_power_w,
+    s.solar_export_power_w
+  ]) == null ? null : s.grid_to_home_power_w + s.grid_to_battery_power_w - s.solar_export_power_w, m = e.battery_configured === !0, _ = ct.map((u) => s[u]).filter((u) => u != null);
+  let f = "absent";
+  m && (_.length === 0 ? f = "unknown" : _.some((u) => Math.abs(u) >= 0.5) ? f = "active" : f = "idle");
+  const T = (s.solar_to_battery_power_w ?? 0) + (s.grid_to_battery_power_w ?? 0), k = s.battery_to_home_power_w ?? s.battery_discharge_power_w ?? 0, v = _t(r, f, k, T), g = (u) => u != null && Math.abs(u) >= F, M = {
     grid: {
       kind: "grid",
       icon: "⚡",
       label: r.flowNodeGrid,
-      value: d != null ? _(d) : null,
+      value: d != null ? b(d) : null,
       detail: null,
       muted: !1,
       status: "active",
       x: 56,
-      y: W,
-      pulse: v(d)
+      y: j,
+      pulse: g(d)
     },
     solar: {
       kind: "solar",
       icon: "☀",
       label: r.flowNodeSolar,
-      value: u != null ? _(u) : null,
+      value: c != null ? b(c) : null,
       detail: null,
       muted: !1,
       status: "active",
       x: 200,
-      y: st,
-      pulse: v(u)
+      y: nt,
+      pulse: g(c)
     },
     home: {
       kind: "home",
       icon: "⌂",
       label: r.flowNodeHome,
-      value: l != null ? _(l) : null,
+      value: n != null ? b(n) : null,
       detail: null,
       muted: !1,
       status: "active",
       x: 200,
-      y: at,
-      pulse: v(l)
+      y: it,
+      pulse: g(n)
     },
-    battery: f ? {
+    battery: m ? {
       kind: "battery",
-      icon: m === "unknown" ? "?" : "B",
+      icon: f === "unknown" ? "?" : "B",
       label: r.flowNodeBattery,
-      value: x.value,
-      detail: x.detail,
-      muted: x.muted,
-      status: m,
+      value: v.value,
+      detail: v.detail,
+      muted: v.muted,
+      status: f,
       x: 344,
-      y: W,
-      pulse: m === "active"
+      y: j,
+      pulse: f === "active"
     } : null
-  }, b = a.home_power_w, E = s && l != null && b != null ? {
-    expected: l,
-    reported: b,
-    delta: b - l,
-    tolerance: Math.max(25, Math.abs(b) * 0.04)
+  }, y = s.home_power_w, E = a && n != null && y != null ? {
+    expected: n,
+    reported: y,
+    delta: y - n,
+    tolerance: Math.max(25, Math.abs(y) * 0.04)
   } : null;
   return {
-    layout: e,
-    debug: s,
+    layout: o,
+    debug: a,
     nodes: M,
     edges: i,
-    edgeMap: n,
+    edgeMap: l,
     meta: {
-      currentSlot: o.current_slot ?? null,
-      todayColor: o.today_color ?? null,
-      tomorrowColor: o.tomorrow_color ?? null,
-      inputStatus: o.input_status ?? null
+      currentSlot: e.current_slot ?? null,
+      todayColor: e.today_color ?? null,
+      tomorrowColor: e.tomorrow_color ?? null,
+      inputStatus: e.input_status ?? null
     },
     mismatch: E
   };
 }
-class _t extends I {
+class yt extends I {
   static properties = {
     hass: { attribute: !1 },
     _config: { state: !0 },
-    _autoCompact: { state: !0 }
+    _autoCompact: { state: !0 },
+    /** Bumps periodically so the live-data age line refreshes when values are unchanged. */
+    _dataAgePulse: { state: !0 }
   };
   static styles = U`
     :host {
@@ -596,11 +684,21 @@ class _t extends I {
     .header {
       margin-bottom: 8px;
     }
+    .head-main {
+      flex: 1;
+      min-width: 0;
+    }
     .title {
       font-size: 1rem;
       font-weight: 700;
       line-height: 1.25;
       color: var(--primary-text-color);
+    }
+    .subtitle {
+      margin-top: 2px;
+      font-size: 0.72rem;
+      line-height: 1.3;
+      color: var(--secondary-text-color);
     }
     .badge,
     .chip {
@@ -660,19 +758,21 @@ class _t extends I {
     }
   `;
   constructor() {
-    super(), this.hass = void 0, this._config = { type: O }, this._autoCompact = !1, this._lastFp = null, this._resizeObserver = null, this._resizeTimer = null;
+    super(), this.hass = void 0, this._config = { type: N }, this._autoCompact = !1, this._dataAgePulse = 0, this._lastFp = null, this._resizeObserver = null, this._resizeTimer = null, this._dataAgeTimer = null;
   }
   connectedCallback() {
-    super.connectedCallback(), this._attachResizeObserver();
+    super.connectedCallback(), this._attachResizeObserver(), this._dataAgeTimer = window.setInterval(() => {
+      this._dataAgePulse += 1;
+    }, 15e3);
   }
   disconnectedCallback() {
-    super.disconnectedCallback(), this._resizeObserver && this._resizeObserver.disconnect(), this._resizeObserver = null, this._resizeTimer != null && clearTimeout(this._resizeTimer), this._resizeTimer = null;
+    super.disconnectedCallback(), this._resizeObserver && this._resizeObserver.disconnect(), this._resizeObserver = null, this._resizeTimer != null && clearTimeout(this._resizeTimer), this._resizeTimer = null, this._dataAgeTimer != null && (window.clearInterval(this._dataAgeTimer), this._dataAgeTimer = null);
   }
   firstUpdated() {
     this._scheduleLayoutMeasure();
   }
   setConfig(t) {
-    this._config = t && typeof t == "object" ? { ...t, type: O } : { type: O }, this._lastFp = null, this.requestUpdate();
+    this._config = t && typeof t == "object" ? { ...t, type: N } : { type: N }, this._lastFp = null, this.requestUpdate();
   }
   getCardSize() {
     return 7;
@@ -691,22 +791,23 @@ class _t extends I {
   }
   static getStubConfig() {
     return {
-      type: O,
+      type: N,
       layout: "auto",
       grid_span: 1
     };
   }
   shouldUpdate(t) {
+    if (t.has("_dataAgePulse")) return !0;
     if (t.has("hass") && t.size === 1) {
-      const o = this._stateFingerprint();
-      return o !== null && o === this._lastFp ? !1 : (this._lastFp = o, !0);
+      const e = this._stateFingerprint();
+      return e !== null && e === this._lastFp ? !1 : (this._lastFp = e, !0);
     }
     return !0;
   }
   render() {
-    const t = this._i18n(), o = this._resolvedLayout(), e = this._viewModel(t, o), s = this._debugEnabled();
-    if (!e.ready)
-      return k`
+    const t = this._i18n(), e = this._resolvedLayout(), o = this._viewModel(t, e), a = this._debugEnabled();
+    if (!o.ready)
+      return $`
         <ha-card>
           <div class="placeholder">
             <div class="title">${this._config?.title || t.flowCardTitle}</div>
@@ -715,28 +816,31 @@ class _t extends I {
           </div>
         </ha-card>
       `;
-    const a = e.model.mismatch && Math.abs(e.model.mismatch.delta) > e.model.mismatch.tolerance ? t.flowDebugConservationWarn.replace("{derived}", _(e.model.mismatch.expected)).replace("{reported}", _(e.model.mismatch.reported)).replace("{delta}", _(e.model.mismatch.delta)) : null, i = [];
-    return e.model.meta.currentSlot && i.push(`${t.flowMetaSlot}: ${e.model.meta.currentSlot}`), e.model.meta.todayColor && i.push(`${t.flowMetaToday}: ${j(e.model.meta.todayColor, t)}`), e.model.meta.tomorrowColor && i.push(`${t.flowMetaTomorrow}: ${j(e.model.meta.tomorrowColor, t)}`), e.model.meta.inputStatus && e.model.meta.inputStatus !== "ok" && i.push(`${t.flowMetaInputStatus}: ${ft(e.model.meta.inputStatus)}`), k`
-      <ha-card class=${s ? "debug-card" : ""}>
+    const s = o.model.mismatch && Math.abs(o.model.mismatch.delta) > o.model.mismatch.tolerance ? t.flowDebugConservationWarn.replace("{derived}", b(o.model.mismatch.expected)).replace("{reported}", b(o.model.mismatch.reported)).replace("{delta}", b(o.model.mismatch.delta)) : null, i = o.dataEntityId ? this.hass.states[o.dataEntityId] : null, l = i?.last_updated ?? i?.last_changed ?? "", n = rt(String(l), Date.now(), t), c = n ? t.flowDataAgeLabel.replace("{age}", n) : t.flowDataAgeUnknown, p = [];
+    return o.model.meta.currentSlot && p.push(`${t.flowMetaSlot}: ${o.model.meta.currentSlot}`), o.model.meta.todayColor && p.push(`${t.flowMetaToday}: ${K(o.model.meta.todayColor, t)}`), o.model.meta.tomorrowColor && p.push(`${t.flowMetaTomorrow}: ${K(o.model.meta.tomorrowColor, t)}`), o.model.meta.inputStatus && o.model.meta.inputStatus !== "ok" && p.push(`${t.flowMetaInputStatus}: ${bt(o.model.meta.inputStatus)}`), $`
+      <ha-card class=${a ? "debug-card" : ""}>
         <div class="wrap">
           <div class="header">
-            <div class="title">${this._config?.title || t.flowCardTitle}</div>
-            ${s ? k`<span class="badge">${t.flowDebugBadge}</span>` : y}
+            <div class="head-main">
+              <div class="title">${this._config?.title || t.flowCardTitle}</div>
+              <div class="subtitle">${c}</div>
+            </div>
+            ${a ? $`<span class="badge">${t.flowDebugBadge}</span>` : w}
           </div>
-          ${a ? k`<div class="warning">${a}</div>` : y}
+          ${s ? $`<div class="warning">${s}</div>` : w}
           <hub-power-flow-diagram
-            .data=${e.model}
+            .data=${o.model}
             .i18n=${t}
-            .layout=${o}
-            .debug=${s}
+            .layout=${e}
+            .debug=${a}
           ></hub-power-flow-diagram>
-          ${i.length ? k`
+          ${p.length ? $`
                 <div class="meta">
-                  ${i.map((n) => k`
-                    <span class="chip ${n.includes(t.flowMetaInputStatus) ? "alert" : ""}">${n}</span>
+                  ${p.map((d) => $`
+                    <span class="chip ${d.includes(t.flowMetaInputStatus) ? "alert" : ""}">${d}</span>
                   `)}
                 </div>
-              ` : y}
+              ` : w}
         </div>
       </ha-card>
     `;
@@ -747,65 +851,67 @@ class _t extends I {
   _scheduleLayoutMeasure() {
     this._resizeTimer != null && clearTimeout(this._resizeTimer), this._resizeTimer = setTimeout(() => {
       this._resizeTimer = null;
-      const t = this.offsetWidth > 0 && this.offsetWidth < ot;
+      const t = this.offsetWidth > 0 && this.offsetWidth < st;
       t !== this._autoCompact && (this._autoCompact = t);
     }, 100);
   }
   _i18n() {
-    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? R.en : R.fr;
+    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? P.en : P.fr;
   }
   _debugEnabled() {
-    return ct(this._config?.debug);
+    return ut(this._config?.debug);
   }
   _resolvedLayout() {
-    const t = dt(this._config?.layout);
+    const t = pt(this._config?.layout);
     return t === "auto" ? this._autoCompact ? "compact" : "full" : t;
   }
-  _viewModel(t, o) {
-    const e = this.hass?.states, s = B(e, this._config);
-    if (!s)
+  _viewModel(t, e) {
+    const o = this.hass?.states, a = B(o, this._config);
+    if (!a)
       return { ready: !1, model: null };
-    const { data: a, meta: i } = s, n = e[a], l = e[i];
-    if (!n || !l)
+    const { data: s, meta: i } = a, l = o[s], n = o[i];
+    if (!l || !n)
       return { ready: !1, model: null };
-    n.attributes;
-    const u = l.attributes ?? {}, p = Object.fromEntries(
+    l.attributes;
+    const c = n.attributes ?? {}, p = Object.fromEntries(
       [
-        ...Y.map((d) => d.key),
+        ...A.map((d) => d.key),
         "battery_discharge_power_w",
         "home_power_w"
-      ].map((d) => [d, et(e, a, d)])
+      ].map((d) => [d, ot(o, s, d)])
     );
     return {
       ready: !0,
-      model: bt(t, p, u, o, this._debugEnabled())
+      dataEntityId: s,
+      model: gt(t, p, c, e, this._debugEnabled())
     };
   }
   _stateFingerprint() {
     const t = this.hass?.states;
     if (!t) return null;
-    const o = B(t, this._config), e = this._resolvedLayout(), s = this._debugEnabled();
-    if (!o) {
-      const f = String(this._config?.frontend_data_entity ?? "").trim(), g = String(this._config?.frontend_meta_entity ?? "").trim();
-      return `missing|${e}|${s}|${f}|${g}`;
+    const e = B(t, this._config), o = this._resolvedLayout(), a = this._debugEnabled();
+    if (!e) {
+      const m = String(this._config?.frontend_data_entity ?? "").trim(), _ = String(this._config?.frontend_meta_entity ?? "").trim();
+      return `missing|${o}|${a}|${m}|${_}`;
     }
-    const { data: a, meta: i } = o, n = t[a], l = t[i];
-    if (!n || !l)
-      return `missing|${e}|${s}|${a}|${i}`;
-    const u = n.attributes ?? {}, p = l.attributes ?? {};
+    const { data: s, meta: i } = e, l = t[s], n = t[i];
+    if (!l || !n)
+      return `missing|${o}|${a}|${s}|${i}`;
+    const c = l.attributes ?? {}, p = n.attributes ?? {};
     return [
-      a,
-      i,
-      e,
       s,
-      ...Y.map((f) => S(u[f.key])),
-      S(u.battery_discharge_power_w),
-      s ? S(u.home_power_w) : "",
-      ...nt.map((f) => S(p[f]))
+      i,
+      o,
+      a,
+      O(l.last_updated ?? l.last_changed),
+      ...A.map((m) => O(c[m.key])),
+      O(c.battery_discharge_power_w),
+      a ? O(c.home_power_w) : "",
+      ...dt.map((m) => O(p[m]))
     ].join("|");
   }
 }
-customElements.get("hub-energie-flow-card") || customElements.define("hub-energie-flow-card", _t);
+customElements.get("hub-energie-flow-card") || customElements.define("hub-energie-flow-card", yt);
 export {
-  _t as HubEnergieFlowCard
+  yt as HubEnergieFlowCard
 };

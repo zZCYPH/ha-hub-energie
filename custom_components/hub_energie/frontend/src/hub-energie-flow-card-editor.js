@@ -27,6 +27,12 @@ export class HubEnergieFlowCardEditor extends LitElement {
     ha-formfield {
       display: block;
     }
+    .motion-note {
+      margin: 10px 0 0;
+      font-size: 11px;
+      line-height: 1.35;
+      color: var(--disabled-text-color, #9e9e9e);
+    }
   `;
 
   setConfig(config) {
@@ -68,6 +74,7 @@ export class HubEnergieFlowCardEditor extends LitElement {
           ></ha-switch>
         </ha-formfield>
         <p class="hint">${i18n.flowEditorDebugHint}</p>
+        <p class="motion-note">${i18n.flowEditorReducedMotionNote}</p>
       </div>
       <div class="field">
         <ha-entity-picker

@@ -1,8 +1,8 @@
-import { i as f, a as g, I as c, A as v, b as l } from "./i18n.js";
+import { i as _, a as g, I as c, A as v, b as l } from "./i18n.js";
 import { h as y, t as S } from "./energy-utils.js";
-function $(o, t) {
-  const e = o?.editorSiteOption ?? "{index} — {segment}", i = String(t?.index ?? ""), s = t?.segment != null && String(t.segment).trim() !== "" ? String(t.segment).trim() : i;
-  return String(e).split("{index}").join(i).split("{segment}").join(s);
+function $(s, t) {
+  const e = s?.editorSiteOption ?? "{index} — {segment}", i = String(t?.index ?? ""), o = t?.segment != null && String(t.segment).trim() !== "" ? String(t.segment).trim() : i;
+  return String(e).split("{index}").join(i).split("{segment}").join(o);
 }
 const h = "custom:hub-energie-card", d = /* @__PURE__ */ new Set([24, 12, 6, 3, 1]), E = [1, 3, 6, 12, 24], C = [
   ["show_day_slots", "editorShowDaySlots"],
@@ -17,7 +17,7 @@ const h = "custom:hub-energie-card", d = /* @__PURE__ */ new Set([24, 12, 6, 3, 
   ["show_reinjection", "editorShowReinjection"],
   ["show_raw_control", "editorShowRawControl"]
 ];
-class x extends f {
+class x extends _ {
   static properties = {
     hass: { attribute: !1 },
     _config: { state: !0 }
@@ -66,7 +66,7 @@ class x extends f {
     return Number.isFinite(e) && e >= 0 ? String(e) : "__auto__";
   }
   render() {
-    const t = this._config ?? {}, e = this._i18n(), i = parseFloat(t.power_history_hours), s = Math.trunc(i), n = d.has(s) ? s : 6, a = this._hubSites(), p = this._siteSelectValue();
+    const t = this._config ?? {}, e = this._i18n(), i = parseFloat(t.power_history_hours), o = Math.trunc(i), n = d.has(o) ? o : 6, a = this._hubSites(), p = this._siteSelectValue();
     return l`
       <div class="card-config">
         ${a.length >= 1 ? l`
@@ -150,15 +150,15 @@ class x extends f {
     if (e.value === "" || e.value === void 0) return;
     const i = Math.trunc(Number(e.value));
     if (!d.has(i)) return;
-    const s = parseFloat(this._config?.power_history_hours), n = d.has(Math.trunc(s)) ? Math.trunc(s) : 6;
+    const o = parseFloat(this._config?.power_history_hours), n = d.has(Math.trunc(o)) ? Math.trunc(o) : 6;
     if (i === n) return;
     const a = { ...this._config, power_history_hours: i };
     this._emit(a);
   }
 }
 customElements.get("hub-energie-card-editor") || customElements.define("hub-energie-card-editor", x);
-const u = "custom:hub-energie-flow-card", _ = ["auto", "full", "compact"];
-class L extends f {
+const u = "custom:hub-energie-flow-card", f = ["auto", "full", "compact"];
+class L extends _ {
   static properties = {
     hass: { attribute: !1 },
     _config: { state: !0 }
@@ -180,12 +180,18 @@ class L extends f {
     ha-formfield {
       display: block;
     }
+    .motion-note {
+      margin: 10px 0 0;
+      font-size: 11px;
+      line-height: 1.35;
+      color: var(--disabled-text-color, #9e9e9e);
+    }
   `;
   setConfig(t) {
     this._config = t && typeof t == "object" ? { ...t } : { type: u }, this._config.type || (this._config.type = u);
   }
   render() {
-    const t = this._i18n(), e = _.includes(this._config?.layout) ? this._config.layout : "auto", i = this._config?.debug === !0 || this._config?.debug === "true";
+    const t = this._i18n(), e = f.includes(this._config?.layout) ? this._config.layout : "auto", i = this._config?.debug === !0 || this._config?.debug === "true";
     return l`
       <div class="field">
         <ha-textfield
@@ -212,10 +218,11 @@ class L extends f {
         <ha-formfield .label=${t.flowEditorDebug}>
           <ha-switch
             .checked=${i}
-            @change=${(s) => this._setBool("debug", s.target.checked)}
+            @change=${(o) => this._setBool("debug", o.target.checked)}
           ></ha-switch>
         </ha-formfield>
         <p class="hint">${t.flowEditorDebugHint}</p>
+        <p class="motion-note">${t.flowEditorReducedMotionNote}</p>
       </div>
       <div class="field">
         <ha-entity-picker
@@ -224,7 +231,7 @@ class L extends f {
           label=${t.flowEditorDataEntity}
           .includeDomains=${["sensor"]}
           allow-custom-entity
-          @value-changed=${(s) => this._onEntityChanged("frontend_data_entity", s)}
+          @value-changed=${(o) => this._onEntityChanged("frontend_data_entity", o)}
         ></ha-entity-picker>
       </div>
       <div class="field">
@@ -234,7 +241,7 @@ class L extends f {
           label=${t.flowEditorMetaEntity}
           .includeDomains=${["sensor"]}
           allow-custom-entity
-          @value-changed=${(s) => this._onEntityChanged("frontend_meta_entity", s)}
+          @value-changed=${(o) => this._onEntityChanged("frontend_meta_entity", o)}
         ></ha-entity-picker>
         <p class="hint">${t.flowEditorEntityHint}</p>
       </div>
@@ -259,7 +266,7 @@ class L extends f {
   _onLayoutClosed(t) {
     t.stopPropagation();
     const e = String(t.target?.value ?? "auto");
-    if (!_.includes(e)) return;
+    if (!f.includes(e)) return;
     const i = { ...this._config };
     e === "auto" ? delete i.layout : i.layout = e, this._emit(i);
   }
@@ -268,17 +275,17 @@ class L extends f {
     e ? i[t] = !0 : delete i[t], this._emit(i);
   }
   _onEntityChanged(t, e) {
-    const i = e.detail?.value ?? "", s = String(i).trim(), n = { ...this._config };
-    s ? n[t] = s : delete n[t], this._emit(n);
+    const i = e.detail?.value ?? "", o = String(i).trim(), n = { ...this._config };
+    o ? n[t] = o : delete n[t], this._emit(n);
   }
 }
 customElements.get("hub-energie-flow-card-editor") || customElements.define("hub-energie-flow-card-editor", L);
-function m(o) {
-  const t = new URL(import.meta.url), e = t.searchParams.get("v"), i = new URL(o, t);
+function m(s) {
+  const t = new URL(import.meta.url), e = t.searchParams.get("v"), i = new URL(s, t);
   return e && i.searchParams.set("v", e), i.href;
 }
-import(m("./hub-energie-flow-card.js")).catch((o) => {
-  console.error("[hub-energie-card-boot] flow module failed to load", o);
+import(m("./hub-energie-flow-card.js")).catch((s) => {
+  console.error("[hub-energie-card-boot] flow module failed to load", s);
 });
 const H = `
   <style>
@@ -298,9 +305,9 @@ class P extends HTMLElement {
     return this._loadPromise ? this._loadPromise : (this._loadPromise = (async () => {
       try {
         await import(m("./hub-energie-card.js"));
-      } catch (s) {
-        console.error("[hub-energie-card-boot] core module failed to load", s);
-        const a = (s && (s.message || String(s)) ? String(s.message || s) : "unknown").replace(/</g, "&lt;").slice(0, 400);
+      } catch (o) {
+        console.error("[hub-energie-card-boot] core module failed to load", o);
+        const a = (o && (o.message || String(o)) ? String(o.message || o) : "unknown").replace(/</g, "&lt;").slice(0, 400);
         this.shadowRoot.innerHTML = `<style>:host{display:block}</style><ha-card><div style="padding:16px;font:14px/1.4 sans-serif"><strong>Hub Énergie</strong> (load error)<br/><small style="opacity:.85">${a}</small></div></ha-card>`;
         return;
       }

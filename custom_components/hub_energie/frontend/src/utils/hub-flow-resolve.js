@@ -78,3 +78,24 @@ export function fmtPowerCompact(w) {
   if (ax >= 1000) return `${(x / 1000).toFixed(ax >= 10000 ? 0 : 1)} kW`;
   return `${Math.round(x)} W`;
 }
+
+/**
+ * Human-readable age since entity `last_changed` / `last_updated` (flow card header).
+ *
+ * @param {string | undefined} iso - ISO timestamp from HA state
+ * @param {number} nowMs
+ * @param {Record<string, string>} i18n - flowAgeSeconds, flowAgeMinutes, flowAgeHours, flowAgeDays
+ */
+export function formatFlowDataAge(iso, nowMs, i18n) {
+  if (!iso) return null;
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return null;
+  const sec = Math.max(0, Math.floor((nowMs - t) / 1000));
+  if (sec < 60) return i18n.flowAgeSeconds.replace("{n}", String(sec));
+  const min = Math.floor(sec / 60);
+  if (min < 60) return i18n.flowAgeMinutes.replace("{n}", String(min));
+  const h = Math.floor(min / 60);
+  if (h < 48) return i18n.flowAgeHours.replace("{n}", String(h));
+  const d = Math.floor(h / 24);
+  return i18n.flowAgeDays.replace("{n}", String(d));
+}
