@@ -69,6 +69,7 @@ hub_pkg = type(sys)("hub_energie")
 hub_pkg.__path__ = [str(ROOT)]
 sys.modules["hub_energie"] = hub_pkg
 _load_module("hub_energie.const.core", ROOT / "const" / "core.py")
+_load_module("hub_energie.const.tariff_edf", ROOT / "const" / "tariff_edf.py")
 _load_module("hub_energie.const._bundle", ROOT / "const" / "_bundle.py")
 _const_spec = importlib.util.spec_from_file_location(
     "hub_energie.const",
