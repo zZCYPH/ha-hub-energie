@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ..const import ENERGY_ROUND_DECIMALS
+from ..const.energy_data import ENERGY_ROUND_DECIMALS
 
 __all__ = ("normalize_kwh", "normalize_kwh_to_decimals")
 

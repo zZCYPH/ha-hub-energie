@@ -7,7 +7,7 @@ import math
 from dataclasses import dataclass, field
 from typing import Any, Callable, Mapping
 
-from ..const import SLOTS
+from ..const.tariff_edf import SLOTS
 from ..diagnostics.reinjection_state import ReinjectionState
 from ..energy.accumulator import DeltaApplyResult, compute_delta_decision
 from ..energy.delta_policy import DeltaPolicy

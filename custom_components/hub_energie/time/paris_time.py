@@ -7,7 +7,7 @@ from zoneinfo import ZoneInfo
 
 from homeassistant.util import dt as dt_util
 
-from ..const import FR_TZ
+from ..const.tariff_edf import FR_TZ
 
 PARIS_TZ = ZoneInfo(FR_TZ)
 UTC = timezone.utc

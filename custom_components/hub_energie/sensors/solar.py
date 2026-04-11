@@ -11,7 +11,7 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CURRENCY_EURO, UnitOfEnergy, UnitOfPower
 
-from ..const import (
+from ..const.energy_data import (
     DATA_SOLAR_ESTIMATE_DAILY_KWH,
     DATA_SOLAR_ESTIMATE_POWER_W,
     DATA_SOLAR_ESTIMATE_YEARLY_KWH,

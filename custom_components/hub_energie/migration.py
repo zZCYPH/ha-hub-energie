@@ -8,7 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, split_entity_id
 from homeassistant.helpers import entity_registry as er
 
-from .const import DOMAIN
+from .const.core import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 

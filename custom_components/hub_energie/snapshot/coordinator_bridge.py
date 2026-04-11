@@ -15,7 +15,7 @@ from ..battery.battery_runtime import read_aggregate_battery_power as read_aggre
 from ..battery.battery_split import (
     usage_batt_charge_by_slot_from_heuristic as usage_batt_charge_by_slot_from_heuristic_domain,
 )
-from ..const import (
+from ..const.config_keys import (
     BATT_SIGN_POSITIVE_CHARGE,
     BATT_SIGN_POSITIVE_DISCHARGE,
     CONF_BATT_CAPACITY_KWH,
@@ -31,11 +31,23 @@ from ..const import (
     CONF_BATT_SOC_MAX_ENTITY,
     CONF_BATT_SOC_MIN,
     CONF_BATT_SOC_MIN_ENTITY,
+    CONF_SOLAR_LOCATION_LAT,
+    CONF_SOLAR_LOCATION_LON,
+    CONF_SOLAR_ORIENTATION,
+    CONF_SOLAR_PEAK_POWER,
+    CONF_SOLAR_PERFORMANCE,
+    CONF_SOLAR_SHADING,
+    CONF_SOLAR_TILT,
+    CONF_SOLAR_TILT_MODE,
+    GRID_POWER_SIGN_EXPORT_POSITIVE,
+    SOLAR_TILT_AUTO,
+)
+from ..const.energy_data import SOURCE_GRID, SOURCE_SOLAR
+from ..const.reinjection import (
     DIAG_CAUSE_BATTERY_FULL_OR_ABSENT,
     DIAG_CAUSE_SOLAR_SURPLUS,
     DIAG_CAUSE_SWITCH_LATENCY,
     DIAG_CAUSE_UNATTRIBUTED,
-    GRID_POWER_SIGN_EXPORT_POSITIVE,
     OPT_REINJECTION_BATT_CHARGE_SIGNIFICANT_W,
     OPT_REINJECTION_BATT_FULL_MIN_SOC_FRAC,
     OPT_REINJECTION_EXPORT_IGNORE_BELOW_W,
@@ -52,19 +64,8 @@ from ..const import (
     REINJECTION_MIN_SOLAR_FOR_CLASSIFY_W,
     REINJECTION_SHORT_EXPORT_MAX_S,
     REINJECTION_SHORT_EXPORT_MAX_W,
-    ATTRIBUTION_SLOTS,
-    SOLAR_TILT_AUTO,
-    SOURCE_GRID,
-    SOURCE_SOLAR,
-    CONF_SOLAR_LOCATION_LAT,
-    CONF_SOLAR_LOCATION_LON,
-    CONF_SOLAR_ORIENTATION,
-    CONF_SOLAR_PEAK_POWER,
-    CONF_SOLAR_PERFORMANCE,
-    CONF_SOLAR_SHADING,
-    CONF_SOLAR_TILT,
-    CONF_SOLAR_TILT_MODE,
 )
+from ..const.tariff_edf import ATTRIBUTION_SLOTS
 from ..energy.costs import compute_costs as compute_costs_domain
 from ..energy.costs import compute_savings as compute_savings_domain
 from ..energy.energy_aggregation import compute_energy as compute_energy_domain

@@ -14,9 +14,8 @@ from homeassistant.const import CURRENCY_EURO, UnitOfEnergy, UnitOfPower, UnitOf
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from ..const import (
-    CONF_SUPPLIER,
-    CONF_TARIFF_OFFER,
+from ..const.core import LOGIC_VERSION
+from ..const.energy_data import (
     DATA_BATT_CHARGE_POWER_W,
     DATA_BATT_DISCHARGE_POWER_W,
     DATA_CURRENT_SLOT,
@@ -40,9 +39,8 @@ from ..const import (
     INPUT_STATUS_ERROR,
     INPUT_STATUS_NO_INPUT,
     INPUT_STATUS_OK,
-    LOGIC_VERSION,
-    SUPPLIER_EDF,
 )
+from ..const.tariff_edf import CONF_SUPPLIER, CONF_TARIFF_OFFER, SUPPLIER_EDF
 from ..coordinator import HubEnergieCoordinator
 from ..device_info import (
     _device_diagnostics,

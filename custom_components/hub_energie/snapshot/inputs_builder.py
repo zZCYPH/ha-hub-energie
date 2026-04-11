@@ -5,21 +5,18 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-from ..const import (
-    CONF_CONTRACT_POWER,
-    CONF_SOLAR_EXPORT_TARIFF,
+from ..const.config_keys import CONF_SOLAR_EXPORT_TARIFF
+from ..const.core import LOGIC_VERSION
+from ..const.energy_data import SOURCE_GRID, SOURCE_GRID_EXPORT, SOURCE_SOLAR
+from ..const.reinjection import (
     DIAG_CAUSE_BATTERY_FULL_OR_ABSENT,
     DIAG_CAUSE_SOLAR_SURPLUS,
     DIAG_CAUSE_SWITCH_LATENCY,
     DIAG_CAUSE_UNATTRIBUTED,
-    LOGIC_VERSION,
     OPT_REINJECTION_BATT_FULL_MIN_SOC_FRAC,
-    OPT_TARIFF_FETCHED_AT,
     REINJECTION_BATT_FULL_MIN_SOC_FRAC,
-    SOURCE_GRID,
-    SOURCE_GRID_EXPORT,
-    SOURCE_SOLAR,
 )
+from ..const.tariff_edf import CONF_CONTRACT_POWER, OPT_TARIFF_FETCHED_AT
 from ..time.paris_time import ParisTime
 from .pipeline import SnapshotPipelineInputs
 

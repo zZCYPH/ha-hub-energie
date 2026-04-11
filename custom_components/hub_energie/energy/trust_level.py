@@ -6,7 +6,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, Final, Literal
 
-from ..const import TRUST_DRIFT_INCONSISTENT_KWH, TRUST_STALENESS_DEGRADED_SECONDS
+from ..const.energy_data import TRUST_DRIFT_INCONSISTENT_KWH, TRUST_STALENESS_DEGRADED_SECONDS
 
 __all__ = (
     "TrustInputs",

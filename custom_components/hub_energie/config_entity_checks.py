@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant, split_entity_id
 
 from .utils.numbers import normalize_user_number_string
 
-from .const import (
+from .const.config_keys import (
     CONF_BATT_CAPACITY_KWH_ENTITY,
     CONF_BATT_ENERGY_IN,
     CONF_BATT_ENERGY_OUT,

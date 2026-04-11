@@ -5,7 +5,12 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from ..const import TARIFF_OFFER_TEMPO, TEMPO_MODE_API, TEMPO_MODE_RTE, TEMPO_SEASON_DAY_QUOTAS
+from ..const.tariff_edf import (
+    TARIFF_OFFER_TEMPO,
+    TEMPO_MODE_API,
+    TEMPO_MODE_RTE,
+    TEMPO_SEASON_DAY_QUOTAS,
+)
 from ..providers.edf import (
     is_off_peak,
     next_hc_window_start_paris,

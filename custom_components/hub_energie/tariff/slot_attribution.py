@@ -9,7 +9,7 @@ from typing import Literal
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from ..const import (
+from ..const.tariff_edf import (
     ATTRIBUTION_SLOTS,
     SLOT_UNKNOWN,
     SLOTS,

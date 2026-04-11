@@ -7,7 +7,7 @@ from datetime import datetime
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from ..const import (
+from ..const.tariff_edf import (
     CONF_CURRENT_SLOT_SENSOR,
     SLOTS,
     TARIFF_OFFER_BASE,

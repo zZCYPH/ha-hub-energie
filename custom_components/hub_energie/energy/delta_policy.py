@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ..const import (
+from ..const.energy_data import (
     DEFAULT_MAX_DELTA_KWH_BATTERY,
     DEFAULT_MAX_DELTA_KWH_GRID,
     DEFAULT_MAX_DELTA_KWH_SOLAR,

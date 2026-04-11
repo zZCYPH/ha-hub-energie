@@ -6,25 +6,27 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 
-from ..const import (
+from ..const.config_keys import (
     CONF_BATTERY_SYSTEMS,
-    CONF_CONTRACT_POWER,
-    CONF_CURRENT_SLOT_SENSOR,
     CONF_GRID_POWER_SENSOR,
     CONF_GRID_POWER_SIGN_MODE,
     CONF_HAS_BATTERIES,
     CONF_HAS_SOLAR,
     CONF_LOAD_POWER_SENSOR,
-    CONF_RTE_CLIENT_ID,
-    CONF_RTE_CLIENT_SECRET,
     CONF_SOLAR_ESTIMATION_ENABLED,
     CONF_SOLAR_POWER_SENSOR,
     CONF_SOLAR_RESALE_CONTRACT,
+)
+from ..const.reinjection import REINJECTION_OPTION_KEYS
+from ..const.tariff_edf import (
+    CONF_CONTRACT_POWER,
+    CONF_CURRENT_SLOT_SENSOR,
+    CONF_RTE_CLIENT_ID,
+    CONF_RTE_CLIENT_SECRET,
     CONF_SUPPLIER,
     CONF_TARIFF_OFFER,
     CONF_TEMPO_MODE,
     OPT_TARIFF_FETCHED_AT,
-    REINJECTION_OPTION_KEYS,
 )
 
 __all__ = ("config_overview_attributes", "redact_entry_data_for_display")

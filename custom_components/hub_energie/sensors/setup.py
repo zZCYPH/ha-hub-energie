@@ -8,24 +8,22 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from ..const import (
+from ..const.config_keys import (
     CONF_BATT_NAME,
     CONF_BATTERY_SYSTEMS,
     CONF_HAS_BATTERIES,
     CONF_HAS_SOLAR,
     CONF_SOLAR_ESTIMATION_ENABLED,
     CONF_SOLAR_RESALE_CONTRACT,
-    CONF_SUPPLIER,
-    CONF_TARIFF_OFFER,
-    DOMAIN,
-    SLOT_UNKNOWN,
+)
+from ..const.core import DOMAIN
+from ..const.energy_data import (
     SOURCE_BATT_CHARGE,
     SOURCE_BATT_DISCHARGE,
     SOURCE_GRID,
     SOURCE_SOLAR,
-    SUPPLIER_EDF,
-    TARIFF_OFFER_TEMPO,
 )
+from ..const.tariff_edf import CONF_SUPPLIER, CONF_TARIFF_OFFER, SLOT_UNKNOWN, SUPPLIER_EDF, TARIFF_OFFER_TEMPO
 from ..coordinator import HubEnergieCoordinator
 from .base import _visible_slots_for_offer
 from .battery import HubEnergieBatterySensor, HubEnergieBatterySummarySensor

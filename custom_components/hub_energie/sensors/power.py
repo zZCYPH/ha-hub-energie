@@ -9,7 +9,7 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfPower
 
-from ..const import (
+from ..const.energy_data import (
     DATA_BATTERY_DISCHARGE_POWER_W,
     DATA_BATTERY_TO_HOME_POWER_W,
     DATA_GRID_IMPORT_POWER_W,

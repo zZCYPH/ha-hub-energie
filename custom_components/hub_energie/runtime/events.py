@@ -15,19 +15,16 @@ from typing import Any
 
 from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
 
-from ..const import (
+from ..const.config_keys import (
     CONF_BATT_POWER_IN,
     CONF_BATT_POWER_NET,
     CONF_BATT_POWER_OUT,
     CONF_BATT_SOC,
-    CONF_CURRENT_SLOT_SENSOR,
-    SOURCE_GRID,
-    SOURCE_GRID_EXPORT,
     SYNTHETIC_ENTITY_GRID_EXPORT_SUM,
     SYNTHETIC_ENTITY_GRID_IMPORT_SUM,
-    TARIFF_OFFER_TEMPO,
-    TEMPO_MODE_SENSOR,
 )
+from ..const.energy_data import SOURCE_GRID, SOURCE_GRID_EXPORT
+from ..const.tariff_edf import CONF_CURRENT_SLOT_SENSOR, TARIFF_OFFER_TEMPO, TEMPO_MODE_SENSOR
 
 
 def create_state_changed_handler(co: Any):
