@@ -67,15 +67,15 @@ async def _run_flag_scenario() -> None:
         complete_payload_accepted=False,
     )
 
-    with patch.object(coord_mod, "refresh_tariffs", new=AsyncMock(return_value=rejected)):
+    with patch.object(coord_mod, "async_refresh_tariffs", new=AsyncMock(return_value=rejected)):
         await coord._async_refresh_tariffs(update_entry=True)
     assert coord._tariff_refresh_rejected_incomplete is True
 
-    with patch.object(coord_mod, "refresh_tariffs", new=AsyncMock(return_value=net_fail)):
+    with patch.object(coord_mod, "async_refresh_tariffs", new=AsyncMock(return_value=net_fail)):
         await coord._async_refresh_tariffs(update_entry=True)
     assert coord._tariff_refresh_rejected_incomplete is True
 
-    with patch.object(coord_mod, "refresh_tariffs", new=AsyncMock(return_value=ok_full)):
+    with patch.object(coord_mod, "async_refresh_tariffs", new=AsyncMock(return_value=ok_full)):
         await coord._async_refresh_tariffs(update_entry=True)
     assert coord._tariff_refresh_rejected_incomplete is False
 

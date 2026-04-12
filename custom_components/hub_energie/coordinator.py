@@ -118,10 +118,6 @@ from .const.tariff_edf import (
     CONF_SUPPLIER,
     CONF_TARIFF_OFFER,
     CONF_TEMPO_MODE,
-    DEFAULT_TARIFF_AUTO_REFRESH,
-    DEFAULT_TARIFF_REFRESH_HOURS,
-    OPT_TARIFF_AUTO_REFRESH,
-    OPT_TARIFF_REFRESH_HOURS,
     SUPPLIER_EDF,
     TARIFF_OFFER_TEMPO,
     TEMPO_MODE_RTE,
@@ -144,6 +140,13 @@ from .snapshot.coordinator_bridge import build_pipeline_deps
 from .snapshot.inputs_builder import build_snapshot_inputs
 from .snapshot.pipeline import SnapshotPipeline
 from .coordinator_apply_delta import apply_energy_delta
+from .coordinator_tariff_wiring import (
+    async_refresh_tariffs,
+    build_tariff_resolver,
+    next_tariff_refresh_rejected_incomplete,
+    tariff_refresh_enabled as entry_tariff_refresh_enabled,
+    tariff_refresh_hours as entry_tariff_refresh_hours,
+)
 from .coordinator_entity_map import (
     build_power_source_map,
     build_source_map,
@@ -160,7 +163,7 @@ from .coordinator_types import (
 )
 from .storage.statistics import statistic_id as statistic_id_for_domain
 from .storage.store_manager import StoreManager
-from .tariff import EdfRuntimeFields, TariffRefreshOutcome, refresh_tariffs, update_edf_state
+from .tariff import EdfRuntimeFields, update_edf_state
 from .tariff_manager import TariffResolver
 from .utils.energy import normalize_kwh
 from .utils.numbers import safe_float
@@ -232,8 +235,9 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             on_scheduled_poll=self._async_scheduled_poll,
             on_midnight=self._async_midnight_maintenance,
             on_tariff_refresh=lambda: self._async_refresh_tariffs(update_entry=True),
-            tariff_refresh_enabled=lambda: self.is_edf and self.tariff_refresh_enabled(),
-            tariff_refresh_hours=self.tariff_refresh_hours,
+            tariff_refresh_enabled=lambda: self.is_edf
+            and entry_tariff_refresh_enabled(dict(self.entry.options)),
+            tariff_refresh_hours=lambda: entry_tariff_refresh_hours(dict(self.entry.options)),
         )
 
     @property
@@ -347,17 +351,13 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         )
 
     def _build_tariff_resolver(self) -> TariffResolver:
-        return TariffResolver(dict(self.entry.options), dict(self.entry.data))
+        return build_tariff_resolver(self.entry)
 
     def tariff_refresh_enabled(self) -> bool:
-        return bool(self.entry.options.get(OPT_TARIFF_AUTO_REFRESH, DEFAULT_TARIFF_AUTO_REFRESH))
+        return entry_tariff_refresh_enabled(dict(self.entry.options))
 
     def tariff_refresh_hours(self) -> int:
-        raw = self.entry.options.get(OPT_TARIFF_REFRESH_HOURS, DEFAULT_TARIFF_REFRESH_HOURS)
-        try:
-            return max(1, int(raw))
-        except (TypeError, ValueError):
-            return DEFAULT_TARIFF_REFRESH_HOURS
+        return entry_tariff_refresh_hours(dict(self.entry.options))
 
     async def async_setup(self) -> None:
         _, rebuilt = await self._persistence.load()
@@ -625,7 +625,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         return await self._async_refresh_tariffs(update_entry=True)
 
     async def _async_refresh_tariffs(self, *, update_entry: bool) -> bool:
-        outcome: TariffRefreshOutcome = await refresh_tariffs(
+        outcome = await async_refresh_tariffs(
             self.hass,
             self.entry,
             update_entry=update_entry,
@@ -633,8 +633,8 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             tariff_offer=self.tariff_offer,
             logger=_LOGGER,
         )
-        if outcome.rejected_incomplete_payload:
-            self._tariff_refresh_rejected_incomplete = True
-        elif outcome.complete_payload_accepted:
-            self._tariff_refresh_rejected_incomplete = False
+        self._tariff_refresh_rejected_incomplete = next_tariff_refresh_rejected_incomplete(
+            self._tariff_refresh_rejected_incomplete,
+            outcome,
+        )
         return outcome.ok
