@@ -114,7 +114,6 @@ from .runtime.persistence import PersistenceManager
 from .runtime.state import RuntimeState
 from .scheduler import Scheduler
 from .snapshot.coordinator_bridge import build_pipeline_deps
-from .snapshot.inputs_builder import build_snapshot_inputs
 from .snapshot.pipeline import SnapshotPipeline
 from .coordinator_apply_delta import apply_energy_delta
 from .coordinator_delta_telemetry import refresh_delta_telemetry_drift_all_sources
@@ -164,7 +163,7 @@ from .coordinator_entity_map import (
     tri_grid_aggregate_export_entities,
     tri_grid_aggregate_import_entities,
 )
-from .coordinator_snapshot_post import finalize_snapshot_after_pipeline
+from .coordinator_snapshot_build import run_coordinator_snapshot_build
 from .coordinator_types import (
     SAVE_DEBOUNCE_S,
     STORE_MODEL_VERSION,
@@ -536,52 +535,14 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         return snapshot
 
     def _build_snapshot(self) -> EnergyData:
-        inputs = build_snapshot_inputs(self)
-        result = self._snapshot_pipeline.run(inputs)
-
-        self._last_flow_warn_ts = result.next_last_flow_warn_ts
-        if result.should_warn_flow_mismatch:
-            _LOGGER.warning(
-                "Flow model mismatch (raw_home=%.1f modeled_home=%.1f gap=%.1f)",
-                result.raw_home_power_w,
-                result.modeled_home_power_w,
-                result.flow_gap_w,
-            )
-
-        if inputs.debug_enabled:
-            _LOGGER.debug(
-                "Snapshot debug day=%s slot=%s cost=%.3f export_w=%.1f flow_gap=%.3f",
-                inputs.day,
-                self._edf.current_slot,
-                result.snapshot["cost_total"],
-                result.snapshot["export_power_w"],
-                result.snapshot["debug_flow_gap_w"],
-            )
-        snap = dict(result.snapshot)
-        snap, self._first_input_probe_logged, self._last_input_probe_signature = (
-            finalize_snapshot_after_pipeline(
-                snap=snap,
-                runtime_delta_telemetry=self._runtime_state.delta_telemetry,
-                runtime_delta_discards=self._runtime_state.delta_discards,
-                runtime_last_delta_rejection=self._runtime_state.last_delta_rejection_by_source,
-                snapshot_data_for_day=self._runtime_state.snapshot_data,
-                expected_source_keys=self._expected_source_keys,
-                hass=self.hass,
-                entry=self.entry,
-                reader=self._reader,
-                trust_rebuilding_after_recorder=self._trust_rebuilding_after_recorder,
-                is_edf=self.is_edf,
-                tariff_offer=self.tariff_offer,
-                tempo_mode=self.tempo_mode,
-                tempo_rte_calendar_ready=self.tempo_rte_calendar_ready,
-                tariff_refresh_rejected_incomplete=self._tariff_refresh_rejected_incomplete,
-                first_input_probe_logged=self._first_input_probe_logged,
-                last_input_probe_signature=self._last_input_probe_signature,
-                logger=_LOGGER,
-            )
+        snap, next_ts, first_logged, last_sig = run_coordinator_snapshot_build(
+            self,
+            logger=_LOGGER,
         )
-
-        return cast(EnergyData, snap)
+        self._last_flow_warn_ts = next_ts
+        self._first_input_probe_logged = first_logged
+        self._last_input_probe_signature = last_sig
+        return snap
 
     async def async_manual_tariff_refresh(self) -> bool:
         return await self._async_refresh_tariffs(update_entry=True)
