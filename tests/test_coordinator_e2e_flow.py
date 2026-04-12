@@ -26,6 +26,7 @@ _ensure_pkg("hub_energie", HUB_DIR)
 
 const = importlib.import_module("hub_energie.const")
 coord_mod = importlib.import_module("hub_energie.coordinator")
+coordinator_policy = importlib.import_module("hub_energie.coordinator_policy")
 energy_mod = importlib.import_module("hub_energie.utils.energy")
 persistence_mod = importlib.import_module("hub_energie.runtime.persistence")
 paris_time_mod = importlib.import_module("hub_energie.time.paris_time")
@@ -132,35 +133,36 @@ async def _load_delta_persist_statistics_flow() -> None:
     with patch.object(persistence_mod, "Store", _mem_store_factory(initial, saves)):
         with patch.object(persistence_mod, "ParisTime", _FixedParis):
             with patch.object(coord_mod, "ParisTime", _FixedParis):
-                coord = coord_mod.HubEnergieCoordinator(hass, entry)
-                coord._async_notify_all = AsyncMock()
-                coord.async_request_refresh = AsyncMock()
-                coord._reader.read_energy_kwh = lambda _eid: None
-                coord._energy_attrib_date = today
+                with patch.object(coordinator_policy, "ParisTime", _FixedParis):
+                    coord = coord_mod.HubEnergieCoordinator(hass, entry)
+                    coord._async_notify_all = AsyncMock()
+                    coord.async_request_refresh = AsyncMock()
+                    coord._reader.read_energy_kwh = lambda _eid: None
+                    coord._energy_attrib_date = today
 
-                with patch.object(coord_mod, "resolve_attribution_slot", side_effect=_direct_slot):
-                    await coord.async_setup()
+                    with patch.object(coord_mod, "resolve_attribution_slot", side_effect=_direct_slot):
+                        await coord.async_setup()
 
-                    n_stats_after_load = len(stats_mod._captured_external)
-                    assert n_stats_after_load == len(SLOTS)
-                    assert coord._runtime_state.is_day_written(yesterday)
+                        n_stats_after_load = len(stats_mod._captured_external)
+                        assert n_stats_after_load == len(SLOTS)
+                        assert coord._runtime_state.is_day_written(yesterday)
 
-                    await coord._async_apply_delta("sensor.grid_import", const.SOURCE_GRID, 12.0)
-                    await coord._async_flush_pending_store_save()
+                        await coord._async_apply_delta("sensor.grid_import", const.SOURCE_GRID, 12.0)
+                        await coord._async_flush_pending_store_save()
 
-                    assert coord._runtime_state.accum[today]["grid"]["bleu_hp"] == _norm(2.0)
-                    assert coord._runtime_state.totals_kwh_by_source["grid"] == _norm(3.0)
-                    assert coord._runtime_state.last_raw[const.SOURCE_GRID] == _norm(12.0)
+                        assert coord._runtime_state.accum[today]["grid"]["bleu_hp"] == _norm(2.0)
+                        assert coord._runtime_state.totals_kwh_by_source["grid"] == _norm(3.0)
+                        assert coord._runtime_state.last_raw[const.SOURCE_GRID] == _norm(12.0)
 
-                    await coord._async_apply_delta("sensor.grid_import", const.SOURCE_GRID, 12.0)
-                    await coord._async_flush_pending_store_save()
+                        await coord._async_apply_delta("sensor.grid_import", const.SOURCE_GRID, 12.0)
+                        await coord._async_flush_pending_store_save()
 
-                    assert coord._runtime_state.accum[today]["grid"]["bleu_hp"] == _norm(2.0)
-                    assert coord._runtime_state.totals_kwh_by_source["grid"] == _norm(3.0)
+                        assert coord._runtime_state.accum[today]["grid"]["bleu_hp"] == _norm(2.0)
+                        assert coord._runtime_state.totals_kwh_by_source["grid"] == _norm(3.0)
 
-                    n_before_idempotent_stats = len(stats_mod._captured_external)
-                    await coord._async_write_day_statistics(yesterday)
-                    assert len(stats_mod._captured_external) == n_before_idempotent_stats
+                        n_before_idempotent_stats = len(stats_mod._captured_external)
+                        await coord._async_write_day_statistics(yesterday)
+                        assert len(stats_mod._captured_external) == n_before_idempotent_stats
 
     assert saves, "store should have been persisted at least once"
     final = saves[-1]
@@ -193,13 +195,14 @@ async def _statistics_idempotent_after_load() -> None:
     with patch.object(persistence_mod, "Store", _mem_store_factory(initial, [])):
         with patch.object(persistence_mod, "ParisTime", _FixedParis):
             with patch.object(coord_mod, "ParisTime", _FixedParis):
-                coord = coord_mod.HubEnergieCoordinator(hass, entry)
-                coord._async_notify_all = AsyncMock()
-                coord.async_request_refresh = AsyncMock()
-                coord._reader.read_energy_kwh = lambda _eid: None
-                coord._energy_attrib_date = "2026-04-02"
+                with patch.object(coordinator_policy, "ParisTime", _FixedParis):
+                    coord = coord_mod.HubEnergieCoordinator(hass, entry)
+                    coord._async_notify_all = AsyncMock()
+                    coord.async_request_refresh = AsyncMock()
+                    coord._reader.read_energy_kwh = lambda _eid: None
+                    coord._energy_attrib_date = "2026-04-02"
 
-                await coord.async_setup()
+                    await coord.async_setup()
 
     n = len(stats_mod._captured_external)
     assert n == len(SLOTS)

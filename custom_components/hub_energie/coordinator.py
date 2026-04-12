@@ -122,27 +122,12 @@ from .const.energy_data import (
     DATA_USAGE_SOLAR_BATT_CHARGE,
     DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH,
     DATA_USAGE_SOLAR_DIRECT,
-    DEFAULT_MAX_DELTA_KWH_BATTERY,
-    DEFAULT_MAX_DELTA_KWH_GRID,
-    DEFAULT_MAX_DELTA_KWH_SOLAR,
-    DELTA_CAP_KWH_MAX,
-    DELTA_CAP_KWH_MIN,
     ENERGY_ROUND_DECIMALS,
-    MAX_DELTA_KWH_DEFAULT,
-    OPT_MAX_DELTA_KWH_BATTERY,
-    OPT_MAX_DELTA_KWH_GRID,
-    OPT_MAX_DELTA_KWH_OTHER,
-    OPT_MAX_DELTA_KWH_SOLAR,
     SOURCE_GRID,
     SOURCE_GRID_EXPORT,
     SOURCE_SOLAR,
 )
-from .const.reinjection import (
-    DIAG_CAUSE_BATTERY_FULL_OR_ABSENT,
-    DIAG_CAUSE_SOLAR_SURPLUS,
-    DIAG_CAUSE_SWITCH_LATENCY,
-    DIAG_CAUSE_UNATTRIBUTED,
-)
+from .const.reinjection import DIAG_CAUSE_UNATTRIBUTED
 from .const.tariff_edf import (
     ATTRIBUTION_SLOTS,
     CONF_CURRENT_SLOT_SENSOR,
@@ -163,7 +148,13 @@ from .const.tariff_edf import (
     TEMPO_MODE_SENSOR,
 )
 from .diagnostics.reinjection_state import ReinjectionState
-from .energy.delta_policy import DeltaPolicy
+from .coordinator_policy import (
+    DIAG_CAUSES,
+    delta_policy_from_entry,
+    paris_now,
+    paris_today_iso,
+    paris_yesterday,
+)
 from .ha.reader import HAReader
 from .runtime.events import create_state_changed_handler
 from .runtime.persistence import PersistenceManager
@@ -194,49 +185,6 @@ from .providers.edf import is_off_peak, parse_slot_from_sensor_state
 _LOGGER = logging.getLogger(__name__)
 
 
-def _delta_policy_from_entry(entry: ConfigEntry) -> DeltaPolicy:
-    opts = entry.options
-
-    def resolved(key: str, default: float) -> float:
-        raw = opts.get(key)
-        if raw is None:
-            return float(default)
-        try:
-            v = float(raw)
-        except (TypeError, ValueError):
-            return float(default)
-        if not math.isfinite(v):
-            return float(default)
-        return max(float(DELTA_CAP_KWH_MIN), min(float(DELTA_CAP_KWH_MAX), v))
-
-    return DeltaPolicy(
-        max_delta_grid_kwh=resolved(OPT_MAX_DELTA_KWH_GRID, DEFAULT_MAX_DELTA_KWH_GRID),
-        max_delta_solar_kwh=resolved(OPT_MAX_DELTA_KWH_SOLAR, DEFAULT_MAX_DELTA_KWH_SOLAR),
-        max_delta_battery_kwh=resolved(OPT_MAX_DELTA_KWH_BATTERY, DEFAULT_MAX_DELTA_KWH_BATTERY),
-        max_delta_other_kwh=resolved(OPT_MAX_DELTA_KWH_OTHER, MAX_DELTA_KWH_DEFAULT),
-    )
-
-
-_DIAG_CAUSES: tuple[str, ...] = (
-    DIAG_CAUSE_SOLAR_SURPLUS,
-    DIAG_CAUSE_BATTERY_FULL_OR_ABSENT,
-    DIAG_CAUSE_SWITCH_LATENCY,
-    DIAG_CAUSE_UNATTRIBUTED,
-)
-
-
-def _paris_now() -> datetime:
-    return ParisTime.now()
-
-
-def _paris_today_iso() -> str:
-    return ParisTime.today()
-
-
-def _paris_yesterday() -> str:
-    return ParisTime.yesterday()
-
-
 class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
     """Central state coordinator for Hub Énergie."""
 
@@ -259,14 +207,14 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
 
         self._reinjection_state = ReinjectionState(
             slots=ATTRIBUTION_SLOTS,
-            diag_causes=_DIAG_CAUSES,
+            diag_causes=DIAG_CAUSES,
             default_cause=DIAG_CAUSE_UNATTRIBUTED,
         )
         self._runtime_state = RuntimeState(
             slots=ATTRIBUTION_SLOTS,
             reinjection_state=self._reinjection_state,
         )
-        self._delta_policy = _delta_policy_from_entry(entry)
+        self._delta_policy = delta_policy_from_entry(entry)
         self._trust_rebuilding_after_recorder = False
         self._tariff_refresh_rejected_incomplete = False
         self._first_input_probe_logged = False
@@ -596,8 +544,8 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
                 self._runtime_state.patch_delta_telemetry_drift(source_key, drift)
 
     async def _async_apply_delta(self, entity_id: str, source_key: str, new_val: float) -> None:
-        now_paris = _paris_now()
-        day = _paris_today_iso()
+        now_paris = paris_now()
+        day = paris_today_iso()
 
         if (
             self.is_edf
@@ -629,7 +577,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         if attribution.slot == SLOT_UNKNOWN:
             await self.async_request_refresh()
             attribution = resolve_attribution_slot(
-                now_paris=_paris_now(),
+                now_paris=paris_now(),
                 is_edf=self.is_edf,
                 tariff_offer=self.tariff_offer,
                 tempo_mode=self.tempo_mode,
@@ -741,7 +689,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             self._schedule_store_save_locked()
 
     async def _async_midnight_maintenance(self) -> None:
-        yesterday = _paris_yesterday()
+        yesterday = paris_yesterday()
         await self._async_write_day_statistics(yesterday)
         async with self._state_lock:
             self._cleanup_accumulators(keep_days=7)
@@ -764,7 +712,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         self.async_update_listeners()
 
     async def _async_update_data(self) -> EnergyData:
-        now_paris = _paris_now()
+        now_paris = paris_now()
         self._tariff = self._build_tariff_resolver()
 
         if self.is_edf:
