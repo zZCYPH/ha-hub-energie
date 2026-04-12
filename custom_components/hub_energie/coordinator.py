@@ -116,6 +116,7 @@ from .scheduler import Scheduler
 from .snapshot.coordinator_bridge import build_pipeline_deps
 from .snapshot.pipeline import SnapshotPipeline
 from .coordinator_apply_delta import apply_energy_delta
+from .coordinator_apply_snapshot import apply_snapshot_to_coordinator
 from .coordinator_delta_telemetry import refresh_delta_telemetry_drift_all_sources
 from .coordinator_snapshot_access import (
     snapshot_get_list,
@@ -503,12 +504,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         await self._persistence.write_statistics(iso_day)
 
     async def _async_notify_all(self) -> None:
-        async with self._state_lock:
-            self.data = self._build_snapshot()
-            if self._reinjection_state.dirty:
-                self._reinjection_state.mark_clean()
-                self._schedule_store_save_locked()
-        self.async_update_listeners()
+        await apply_snapshot_to_coordinator(self, clear_trust_rebuilding_after_recorder=False)
 
     async def _async_update_data(self) -> EnergyData:
         now_paris = paris_now()
@@ -524,15 +520,10 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             on_tempo_sensor_branch=self._refresh_slot_sensor,
         )
 
-        async with self._state_lock:
-            snapshot = self._build_snapshot()
-            self.data = snapshot
-            if self._reinjection_state.dirty:
-                self._reinjection_state.mark_clean()
-                self._schedule_store_save_locked()
-        self.async_update_listeners()
-        self._trust_rebuilding_after_recorder = False
-        return snapshot
+        return await apply_snapshot_to_coordinator(
+            self,
+            clear_trust_rebuilding_after_recorder=True,
+        )
 
     def _build_snapshot(self) -> EnergyData:
         snap, next_ts, first_logged, last_sig = run_coordinator_snapshot_build(
