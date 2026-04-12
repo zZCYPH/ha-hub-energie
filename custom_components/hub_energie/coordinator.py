@@ -117,6 +117,7 @@ from .snapshot.coordinator_bridge import build_pipeline_deps
 from .snapshot.pipeline import SnapshotPipeline
 from .coordinator_apply_delta import apply_energy_delta
 from .coordinator_apply_snapshot import apply_snapshot_to_coordinator
+from .coordinator_maintenance import run_midnight_maintenance
 from .coordinator_delta_telemetry import refresh_delta_telemetry_drift_all_sources
 from .coordinator_snapshot_access import (
     snapshot_get_list,
@@ -489,13 +490,15 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             self._schedule_store_save_locked()
 
     async def _async_midnight_maintenance(self) -> None:
-        yesterday = paris_yesterday()
-        await self._async_write_day_statistics(yesterday)
-        async with self._state_lock:
-            self._cleanup_accumulators(keep_days=7)
-            self._schedule_store_save_locked()
-        await self._async_flush_pending_store_save()
-        await self.async_request_refresh()
+        await run_midnight_maintenance(
+            yesterday_iso=paris_yesterday(),
+            write_day_statistics=self._async_write_day_statistics,
+            state_lock=self._state_lock,
+            cleanup_accumulators=self._cleanup_accumulators,
+            schedule_save_locked=self._schedule_store_save_locked,
+            flush_pending_store_save=self._async_flush_pending_store_save,
+            request_refresh=self.async_request_refresh,
+        )
 
     def _cleanup_accumulators(self, keep_days: int) -> None:
         self._runtime_state.cleanup(keep_days=keep_days)
