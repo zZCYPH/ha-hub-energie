@@ -89,23 +89,11 @@ from .const.energy_data import (
     DATA_USAGE_SOLAR_BATT_CHARGE,
     DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH,
     DATA_USAGE_SOLAR_DIRECT,
-    ENERGY_ROUND_DECIMALS,
 )
-from .const.reinjection import DIAG_CAUSE_UNATTRIBUTED
-from .const.tariff_edf import ATTRIBUTION_SLOTS
-from .diagnostics.reinjection_state import ReinjectionState
 from .coordinator_policy import (
-    DIAG_CAUSES,
-    delta_policy_from_entry,
     paris_now,
     paris_yesterday,
 )
-from .ha.reader import HAReader
-from .runtime.persistence import PersistenceManager
-from .runtime.state import RuntimeState
-from .scheduler import Scheduler
-from .snapshot.coordinator_bridge import build_pipeline_deps
-from .snapshot.pipeline import SnapshotPipeline
 from .coordinator_apply_delta import apply_energy_delta
 from .coordinator_apply_snapshot import apply_snapshot_to_coordinator
 from .coordinator_maintenance import run_midnight_maintenance
@@ -165,14 +153,8 @@ from .coordinator_entity_map import (
     tri_grid_aggregate_import_entities,
 )
 from .coordinator_snapshot_build import run_coordinator_snapshot_build
-from .coordinator_types import (
-    SAVE_DEBOUNCE_S,
-    STORE_MODEL_VERSION,
-    BatterySnapshotData,
-    EnergyData,
-)
-from .storage.statistics import statistic_id as statistic_id_for_domain
-from .storage.store_manager import StoreManager
+from .coordinator_types import BatterySnapshotData, EnergyData
+from .coordinator_init import wire_hub_energie_coordinator_after_super
 from .tariff import EdfRuntimeFields
 from .tariff_manager import TariffResolver
 from .utils.energy import normalize_kwh
@@ -189,66 +171,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=None)
         self.entry = entry
         self.config_entry = entry
-        self.data: EnergyData = {}
-        self._state_lock = asyncio.Lock()
-        self._store_manager = StoreManager(
-            model_version=STORE_MODEL_VERSION,
-            slots=ATTRIBUTION_SLOTS,
-            decimals=ENERGY_ROUND_DECIMALS,
-        )
-        self._reader = HAReader(hass, entry, normalize_kwh=normalize_kwh)
-
-        self._edf = EdfRuntimeFields()
-        self._energy_attrib_date: str | None = None
-        self._last_flow_warn_ts: datetime | None = None
-
-        self._reinjection_state = ReinjectionState(
-            slots=ATTRIBUTION_SLOTS,
-            diag_causes=DIAG_CAUSES,
-            default_cause=DIAG_CAUSE_UNATTRIBUTED,
-        )
-        self._runtime_state = RuntimeState(
-            slots=ATTRIBUTION_SLOTS,
-            reinjection_state=self._reinjection_state,
-        )
-        self._delta_policy = delta_policy_from_entry(entry)
-        self._trust_rebuilding_after_recorder = False
-        self._tariff_refresh_rejected_incomplete = False
-        self._first_input_probe_logged = False
-        self._last_input_probe_signature: str | None = None
-
-        self._persistence = PersistenceManager(
-            hass=self.hass,
-            entry=self.entry,
-            domain=DOMAIN,
-            slots=ATTRIBUTION_SLOTS,
-            state_lock=self._state_lock,
-            runtime_state=self._runtime_state,
-            store_manager=self._store_manager,
-            save_debounce_s=SAVE_DEBOUNCE_S,
-            logger=_LOGGER,
-            store_model_version=STORE_MODEL_VERSION,
-            source_map=self.source_map,
-            expected_source_keys=self._expected_source_keys,
-            read_energy_kwh=self._read_energy_kwh_for_persistence,
-            normalize_kwh=normalize_kwh,
-            safe_float=safe_float,
-            statistic_id=lambda sk, sl: statistic_id_for_domain(DOMAIN, sk, sl),
-        )
-        self._snapshot_pipeline = SnapshotPipeline(ATTRIBUTION_SLOTS, build_pipeline_deps(self))
-
-        self._tariff: TariffResolver | None = None
-        self._scheduler = Scheduler(
-            hass=self.hass,
-            entry=self.entry,
-            next_poll_fire_paris=self._next_poll_fire_paris,
-            on_scheduled_poll=self._async_scheduled_poll,
-            on_midnight=self._async_midnight_maintenance,
-            on_tariff_refresh=lambda: self._async_refresh_tariffs(update_entry=True),
-            tariff_refresh_enabled=lambda: self.is_edf
-            and entry_tariff_refresh_enabled(dict(self.entry.options)),
-            tariff_refresh_hours=lambda: entry_tariff_refresh_hours(dict(self.entry.options)),
-        )
+        wire_hub_energie_coordinator_after_super(self, hass, entry, logger=_LOGGER)
 
     @property
     def supplier(self) -> str:
