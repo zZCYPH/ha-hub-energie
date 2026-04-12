@@ -15,27 +15,12 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const.config_keys import (
     CONF_BATTERY_SYSTEMS,
-    CONF_BATT_ENERGY_IN,
-    CONF_BATT_ENERGY_OUT,
-    CONF_GRID_EXPORT_ENERGY,
-    CONF_GRID_EXPORT_ENERGY_PHASES,
-    CONF_GRID_IMPORT_ENERGY,
-    CONF_GRID_IMPORT_ENERGY_PHASES,
-    CONF_GRID_POWER_SENSOR,
     CONF_GRID_POWER_SIGN_MODE,
-    CONF_GRID_TRI_ENERGY_MODE,
     CONF_HAS_BATTERIES,
     CONF_HAS_SOLAR,
-    CONF_LOAD_POWER_SENSOR,
-    CONF_SOLAR_ENERGY,
     CONF_SOLAR_ESTIMATION_ENABLED,
-    CONF_SOLAR_POWER_SENSOR,
     CONF_SOLAR_RESALE_CONTRACT,
     GRID_POWER_SIGN_EXPORT_NEGATIVE,
-    PHASE_TRI,
-    SYNTHETIC_ENTITY_GRID_EXPORT_SUM,
-    SYNTHETIC_ENTITY_GRID_IMPORT_SUM,
-    TRI_GRID_ENERGY_PER_PHASE,
 )
 from .const.core import DOMAIN
 from .const.energy_data import (
@@ -123,9 +108,6 @@ from .const.energy_data import (
     DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH,
     DATA_USAGE_SOLAR_DIRECT,
     ENERGY_ROUND_DECIMALS,
-    SOURCE_GRID,
-    SOURCE_GRID_EXPORT,
-    SOURCE_SOLAR,
 )
 from .const.reinjection import DIAG_CAUSE_UNATTRIBUTED
 from .const.tariff_edf import (
@@ -162,6 +144,13 @@ from .snapshot.coordinator_bridge import build_pipeline_deps
 from .snapshot.inputs_builder import build_snapshot_inputs
 from .snapshot.pipeline import SnapshotPipeline
 from .coordinator_apply_delta import apply_energy_delta
+from .coordinator_entity_map import (
+    build_power_source_map,
+    build_source_map,
+    read_energy_kwh_for_persistence,
+    tri_grid_aggregate_export_entities,
+    tri_grid_aggregate_import_entities,
+)
 from .coordinator_snapshot_post import finalize_snapshot_after_pipeline
 from .coordinator_types import (
     SAVE_DEBOUNCE_S,
@@ -174,7 +163,6 @@ from .storage.store_manager import StoreManager
 from .tariff import EdfRuntimeFields, TariffRefreshOutcome, refresh_tariffs, update_edf_state
 from .tariff_manager import TariffResolver
 from .utils.energy import normalize_kwh
-from .utils.grid_phases import ordered_phase_entity_ids
 from .utils.numbers import safe_float
 from .providers.edf import is_off_peak, parse_slot_from_sensor_state
 
@@ -308,70 +296,27 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         return bool(self.entry.data.get(CONF_SOLAR_RESALE_CONTRACT))
 
     def _read_energy_kwh_for_persistence(self, entity_id: str | None) -> float | None:
-        if not entity_id:
-            return None
-        if entity_id == SYNTHETIC_ENTITY_GRID_IMPORT_SUM:
-            ids = ordered_phase_entity_ids(self.entry.data.get(CONF_GRID_IMPORT_ENERGY_PHASES))
-            if len(ids) != 3:
-                return None
-            return self._reader.sum_energy_kwh(ids)
-        if entity_id == SYNTHETIC_ENTITY_GRID_EXPORT_SUM:
-            ids = ordered_phase_entity_ids(self.entry.data.get(CONF_GRID_EXPORT_ENERGY_PHASES))
-            if len(ids) != 3:
-                return None
-            return self._reader.sum_energy_kwh(ids)
-        return self._reader.read_energy_kwh(entity_id)
+        return read_energy_kwh_for_persistence(entity_id, self.entry.data, self._reader)
 
     def tri_grid_aggregate_import_entities(self) -> list[str]:
-        if (
-            self.phase_type != PHASE_TRI
-            or self.entry.data.get(CONF_GRID_TRI_ENERGY_MODE) != TRI_GRID_ENERGY_PER_PHASE
-        ):
-            return []
-        return ordered_phase_entity_ids(self.entry.data.get(CONF_GRID_IMPORT_ENERGY_PHASES))
+        return tri_grid_aggregate_import_entities(self.entry.data, phase_type=self.phase_type)
 
     def tri_grid_aggregate_export_entities(self) -> list[str]:
-        if (
-            self.phase_type != PHASE_TRI
-            or self.entry.data.get(CONF_GRID_TRI_ENERGY_MODE) != TRI_GRID_ENERGY_PER_PHASE
-        ):
-            return []
-        return ordered_phase_entity_ids(self.entry.data.get(CONF_GRID_EXPORT_ENERGY_PHASES))
+        return tri_grid_aggregate_export_entities(self.entry.data, phase_type=self.phase_type)
 
     def source_map(self) -> dict[str, str | None]:
-        d = self.entry.data
-        grid_import = cast(str | None, d.get(CONF_GRID_IMPORT_ENERGY))
-        grid_export = cast(str | None, d.get(CONF_GRID_EXPORT_ENERGY))
-        if (
-            d.get(CONF_PHASE_TYPE) == PHASE_TRI
-            and d.get(CONF_GRID_TRI_ENERGY_MODE) == TRI_GRID_ENERGY_PER_PHASE
-        ):
-            imp_ids = ordered_phase_entity_ids(d.get(CONF_GRID_IMPORT_ENERGY_PHASES))
-            grid_import = SYNTHETIC_ENTITY_GRID_IMPORT_SUM if len(imp_ids) == 3 else None
-            exp_ids = ordered_phase_entity_ids(d.get(CONF_GRID_EXPORT_ENERGY_PHASES))
-            grid_export = SYNTHETIC_ENTITY_GRID_EXPORT_SUM if len(exp_ids) == 3 else None
-        m: dict[str, str | None] = {
-            SOURCE_GRID: grid_import,
-            SOURCE_SOLAR: d.get(CONF_SOLAR_ENERGY) if self.has_solar else None,
-            SOURCE_GRID_EXPORT: grid_export,
-        }
-        for batt in self.battery_systems:
-            bid = batt.get("id", "")
-            m[f"batt_charge:{bid}"] = batt.get(CONF_BATT_ENERGY_IN)
-            m[f"batt_discharge:{bid}"] = batt.get(CONF_BATT_ENERGY_OUT)
-        return m
+        return build_source_map(
+            self.entry.data,
+            battery_systems=self.battery_systems,
+            has_solar=self.has_solar,
+        )
 
     def power_source_map(self) -> dict[str, str | None]:
-        opts, data = self.entry.options, self.entry.data
-        return {
-            "grid_power": cast(str | None, opts.get(CONF_GRID_POWER_SENSOR, data.get(CONF_GRID_POWER_SENSOR))),
-            "solar_power": (
-                cast(str | None, opts.get(CONF_SOLAR_POWER_SENSOR, data.get(CONF_SOLAR_POWER_SENSOR)))
-                if self.has_solar
-                else None
-            ),
-            "load_power": cast(str | None, opts.get(CONF_LOAD_POWER_SENSOR, data.get(CONF_LOAD_POWER_SENSOR))),
-        }
+        return build_power_source_map(
+            self.entry.options,
+            self.entry.data,
+            has_solar=self.has_solar,
+        )
 
     def _expected_source_keys(self) -> set[str]:
         return {k for k, v in self.source_map().items() if v}
