@@ -140,10 +140,8 @@ from .const.tariff_edf import (
     DEFAULT_TARIFF_REFRESH_HOURS,
     OPT_TARIFF_AUTO_REFRESH,
     OPT_TARIFF_REFRESH_HOURS,
-    SLOT_UNKNOWN,
     SUPPLIER_EDF,
     TARIFF_OFFER_TEMPO,
-    TEMPO_MODE_API,
     TEMPO_MODE_RTE,
     TEMPO_MODE_SENSOR,
 )
@@ -152,7 +150,6 @@ from .coordinator_policy import (
     DIAG_CAUSES,
     delta_policy_from_entry,
     paris_now,
-    paris_today_iso,
     paris_yesterday,
 )
 from .ha.reader import HAReader
@@ -164,6 +161,7 @@ from .scheduler import Scheduler
 from .snapshot.coordinator_bridge import build_pipeline_deps
 from .snapshot.inputs_builder import build_snapshot_inputs
 from .snapshot.pipeline import SnapshotPipeline
+from .coordinator_apply_delta import apply_energy_delta
 from .coordinator_snapshot_post import finalize_snapshot_after_pipeline
 from .coordinator_types import (
     SAVE_DEBOUNCE_S,
@@ -174,7 +172,6 @@ from .coordinator_types import (
 from .storage.statistics import statistic_id as statistic_id_for_domain
 from .storage.store_manager import StoreManager
 from .tariff import EdfRuntimeFields, TariffRefreshOutcome, refresh_tariffs, update_edf_state
-from .tariff.slot_attribution import resolve_attribution_slot
 from .tariff_manager import TariffResolver
 from .utils.energy import normalize_kwh
 from .utils.grid_phases import ordered_phase_entity_ids
@@ -543,139 +540,29 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
                 self._runtime_state.patch_delta_telemetry_drift(source_key, drift)
 
     async def _async_apply_delta(self, entity_id: str, source_key: str, new_val: float) -> None:
-        now_paris = paris_now()
-        day = paris_today_iso()
-
-        if (
-            self.is_edf
-            and self.tariff_offer == TARIFF_OFFER_TEMPO
-            and self.tempo_mode == TEMPO_MODE_API
-            and self._energy_attrib_date != day
-        ):
-            self._energy_attrib_date = day
-            await self.async_request_refresh()
-
-        prev_tel = self._runtime_state.delta_telemetry.get(source_key, {})
-        prev_iso = prev_tel.get("last_applied_at") if isinstance(prev_tel, dict) else None
-        gap_seconds: float | None = None
-        if isinstance(prev_iso, str):
-            prev_dt = dt_util.parse_datetime(prev_iso)
-            if prev_dt is not None:
-                gap_seconds = (dt_util.utcnow() - prev_dt).total_seconds()
-
-        attribution = resolve_attribution_slot(
-            now_paris=now_paris,
+        energy_attrib_date_ref: list[str | None] = [self._energy_attrib_date]
+        await apply_energy_delta(
+            hass=self.hass,
+            entry=self.entry,
+            edf=self._edf,
+            runtime_state=self._runtime_state,
+            state_lock=self._state_lock,
+            delta_policy=self._delta_policy,
+            normalize_kwh=normalize_kwh,
+            read_energy_kwh_for_persistence=self._read_energy_kwh_for_persistence,
+            schedule_save_locked=self._schedule_store_save_locked,
+            async_request_refresh=self.async_request_refresh,
+            async_notify_all=self._async_notify_all,
             is_edf=self.is_edf,
             tariff_offer=self.tariff_offer,
             tempo_mode=self.tempo_mode,
-            edf_fields=self._edf,
-            hass=self.hass,
-            entry=self.entry,
-            last_stable_slot=self._runtime_state.last_stable_attribution_slot,
+            entity_id=entity_id,
+            source_key=source_key,
+            new_val=new_val,
+            energy_attrib_date_ref=energy_attrib_date_ref,
+            logger=_LOGGER,
         )
-        if attribution.slot == SLOT_UNKNOWN:
-            await self.async_request_refresh()
-            attribution = resolve_attribution_slot(
-                now_paris=paris_now(),
-                is_edf=self.is_edf,
-                tariff_offer=self.tariff_offer,
-                tempo_mode=self.tempo_mode,
-                edf_fields=self._edf,
-                hass=self.hass,
-                entry=self.entry,
-                last_stable_slot=self._runtime_state.last_stable_attribution_slot,
-            )
-
-        slot = attribution.slot
-        method = attribution.method
-        self._edf.current_slot = slot
-
-        if method != "direct":
-            _LOGGER.info(
-                "Energy delta attribution source=%s slot=%s method=%s",
-                source_key,
-                slot,
-                method,
-            )
-
-        normalized_new = normalize_kwh(new_val)
-        reanchor_outcomes = frozenset(
-            {"initialized", "source_changed", "reset_rebased", "discarded_unrealistic"}
-        )
-        async with self._state_lock:
-            result = self._runtime_state.apply_delta(
-                day=day,
-                slot=slot,
-                source_key=source_key,
-                entity_id=entity_id,
-                normalized_new=normalized_new,
-                normalize_kwh=normalize_kwh,
-                delta_policy=self._delta_policy,
-            )
-            if result.outcome in reanchor_outcomes:
-                self._runtime_state.reanchor_drift_meter_for_source(
-                    source_key,
-                    meter_kwh=normalized_new,
-                    normalize_kwh=normalize_kwh,
-                )
-            if result.outcome == "discarded_negative":
-                self._runtime_state.note_delta_discard("discarded_negative")
-                self._runtime_state.record_last_delta_rejection(
-                    source_key,
-                    reason="discarded_negative",
-                    at_iso=dt_util.utcnow().isoformat(),
-                    delta_kwh=result.delta_kwh,
-                    last_raw=result.last_raw,
-                    new_raw=result.new_raw,
-                )
-                _LOGGER.warning(
-                    "Discarded negative delta for %s: old=%.6f new=%.6f",
-                    source_key,
-                    result.last_raw or 0.0,
-                    result.new_raw or 0.0,
-                )
-            elif result.outcome == "discarded_unrealistic":
-                self._runtime_state.note_delta_discard("discarded_unrealistic")
-                self._runtime_state.record_last_delta_rejection(
-                    source_key,
-                    reason="discarded_unrealistic",
-                    at_iso=dt_util.utcnow().isoformat(),
-                    delta_kwh=result.delta_kwh,
-                    last_raw=result.last_raw,
-                    new_raw=result.new_raw,
-                )
-                _LOGGER.warning(
-                    "Discarded unrealistic delta for %s: delta=%.6f",
-                    source_key,
-                    result.delta_kwh,
-                )
-            elif result.outcome == "applied":
-                meter_kwh = self._read_energy_kwh_for_persistence(entity_id)
-                drift_kwh = self._runtime_state.relative_meter_drift_kwh(
-                    source_key,
-                    meter_kwh=meter_kwh,
-                    normalize_kwh=normalize_kwh,
-                )
-                self._runtime_state.record_applied_delta_telemetry(
-                    source_key,
-                    applied_at_iso=dt_util.utcnow().isoformat(),
-                    delta_kwh=result.delta_kwh,
-                    slot=slot,
-                    method=method,
-                    gap_seconds=gap_seconds,
-                    drift_kwh=drift_kwh,
-                )
-            if result.outcome in reanchor_outcomes:
-                drift_now = self._runtime_state.relative_meter_drift_kwh(
-                    source_key,
-                    meter_kwh=normalized_new,
-                    normalize_kwh=normalize_kwh,
-                )
-                self._runtime_state.patch_delta_telemetry_drift(source_key, drift_now)
-            if result.should_save:
-                self._schedule_store_save_locked()
-
-        await self._async_notify_all()
+        self._energy_attrib_date = energy_attrib_date_ref[0]
 
     def _schedule_store_save_locked(self) -> None:
         self._persistence.schedule_save_locked()

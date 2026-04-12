@@ -27,6 +27,7 @@ _ensure_pkg("hub_energie", HUB_DIR)
 const = importlib.import_module("hub_energie.const")
 coord_mod = importlib.import_module("hub_energie.coordinator")
 coordinator_policy = importlib.import_module("hub_energie.coordinator_policy")
+coordinator_apply_delta = importlib.import_module("hub_energie.coordinator_apply_delta")
 coordinator_data_quality = importlib.import_module("hub_energie.coordinator_data_quality")
 energy_mod = importlib.import_module("hub_energie.utils.energy")
 persistence_mod = importlib.import_module("hub_energie.runtime.persistence")
@@ -141,7 +142,11 @@ async def _load_delta_persist_statistics_flow() -> None:
                     coord._reader.read_energy_kwh = lambda _eid: None
                     coord._energy_attrib_date = today
 
-                    with patch.object(coord_mod, "resolve_attribution_slot", side_effect=_direct_slot):
+                    with patch.object(
+                        coordinator_apply_delta,
+                        "resolve_attribution_slot",
+                        side_effect=_direct_slot,
+                    ):
                         await coord.async_setup()
 
                         n_stats_after_load = len(stats_mod._captured_external)

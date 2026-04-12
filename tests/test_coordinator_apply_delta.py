@@ -25,6 +25,7 @@ _ensure_pkg("hub_energie", HUB_DIR)
 
 const = importlib.import_module("hub_energie.const")
 coord_mod = importlib.import_module("hub_energie.coordinator")
+coordinator_apply_delta = importlib.import_module("hub_energie.coordinator_apply_delta")
 coordinator_policy = importlib.import_module("hub_energie.coordinator_policy")
 slot_attribution = importlib.import_module("hub_energie.tariff.slot_attribution")
 
@@ -70,7 +71,7 @@ async def _unknown_then_bleu_hp() -> None:
     def _resolve(**_kwargs: object) -> slot_attribution.SlotAttributionResult:
         return results.pop(0)
 
-    with patch.object(coord_mod, "resolve_attribution_slot", side_effect=_resolve):
+    with patch.object(coordinator_apply_delta, "resolve_attribution_slot", side_effect=_resolve):
         await coord._async_apply_delta("sensor.grid_import", const.SOURCE_GRID, 12.0)
 
     assert refresh_calls == 1
@@ -95,7 +96,7 @@ async def _discarded_negative_telemetry() -> None:
     def _resolve(**_kwargs: object) -> slot_attribution.SlotAttributionResult:
         return slot_attribution.SlotAttributionResult("bleu_hp", "direct")
 
-    with patch.object(coord_mod, "resolve_attribution_slot", side_effect=_resolve):
+    with patch.object(coordinator_apply_delta, "resolve_attribution_slot", side_effect=_resolve):
         await coord._async_apply_delta("sensor.grid_import", const.SOURCE_GRID, 100.0)
         # 50 would be plausible reset (new <= last * 0.5); 51 is a large negative discard.
         await coord._async_apply_delta("sensor.grid_import", const.SOURCE_GRID, 51.0)
