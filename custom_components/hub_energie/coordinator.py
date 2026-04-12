@@ -5,14 +5,13 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime
-from typing import Any, cast
+from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from .const.config_keys import CONF_BATTERY_SYSTEMS
 from .const.core import DOMAIN
 from .const.energy_data import (
     DATA_BATT_CHARGE_METER_KWH,
@@ -31,8 +30,6 @@ from .const.energy_data import (
     DATA_BATTERY_TOTAL_NET_POWER_W,
     DATA_CONTRACT_POWER,
     DATA_COST_BY_SLOT,
-    DATA_COST_TOTAL,
-    DATA_CURRENT_SLOT,
     DATA_DAY,
     DATA_ECO_BATT,
     DATA_ECO_SOLAR,
@@ -58,12 +55,10 @@ from .const.energy_data import (
     DATA_EXPORT_POWER_W,
     DATA_EXPORT_UNATTRIBUTED_KWH,
     DATA_GRID_IMPORT_POWER_W,
-    DATA_GRID_POWER_SIGNED_W,
     DATA_GRID_TO_BATTERY_POWER_W,
     DATA_GRID_TO_HOME_POWER_W,
     DATA_HOME_POWER_W,
     DATA_LOAD_POWER_INFERRED,
-    DATA_LOAD_POWER_W,
     DATA_LOGIC_VERSION,
     DATA_OFFER,
     DATA_ORIGIN_GRID,
@@ -79,17 +74,13 @@ from .const.energy_data import (
     DATA_SOLAR_ESTIMATE_YEARLY_KWH,
     DATA_SOLAR_EXPORT_POWER_W,
     DATA_SOLAR_EXPORT_REVENUE_EUR,
-    DATA_SOLAR_POWER_W,
     DATA_SOLAR_PRODUCTION_POWER_W,
     DATA_SOLAR_TO_BATTERY_POWER_W,
     DATA_SOLAR_TO_HOME_POWER_W,
     DATA_SUPPLIER,
     DATA_TARIFF_FETCHED_AT,
-    DATA_TEMPO_DAYS,
     DATA_TEMPO_NEXT_COLOUR_CHANGE_AT,
     DATA_TEMPO_NEXT_HC_START_AT,
-    DATA_TODAY_COLOR,
-    DATA_TOMORROW_COLOR,
     DATA_USAGE_BATT_CHARGE_METHOD,
     DATA_USAGE_BATT_HOME,
     DATA_USAGE_GRID_BATT_CHARGE,
@@ -120,12 +111,20 @@ from .coordinator_apply_snapshot import apply_snapshot_to_coordinator
 from .coordinator_maintenance import run_midnight_maintenance
 from .coordinator_delta_telemetry import refresh_delta_telemetry_drift_all_sources
 from .coordinator_snapshot_access import (
-    snapshot_get_list,
-    snapshot_get_mapping_value,
-    snapshot_get_nested_numeric_value,
-    snapshot_get_numeric_value,
-    snapshot_get_str,
-    snapshot_get_value,
+    coordinator_get_battery_systems_data,
+    coordinator_get_cost_total,
+    coordinator_get_current_slot,
+    coordinator_get_grid_power_signed_w,
+    coordinator_get_load_power_w,
+    coordinator_get_mapping_value,
+    coordinator_get_nested_numeric_value,
+    coordinator_get_numeric_value,
+    coordinator_get_solar_power_w,
+    coordinator_get_tempo_days,
+    coordinator_get_today_color,
+    coordinator_get_tomorrow_color,
+    coordinator_get_value,
+    coordinator_snapshot_data,
 )
 from .coordinator_update_prep import refresh_tariff_resolver_and_edf_before_snapshot
 from .coordinator_config_view import (
@@ -388,59 +387,59 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
 
     def snapshot_data(self) -> EnergyData | None:
         """Return the latest typed snapshot payload when available."""
-        return self.data if self.data else None
+        return coordinator_snapshot_data(self.data)
 
     def get_value(self, key: str) -> Any | None:
         """Return a raw snapshot value safely."""
-        return snapshot_get_value(self.snapshot_data(), key)
+        return coordinator_get_value(self.data, key)
 
     def get_numeric_value(self, key: str) -> float | None:
         """Return a finite numeric snapshot value."""
-        return snapshot_get_numeric_value(self.snapshot_data(), key)
+        return coordinator_get_numeric_value(self.data, key)
 
     def get_mapping_value(self, key: str) -> dict[str, Any] | None:
         """Return a snapshot mapping safely."""
-        return snapshot_get_mapping_value(self.snapshot_data(), key)
+        return coordinator_get_mapping_value(self.data, key)
 
     def get_nested_numeric_value(self, section_key: str, key: str) -> float | None:
         """Return a finite numeric value inside a snapshot mapping."""
-        return snapshot_get_nested_numeric_value(self.snapshot_data(), section_key, key)
+        return coordinator_get_nested_numeric_value(self.data, section_key, key)
 
     def get_grid_power_signed_w(self) -> float | None:
         """Return signed grid power in watts."""
-        return self.get_numeric_value(DATA_GRID_POWER_SIGNED_W)
+        return coordinator_get_grid_power_signed_w(self.data)
 
     def get_solar_power_w(self) -> float | None:
         """Return measured solar power in watts."""
-        return self.get_numeric_value(DATA_SOLAR_POWER_W)
+        return coordinator_get_solar_power_w(self.data)
 
     def get_load_power_w(self) -> float | None:
         """Return measured or inferred load power in watts."""
-        return self.get_numeric_value(DATA_LOAD_POWER_W)
+        return coordinator_get_load_power_w(self.data)
 
     def get_cost_total(self) -> float | None:
         """Return today's total cost in EUR."""
-        return self.get_numeric_value(DATA_COST_TOTAL)
+        return coordinator_get_cost_total(self.data)
 
     def get_current_slot(self) -> str | None:
         """Return the current tariff slot."""
-        return snapshot_get_str(self.snapshot_data(), DATA_CURRENT_SLOT)
+        return coordinator_get_current_slot(self.data)
 
     def get_today_color(self) -> str | None:
         """Return today's Tempo color."""
-        return snapshot_get_str(self.snapshot_data(), DATA_TODAY_COLOR)
+        return coordinator_get_today_color(self.data)
 
     def get_tomorrow_color(self) -> str | None:
         """Return tomorrow's Tempo color."""
-        return snapshot_get_str(self.snapshot_data(), DATA_TOMORROW_COLOR)
+        return coordinator_get_tomorrow_color(self.data)
 
     def get_tempo_days(self) -> dict[str, Any] | None:
         """Return Tempo day counters mapping."""
-        return self.get_mapping_value(DATA_TEMPO_DAYS)
+        return coordinator_get_tempo_days(self.data)
 
     def get_battery_systems_data(self) -> list[BatterySnapshotData]:
         """Return per-battery snapshot rows."""
-        return cast(list[BatterySnapshotData], snapshot_get_list(self.snapshot_data(), CONF_BATTERY_SYSTEMS))
+        return coordinator_get_battery_systems_data(self.data)
 
     async def _async_refresh_delta_telemetry_drift_all_sources(self) -> None:
         """Recompute relative meter drift in existing telemetry (e.g. after restart / anchor migration)."""
