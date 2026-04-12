@@ -101,7 +101,7 @@ from .const.energy_data import (
     ENERGY_ROUND_DECIMALS,
 )
 from .const.reinjection import DIAG_CAUSE_UNATTRIBUTED
-from .const.tariff_edf import ATTRIBUTION_SLOTS, CONF_CURRENT_SLOT_SENSOR
+from .const.tariff_edf import ATTRIBUTION_SLOTS
 from .diagnostics.reinjection_state import ReinjectionState
 from .coordinator_policy import (
     DIAG_CAUSES,
@@ -178,7 +178,7 @@ from .tariff import EdfRuntimeFields
 from .tariff_manager import TariffResolver
 from .utils.energy import normalize_kwh
 from .utils.numbers import safe_float
-from .providers.edf import parse_slot_from_sensor_state
+from .coordinator_edf_slot_sensor import apply_current_slot_from_sensor
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -384,9 +384,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         )
 
     def _refresh_slot_sensor(self) -> None:
-        eid = self.entry.data.get(CONF_CURRENT_SLOT_SENSOR)
-        st = self.hass.states.get(eid) if eid else None
-        self._edf.current_slot = parse_slot_from_sensor_state(st.state if st else None)
+        apply_current_slot_from_sensor(self.hass, self.entry.data, self._edf)
 
     def snapshot_data(self) -> EnergyData | None:
         """Return the latest typed snapshot payload when available."""
