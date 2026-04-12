@@ -13,15 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from .const.config_keys import (
-    CONF_BATTERY_SYSTEMS,
-    CONF_GRID_POWER_SIGN_MODE,
-    CONF_HAS_BATTERIES,
-    CONF_HAS_SOLAR,
-    CONF_SOLAR_ESTIMATION_ENABLED,
-    CONF_SOLAR_RESALE_CONTRACT,
-    GRID_POWER_SIGN_EXPORT_NEGATIVE,
-)
+from .const.config_keys import CONF_BATTERY_SYSTEMS
 from .const.core import DOMAIN
 from .const.energy_data import (
     DATA_BATT_CHARGE_METER_KWH,
@@ -110,19 +102,7 @@ from .const.energy_data import (
     ENERGY_ROUND_DECIMALS,
 )
 from .const.reinjection import DIAG_CAUSE_UNATTRIBUTED
-from .const.tariff_edf import (
-    ATTRIBUTION_SLOTS,
-    CONF_CURRENT_SLOT_SENSOR,
-    CONF_PHASE_TYPE,
-    CONF_PRICING_STRUCTURE,
-    CONF_SUPPLIER,
-    CONF_TARIFF_OFFER,
-    CONF_TEMPO_MODE,
-    SUPPLIER_EDF,
-    TARIFF_OFFER_TEMPO,
-    TEMPO_MODE_RTE,
-    TEMPO_MODE_SENSOR,
-)
+from .const.tariff_edf import ATTRIBUTION_SLOTS, CONF_CURRENT_SLOT_SENSOR
 from .diagnostics.reinjection_state import ReinjectionState
 from .coordinator_policy import (
     DIAG_CAUSES,
@@ -138,6 +118,21 @@ from .snapshot.coordinator_bridge import build_pipeline_deps
 from .snapshot.inputs_builder import build_snapshot_inputs
 from .snapshot.pipeline import SnapshotPipeline
 from .coordinator_apply_delta import apply_energy_delta
+from .coordinator_config_view import (
+    entry_battery_systems,
+    entry_grid_power_sign_mode,
+    entry_has_batteries,
+    entry_has_solar,
+    entry_is_edf,
+    entry_phase_type,
+    entry_pricing_structure,
+    entry_solar_estimation_enabled,
+    entry_solar_resale_configured,
+    entry_supplier,
+    entry_tariff_offer,
+    entry_tempo_mode,
+    tempo_rte_calendar_ready,
+)
 from .coordinator_lifecycle import (
     coordinator_arm_next_poll,
     coordinator_async_setup,
@@ -248,62 +243,57 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
 
     @property
     def supplier(self) -> str:
-        return cast(str, self.entry.data.get(CONF_SUPPLIER, SUPPLIER_EDF))
+        return entry_supplier(self.entry.data)
 
     @property
     def is_edf(self) -> bool:
-        return self.supplier == SUPPLIER_EDF
+        return entry_is_edf(self.entry.data)
 
     @property
     def tariff_offer(self) -> str:
-        return cast(
-            str,
-            self.entry.options.get(
-                CONF_TARIFF_OFFER,
-                self.entry.data.get(CONF_TARIFF_OFFER, TARIFF_OFFER_TEMPO),
-            ),
-        )
+        return entry_tariff_offer(self.entry.data, self.entry.options)
 
     @property
     def tempo_mode(self) -> str:
-        return cast(str, self.entry.data.get(CONF_TEMPO_MODE, TEMPO_MODE_SENSOR))
+        return entry_tempo_mode(self.entry.data)
 
     @property
     def tempo_rte_calendar_ready(self) -> bool:
         """True when RTE calendar rows exist if Tempo + RTE mode requires them."""
-        if not self.is_edf or self.tariff_offer != TARIFF_OFFER_TEMPO:
-            return True
-        if self.tempo_mode != TEMPO_MODE_RTE:
-            return True
-        return bool(self._edf.calendar_rows)
+        return tempo_rte_calendar_ready(
+            is_edf=self.is_edf,
+            tariff_offer=self.tariff_offer,
+            tempo_mode=self.tempo_mode,
+            calendar_rows=self._edf.calendar_rows,
+        )
 
     @property
     def phase_type(self) -> str:
-        return cast(str, self.entry.data.get(CONF_PHASE_TYPE, "mono"))
+        return entry_phase_type(self.entry.data)
 
     @property
     def pricing_structure(self) -> str:
-        return cast(str, self.entry.data.get(CONF_PRICING_STRUCTURE, "flat"))
+        return entry_pricing_structure(self.entry.data)
 
     @property
     def battery_systems(self) -> list[dict[str, Any]]:
-        return cast(list, self.entry.data.get(CONF_BATTERY_SYSTEMS, []))
+        return entry_battery_systems(self.entry.data)
 
     @property
     def has_batteries(self) -> bool:
-        return bool(self.entry.data.get(CONF_HAS_BATTERIES)) and bool(self.battery_systems)
+        return entry_has_batteries(self.entry.data)
 
     @property
     def has_solar(self) -> bool:
-        return bool(self.entry.data.get(CONF_HAS_SOLAR))
+        return entry_has_solar(self.entry.data)
 
     @property
     def solar_estimation_enabled(self) -> bool:
-        return bool(self.entry.data.get(CONF_SOLAR_ESTIMATION_ENABLED))
+        return entry_solar_estimation_enabled(self.entry.data)
 
     @property
     def solar_resale_configured(self) -> bool:
-        return bool(self.entry.data.get(CONF_SOLAR_RESALE_CONTRACT))
+        return entry_solar_resale_configured(self.entry.data)
 
     def _read_energy_kwh_for_persistence(self, entity_id: str | None) -> float | None:
         return read_energy_kwh_for_persistence(entity_id, self.entry.data, self._reader)
@@ -348,13 +338,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         )
 
     def grid_power_sign_mode(self) -> str:
-        return cast(
-            str,
-            self.entry.options.get(
-                CONF_GRID_POWER_SIGN_MODE,
-                self.entry.data.get(CONF_GRID_POWER_SIGN_MODE, GRID_POWER_SIGN_EXPORT_NEGATIVE),
-            ),
-        )
+        return entry_grid_power_sign_mode(self.entry.data, self.entry.options)
 
     def _build_tariff_resolver(self) -> TariffResolver:
         return build_tariff_resolver(self.entry)
