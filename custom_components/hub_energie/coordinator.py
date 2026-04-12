@@ -118,6 +118,7 @@ from .snapshot.coordinator_bridge import build_pipeline_deps
 from .snapshot.inputs_builder import build_snapshot_inputs
 from .snapshot.pipeline import SnapshotPipeline
 from .coordinator_apply_delta import apply_energy_delta
+from .coordinator_update_prep import refresh_tariff_resolver_and_edf_before_snapshot
 from .coordinator_config_view import (
     entry_battery_systems,
     entry_grid_power_sign_mode,
@@ -164,11 +165,11 @@ from .coordinator_types import (
 )
 from .storage.statistics import statistic_id as statistic_id_for_domain
 from .storage.store_manager import StoreManager
-from .tariff import EdfRuntimeFields, update_edf_state
+from .tariff import EdfRuntimeFields
 from .tariff_manager import TariffResolver
 from .utils.energy import normalize_kwh
 from .utils.numbers import safe_float
-from .providers.edf import is_off_peak, parse_slot_from_sensor_state
+from .providers.edf import parse_slot_from_sensor_state
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -527,24 +528,17 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
 
     async def _async_update_data(self) -> EnergyData:
         now_paris = paris_now()
-        self._tariff = self._build_tariff_resolver()
-
-        if self.is_edf:
-            await update_edf_state(
-                hass=self.hass,
-                entry=self.entry,
-                fields=self._edf,
-                now_paris=now_paris,
-                tariff_offer=self.tariff_offer,
-                tempo_mode=self.tempo_mode,
-                logger=_LOGGER,
-                on_tempo_sensor_branch=self._refresh_slot_sensor,
-            )
-        else:
-            self._edf.today_color = "n/a"
-            self._edf.tomorrow_color = "n/a"
-            self._edf.current_slot = "bleu_hc" if is_off_peak(now_paris) else "bleu_hp"
-            self._edf.tempo_days_api = None
+        self._tariff = await refresh_tariff_resolver_and_edf_before_snapshot(
+            hass=self.hass,
+            entry=self.entry,
+            edf=self._edf,
+            is_edf=self.is_edf,
+            tariff_offer=self.tariff_offer,
+            tempo_mode=self.tempo_mode,
+            now_paris=now_paris,
+            logger=_LOGGER,
+            on_tempo_sensor_branch=self._refresh_slot_sensor,
+        )
 
         async with self._state_lock:
             snapshot = self._build_snapshot()

@@ -62,13 +62,19 @@ def test_tempo_rte_calendar_ready_short_circuits_non_edf_or_non_tempo() -> None:
         tariff_offer=const.TARIFF_OFFER_TEMPO,
         tempo_mode=const.TEMPO_MODE_RTE,
         calendar_rows=[],
-    )
+    ) is True
     assert cv.tempo_rte_calendar_ready(
         is_edf=True,
         tariff_offer=const.TARIFF_OFFER_BASE,
         tempo_mode=const.TEMPO_MODE_RTE,
         calendar_rows=[],
-    )
+    ) is True
+    assert cv.tempo_rte_calendar_ready(
+        is_edf=True,
+        tariff_offer=const.TARIFF_OFFER_TEMPO,
+        tempo_mode=const.TEMPO_MODE_API,
+        calendar_rows=[],
+    ) is True
 
 
 def test_entry_has_batteries_requires_systems() -> None:
