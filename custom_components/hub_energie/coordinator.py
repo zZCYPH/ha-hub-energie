@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import math
 from datetime import datetime
 from typing import Any, cast
 
@@ -118,6 +117,14 @@ from .snapshot.coordinator_bridge import build_pipeline_deps
 from .snapshot.inputs_builder import build_snapshot_inputs
 from .snapshot.pipeline import SnapshotPipeline
 from .coordinator_apply_delta import apply_energy_delta
+from .coordinator_snapshot_access import (
+    snapshot_get_list,
+    snapshot_get_mapping_value,
+    snapshot_get_nested_numeric_value,
+    snapshot_get_numeric_value,
+    snapshot_get_str,
+    snapshot_get_value,
+)
 from .coordinator_update_prep import refresh_tariff_resolver_and_edf_before_snapshot
 from .coordinator_config_view import (
     entry_battery_systems,
@@ -385,34 +392,19 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
 
     def get_value(self, key: str) -> Any | None:
         """Return a raw snapshot value safely."""
-        data = self.snapshot_data()
-        if not data:
-            return None
-        return data.get(key)
+        return snapshot_get_value(self.snapshot_data(), key)
 
     def get_numeric_value(self, key: str) -> float | None:
         """Return a finite numeric snapshot value."""
-        value = self.get_value(key)
-        if value is None or not isinstance(value, (int, float)):
-            return None
-        numeric = float(value)
-        return numeric if math.isfinite(numeric) else None
+        return snapshot_get_numeric_value(self.snapshot_data(), key)
 
     def get_mapping_value(self, key: str) -> dict[str, Any] | None:
         """Return a snapshot mapping safely."""
-        value = self.get_value(key)
-        return value if isinstance(value, dict) else None
+        return snapshot_get_mapping_value(self.snapshot_data(), key)
 
     def get_nested_numeric_value(self, section_key: str, key: str) -> float | None:
         """Return a finite numeric value inside a snapshot mapping."""
-        section = self.get_mapping_value(section_key)
-        if not section:
-            return None
-        value = section.get(key)
-        if value is None or not isinstance(value, (int, float)):
-            return None
-        numeric = float(value)
-        return numeric if math.isfinite(numeric) else None
+        return snapshot_get_nested_numeric_value(self.snapshot_data(), section_key, key)
 
     def get_grid_power_signed_w(self) -> float | None:
         """Return signed grid power in watts."""
@@ -432,18 +424,15 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
 
     def get_current_slot(self) -> str | None:
         """Return the current tariff slot."""
-        value = self.get_value(DATA_CURRENT_SLOT)
-        return str(value) if value is not None else None
+        return snapshot_get_str(self.snapshot_data(), DATA_CURRENT_SLOT)
 
     def get_today_color(self) -> str | None:
         """Return today's Tempo color."""
-        value = self.get_value(DATA_TODAY_COLOR)
-        return str(value) if value is not None else None
+        return snapshot_get_str(self.snapshot_data(), DATA_TODAY_COLOR)
 
     def get_tomorrow_color(self) -> str | None:
         """Return tomorrow's Tempo color."""
-        value = self.get_value(DATA_TOMORROW_COLOR)
-        return str(value) if value is not None else None
+        return snapshot_get_str(self.snapshot_data(), DATA_TOMORROW_COLOR)
 
     def get_tempo_days(self) -> dict[str, Any] | None:
         """Return Tempo day counters mapping."""
@@ -451,8 +440,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
 
     def get_battery_systems_data(self) -> list[BatterySnapshotData]:
         """Return per-battery snapshot rows."""
-        value = self.get_value(CONF_BATTERY_SYSTEMS)
-        return value if isinstance(value, list) else []
+        return cast(list[BatterySnapshotData], snapshot_get_list(self.snapshot_data(), CONF_BATTERY_SYSTEMS))
 
     async def _async_refresh_delta_telemetry_drift_all_sources(self) -> None:
         """Recompute relative meter drift in existing telemetry (e.g. after restart / anchor migration)."""
