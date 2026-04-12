@@ -176,7 +176,6 @@ from .storage.store_manager import StoreManager
 from .tariff import EdfRuntimeFields, TariffRefreshOutcome, refresh_tariffs, update_edf_state
 from .tariff.slot_attribution import resolve_attribution_slot
 from .tariff_manager import TariffResolver
-from .time.paris_time import ParisTime
 from .utils.energy import normalize_kwh
 from .utils.grid_phases import ordered_phase_entity_ids
 from .utils.numbers import safe_float
@@ -742,28 +741,6 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         self._trust_rebuilding_after_recorder = False
         return snapshot
 
-    def _compute_data_quality(self) -> str:
-        """Attribution / delta health (unknown bucket, gaps). Not entity presence — see input_status."""
-        day = ParisTime.today()
-        day_acc = self._runtime_state.snapshot_data(day)
-        grid = day_acc.get(SOURCE_GRID, {})
-        unk = (
-            float(grid.get(SLOT_UNKNOWN, 0.0))
-            if isinstance(grid, dict)
-            else 0.0
-        )
-        for tel in self._runtime_state.delta_telemetry.values():
-            if not isinstance(tel, dict):
-                continue
-            if tel.get("last_method") not in (None, "direct"):
-                return "degraded"
-            gs = tel.get("last_gap_seconds")
-            if gs is not None and float(gs) > 7200:
-                return "degraded"
-        if unk > 0.01:
-            return "degraded"
-        return "good"
-
     def _build_snapshot(self) -> EnergyData:
         inputs = build_snapshot_inputs(self)
         result = self._snapshot_pipeline.run(inputs)
@@ -794,7 +771,6 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
                 runtime_delta_discards=self._runtime_state.delta_discards,
                 runtime_last_delta_rejection=self._runtime_state.last_delta_rejection_by_source,
                 snapshot_data_for_day=self._runtime_state.snapshot_data,
-                compute_data_quality=self._compute_data_quality,
                 expected_source_keys=self._expected_source_keys,
                 hass=self.hass,
                 entry=self.entry,

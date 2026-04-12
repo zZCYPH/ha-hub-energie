@@ -27,6 +27,7 @@ _ensure_pkg("hub_energie", HUB_DIR)
 const = importlib.import_module("hub_energie.const")
 coord_mod = importlib.import_module("hub_energie.coordinator")
 coordinator_policy = importlib.import_module("hub_energie.coordinator_policy")
+coordinator_data_quality = importlib.import_module("hub_energie.coordinator_data_quality")
 energy_mod = importlib.import_module("hub_energie.utils.energy")
 persistence_mod = importlib.import_module("hub_energie.runtime.persistence")
 paris_time_mod = importlib.import_module("hub_energie.time.paris_time")
@@ -132,8 +133,8 @@ async def _load_delta_persist_statistics_flow() -> None:
 
     with patch.object(persistence_mod, "Store", _mem_store_factory(initial, saves)):
         with patch.object(persistence_mod, "ParisTime", _FixedParis):
-            with patch.object(coord_mod, "ParisTime", _FixedParis):
-                with patch.object(coordinator_policy, "ParisTime", _FixedParis):
+            with patch.object(coordinator_policy, "ParisTime", _FixedParis):
+                with patch.object(coordinator_data_quality, "ParisTime", _FixedParis):
                     coord = coord_mod.HubEnergieCoordinator(hass, entry)
                     coord._async_notify_all = AsyncMock()
                     coord.async_request_refresh = AsyncMock()
@@ -194,8 +195,8 @@ async def _statistics_idempotent_after_load() -> None:
 
     with patch.object(persistence_mod, "Store", _mem_store_factory(initial, [])):
         with patch.object(persistence_mod, "ParisTime", _FixedParis):
-            with patch.object(coord_mod, "ParisTime", _FixedParis):
-                with patch.object(coordinator_policy, "ParisTime", _FixedParis):
+            with patch.object(coordinator_policy, "ParisTime", _FixedParis):
+                with patch.object(coordinator_data_quality, "ParisTime", _FixedParis):
                     coord = coord_mod.HubEnergieCoordinator(hass, entry)
                     coord._async_notify_all = AsyncMock()
                     coord.async_request_refresh = AsyncMock()

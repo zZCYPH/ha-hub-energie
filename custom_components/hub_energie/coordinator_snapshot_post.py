@@ -29,6 +29,7 @@ from .const.energy_data import (
     SOURCE_GRID,
 )
 from .const.tariff_edf import SLOT_UNKNOWN, TARIFF_OFFER_TEMPO, TEMPO_MODE_RTE
+from .coordinator_data_quality import compute_snapshot_data_quality
 from .energy.delta_observability import seconds_since_last_applied_delta
 from .energy.trust_level import TrustInputs, compute_trust
 from .time.paris_time import ParisTime
@@ -47,7 +48,6 @@ def finalize_snapshot_after_pipeline(
     runtime_delta_discards: Mapping[str, int],
     runtime_last_delta_rejection: Mapping[str, Any],
     snapshot_data_for_day: Callable[[str], Mapping[str, Any]],
-    compute_data_quality: Callable[[], str],
     expected_source_keys: Callable[[], set[str]],
     hass: Any,
     entry: Any,
@@ -63,13 +63,17 @@ def finalize_snapshot_after_pipeline(
     logger: logging.Logger,
 ) -> tuple[MutableMapping[str, Any], bool, str | None]:
     """Enrich pipeline snapshot with quality, deltas, trust, and input probe; log probe changes."""
-    snap[DATA_DATA_QUALITY] = compute_data_quality()
     snap[DATA_DELTA_TELEMETRY] = {
         k: dict(v) if isinstance(v, dict) else v
         for k, v in runtime_delta_telemetry.items()
     }
     snap[DATA_DELTA_DISCARDS] = dict(runtime_delta_discards)
     snap[DATA_DELTA_LAST_REJECTION] = dict(runtime_last_delta_rejection)
+
+    snap[DATA_DATA_QUALITY] = compute_snapshot_data_quality(
+        snapshot_data_for_day,
+        snap[DATA_DELTA_TELEMETRY],
+    )
 
     day_today = ParisTime.today()
     grid_day = snapshot_data_for_day(day_today).get(SOURCE_GRID, {})
