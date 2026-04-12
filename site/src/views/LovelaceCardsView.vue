@@ -53,6 +53,28 @@ onUnmounted(() => {
               <p class="text-secondary small mb-3" data-i18n="lovelace_cards.hub_energie_lead"></p>
               <LovelaceCardDemoBlock />
             </section>
+
+            <section id="lovelace-card-flow-chart" class="doc-section pb-5">
+              <h2 class="mb-2">
+                <span data-i18n="lovelace_cards.flow_chart_title">Energy flow chart</span>
+                <a
+                  class="doc-anchor text-secondary"
+                  href="#lovelace-card-flow-chart"
+                  data-i18n-aria="section.link_aria"
+                  aria-label="Link to section"
+                  >#</a
+                >
+              </h2>
+              <p class="text-secondary small mb-3" data-i18n="lovelace_cards.flow_chart_lead"></p>
+              <div class="card border shadow-sm">
+                <div class="card-body py-5 text-center text-secondary">
+                  <span class="badge bg-secondary bg-opacity-25 text-body mb-2" data-i18n="lovelace_cards.flow_chart_soon"
+                    >Coming soon</span
+                  >
+                </div>
+              </div>
+            </section>
+
             <DocFooter />
           </main>
         </div>

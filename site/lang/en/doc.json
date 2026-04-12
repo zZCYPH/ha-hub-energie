@@ -384,6 +384,7 @@
   "toc.lovelace_editor": "Visual editor",
   "toc.lovelace_showcase": "Card preview",
   "toc.lovelace_cards_hub_energie": "Hub Énergie card",
+  "toc.lovelace_cards_flow_chart": "Flow chart",
   "toc.on_this_page": "On this page",
   "toc.overview": "Quick tour",
   "toc.services": "Services",
@@ -394,5 +395,8 @@
   "lovelace_cards.intro": "One page per custom card: live-looking mocks with fictional data. Setup steps for adding resources stay on the main showcase.",
   "lovelace_cards.hub_energie_title": "Hub Énergie dashboard card",
   "lovelace_cards.hub_energie_lead": "Main energy / Tempo card — same interactive preview as under Showcase → Lovelace card.",
-  "lovelace_cards.link_showcase_lovelace": "Lovelace setup (showcase)"
+  "lovelace_cards.link_showcase_lovelace": "Lovelace setup (showcase)",
+  "lovelace_cards.flow_chart_title": "Energy flow chart",
+  "lovelace_cards.flow_chart_lead": "A card to visualize energy flows in real time from your Hub Énergie sensors — preview and documentation will land here.",
+  "lovelace_cards.flow_chart_soon": "Coming soon"
 }

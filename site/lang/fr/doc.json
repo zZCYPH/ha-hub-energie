@@ -384,6 +384,7 @@
   "toc.lovelace_editor": "Éditeur visuel",
   "toc.lovelace_showcase": "Aperçu carte",
   "toc.lovelace_cards_hub_energie": "Carte Hub Énergie",
+  "toc.lovelace_cards_flow_chart": "Diagramme des flux",
   "toc.on_this_page": "Sur cette page",
   "toc.overview": "Parcours rapide",
   "toc.services": "Services",
@@ -394,5 +395,8 @@
   "lovelace_cards.intro": "Une page par carte personnalisée : maquettes animées avec données fictives. Les étapes d’installation (ressources, YAML) restent sur la vitrine principale.",
   "lovelace_cards.hub_energie_title": "Carte tableau de bord Hub Énergie",
   "lovelace_cards.hub_energie_lead": "Carte principale énergie / Tempo — même aperçu interactif que sous Vitrine → Carte Lovelace.",
-  "lovelace_cards.link_showcase_lovelace": "Installation Lovelace (vitrine)"
+  "lovelace_cards.link_showcase_lovelace": "Installation Lovelace (vitrine)",
+  "lovelace_cards.flow_chart_title": "Diagramme des flux d’énergie",
+  "lovelace_cards.flow_chart_lead": "Une carte pour visualiser en direct les flux d’énergie à partir de vos capteurs Hub Énergie — aperçu et doc seront publiés ici.",
+  "lovelace_cards.flow_chart_soon": "Bientôt disponible"
 }

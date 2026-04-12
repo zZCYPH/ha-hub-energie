@@ -19,6 +19,9 @@ import { pathTo } from "../../../sitePaths";
         <a class="nav-link" href="#lovelace-card-hub-energie"
           ><span data-i18n="toc.lovelace_cards_hub_energie">Hub Énergie card</span></a
         >
+        <a class="nav-link" href="#lovelace-card-flow-chart"
+          ><span data-i18n="toc.lovelace_cards_flow_chart">Flow chart</span></a
+        >
       </nav>
     </div>
   </aside>
