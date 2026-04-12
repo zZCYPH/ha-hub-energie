@@ -1,7 +1,7 @@
 <script setup>
 import { nextTick, ref, watch } from "vue";
 import { applyLang, getLang } from "../../../siteShell";
-import LovelaceCardShowcase from "./LovelaceCardShowcase.vue";
+import LovelaceCardDemoBlock from "./LovelaceCardDemoBlock.vue";
 
 const base = import.meta.env.BASE_URL;
 const imgEditor = `${base}img/lovelace-editor-01.png`;
@@ -75,14 +75,7 @@ watch(showLovelaceTroubleshoot, (open) => {
     <h3 class="h5 mt-4 mb-2 doc-subsection" id="lovelace-showcase">
       <span data-i18n="lovelace.showcase_title">Dashboard card</span>
     </h3>
-    <figure class="doc-figure doc-figure--photo card mt-2">
-      <div class="doc-screenshot-frame doc-screenshot-frame--full position-relative bg-body-secondary">
-        <div class="doc-lovelace-showcase-wrap p-2 p-md-3">
-          <LovelaceCardShowcase />
-        </div>
-      </div>
-      <figcaption class="card-body py-2 px-3 small text-secondary mb-0" data-i18n="lovelace.fig_cap"></figcaption>
-    </figure>
+    <LovelaceCardDemoBlock />
 
     <h3 class="h5 mt-4 mb-2 doc-subsection" id="lovelace-editor">
       <span data-i18n="lovelace.editor_title">Visual editor</span>

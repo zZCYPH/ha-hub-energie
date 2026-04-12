@@ -70,6 +70,7 @@ function setJsonLd(id, data) {
 function titleAndDescKeys(routeName) {
   if (routeName === "home") return ["meta.title.landing", "meta.description.landing"];
   if (routeName === "showcase") return ["meta.title.showcase", "meta.description.showcase"];
+  if (routeName === "lovelace-cards") return ["meta.title.lovelace_cards", "meta.description.lovelace_cards"];
   if (routeName === "flowhelp") return ["meta.title.flowhelp", "meta.description.flowhelp"];
   if (routeName === "internals") return ["meta.title.internals", "meta.description.internals"];
   if (routeName === "developers") return ["meta.title.developers", "meta.description.developers"];

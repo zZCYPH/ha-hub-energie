@@ -16,7 +16,7 @@ function dismissOpenOffcanvas() {
   });
 }
 
-const INTERNAL_ROUTES = new Set(["/", "/showcase", "/doc/setup-help", "/internals", "/dev"]);
+const INTERNAL_ROUTES = new Set(["/", "/showcase", "/lovelace-cards", "/doc/setup-help", "/internals", "/dev"]);
 
 function normalizePathname(pathname) {
   if (!pathname || pathname === "/") return "/";

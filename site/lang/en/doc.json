@@ -382,9 +382,16 @@
   "toc.lovelace": "Lovelace card",
   "toc.lovelace_editor": "Visual editor",
   "toc.lovelace_showcase": "Card preview",
+  "toc.lovelace_cards_hub_energie": "Hub Énergie card",
   "toc.on_this_page": "On this page",
   "toc.overview": "Quick tour",
   "toc.services": "Services",
   "toc.setup_help": "Setup & options — step help",
-  "toc.ssot": "Data & SSOT"
+  "toc.ssot": "Data & SSOT",
+  "lovelace_cards.hero_kicker": "Lovelace",
+  "lovelace_cards.title": "Lovelace cards",
+  "lovelace_cards.intro": "One page per custom card: live-looking mocks with fictional data. Setup steps for adding resources stay on the main showcase.",
+  "lovelace_cards.hub_energie_title": "Hub Énergie dashboard card",
+  "lovelace_cards.hub_energie_lead": "Main energy / Tempo card — same interactive preview as under Showcase → Lovelace card.",
+  "lovelace_cards.link_showcase_lovelace": "Lovelace setup (showcase)"
 }

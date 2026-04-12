@@ -26,6 +26,9 @@ import { pathTo } from "../../../sitePaths";
       <a class="nav-link small py-1 ps-3" href="#configure-advanced"
         ><span data-i18n="toc.configure_advanced">Reconfigure / Advanced configuration</span></a
       >
+      <a class="nav-link" :href="pathTo('/lovelace-cards')"
+        ><span data-i18n="nav.lovelace_cards">Lovelace cards</span></a
+      >
       <a class="nav-link" href="#lovelace"><span data-i18n="toc.lovelace">Lovelace card</span></a>
       <a class="nav-link small py-1 ps-3" href="#lovelace-showcase"
         ><span data-i18n="toc.lovelace_showcase">Card preview</span></a

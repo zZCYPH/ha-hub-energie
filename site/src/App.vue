@@ -6,16 +6,20 @@ const base = import.meta.env.BASE_URL;
 const route = useRoute();
 
 const showToc = computed(
-  () => route.name === "showcase" || route.name === "internals",
+  () => route.name === "showcase" || route.name === "internals" || route.name === "lovelace-cards",
 );
 
-const tocTarget = computed(() =>
-  route.name === "internals" ? "#tocOffcanvasInternals" : "#tocOffcanvasDoc",
-);
+const tocTarget = computed(() => {
+  if (route.name === "internals") return "#tocOffcanvasInternals";
+  if (route.name === "lovelace-cards") return "#tocOffcanvasLovelaceCards";
+  return "#tocOffcanvasDoc";
+});
 
-const tocControls = computed(() =>
-  route.name === "internals" ? "tocOffcanvasInternals" : "tocOffcanvasDoc",
-);
+const tocControls = computed(() => {
+  if (route.name === "internals") return "tocOffcanvasInternals";
+  if (route.name === "lovelace-cards") return "tocOffcanvasLovelaceCards";
+  return "tocOffcanvasDoc";
+});
 
 const navActive = (name) => route.name === name;
 </script>
@@ -72,6 +76,11 @@ const navActive = (name) => route.name === name;
             <li class="nav-item">
               <router-link class="nav-link" :class="{ active: navActive('showcase') }" to="/showcase">
                 <span data-i18n="nav.showcase">Showcase</span>
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" :class="{ active: navActive('lovelace-cards') }" to="/lovelace-cards">
+                <span data-i18n="nav.lovelace_cards">Lovelace cards</span>
               </router-link>
             </li>
             <li class="nav-item">

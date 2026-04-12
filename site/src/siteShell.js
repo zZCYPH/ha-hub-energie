@@ -151,6 +151,7 @@ function readStoredTheme() {
 function pageFromRouteName(name) {
   if (name === "home") return "landing";
   if (name === "showcase") return "showcase";
+  if (name === "lovelace-cards") return "showcase";
   if (name === "flowhelp") return "flowhelp";
   if (name === "internals") return "internals";
   if (name === "developers") return "developers";
@@ -224,7 +225,7 @@ export function bindShellControls(router) {
 }
 
 export function setupScrollSpy(route) {
-  if (route !== "showcase" && route !== "internals") {
+  if (route !== "showcase" && route !== "internals" && route !== "lovelace-cards") {
     teardownScrollSpy();
     return;
   }
@@ -236,7 +237,12 @@ export function setupScrollSpy(route) {
   document.body.removeAttribute("data-bs-smooth-scroll");
   document.body.removeAttribute("data-bs-offset");
 
-  const targetId = route === "doc" ? "toc-nav-doc" : "toc-nav-internals";
+  const targetId =
+    route === "internals"
+      ? "toc-nav-internals"
+      : route === "lovelace-cards"
+        ? "toc-nav-lovelace-cards"
+        : "toc-nav-doc";
   const targetEl = document.getElementById(targetId);
   /* Use an element for `target`: string resolution can fall back to body and scan every [href]. */
   if (!targetEl) return;

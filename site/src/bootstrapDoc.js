@@ -83,7 +83,7 @@ export function wireImageLightbox() {
 export function wireTocMobile() {
   document
     .querySelectorAll(
-      '#toc-nav-doc-mobile a[href^="#"], #toc-nav-internals-mobile a[href^="#"], #toc-nav-mobile a[href^="#"]',
+      '#toc-nav-doc-mobile a[href^="#"], #toc-nav-internals-mobile a[href^="#"], #toc-nav-lovelace-cards-mobile a[href^="#"], #toc-nav-mobile a[href^="#"]',
     )
     .forEach((a) => {
       a.addEventListener("click", () => {

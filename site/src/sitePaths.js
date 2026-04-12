@@ -22,7 +22,7 @@ export function rewriteI18nHtmlAppLinks(rootEl) {
   rootEl.querySelectorAll("a[href]").forEach((a) => {
     const h = a.getAttribute("href");
     if (!h || !h.startsWith("/") || h.startsWith("//")) return;
-    if (/^\/(showcase|internals|doc\/|dev)(\/|$|#|\?)/.test(h) || h.startsWith("/doc/setup-help")) {
+    if (/^\/(showcase|lovelace-cards|internals|doc\/|dev)(\/|$|#|\?)/.test(h) || h.startsWith("/doc/setup-help")) {
       a.setAttribute("href", `${base}${h}`);
     }
   });
