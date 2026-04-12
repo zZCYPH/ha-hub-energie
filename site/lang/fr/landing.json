@@ -7,6 +7,7 @@
   "landing.hero_badge_aria": "Ouvrir la documentation Hub Énergie",
   "landing.headline": "Centralisez l’énergie de votre logement",
   "landing.lead": "Une seule intégration relie tarif, compteurs, solaire, batteries, coûts et diagnostics : configurez une fois, puis consultez une vue cohérente dans Home Assistant.",
+  "landing.reassurance_line": "Nécessite Home Assistant 2024.10.0 ou plus récent. Copie des fichiers dans custom_components — pas de build npm ni de serveur supplémentaire sur votre instance.",
   "landing.cta_discover": "Découvrir",
   "landing.cta_internals": "Fonctionnement interne",
   "landing.cta_feedback": "Donnez-nous votre avis",

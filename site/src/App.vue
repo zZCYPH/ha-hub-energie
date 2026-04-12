@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from "vue";
 import { useRoute } from "vue-router";
+import HelpDock from "./components/HelpDock.vue";
 
 const base = import.meta.env.BASE_URL;
 const route = useRoute();
@@ -182,6 +183,7 @@ const navActive = (name) => route.name === name;
 
     <div class="site-shell__main d-flex flex-column flex-grow-1 min-vh-0">
       <router-view />
+      <HelpDock />
     </div>
 
     <footer class="site-footer site-app-footer border-top py-4 mt-auto small text-secondary">

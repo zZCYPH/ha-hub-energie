@@ -11,7 +11,9 @@ import DocSectionLovelace from "./partial/doc/DocSectionLovelace.vue";
 import DocSectionDevices from "./partial/doc/DocSectionDevices.vue";
 import DocSectionServices from "./partial/doc/DocSectionServices.vue";
 import DocSectionLimitations from "./partial/doc/DocSectionLimitations.vue";
+import DocSectionVsHelpers from "./partial/doc/DocSectionVsHelpers.vue";
 import DocFooter from "./partial/doc/DocFooter.vue";
+import DocNextStepsBanner from "../components/DocNextStepsBanner.vue";
 import DocImageModal from "./partial/doc/DocImageModal.vue";
 import {
   wireCarouselPair,
@@ -52,6 +54,7 @@ onUnmounted(() => {
       <DocOffcanvas />
       <DocHero />
       <div class="site-page__doc-container container-xxl px-3 py-4 py-lg-5">
+        <DocNextStepsBanner />
         <div class="site-page__doc-layout row g-4 g-xl-5">
           <aside class="site-page__doc-sidebar col-lg-3 d-none d-lg-block">
             <DocSidebarInner />
@@ -63,6 +66,7 @@ onUnmounted(() => {
             <DocSectionLovelace />
             <DocSectionDevices />
             <DocSectionServices />
+            <DocSectionVsHelpers />
             <DocSectionLimitations />
             <DocFooter />
           </main>

@@ -1,12 +1,8 @@
 <script setup>
 import LandingHeroCables from "./LandingHeroCables.vue";
+import { feedbackMailto } from "../../constants/supportLinks.js";
 
 const base = import.meta.env.BASE_URL;
-
-/** Service Desk / feedback alias — opens the visitor's mail client (mailto). */
-const feedbackMailto =
-  "mailto:feedback@hub-energie.ts-devops.com?subject=" +
-  encodeURIComponent("Hub Énergie — feedback");
 </script>
 
 <template>
@@ -56,6 +52,7 @@ const feedbackMailto =
               once and get a consistent view in Home Assistant.
             </p>
           </div>
+          <p class="small text-secondary mb-4 mx-auto landing-reassurance" style="max-width: 36rem" data-i18n="landing.reassurance_line"></p>
           <div
             class="d-flex flex-column flex-sm-row flex-wrap align-items-stretch align-items-sm-center justify-content-center gap-3 mb-5"
           >
@@ -94,7 +91,7 @@ const feedbackMailto =
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" :href="feedbackMailto" data-i18n="landing.cta_feedback_email"
+                  <a class="dropdown-item" :href="feedbackMailto()" data-i18n="landing.cta_feedback_email"
                     >Email feedback (Service Desk)</a
                   >
                 </li>

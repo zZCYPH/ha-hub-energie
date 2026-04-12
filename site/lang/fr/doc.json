@@ -289,6 +289,7 @@
   "install.intro_after": " comme un seul paquet sous la configuration HA :",
   "install.intro_before": "Installez l’intégration ",
   "install.intro_emphasis": "exactement",
+  "install.reassurance_friction": "Pas d’étape de build sur votre instance Home Assistant : copiez ou téléchargez le dossier d’intégration, redémarrez, puis ajoutez Hub Énergie depuis l’interface. Le paquet Lovelace est ensuite servi par HA sous /hub_energie/ après redémarrage.",
   "install.lovelace_body_arrow": "→",
   "install.lovelace_p1": "La carte tableau de bord est fournie avec l’intégration. Après une mise à jour, redémarrez Home Assistant pour que l’interface charge les derniers fichiers.",
   "install.lovelace_p2_after": ").",

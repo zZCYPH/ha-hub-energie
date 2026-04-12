@@ -1,0 +1,80 @@
+/* Floating help dock — fixed right edge, vertical tab label */
+
+.help-dock {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1045;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: stretch;
+  pointer-events: none;
+}
+
+.help-dock > * {
+  pointer-events: auto;
+}
+
+.help-dock__tab {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  border-radius: 0.5rem 0 0 0.5rem !important;
+  padding: 0.65rem 0.35rem !important;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  min-height: 7.5rem;
+  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.2) !important;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.help-dock__tab span {
+  display: inline-block;
+}
+
+.help-dock__panel {
+  width: min(18rem, calc(100vw - 3rem));
+  max-height: min(70vh, 28rem);
+  overflow-y: auto;
+  margin-right: 0;
+  border-radius: 0.5rem 0 0 0.5rem !important;
+  display: none;
+}
+
+.help-dock--open .help-dock__panel {
+  display: block;
+}
+
+.help-dock__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: rgba(0, 0, 0, 0.28);
+  pointer-events: auto;
+}
+
+.help-dock:not(.help-dock--open) .help-dock__backdrop {
+  display: none !important;
+}
+
+.help-dock__panel,
+.help-dock__tab {
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 575.98px) {
+  .help-dock {
+    top: auto;
+    bottom: 5.5rem;
+    transform: none;
+  }
+
+  .help-dock__tab {
+    min-height: 6rem;
+    font-size: 0.78rem;
+  }
+}

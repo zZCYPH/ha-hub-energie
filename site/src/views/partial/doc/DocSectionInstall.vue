@@ -19,6 +19,7 @@ import InstallReleasePicker from "../../../components/InstallReleasePicker.vue";
       <strong class="text-body" data-i18n="install.intro_emphasis">exactly</strong>
       <span data-i18n="install.intro_after"></span>
     </p>
+    <p class="small text-secondary border-start border-primary border-3 ps-3 py-1 mb-3" data-i18n="install.reassurance_friction"></p>
     <pre class="doc-code"><code>&lt;config&gt;/custom_components/hub_energie/</code></pre>
     <p class="text-secondary small">
       <span data-i18n="install.note_before"></span>

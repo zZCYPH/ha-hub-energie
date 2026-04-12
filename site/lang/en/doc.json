@@ -289,6 +289,7 @@
   "install.intro_after": " as a single package under your HA config:",
   "install.intro_before": "Install the integration ",
   "install.intro_emphasis": "exactly",
+  "install.reassurance_friction": "No build step on your Home Assistant host: copy or download the integration folder, restart, then add Hub Énergie from the UI. The Lovelace bundle is served by HA from /hub_energie/ after restart.",
   "install.lovelace_body_arrow": "→",
   "install.lovelace_p1": "The dashboard card is included with the integration. After an update, restart Home Assistant so the interface loads the latest files.",
   "install.lovelace_p2_after": ").",

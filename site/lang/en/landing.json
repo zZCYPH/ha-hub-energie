@@ -7,6 +7,7 @@
   "landing.hero_badge_aria": "Open Hub Énergie documentation",
   "landing.headline": "Centralize your home’s energy data",
   "landing.lead": "One integration ties your tariff, meters, solar, batteries, costs, and diagnostics together — configure once and get a consistent view in Home Assistant.",
+  "landing.reassurance_line": "Requires Home Assistant 2024.10.0 or newer. Drop files into custom_components — no npm build or extra server on your instance.",
   "landing.cta_discover": "Discover",
   "landing.cta_internals": "How it works internally",
   "landing.cta_feedback": "Give us your feedback",

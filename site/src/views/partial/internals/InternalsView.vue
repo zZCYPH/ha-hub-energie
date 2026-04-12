@@ -23,6 +23,7 @@ import InternalsSectionSsot from "./InternalsSectionSsot.vue";
 import InternalsSectionStore from "./InternalsSectionStore.vue";
 import InternalsSectionTelemetry from "./InternalsSectionTelemetry.vue";
 import InternalsSectionGlossary from "./InternalsSectionGlossary.vue";
+import DocNextStepsBanner from "../../../components/DocNextStepsBanner.vue";
 
 const root = ref(null);
 const router = useRouter();
@@ -48,6 +49,7 @@ onUnmounted(() => {
       <InternalsMobileOffcanvas />
       <InternalsHero />
       <div class="site-page__internals-container container-xxl px-3 py-4 py-lg-5">
+        <DocNextStepsBanner />
         <div class="site-page__internals-layout row g-4 g-xl-5">
           <InternalsDesktopSidebar />
           <main class="site-page__internals-main col-lg-9">
