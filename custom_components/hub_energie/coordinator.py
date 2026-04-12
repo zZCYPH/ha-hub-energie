@@ -117,6 +117,7 @@ from .snapshot.coordinator_bridge import build_pipeline_deps
 from .snapshot.inputs_builder import build_snapshot_inputs
 from .snapshot.pipeline import SnapshotPipeline
 from .coordinator_apply_delta import apply_energy_delta
+from .coordinator_delta_telemetry import refresh_delta_telemetry_drift_all_sources
 from .coordinator_snapshot_access import (
     snapshot_get_list,
     snapshot_get_mapping_value,
@@ -444,17 +445,13 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
 
     async def _async_refresh_delta_telemetry_drift_all_sources(self) -> None:
         """Recompute relative meter drift in existing telemetry (e.g. after restart / anchor migration)."""
-        async with self._state_lock:
-            for source_key, ent in self.source_map().items():
-                if not ent:
-                    continue
-                meter_kwh = self._read_energy_kwh_for_persistence(ent)
-                drift = self._runtime_state.relative_meter_drift_kwh(
-                    source_key,
-                    meter_kwh=meter_kwh,
-                    normalize_kwh=normalize_kwh,
-                )
-                self._runtime_state.patch_delta_telemetry_drift(source_key, drift)
+        await refresh_delta_telemetry_drift_all_sources(
+            self._state_lock,
+            self._runtime_state,
+            self.source_map(),
+            self._read_energy_kwh_for_persistence,
+            normalize_kwh,
+        )
 
     async def _async_apply_delta(self, entity_id: str, source_key: str, new_val: float) -> None:
         energy_attrib_date_ref: list[str | None] = [self._energy_attrib_date]
