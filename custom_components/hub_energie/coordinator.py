@@ -131,15 +131,21 @@ from .coordinator_policy import (
     paris_yesterday,
 )
 from .ha.reader import HAReader
-from .runtime.events import create_state_changed_handler
 from .runtime.persistence import PersistenceManager
-from .runtime.poll_schedule import resolve_next_poll
 from .runtime.state import RuntimeState
 from .scheduler import Scheduler
 from .snapshot.coordinator_bridge import build_pipeline_deps
 from .snapshot.inputs_builder import build_snapshot_inputs
 from .snapshot.pipeline import SnapshotPipeline
 from .coordinator_apply_delta import apply_energy_delta
+from .coordinator_lifecycle import (
+    coordinator_arm_next_poll,
+    coordinator_async_setup,
+    coordinator_cancel_poll_schedule,
+    coordinator_next_poll_fire_paris,
+    coordinator_rebuild_from_recorder,
+    coordinator_run_scheduled_poll,
+)
 from .coordinator_tariff_wiring import (
     async_refresh_tariffs,
     build_tariff_resolver,
@@ -360,29 +366,22 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         return entry_tariff_refresh_hours(dict(self.entry.options))
 
     async def async_setup(self) -> None:
-        _, rebuilt = await self._persistence.load()
-        self._trust_rebuilding_after_recorder = rebuilt
-        self._tariff = self._build_tariff_resolver()
-        self.entry.async_on_unload(
-            self.hass.bus.async_listen("state_changed", create_state_changed_handler(self))
-        )
-        self._scheduler.start()
-        await self._async_refresh_delta_telemetry_drift_all_sources()
+        await coordinator_async_setup(self)
 
     async def _async_rebuild_from_recorder(self) -> None:
-        await self._persistence.rebuild_from_recorder()
+        await coordinator_rebuild_from_recorder(self)
 
     def _cancel_poll_schedule(self) -> None:
-        self._scheduler.cancel_poll()
+        coordinator_cancel_poll_schedule(self)
 
     async def _async_scheduled_poll(self) -> None:
-        await self.async_request_refresh()
+        await coordinator_run_scheduled_poll(self, async_request_refresh=self.async_request_refresh)
 
     def _arm_next_poll(self) -> None:
-        self._scheduler.schedule_poll()
+        coordinator_arm_next_poll(self)
 
     def _next_poll_fire_paris(self, after: datetime) -> datetime:
-        return resolve_next_poll(
+        return coordinator_next_poll_fire_paris(
             after,
             is_edf=self.is_edf,
             tariff_offer=self.tariff_offer,
