@@ -38,10 +38,28 @@ const hourDecimal = ref(0);
 let raf = 0;
 let startMs = 0;
 
+const prevHrForWrap = ref(-1);
+
 function tick(now) {
   const elapsed = now - startMs;
   const u = (elapsed % DAY_CYCLE_MS) / DAY_CYCLE_MS;
-  hourDecimal.value = u * 24;
+  const hr = u * 24;
+  if (prevHrForWrap.value > 22 && hr < 0.5) {
+    socSim.value = 62;
+  }
+  prevHrForWrap.value = hr;
+
+  const dHrSim = lastTickMs ? ((now - lastTickMs) / DAY_CYCLE_MS) * 24 : 0;
+  lastTickMs = now;
+  const clampedDt = Math.min(dHrSim, 0.08);
+  const snap = powerSnapshot(hr, socSim.value);
+  const netKw = ((snap.batt_discharge_power_w ?? 0) - (snap.batt_charge_power_w ?? 0)) / 1000;
+  socSim.value = Math.max(
+    5,
+    Math.min(95, socSim.value + (netKw * clampedDt * 100) / BATTERY_CAP_KWH),
+  );
+
+  hourDecimal.value = hr;
   raf = requestAnimationFrame(tick);
 }
 
@@ -49,6 +67,9 @@ onMounted(() => {
   syncLang();
   window.addEventListener("hub-energie-lang", syncLang);
   startMs = performance.now();
+  lastTickMs = startMs;
+  prevHrForWrap.value = -1;
+  socSim.value = 62;
   raf = requestAnimationFrame(tick);
 });
 
@@ -70,6 +91,116 @@ const sunFactor = computed(() => {
 function wobble(seed, amp = 1) {
   const t = h.value * 0.9 + seed;
   return Math.sin(t * 1.7) * amp;
+}
+
+/** Calendar colours (Tempo day type) — fixed for the demo; do not drift with the clock. */
+const todayColorRaw = "blue";
+const tomorrowColorRaw = "white";
+
+/**
+ * Tempo **slot** (HC/HP + couleur) changes on full hours only.
+ * Only **bleu** and **blanc** import slots this day (≤ 2 couleurs).
+ * 6h = première borne HP bleu (HC bleu 0h–6h).
+ */
+function tempoSlotIdAtHour(hrFloat) {
+  const H = Math.floor(hrFloat) % 24;
+  if (H < 6) return "bleu_hc";
+  if (H < 16) return "bleu_hp";
+  if (H < 22) return "blanc_hp";
+  return "blanc_hc";
+}
+
+/** Gaussian bump (h in hours, center in hours). */
+function peakW(h, center, width, amp) {
+  const z = (h - center) / width;
+  return amp * Math.exp(-z * z);
+}
+
+/** Base house load ~200–400 W + realistic peaks (cuisine, lessive, chauffage salle de bain). */
+function loadHouseW(hr) {
+  const base = 280 + 55 * Math.sin(hr * 0.35 + 0.7);
+  const cook = peakW(hr, 12.35, 0.42, 920);
+  const laundry = peakW(hr, 15.4, 0.38, 620);
+  const bathroom = peakW(hr, 7.25, 0.28, 340);
+  const noise = 35 * wobble(4, 1);
+  return Math.max(200, Math.min(5200, base + cook + laundry + bathroom + noise));
+}
+
+function solarW(hr) {
+  const sf = hr < 6 || hr > 20 ? 0 : Math.max(0, Math.sin(((hr - 6) / 14) * Math.PI));
+  return Math.max(0, sf * (2400 + 180 * wobble(1, 1)));
+}
+
+const BATTERY_CAP_KWH = 10;
+/** SOC % — updated in the animation loop from charge/discharge (coherent with net battery power). */
+const socSim = ref(62);
+let lastTickMs = 0;
+
+/**
+ * Battery charge/discharge (W). Discharge supplies the house when SOC allows;
+ * charge picks up surplus PV or cheap slots.
+ */
+function batteryPowersW(hr, soc) {
+  const sun = hr < 6 || hr > 20 ? 0 : Math.max(0, Math.sin(((hr - 6) / 14) * Math.PI));
+  let battChg = 0;
+  let battDis = 0;
+  if (sun > 0.35 && soc < 88) {
+    battChg = sun * 520 + 120 * sun * wobble(3, 1);
+  } else if (soc < 28 && hr >= 6 && hr < 22) {
+    battChg = 1800 + 200 * wobble(31, 1);
+  }
+  if (soc > 22 && (hr < 6 || hr > 17.5)) {
+    battDis = 280 + 220 * (hr > 20 ? 1 : 0.6) + 80 * wobble(2, 1);
+  } else if (soc > 40 && hr >= 18 && hr < 22.5) {
+    battDis = 420 + 100 * wobble(2, 1);
+  }
+  if (battChg > 0 && battDis > 0) {
+    if (battChg >= battDis) battChg -= battDis;
+    else battDis -= battChg;
+  }
+  return { battChg, battDis };
+}
+
+/** Grid import (W), house balance: load ≈ grid + effective_pv + batt_dis − batt_chg (PV feeds load first). */
+function gridImportW(load, solar, battChg, battDis) {
+  const pvToLoad = Math.min(solar, load * 0.92);
+  const g = load - pvToLoad - battDis + battChg;
+  return Math.max(120, Math.min(12000, g + 45 * wobble(0, 1)));
+}
+
+function exportFromSurplus(solar, battChg, load) {
+  const surplus = solar + battChg - Math.max(load - 200, 0);
+  return Math.max(0, surplus * 0.15 + 20 * wobble(5, 1));
+}
+
+/**
+ * Full power snapshot at simulated hour `hr` and current SOC (for battery policy).
+ * Returns fields compatible with buildPowerNowData / cost_detail attrs.
+ */
+function powerSnapshot(hr, soc) {
+  const load = loadHouseW(hr);
+  const solar = solarW(hr);
+  const { battChg, battDis } = batteryPowersW(hr, soc);
+  const exportW = exportFromSurplus(solar, battChg, load);
+  let gridImport = gridImportW(load, solar, battChg, battDis);
+  let gridSigned = gridImport;
+  if (exportW > 120 && gridImport < 520) {
+    gridSigned = -exportW;
+  }
+  const avail = (BATTERY_CAP_KWH * Math.max(0, soc - 5)) / 100;
+  return {
+    grid_power_signed_w: gridSigned,
+    solar_power_w: solar,
+    batt_discharge_power_w: battDis,
+    batt_charge_power_w: battChg,
+    load_power_w: load,
+    export_power_w: exportW,
+    battery_capacity_kwh: BATTERY_CAP_KWH,
+    battery_soc_percent: soc,
+    battery_soc_min_percent: 5,
+    battery_soc_max_percent: 100,
+    battery_available_kwh: avail,
+  };
 }
 
 const mockDate = computed(() => {
@@ -113,43 +244,8 @@ const contractPower = "9";
 
 const subtitle = computed(() => `${offerLabel(offer)} ${contractPower}kVA`);
 
-/** Mock cost_detail attributes (partial) for power + battery widgets. */
-const mockCostAttrs = computed(() => {
-  const sf = sunFactor.value;
-  const hv = h.value;
-
-  const gridImport = Math.max(
-    150,
-    380 * (1 - sf) + 900 * (hv >= 18 && hv <= 23 ? 1 : 0.35) + 120 * wobble(0, 1),
-  );
-  const solar = Math.max(0, sf * (2200 + 400 * wobble(1, 1)));
-  const battDis = Math.max(0, (1 - sf) * 520 + (hv >= 19 ? 280 : 0) + 80 * wobble(2, 1));
-  const battChg = Math.max(0, sf * 480 + 60 * wobble(3, 1));
-  const load = Math.max(200, gridImport + battDis + solar * 0.15 + 180 * wobble(4, 1));
-  const exportW = Math.max(0, sf * 180 - battChg * 0.08 + 40 * wobble(5, 1));
-
-  const gridSigned = exportW > 80 && gridImport < 400 ? -exportW : gridImport;
-
-  const cap = 10;
-  const socMin = 5;
-  const socMax = 100;
-  const soc = Math.max(socMin, Math.min(92, 48 + sf * 38 + 4 * wobble(6, 1)));
-  const avail = (cap * Math.max(0, soc - socMin)) / 100;
-
-  return {
-    grid_power_signed_w: gridSigned,
-    solar_power_w: solar,
-    batt_discharge_power_w: battDis,
-    batt_charge_power_w: battChg,
-    load_power_w: load,
-    export_power_w: exportW,
-    battery_capacity_kwh: cap,
-    battery_soc_percent: soc,
-    battery_soc_min_percent: socMin,
-    battery_soc_max_percent: socMax,
-    battery_available_kwh: avail,
-  };
-});
+/** Mock cost_detail attributes (partial) for power + battery widgets — coherent with SOC loop. */
+const mockCostAttrs = computed(() => powerSnapshot(h.value, socSim.value));
 
 const mockStates = computed(() => ({
   sensor_hub_energie_cost_detail: {
@@ -208,24 +304,12 @@ const loadStr = computed(() => {
 
 const powerTooltip = computed(() => powerNowData.value?.tooltip ?? "");
 
-/** Tempo slot + colours (slow vs hour hand). */
-const slotPhase = computed(() => (h.value / 24 + 0.08 * Math.sin(h.value * 0.4)) % 1);
-const slotIndex = computed(() => Math.floor(slotPhase.value * 6) % 6);
-const currentSlotId = computed(() => SLOTS[slotIndex.value].id);
+/** Tempo **import** slot: changes only on full hours (6h, 16h, 22h …); max two day colours (bleu + blanc) in this demo. */
+const currentSlotId = computed(() => tempoSlotIdAtHour(h.value));
 const currentSlotText = computed(() => slotLabel(currentSlotId.value, offer, i18n.value));
 
-const todayColorRaw = computed(() => {
-  const idx = Math.floor(h.value / 24) % 3;
-  return ["blue", "white", "red"][idx];
-});
-
-const tomorrowColorRaw = computed(() => {
-  const idx = (Math.floor(h.value / 24) + 1) % 3;
-  return ["blue", "white", "red"][idx];
-});
-
-const todayTileClass = computed(() => `he-day-tile ${dayColorClass(todayColorRaw.value)}`);
-const tomorrowTileClass = computed(() => `he-day-tile ${dayColorClass(tomorrowColorRaw.value)}`);
+const todayTileClass = computed(() => `he-day-tile ${dayColorClass(todayColorRaw)}`);
+const tomorrowTileClass = computed(() => `he-day-tile ${dayColorClass(tomorrowColorRaw)}`);
 
 const tempoDays = computed(() => ({
   blue: { remaining: Math.max(0, Math.round(8 + 3 * wobble(10))), elapsed: Math.round(11 + 2 * wobble(11)) },
@@ -252,17 +336,33 @@ const gridSlotBreakdownRows = computed(() =>
     .filter(Boolean),
 );
 
-/** kWh totals (scale with “day progress” + sun). */
+/** kWh imported per Tempo slot: only bleu + blanc segments, cumulative hours × fixed kW rate (smooth wobble). */
+const TEMPO_SLOT_IMPORT_KW = {
+  bleu_hc: 1.85,
+  bleu_hp: 2.45,
+  blanc_hp: 2.05,
+  blanc_hc: 1.55,
+};
+
+function hoursIntoTempoSlot(slotId, hr) {
+  if (slotId === "bleu_hc") return Math.min(6, Math.max(0, hr));
+  if (slotId === "bleu_hp") return Math.min(10, Math.max(0, hr - 6));
+  if (slotId === "blanc_hp") return Math.min(6, Math.max(0, hr - 16));
+  if (slotId === "blanc_hc") return Math.min(2, Math.max(0, hr - 22));
+  return 0;
+}
+
 const dayFrac = computed(() => h.value / 24);
 const baseScale = computed(() => 0.35 + 0.65 * dayFrac.value);
 
 const gridBySlot = computed(() => {
-  const scale = baseScale.value * (0.85 + 0.15 * sunFactor.value);
+  const hr = h.value;
   const out = {};
-  for (const s of SLOTS) {
-    if (s.id === "unknown") continue;
-    const slotHash = (s.id.length + s.id.charCodeAt(0)) % 7;
-    out[s.id] = Math.max(0, scale * (0.15 + 0.12 * Math.sin(slotHash + h.value * 0.2)));
+  const wob = 0.94 + 0.06 * Math.sin(hr * 0.25 + 1.1);
+  for (const id of Object.keys(TEMPO_SLOT_IMPORT_KW)) {
+    const hrs = hoursIntoTempoSlot(id, hr);
+    const v = hrs * TEMPO_SLOT_IMPORT_KW[id] * wob;
+    if (v > 0.0001) out[id] = v;
   }
   return out;
 });
@@ -288,10 +388,12 @@ const gridStripTotal = computed(() => gridStripSegs.value.reduce((a, s) => a + s
 const gridEnergyFmt = computed(() => makeSectionEnergyFormatter(Object.values(gridBySlot.value)));
 
 const homeBySource = computed(() => {
-  const scale = baseScale.value;
-  const g = scale * (1.4 + 0.9 * (1 - sunFactor.value) + 0.2 * wobble(20));
-  const s = scale * (0.55 + 1.6 * sunFactor.value + 0.15 * wobble(21));
-  const b = scale * (0.35 + 0.7 * sunFactor.value + 0.1 * wobble(22));
+  const tg = totalGridKwh.value || 1;
+  const sf = sunFactor.value;
+  const sc = baseScale.value;
+  const g = sc * tg * (0.56 + 0.06 * (1 - sf) + 0.04 * wobble(20));
+  const s = sc * tg * (0.1 + 0.34 * sf + 0.04 * wobble(21));
+  const b = sc * tg * (0.12 + 0.22 * sf + 0.03 * wobble(22));
   return { g, s, b };
 });
 
@@ -324,16 +426,19 @@ const homeBreakdown = computed(() => {
   ];
 });
 
-const battChargeBySource = computed(() => {
-  const scale = baseScale.value;
-  const fromSolar = scale * (0.25 + 1.1 * sunFactor.value + 0.12 * wobble(30));
-  const fromGrid = scale * (0.08 + 0.35 * (1 - sunFactor.value) + 0.08 * wobble(31));
-  return { fromSolar, fromGrid };
+/** Cumulative battery charge (kWh) — scales with day + sun, independent split below. */
+const totalBattChgKwh = computed(() => {
+  const sf = sunFactor.value;
+  const sc = baseScale.value;
+  return sc * 2.6 * (0.22 + 0.78 * sf + 0.04 * wobble(30));
 });
 
-const totalBattChgKwh = computed(() => {
-  const u = battChargeBySource.value;
-  return u.fromSolar + u.fromGrid;
+const battChargeBySource = computed(() => {
+  const t = totalBattChgKwh.value;
+  const sf = sunFactor.value;
+  const fromSolar = t * (0.58 + 0.38 * sf + 0.04 * wobble(31));
+  const fromGrid = Math.max(0, t - fromSolar);
+  return { fromSolar, fromGrid };
 });
 
 const battStripSegs = computed(() => {
