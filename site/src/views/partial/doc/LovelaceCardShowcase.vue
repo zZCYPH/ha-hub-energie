@@ -24,6 +24,14 @@ import { getLang } from "../../../siteShell";
 /** Wall-clock span mapped to one Paris calendar day (mock). */
 const DAY_CYCLE_MS = 72_000;
 
+/** Specs démo (alignées demande utilisateur). */
+const P_SOLAR_PEAK_W = 2000;
+const BATTERY_CAP_KWH = 5.76;
+const SOC_MIN = 10;
+const SOC_MAX = 95;
+const P_BATT_CHG_MAX_W = 1200;
+const P_BATT_DIS_MAX_W = 1000;
+
 const lang = ref("en");
 
 function syncLang() {
@@ -45,7 +53,7 @@ function tick(now) {
   const u = (elapsed % DAY_CYCLE_MS) / DAY_CYCLE_MS;
   const hr = u * 24;
   if (prevHrForWrap.value > 22 && hr < 0.5) {
-    socSim.value = 62;
+    socSim.value = 55;
   }
   prevHrForWrap.value = hr;
 
@@ -55,8 +63,8 @@ function tick(now) {
   const snap = powerSnapshot(hr, socSim.value);
   const netKw = ((snap.batt_discharge_power_w ?? 0) - (snap.batt_charge_power_w ?? 0)) / 1000;
   socSim.value = Math.max(
-    5,
-    Math.min(95, socSim.value + (netKw * clampedDt * 100) / BATTERY_CAP_KWH),
+    SOC_MIN,
+    Math.min(SOC_MAX, socSim.value + (netKw * clampedDt * 100) / BATTERY_CAP_KWH),
   );
 
   hourDecimal.value = hr;
@@ -69,7 +77,7 @@ onMounted(() => {
   startMs = performance.now();
   lastTickMs = startMs;
   prevHrForWrap.value = -1;
-  socSim.value = 62;
+  socSim.value = 55;
   raf = requestAnimationFrame(tick);
 });
 
@@ -98,14 +106,12 @@ const todayColorRaw = "blue";
 const tomorrowColorRaw = "white";
 
 /**
- * Tempo **slot** (HC/HP + couleur) changes on full hours only.
- * Only **bleu** and **blanc** import slots this day (≤ 2 couleurs).
- * 6h = première borne HP bleu (HC bleu 0h–6h).
+ * Tempo import slot — changes on full hours only.
+ * **6h00** : passage `bleu_hc` → `blanc_hp` (puis blanc HC en fin de journée).
  */
 function tempoSlotIdAtHour(hrFloat) {
   const H = Math.floor(hrFloat) % 24;
   if (H < 6) return "bleu_hc";
-  if (H < 16) return "bleu_hp";
   if (H < 22) return "blanc_hp";
   return "blanc_hc";
 }
@@ -128,66 +134,51 @@ function loadHouseW(hr) {
 
 function solarW(hr) {
   const sf = hr < 6 || hr > 20 ? 0 : Math.max(0, Math.sin(((hr - 6) / 14) * Math.PI));
-  return Math.max(0, sf * (2400 + 180 * wobble(1, 1)));
+  const raw = sf * P_SOLAR_PEAK_W * (1 + 0.04 * wobble(1, 1));
+  return Math.max(0, Math.min(P_SOLAR_PEAK_W, raw));
 }
 
-const BATTERY_CAP_KWH = 10;
-/** SOC % — updated in the animation loop from charge/discharge (coherent with net battery power). */
-const socSim = ref(62);
+/** SOC % — intégration dans la boucle d’animation à partir du net batterie (W). */
+const socSim = ref(55);
 let lastTickMs = 0;
 
 /**
- * Battery charge/discharge (W). Discharge supplies the house when SOC allows;
- * charge picks up surplus PV or cheap slots.
+ * Dispatch : surplus solaire → charge batterie d’abord (max 1200 W, jusqu’au SOC max).
+ * Alimentation maison : solaire > batterie > réseau (décharge max 1000 W si SOC > min).
  */
-function batteryPowersW(hr, soc) {
-  const sun = hr < 6 || hr > 20 ? 0 : Math.max(0, Math.sin(((hr - 6) / 14) * Math.PI));
-  let battChg = 0;
-  let battDis = 0;
-  if (sun > 0.35 && soc < 88) {
-    battChg = sun * 520 + 120 * sun * wobble(3, 1);
-  } else if (soc < 28 && hr >= 6 && hr < 22) {
-    battChg = 1800 + 200 * wobble(31, 1);
-  }
-  if (soc > 22 && (hr < 6 || hr > 17.5)) {
-    battDis = 280 + 220 * (hr > 20 ? 1 : 0.6) + 80 * wobble(2, 1);
-  } else if (soc > 40 && hr >= 18 && hr < 22.5) {
-    battDis = 420 + 100 * wobble(2, 1);
-  }
-  if (battChg > 0 && battDis > 0) {
-    if (battChg >= battDis) battChg -= battDis;
-    else battDis -= battChg;
-  }
-  return { battChg, battDis };
-}
-
-/** Grid import (W), house balance: load ≈ grid + effective_pv + batt_dis − batt_chg (PV feeds load first). */
-function gridImportW(load, solar, battChg, battDis) {
-  const pvToLoad = Math.min(solar, load * 0.92);
-  const g = load - pvToLoad - battDis + battChg;
-  return Math.max(120, Math.min(12000, g + 45 * wobble(0, 1)));
-}
-
-function exportFromSurplus(solar, battChg, load) {
-  const surplus = solar + battChg - Math.max(load - 200, 0);
-  return Math.max(0, surplus * 0.15 + 20 * wobble(5, 1));
-}
-
-/**
- * Full power snapshot at simulated hour `hr` and current SOC (for battery policy).
- * Returns fields compatible with buildPowerNowData / cost_detail attrs.
- */
-function powerSnapshot(hr, soc) {
+function dispatchPowerFlow(hr, soc) {
   const load = loadHouseW(hr);
   const solar = solarW(hr);
-  const { battChg, battDis } = batteryPowersW(hr, soc);
-  const exportW = exportFromSurplus(solar, battChg, load);
-  let gridImport = gridImportW(load, solar, battChg, battDis);
+
+  const solarToLoad = Math.min(solar, load);
+  const surplus = Math.max(0, solar - solarToLoad);
+
+  let battChg = 0;
+  if (surplus > 1 && soc < SOC_MAX - 0.05) {
+    const head = (SOC_MAX - soc) / 100;
+    const taper = Math.min(1, head * 25);
+    battChg = Math.min(P_BATT_CHG_MAX_W, surplus * taper);
+    battChg = Math.min(battChg, surplus);
+  }
+
+  const needAfterSolar = Math.max(0, load - solarToLoad);
+  let battDis = 0;
+  if (needAfterSolar > 1 && soc > SOC_MIN + 0.05) {
+    const headLo = (soc - SOC_MIN) / 100;
+    const taperLo = Math.min(1, headLo * 20);
+    battDis = Math.min(P_BATT_DIS_MAX_W, needAfterSolar * taperLo);
+  }
+
+  const gridImport = Math.max(0, needAfterSolar - battDis);
+  const exportW = Math.max(0, surplus - battChg);
+
   let gridSigned = gridImport;
-  if (exportW > 120 && gridImport < 520) {
+  if (exportW > 80 && gridImport < 400) {
     gridSigned = -exportW;
   }
-  const avail = (BATTERY_CAP_KWH * Math.max(0, soc - 5)) / 100;
+
+  const avail = (BATTERY_CAP_KWH * Math.max(0, soc - SOC_MIN)) / 100;
+
   return {
     grid_power_signed_w: gridSigned,
     solar_power_w: solar,
@@ -197,10 +188,15 @@ function powerSnapshot(hr, soc) {
     export_power_w: exportW,
     battery_capacity_kwh: BATTERY_CAP_KWH,
     battery_soc_percent: soc,
-    battery_soc_min_percent: 5,
-    battery_soc_max_percent: 100,
+    battery_soc_min_percent: SOC_MIN,
+    battery_soc_max_percent: SOC_MAX,
     battery_available_kwh: avail,
   };
+}
+
+/** Alias pour le catalogue / états HA. */
+function powerSnapshot(hr, soc) {
+  return dispatchPowerFlow(hr, soc);
 }
 
 const mockDate = computed(() => {
@@ -339,15 +335,13 @@ const gridSlotBreakdownRows = computed(() =>
 /** kWh imported per Tempo slot: only bleu + blanc segments, cumulative hours × fixed kW rate (smooth wobble). */
 const TEMPO_SLOT_IMPORT_KW = {
   bleu_hc: 1.85,
-  bleu_hp: 2.45,
   blanc_hp: 2.05,
   blanc_hc: 1.55,
 };
 
 function hoursIntoTempoSlot(slotId, hr) {
   if (slotId === "bleu_hc") return Math.min(6, Math.max(0, hr));
-  if (slotId === "bleu_hp") return Math.min(10, Math.max(0, hr - 6));
-  if (slotId === "blanc_hp") return Math.min(6, Math.max(0, hr - 16));
+  if (slotId === "blanc_hp") return Math.min(16, Math.max(0, hr - 6));
   if (slotId === "blanc_hc") return Math.min(2, Math.max(0, hr - 22));
   return 0;
 }
