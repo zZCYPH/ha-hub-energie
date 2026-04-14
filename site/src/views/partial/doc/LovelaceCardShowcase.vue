@@ -106,8 +106,9 @@ const todayColorRaw = "blue";
 const tomorrowColorRaw = "white";
 
 /**
- * Tempo import slot — changes on full hours only.
- * **6h00** : passage `bleu_hc` → `blanc_hp` (puis blanc HC en fin de journée).
+ * Tempo import slot (heures entières).
+ * **HP** = 6h–22h ; **HC** = 0h–6h et 22h–24h.
+ * Jour « bleu » : HC nuit = bleu ; dès **6h** on passe **blanc** en HP jusqu’à 22h, puis blanc HC.
  */
 function tempoSlotIdAtHour(hrFloat) {
   const H = Math.floor(hrFloat) % 24;
@@ -300,7 +301,7 @@ const loadStr = computed(() => {
 
 const powerTooltip = computed(() => powerNowData.value?.tooltip ?? "");
 
-/** Tempo **import** slot: changes only on full hours (6h, 16h, 22h …); max two day colours (bleu + blanc) in this demo. */
+/** Tempo **import** slot: changes only on full hours (6h, 22h); max two day colours (bleu + blanc) in this demo. */
 const currentSlotId = computed(() => tempoSlotIdAtHour(h.value));
 const currentSlotText = computed(() => slotLabel(currentSlotId.value, offer, i18n.value));
 
