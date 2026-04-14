@@ -1,7 +1,6 @@
 <script setup>
 import { nextTick, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import DocNextStepsBanner from "../components/DocNextStepsBanner.vue";
 import LovelaceCardsHero from "./partial/lovelace-cards/LovelaceCardsHero.vue";
 import LovelaceCardsDesktopSidebar from "./partial/lovelace-cards/LovelaceCardsDesktopSidebar.vue";
 import LovelaceCardsMobileOffcanvas from "./partial/lovelace-cards/LovelaceCardsMobileOffcanvas.vue";
@@ -35,7 +34,6 @@ onUnmounted(() => {
     <LovelaceCardsHero />
     <div ref="root" class="site-page__doc-root">
       <div class="site-page__doc-container container-xxl px-3 py-4 py-lg-5">
-        <DocNextStepsBanner />
         <div class="site-page__doc-layout row g-4 g-xl-5">
           <LovelaceCardsDesktopSidebar />
           <main class="site-page__doc-main col-lg-9">

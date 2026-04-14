@@ -54,7 +54,12 @@ function houseLoadSupplySlicesPerPoint(loadW, gridSigned, battSigned, solarW) {
   rem -= g;
   let s = Math.min(sAvail, rem);
   rem -= s;
-  if (rem > 1) s += rem;
+  if (rem > 1) {
+    if (sAvail > 1e-3) s += rem;
+    else if (gImp > 1e-3) g += rem;
+    else if (bDis > 1e-3) b += rem;
+    else s += rem;
+  }
   return { b, g, s };
 }
 
@@ -220,11 +225,12 @@ const chart = computed(() => {
   const gridStrokeCss = "color-mix(in srgb, var(--divider-color) 70%, transparent)";
   const loadStroke = "var(--primary-text-color, #e0e0e0)";
   const solarStroke = COLOR_SOLAR;
-  const battDisStroke = COLOR_BATTERY;
-  const battChgStroke = "#2e7d32";
+  /** Positive `p.batt` = discharge (darker); negative = charge (lighter). Matches hub-power-graph. */
+  const battDisStroke = "#2e7d32";
+  const battChgStroke = COLOR_BATTERY;
   const gridStroke = COLOR_GRID_SOURCE;
 
-  const fillHouseBatt = `color-mix(in srgb, ${COLOR_BATTERY} 30%, transparent)`;
+  const fillHouseBatt = `color-mix(in srgb, ${battDisStroke} 32%, transparent)`;
   const fillHouseGrid = `color-mix(in srgb, ${COLOR_GRID_SOURCE} 30%, transparent)`;
   const fillHouseSolar = `color-mix(in srgb, ${COLOR_SOLAR} 30%, transparent)`;
 
@@ -479,8 +485,8 @@ function emitWindow(hours) {
         <span class="he-power-graph-swatch he-power-graph-swatch-line" :style="{ '--swatch-line': chart.battDisStroke }" />
         {{ i18n.segBattDis }}
       </span>
-      <span class="he-power-graph-chip">
-        <span class="he-power-graph-swatch he-power-graph-swatch-line" style="--swatch-line: #2e7d32" />
+          <span class="he-power-graph-chip">
+        <span class="he-power-graph-swatch he-power-graph-swatch-line" :style="{ '--swatch-line': chart.battChgStroke }" />
         {{ i18n.segBattChg }}
       </span>
       <span class="he-power-graph-chip">

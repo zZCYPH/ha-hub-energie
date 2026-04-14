@@ -5,6 +5,11 @@
  * Extra: .he-vitrine-day-rail (24h scrubber) is not in the real card.
  */
 
+/* Wrapper for the day rail + card when shown inline or teleported into the editor modal. */
+.he-vitrine-preview-teleport-root {
+  min-width: 0;
+}
+
 .he-vitrine-card-wrap {
   --primary-text-color: #e8e8e8;
   --secondary-text-color: #9e9e9e;
@@ -36,6 +41,24 @@
   border: 1px solid color-mix(in srgb, var(--divider-color) 80%, transparent);
 }
 
+.he-vitrine-day-rail__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 6px;
+}
+
+.he-vitrine-day-rail__head-text {
+  min-width: 0;
+}
+
+.he-vitrine-day-rail__pause {
+  flex-shrink: 0;
+  line-height: 1;
+  padding: 0.35rem 0.5rem;
+}
+
 .he-vitrine-day-rail__label {
   font-size: 0.68rem;
   font-weight: 700;
@@ -50,7 +73,7 @@
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--primary-text-color);
-  margin: 0 0 6px;
+  margin: 0;
 }
 
 .he-vitrine-day-rail__track {
@@ -59,6 +82,7 @@
   border-radius: 6px;
   background: #0d0d0d;
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--divider-color) 55%, transparent) inset;
+  cursor: pointer;
 }
 
 .he-vitrine-day-rail__ticks {
@@ -847,14 +871,6 @@
 .he-raw-grid b {
   display: block;
   margin-bottom: 2px;
-}
-
-.he-vitrine-footnote {
-  margin: 8px 0 0;
-  font-size: 0.65rem;
-  color: var(--secondary-text-color);
-  text-align: center;
-  opacity: 0.88;
 }
 
 @media (prefers-reduced-motion: reduce) {

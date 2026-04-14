@@ -3,9 +3,6 @@ import { nextTick, ref, watch } from "vue";
 import { applyLang, getLang } from "../../../siteShell";
 import LovelaceCardDemoBlock from "./LovelaceCardDemoBlock.vue";
 
-const base = import.meta.env.BASE_URL;
-const imgEditor = `${base}img/lovelace-editor-01.png`;
-
 const showLovelaceTroubleshoot = ref(false);
 
 /** Steps 2–3 mount with v-if; re-run i18n so new [data-i18n] nodes get text. */
@@ -76,29 +73,5 @@ watch(showLovelaceTroubleshoot, (open) => {
       <span data-i18n="lovelace.showcase_title">Dashboard card</span>
     </h3>
     <LovelaceCardDemoBlock />
-
-    <h3 class="h5 mt-4 mb-2 doc-subsection" id="lovelace-editor">
-      <span data-i18n="lovelace.editor_title">Visual editor</span>
-    </h3>
-    <p class="text-secondary small" data-i18n="lovelace.editor_intro"></p>
-    <figure class="doc-figure doc-figure--photo card mt-3">
-      <div class="doc-screenshot-frame doc-screenshot-frame--full position-relative bg-body-secondary">
-        <img
-          :src="imgEditor"
-          alt=""
-          class="doc-carousel-img doc-zoomable"
-          decoding="async"
-          data-i18n-alt="lovelace.ed1_alt"
-        />
-        <div
-          class="doc-carousel-fallback d-none align-items-center justify-content-center flex-column text-secondary small text-center p-3 w-100 h-100 position-absolute top-0 start-0"
-        >
-          <i class="bi bi-image fs-2 mb-2 opacity-50" aria-hidden="true"></i>
-          <span data-i18n="common.img_placeholder">Add screenshot to</span>
-          <code class="font-mono small mt-1">public/img/lovelace-editor-01.png</code>
-        </div>
-      </div>
-      <figcaption class="card-body py-2 px-3 small text-secondary mb-0" data-i18n="lovelace.editor_fig_cap"></figcaption>
-    </figure>
   </section>
 </template>

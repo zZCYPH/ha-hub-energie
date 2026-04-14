@@ -49,6 +49,14 @@ body {
   scroll-margin-top: 5.75rem;
 }
 
+/* In-page target for “next steps” advanced block (devices + services). */
+.doc-scroll-anchor {
+  scroll-margin-top: 5.5rem;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 .doc-section h2 {
   font-size: 1.35rem;
   font-weight: 600;

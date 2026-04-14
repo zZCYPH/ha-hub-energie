@@ -66,6 +66,12 @@ export const I18N = Object.freeze({
     solarProdKwhTip:
       "Énergie (kWh) sur la journée ou la période affichée : autoconsommation solaire, charge batterie depuis le PV, surplus PV réinjecté (part diagnostiquée — voir Réinjection — pas forcément tout l’export physique).",
     powerHistoryTitle: "Historique puissance",
+    showcaseVitrineTimelineHint:
+      "Cliquer pour replacer la démo à l’heure choisie (batterie recalculée depuis minuit virtuel).",
+    showcaseVitrineTimelinePause: "Pause",
+    showcaseVitrineTimelinePlay: "Lecture",
+    showcaseVitrineTimelinePauseAria: "Mettre en pause la frise horaire de la démo",
+    showcaseVitrineTimelinePlayAria: "Reprendre la frise horaire de la démo",
     powerHistoryFullDay: "Journée du {date} (0h–24h)",
     powerHistoryWindow: "Durée",
     powerGraphTooltipTime: "Heure",
@@ -247,6 +253,12 @@ export const I18N = Object.freeze({
     solarProdKwhTip:
       "Energy (kWh) for the selected day or range: solar self-use, PV to battery charging, PV surplus fed to grid (attributed share — see Reinjection — not necessarily all physical export).",
     powerHistoryTitle: "Power history",
+    showcaseVitrineTimelineHint:
+      "Click the timeline to jump the mock day to that time (battery re-simulated from virtual midnight).",
+    showcaseVitrineTimelinePause: "Pause",
+    showcaseVitrineTimelinePlay: "Play",
+    showcaseVitrineTimelinePauseAria: "Pause the demo timeline",
+    showcaseVitrineTimelinePlayAria: "Resume the demo timeline",
     powerHistoryFullDay: "Day {date} (midnight–midnight)",
     powerHistoryWindow: "Window",
     powerGraphTooltipTime: "Time",

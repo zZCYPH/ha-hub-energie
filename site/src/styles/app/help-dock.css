@@ -19,7 +19,8 @@
 .help-dock__tab {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-  border-radius: 0.5rem 0 0 0.5rem !important;
+  /* Round the edge toward page content (screen left); vertical-rl + rotate flips TL/BL vs physical left */
+  border-radius: 0 0.5rem 0.5rem 0 !important;
   padding: 0.65rem 0.35rem !important;
   font-size: 0.82rem;
   font-weight: 700;

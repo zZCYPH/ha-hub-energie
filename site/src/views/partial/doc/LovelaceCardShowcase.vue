@@ -29,6 +29,7 @@ import {
 } from "../../../../../custom_components/hub_energie/frontend/src/utils/format-utils.js";
 import { buildPowerNowData } from "../../../../../custom_components/hub_energie/frontend/src/utils/live-widget-data.js";
 import { getLang } from "../../../siteShell";
+import { VITRINE_PARIS_DEMO_20260413 as PARIS_DEMO } from "../../../data/vitrineParisDemo20260413.js";
 
 const props = defineProps({
   /** Card YAML options (same keys as hub-energie-card); omitted keys default to visible like HA. */
@@ -44,12 +45,51 @@ const emit = defineEmits(["update:cardConfig"]);
 const DAY_CYCLE_MS = 144_000;
 
 /** Specs démo (alignées demande utilisateur). */
-const P_SOLAR_PEAK_W = 2000;
 const BATTERY_CAP_KWH = 5.76;
 const SOC_MIN = 10;
 const SOC_MAX = 95;
-const P_BATT_CHG_MAX_W = 1200;
-const P_BATT_DIS_MAX_W = 1000;
+
+const DEMO_BUCKET = PARIS_DEMO.bucketCount;
+const MOCK_DAY_ISO = PARIS_DEMO.dayIso;
+const DEMO_MAX_SOLAR_W = Math.max(1, ...PARIS_DEMO.solarW);
+
+function demoBucketIndex(hr) {
+  const u = ((hr % 24) + 24) % 24;
+  return Math.min(DEMO_BUCKET - 1, Math.max(0, Math.floor((u / 24) * DEMO_BUCKET)));
+}
+
+function demoPower(field, hr) {
+  const arr = PARIS_DEMO[field];
+  if (!Array.isArray(arr)) return 0;
+  const v = arr[demoBucketIndex(hr)];
+  return typeof v === "number" && Number.isFinite(v) ? v : 0;
+}
+
+/** Integrate mean power (W) over 5‑minute buckets from midnight Paris to hrEnd (0..24). */
+function demoKwhIntegral(field, hrEnd) {
+  const arr = PARIS_DEMO[field];
+  if (!Array.isArray(arr)) return 0;
+  const H = ((hrEnd % 24) + 24) % 24;
+  let kwh = 0;
+  for (let i = 0; i < DEMO_BUCKET; i++) {
+    const bucketStartHr = (i / DEMO_BUCKET) * 24;
+    const bucketEndHr = ((i + 1) / DEMO_BUCKET) * 24;
+    if (bucketStartHr >= H) break;
+    const overlapHr = Math.min(H, bucketEndHr) - bucketStartHr;
+    if (overlapHr <= 0) continue;
+    kwh += (arr[i] * overlapHr) / 1000;
+  }
+  return kwh;
+}
+
+/** Battery SOC % from HA long-term statistics (same 5 min buckets as power). */
+function demoSocPercent(hr) {
+  const arr = PARIS_DEMO.socPct;
+  if (!Array.isArray(arr) || !arr.length) return 55;
+  const v = arr[demoBucketIndex(hr)];
+  if (typeof v !== "number" || !Number.isFinite(v)) return 55;
+  return Math.max(SOC_MIN, Math.min(SOC_MAX, v));
+}
 
 const lang = ref("en");
 
@@ -97,27 +137,46 @@ let startMs = 0;
 
 const prevHrForWrap = ref(-1);
 
+/** When true, the virtual day clock stops (timeline + widgets freeze). */
+const timelinePaused = ref(false);
+
+function syncTimelineStartToFrozenHour() {
+  const now = performance.now();
+  const hr = hourDecimal.value;
+  startMs = now - (hr / 24) * DAY_CYCLE_MS;
+}
+
 function tick(now) {
+  if (timelinePaused.value) {
+    return;
+  }
   const elapsed = now - startMs;
   const u = (elapsed % DAY_CYCLE_MS) / DAY_CYCLE_MS;
   const hr = u * 24;
   if (prevHrForWrap.value > 22 && hr < 0.5) {
-    socSim.value = 55;
+    socSim.value = demoSocPercent(0);
   }
   prevHrForWrap.value = hr;
 
-  const dHrSim = lastTickMs ? ((now - lastTickMs) / DAY_CYCLE_MS) * 24 : 0;
   lastTickMs = now;
-  const clampedDt = Math.min(dHrSim, 0.08);
-  const snap = powerSnapshot(hr, socSim.value);
-  const netKw = ((snap.batt_discharge_power_w ?? 0) - (snap.batt_charge_power_w ?? 0)) / 1000;
-  socSim.value = Math.max(
-    SOC_MIN,
-    Math.min(SOC_MAX, socSim.value + (netKw * clampedDt * 100) / BATTERY_CAP_KWH),
-  );
+  socSim.value = demoSocPercent(hr);
 
   hourDecimal.value = hr;
   raf = requestAnimationFrame(tick);
+}
+
+function toggleTimelinePause() {
+  if (timelinePaused.value) {
+    timelinePaused.value = false;
+    syncTimelineStartToFrozenHour();
+    lastTickMs = performance.now();
+    raf = requestAnimationFrame(tick);
+  } else {
+    timelinePaused.value = true;
+    cancelAnimationFrame(raf);
+    raf = 0;
+    syncTimelineStartToFrozenHour();
+  }
 }
 
 onMounted(() => {
@@ -126,7 +185,7 @@ onMounted(() => {
   startMs = performance.now();
   lastTickMs = startMs;
   prevHrForWrap.value = -1;
-  socSim.value = 55;
+  socSim.value = demoSocPercent(0);
   raf = requestAnimationFrame(tick);
 });
 
@@ -137,12 +196,10 @@ onUnmounted(() => {
 
 const h = computed(() => hourDecimal.value);
 
-/** Sun curve: 0 at night, ~1 around solar noon (mock). */
-const sunFactor = computed(() => {
-  const x = h.value;
-  if (x < 6 || x > 20) return 0;
-  return Math.max(0, Math.sin(((x - 6) / 14) * Math.PI));
-});
+/** 0 at night, ~1 at peak PV for the baked-in HA statistics day. */
+const sunFactor = computed(() =>
+  Math.min(1, Math.max(0, demoPower("solarW", h.value) / DEMO_MAX_SOLAR_W)),
+);
 
 /** Smooth wobble for “live” feel (still tied to time of day). */
 function wobble(seed, amp = 1) {
@@ -150,9 +207,16 @@ function wobble(seed, amp = 1) {
   return Math.sin(t * 1.7) * amp;
 }
 
-/** Calendar colours (Tempo day type) — fixed for the demo; do not drift with the clock. */
-const todayColorRaw = "blue";
-const tomorrowColorRaw = "white";
+/** Tempo calendar colours for the demo day — baked from `sensor.hub_energie_cost_detail` (HA: `today_color` / `tomorrow_color`, FR tokens bleu/blanc/rouge). */
+const DEMO_TEMPO_DAY_COLORS = PARIS_DEMO.tempoDayColors;
+const todayColorRaw =
+  DEMO_TEMPO_DAY_COLORS?.today && typeof DEMO_TEMPO_DAY_COLORS.today === "string"
+    ? DEMO_TEMPO_DAY_COLORS.today.trim()
+    : "blue";
+const tomorrowColorRaw =
+  DEMO_TEMPO_DAY_COLORS?.tomorrow && typeof DEMO_TEMPO_DAY_COLORS.tomorrow === "string"
+    ? DEMO_TEMPO_DAY_COLORS.tomorrow.trim()
+    : "white";
 
 /**
  * Tempo import slot (heures entières).
@@ -166,67 +230,19 @@ function tempoSlotIdAtHour(hrFloat) {
   return "blanc_hc";
 }
 
-/** Gaussian bump (h in hours, center in hours). */
-function peakW(h, center, width, amp) {
-  const z = (h - center) / width;
-  return amp * Math.exp(-z * z);
-}
-
-/** Base house load ~200–400 W + realistic peaks (cuisine, lessive, chauffage salle de bain). */
-function loadHouseW(hr) {
-  const base = 280 + 55 * Math.sin(hr * 0.35 + 0.7);
-  const cook = peakW(hr, 12.35, 0.42, 920);
-  const laundry = peakW(hr, 15.4, 0.38, 620);
-  const bathroom = peakW(hr, 7.25, 0.28, 340);
-  const noise = 35 * wobble(4, 1);
-  return Math.max(200, Math.min(5200, base + cook + laundry + bathroom + noise));
-}
-
-function solarW(hr) {
-  const sf = hr < 6 || hr > 20 ? 0 : Math.max(0, Math.sin(((hr - 6) / 14) * Math.PI));
-  const raw = sf * P_SOLAR_PEAK_W * (1 + 0.04 * wobble(1, 1));
-  return Math.max(0, Math.min(P_SOLAR_PEAK_W, raw));
-}
-
-/** SOC % — intégration dans la boucle d’animation à partir du net batterie (W). */
+/** SOC % — sampled from baked HA statistics (`socPct`) each frame. */
 const socSim = ref(55);
 let lastTickMs = 0;
 
-/**
- * Dispatch : surplus solaire → charge batterie d’abord (max 1200 W, jusqu’au SOC max).
- * Alimentation maison : solaire > batterie > réseau (décharge max 1000 W si SOC > min).
- */
-function dispatchPowerFlow(hr, soc) {
-  const load = loadHouseW(hr);
-  const solar = solarW(hr);
-
-  const solarToLoad = Math.min(solar, load);
-  const surplus = Math.max(0, solar - solarToLoad);
-
-  let battChg = 0;
-  if (surplus > 1 && soc < SOC_MAX - 0.05) {
-    const head = (SOC_MAX - soc) / 100;
-    const taper = Math.min(1, head * 25);
-    battChg = Math.min(P_BATT_CHG_MAX_W, surplus * taper);
-    battChg = Math.min(battChg, surplus);
-  }
-
-  const needAfterSolar = Math.max(0, load - solarToLoad);
-  let battDis = 0;
-  if (needAfterSolar > 1 && soc > SOC_MIN + 0.05) {
-    const headLo = (soc - SOC_MIN) / 100;
-    const taperLo = Math.min(1, headLo * 20);
-    battDis = Math.min(P_BATT_DIS_MAX_W, needAfterSolar * taperLo);
-  }
-
-  const gridImport = Math.max(0, needAfterSolar - battDis);
-  const exportW = Math.max(0, surplus - battChg);
-
-  let gridSigned = gridImport;
-  if (exportW > 80 && gridImport < 400) {
-    gridSigned = -exportW;
-  }
-
+/** Power snapshot from HA long-term statistics (5 min means) for {@link MOCK_DAY_ISO}. */
+function dispatchPowerFlow(hr, _socUnused) {
+  const soc = demoSocPercent(hr);
+  const load = demoPower("loadW", hr);
+  const solar = demoPower("solarW", hr);
+  const battDis = Math.max(0, demoPower("battDisW", hr));
+  const battChg = Math.max(0, demoPower("battChgW", hr));
+  const exportW = Math.max(0, demoPower("gridExportW", hr));
+  const gridSigned = demoPower("gridSignedW", hr);
   const avail = (BATTERY_CAP_KWH * Math.max(0, soc - SOC_MIN)) / 100;
 
   return {
@@ -249,20 +265,30 @@ function powerSnapshot(hr, soc) {
   return dispatchPowerFlow(hr, soc);
 }
 
-const mockDate = computed(() => {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-});
+function seekVirtualDayToHour(hrTarget) {
+  const now = performance.now();
+  const clamped = Math.min(24 - Number.EPSILON, Math.max(0, hrTarget));
+  startMs = now - (clamped / 24) * DAY_CYCLE_MS;
+  lastTickMs = now;
+  prevHrForWrap.value = clamped;
+  socSim.value = demoSocPercent(clamped);
+  hourDecimal.value = clamped;
+}
+
+function onTimelineTrackPointer(ev) {
+  const el = ev.currentTarget;
+  if (!(el instanceof HTMLElement)) return;
+  const rect = el.getBoundingClientRect();
+  const x = ev.clientX - rect.left;
+  const frac = rect.width > 0 ? Math.min(1, Math.max(0, x / rect.width)) : 0;
+  seekVirtualDayToHour(frac * 24);
+}
+
+const mockDate = computed(() => MOCK_DAY_ISO);
 
 const rangeLabelShort = computed(() => {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return lang.value === "fr" ? `${day}/${m}/${y}` : `${y}-${m}-${day}`;
+  const [y, m, d] = MOCK_DAY_ISO.split("-");
+  return lang.value === "fr" ? `${d}/${m}/${y}` : MOCK_DAY_ISO;
 });
 
 const clockLabel = computed(() => {
@@ -295,14 +321,15 @@ const powerGraphHistoryPts = computed(() => {
   const winEnd = curH;
   const dayStartMs = parisYmdStartUtc(mockDate.value).getTime();
   if (!Number.isFinite(dayStartMs)) return [];
-  const span = Math.max(winEnd - winStart, 1e-6);
-  const n = Math.min(200, Math.max(48, Math.ceil(slotH * 12)));
   const pts = [];
-  const soc = socSim.value;
-  for (let i = 0; i <= n; i++) {
-    const t = i / n;
-    const hr = winStart + t * span;
-    const snap = powerSnapshot(hr, soc);
+  /** One point per 5‑minute statistics bucket (same as HA), aligned to window edges. */
+  const i0 = demoBucketIndex(winStart);
+  const i1 = demoBucketIndex(Math.max(winStart, winEnd - Number.EPSILON));
+  for (let bi = i0; bi <= i1; bi++) {
+    let hr = ((bi + 0.5) / DEMO_BUCKET) * 24;
+    if (bi === i0) hr = Math.max(hr, winStart);
+    if (bi === i1) hr = Math.min(hr, winEnd);
+    const snap = powerSnapshot(hr, null);
     const ts = dayStartMs + (hr / 24) * 86_400_000;
     pts.push({
       ts,
@@ -390,6 +417,13 @@ const battCell = computed(() => {
   return fmtPowerCompact(net);
 });
 
+/** Signed battery power (W): same net as hub-power-now — **> 0 = discharging to home**, **< 0 = charging**. */
+const battNetW = computed(() => {
+  const d = powerNowData.value;
+  if (!d) return 0;
+  return (d.battDis ?? 0) - (d.battChg ?? 0);
+});
+
 const loadStr = computed(() => {
   const d = powerNowData.value;
   return d?.load != null ? fmtPowerCompact(d.load) : "—";
@@ -404,11 +438,32 @@ const currentSlotText = computed(() => slotLabel(currentSlotId.value, offer, i18
 const todayTileClass = computed(() => `he-day-tile ${dayColorClass(todayColorRaw)}`);
 const tomorrowTileClass = computed(() => `he-day-tile ${dayColorClass(tomorrowColorRaw)}`);
 
-const tempoDays = computed(() => ({
-  blue: { remaining: Math.max(0, Math.round(8 + 3 * wobble(10))), elapsed: Math.round(11 + 2 * wobble(11)) },
-  white: { remaining: Math.max(0, Math.round(9 + 2 * wobble(12))), elapsed: Math.round(10 + 2 * wobble(13)) },
-  red: { remaining: Math.max(0, Math.round(2 + wobble(14))), elapsed: Math.round(3 + wobble(15)) },
-}));
+/** Fallback if demo bundle has no `tempoDays` (HA snapshot). */
+const FALLBACK_TEMPO_DAYS = {
+  blue: { remaining: 8, elapsed: 11 },
+  white: { remaining: 9, elapsed: 10 },
+  red: { remaining: 2, elapsed: 3 },
+};
+
+function demoTempoDaysFromBundle() {
+  const raw = PARIS_DEMO.tempoDays;
+  if (!raw || typeof raw !== "object") return null;
+  const { blue, white, red } = raw;
+  const ok = (c) =>
+    c &&
+    typeof c === "object" &&
+    Number.isFinite(Number(c.remaining)) &&
+    Number.isFinite(Number(c.elapsed));
+  if (!ok(blue) || !ok(white) || !ok(red)) return null;
+  return {
+    blue: { remaining: Number(blue.remaining), elapsed: Number(blue.elapsed) },
+    white: { remaining: Number(white.remaining), elapsed: Number(white.elapsed) },
+    red: { remaining: Number(red.remaining), elapsed: Number(red.elapsed) },
+  };
+}
+
+/** Tempo day counters (remaining / total) — baked from `sensor.hub_energie_cost_detail` for the demo export. */
+const tempoDays = computed(() => demoTempoDaysFromBundle() ?? FALLBACK_TEMPO_DAYS);
 
 const tempoSlotsNoUnknown = computed(() => SLOTS.filter((s) => s.id !== "unknown"));
 
@@ -448,12 +503,23 @@ const baseScale = computed(() => 0.35 + 0.65 * dayFrac.value);
 
 const gridBySlot = computed(() => {
   const hr = h.value;
-  const out = {};
+  const targetKwh = demoKwhIntegral("gridImportW", hr);
+  const shape = {};
+  let sumShape = 0;
   const wob = 0.94 + 0.06 * Math.sin(hr * 0.25 + 1.1);
   for (const id of Object.keys(TEMPO_SLOT_IMPORT_KW)) {
     const hrs = hoursIntoTempoSlot(id, hr);
     const v = hrs * TEMPO_SLOT_IMPORT_KW[id] * wob;
-    if (v > 0.0001) out[id] = v;
+    if (v > 0.0001) {
+      shape[id] = v;
+      sumShape += v;
+    }
+  }
+  const out = {};
+  if (sumShape <= 1e-9 || targetKwh <= 0) return out;
+  const scale = targetKwh / sumShape;
+  for (const id of Object.keys(shape)) {
+    out[id] = shape[id] * scale;
   }
   return out;
 });
@@ -479,12 +545,16 @@ const gridStripTotal = computed(() => gridStripSegs.value.reduce((a, s) => a + s
 const gridEnergyFmt = computed(() => makeSectionEnergyFormatter(Object.values(gridBySlot.value)));
 
 const homeBySource = computed(() => {
-  const tg = totalGridKwh.value || 1;
-  const sf = sunFactor.value;
-  const sc = baseScale.value;
-  const g = sc * tg * (0.56 + 0.06 * (1 - sf) + 0.04 * wobble(20));
-  const s = sc * tg * (0.1 + 0.34 * sf + 0.04 * wobble(21));
-  const b = sc * tg * (0.12 + 0.22 * sf + 0.03 * wobble(22));
+  const hr = h.value;
+  const loadInt = demoKwhIntegral("loadW", hr);
+  const gridInt = demoKwhIntegral("gridImportW", hr);
+  const solarInt = demoKwhIntegral("solarW", hr);
+  const battDisInt = demoKwhIntegral("battDisW", hr);
+  const denom = gridInt + solarInt + battDisInt;
+  if (denom < 1e-6) return { g: 0, s: 0, b: 0 };
+  const g = loadInt * (gridInt / denom);
+  const s = loadInt * (solarInt / denom);
+  const b = loadInt * (battDisInt / denom);
   return { g, s, b };
 });
 
@@ -517,17 +587,24 @@ const homeBreakdown = computed(() => {
   ];
 });
 
-/** Cumulative battery charge (kWh) — scales with day + sun, independent split below. */
-const totalBattChgKwh = computed(() => {
-  const sf = sunFactor.value;
-  const sc = baseScale.value;
-  return sc * 2.6 * (0.22 + 0.78 * sf + 0.04 * wobble(30));
-});
+/** Cumulative battery charge (kWh) from HA statistics up to the virtual hour. */
+const totalBattChgKwh = computed(() => demoKwhIntegral("battChgW", h.value));
 
 const battChargeBySource = computed(() => {
+  const hr = h.value;
   const t = totalBattChgKwh.value;
-  const sf = sunFactor.value;
-  const fromSolar = t * (0.58 + 0.38 * sf + 0.04 * wobble(31));
+  const solarChgArr = PARIS_DEMO.battChgSolarW;
+  const gridChgArr = PARIS_DEMO.battChgGridW;
+  if (Array.isArray(solarChgArr) && Array.isArray(gridChgArr) && solarChgArr.length === DEMO_BUCKET && gridChgArr.length === DEMO_BUCKET) {
+    const fromSolar = demoKwhIntegral("battChgSolarW", hr);
+    const fromGrid = demoKwhIntegral("battChgGridW", hr);
+    return { fromSolar, fromGrid };
+  }
+  const sInt = demoKwhIntegral("solarW", hr);
+  const gInt = demoKwhIntegral("gridImportW", hr);
+  const denom = sInt + gInt;
+  const wSolar = denom > 1e-6 ? sInt / denom : 0.65;
+  const fromSolar = t * wSolar;
   const fromGrid = Math.max(0, t - fromSolar);
   return { fromSolar, fromGrid };
 });
@@ -614,21 +691,93 @@ const costBreakdown = computed(() => {
   return rows;
 });
 
+/** Scale 0..1 from cumulative grid export (demo) vs full virtual day — used with baked HA reinjection totals. */
+const reinjExportScale = computed(() => {
+  const exportFull = demoKwhIntegral("gridExportW", 24 - 1e-6);
+  const exportSoFar = demoKwhIntegral("gridExportW", h.value);
+  if (exportFull <= 1e-9) return 0;
+  return Math.min(1, exportSoFar / exportFull);
+});
+
 const reinj = computed(() => {
-  const scale = baseScale.value * 0.08;
-  const solarSurplus = scale * (0.4 + 2.2 * sunFactor.value);
-  const batteryFull = scale * (0.15 + 0.4 * (1 - sunFactor.value));
-  const switchLatency = scale * (0.05 + 0.12 * wobble(40));
-  const unattributed = scale * (0.04 + 0.08 * wobble(41));
+  const exportSoFar = demoKwhIntegral("gridExportW", h.value);
+  const exportFull = demoKwhIntegral("gridExportW", 24 - 1e-6);
+  const t = PARIS_DEMO.reinjKwhDayTotals;
+  if (
+    t &&
+    typeof t === "object" &&
+    typeof t.solarSurplus === "number" &&
+    typeof t.batteryFull === "number" &&
+    typeof t.switchLatency === "number" &&
+    typeof t.unattributed === "number" &&
+    exportFull > 1e-9
+  ) {
+    const S =
+      Math.max(0, t.solarSurplus) +
+      Math.max(0, t.batteryFull) +
+      Math.max(0, t.switchLatency) +
+      Math.max(0, t.unattributed);
+    if (S <= 1e-9) {
+      return { solarSurplus: 0, batteryFull: 0, switchLatency: 0, unattributed: 0 };
+    }
+    const e = exportSoFar;
+    const ps = Math.max(0, t.solarSurplus) / S;
+    const pb = Math.max(0, t.batteryFull) / S;
+    const pw = Math.max(0, t.switchLatency) / S;
+    const pu = Math.max(0, t.unattributed) / S;
+    return {
+      solarSurplus: e * ps,
+      batteryFull: e * pb,
+      switchLatency: e * pw,
+      unattributed: e * pu,
+    };
+  }
+  const exportK = exportSoFar;
+  const solarSurplus = exportK * 0.78;
+  const batteryFull = exportK * 0.14;
+  const switchLatency = exportK * 0.05;
+  const unattributed = Math.max(0, exportK - solarSurplus - batteryFull - switchLatency);
   return { solarSurplus, batteryFull, switchLatency, unattributed };
 });
 
-const reinjItems = computed(() => [
-  { label: `${i18n.value.reinjLabelSolarSurplus} ${i18n.value.reinjCauseSolarSurplus}`, v: reinj.value.solarSurplus, eur: reinj.value.solarSurplus * 0.12, color: COLOR_SOLAR_EXPORT },
-  { label: `${i18n.value.reinjLabelBatteryFull} ${i18n.value.reinjCauseBatteryFull}`, v: reinj.value.batteryFull, eur: reinj.value.batteryFull * 0.1, color: COLOR_BATTERY },
-  { label: `${i18n.value.reinjLabelSwitchLatency} ${i18n.value.reinjCauseSwitchLatency}`, v: reinj.value.switchLatency, eur: reinj.value.switchLatency * 0.08, color: "#78909c" },
-  { label: `${i18n.value.reinjLabelOther} ${i18n.value.reinjCauseOther}`, v: reinj.value.unattributed, eur: reinj.value.unattributed * 0.06, color: "#9e9e9e" },
-]);
+const reinjEurByRow = computed(() => {
+  const r = reinj.value;
+  const tE = PARIS_DEMO.reinjEurDayTotals;
+  const sc = reinjExportScale.value;
+  if (
+    tE &&
+    typeof tE === "object" &&
+    typeof tE.solarSurplus === "number" &&
+    typeof tE.batteryFull === "number" &&
+    typeof tE.switchLatency === "number" &&
+    typeof tE.unattributed === "number" &&
+    PARIS_DEMO.reinjKwhDayTotals
+  ) {
+    return {
+      solarSurplus: tE.solarSurplus * sc,
+      batteryFull: tE.batteryFull * sc,
+      switchLatency: tE.switchLatency * sc,
+      unattributed: tE.unattributed * sc,
+    };
+  }
+  return {
+    solarSurplus: r.solarSurplus * 0.12,
+    batteryFull: r.batteryFull * 0.1,
+    switchLatency: r.switchLatency * 0.08,
+    unattributed: r.unattributed * 0.06,
+  };
+});
+
+const reinjItems = computed(() => {
+  const r = reinj.value;
+  const eur = reinjEurByRow.value;
+  return [
+    { label: `${i18n.value.reinjLabelSolarSurplus} ${i18n.value.reinjCauseSolarSurplus}`, v: r.solarSurplus, eur: eur.solarSurplus, color: COLOR_SOLAR_EXPORT },
+    { label: `${i18n.value.reinjLabelBatteryFull} ${i18n.value.reinjCauseBatteryFull}`, v: r.batteryFull, eur: eur.batteryFull, color: COLOR_BATTERY },
+    { label: `${i18n.value.reinjLabelSwitchLatency} ${i18n.value.reinjCauseSwitchLatency}`, v: r.switchLatency, eur: eur.switchLatency, color: "#78909c" },
+    { label: `${i18n.value.reinjLabelOther} ${i18n.value.reinjCauseOther}`, v: r.unattributed, eur: eur.unattributed, color: "#9e9e9e" },
+  ];
+});
 
 const totalReinjKwh = computed(() => reinjItems.value.reduce((a, x) => a + x.v, 0));
 const reinjOppTotal = computed(() => reinjItems.value.reduce((a, x) => a + x.eur, 0));
@@ -774,31 +923,29 @@ const battEta = computed(() => {
   const cap = d.battery_capacity_kwh;
   const soc = d.battery_soc_percent ?? 0;
   if (cap == null || cap <= 0) return null;
-  const chargeW = d.batt_charge_power_w ?? 0;
-  const dischargeW = d.batt_discharge_power_w ?? 0;
-  if (chargeW > 40) {
-    const remainingKwh = cap * (1 - soc / 100);
-    const chargePowerKw = chargeW / 1000;
-    if (chargePowerKw > 0) {
-      return { icon: "mdi:battery-charging-high", time: formatEtaTimeOnly((remainingKwh / chargePowerKw) * 60) };
-    }
-  } else if (dischargeW > 40) {
+  const threshold = 40;
+  const netW = battNetW.value;
+  if (netW > threshold) {
     const storedKwh = (cap * soc) / 100;
-    const dischargePowerKw = dischargeW / 1000;
+    const dischargePowerKw = netW / 1000;
     if (dischargePowerKw > 0) {
       return { icon: "mdi:battery-low", time: formatEtaTimeOnly((storedKwh / dischargePowerKw) * 60) };
+    }
+  } else if (netW < -threshold) {
+    const remainingKwh = cap * (1 - soc / 100);
+    const chargePowerKw = -netW / 1000;
+    if (chargePowerKw > 0) {
+      return { icon: "mdi:battery-charging-high", time: formatEtaTimeOnly((remainingKwh / chargePowerKw) * 60) };
     }
   }
   return null;
 });
 
 const battFlowMode = computed(() => {
-  const d = mockCostAttrs.value;
-  const charge = d.batt_charge_power_w ?? 0;
-  const discharge = d.batt_discharge_power_w ?? 0;
+  const netW = battNetW.value;
   const threshold = 40;
-  if (charge > threshold) return "charging";
-  if (discharge > threshold) return "discharging";
+  if (netW > threshold) return "discharging";
+  if (netW < -threshold) return "charging";
   return "idle";
 });
 
@@ -879,12 +1026,6 @@ function stripSegBarStyle(seg, sectionTotal) {
   return style;
 }
 
-const footnote = computed(() =>
-  lang.value === "fr"
-    ? "Démo vitrine : styles et graphe d’historique puissance calqués sur la carte Lovelace ; ligne du temps 24 h = 144 s (boucle). « Modifier la carte » reproduit l’éditeur HA (sections, fenêtre du graphe)."
-    : "Showcase demo: layout and power-history chart mirror the Lovelace card; the 24 h timeline loops in 144 s. “Edit card” mimics the HA editor (sections, graph window).",
-);
-
 function onEditorConfigUpdate(next) {
   emit("update:cardConfig", next);
 }
@@ -911,10 +1052,30 @@ function toggleRaw() {
       @update:open="(v) => (editorOpen = v)"
     />
 
-    <div class="he-vitrine-day-rail" aria-hidden="true">
-      <p class="he-vitrine-day-rail__label">{{ i18n.powerHistoryTitle }}</p>
-      <p class="he-vitrine-day-rail__clock">{{ clockLabel }}</p>
-        <div class="he-vitrine-day-rail__track">
+    <Teleport to="#he-modal-preview" :disabled="!editorOpen">
+      <div class="he-vitrine-card-wrap he-vitrine-preview-teleport-root" style="width: 100%; min-width: 0">
+    <div class="he-vitrine-day-rail" role="group" :aria-label="i18n.powerHistoryTitle">
+      <div class="he-vitrine-day-rail__head">
+        <div class="he-vitrine-day-rail__head-text">
+          <p class="he-vitrine-day-rail__label">{{ i18n.powerHistoryTitle }}</p>
+          <p class="he-vitrine-day-rail__clock" aria-live="polite">{{ clockLabel }}</p>
+        </div>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary he-vitrine-day-rail__pause"
+          :aria-pressed="timelinePaused ? 'true' : 'false'"
+          :aria-label="timelinePaused ? i18n.showcaseVitrineTimelinePlayAria : i18n.showcaseVitrineTimelinePauseAria"
+          :title="timelinePaused ? i18n.showcaseVitrineTimelinePlay : i18n.showcaseVitrineTimelinePause"
+          @click="toggleTimelinePause"
+        >
+          <i class="bi" :class="timelinePaused ? 'bi-play-fill' : 'bi-pause-fill'" aria-hidden="true" />
+        </button>
+      </div>
+        <div
+          class="he-vitrine-day-rail__track"
+          :title="i18n.showcaseVitrineTimelineHint"
+          @click="onTimelineTrackPointer"
+        >
         <div class="he-vitrine-day-rail__ticks">
           <div v-for="tk in timelineTicks" :key="'tk' + tk.key" class="he-vitrine-day-rail__tick">
             <span>{{ tk.label }}</span>
@@ -1322,9 +1483,9 @@ function toggleRaw() {
           </div>
         </div>
       </section>
-
-      <p class="he-vitrine-footnote">{{ footnote }}</p>
     </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 

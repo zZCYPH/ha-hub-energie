@@ -64,6 +64,7 @@ onUnmounted(() => {
             <DocSectionInstall />
             <DocSectionConfigure />
             <DocSectionLovelace />
+            <div id="advanced" class="doc-scroll-anchor" aria-hidden="true"></div>
             <DocSectionDevices />
             <DocSectionServices />
             <DocSectionVsHelpers />

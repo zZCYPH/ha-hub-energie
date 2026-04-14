@@ -33,9 +33,6 @@ import { pathTo } from "../../../sitePaths";
       <a class="nav-link small py-1 ps-3" href="#lovelace-showcase"
         ><span data-i18n="toc.lovelace_showcase">Card preview</span></a
       >
-      <a class="nav-link small py-1 ps-3" href="#lovelace-editor"
-        ><span data-i18n="toc.lovelace_editor">Visual editor</span></a
-      >
       <a class="nav-link" href="#devices"><span data-i18n="toc.devices">Devices</span></a>
       <a class="nav-link small py-1 ps-3" href="#devices-gallery"
         ><span data-i18n="toc.devices_gallery">In Home Assistant</span></a
