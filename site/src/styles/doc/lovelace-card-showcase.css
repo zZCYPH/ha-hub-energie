@@ -843,17 +843,6 @@
   margin-bottom: 2px;
 }
 
-/* Red HP warning banner (hub-energie-card.js .red-hp-banner) */
-.he-red-hp-banner {
-  margin: 0 0 10px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: color-mix(in srgb, #c62828 88%, #000);
-  color: #fff;
-  font-size: 0.8rem;
-  line-height: 1.4;
-}
-
 /* Stub when live power graph is “open” in the vitrine editor demo */
 .he-power-graph-stub {
   margin: 6px 0 10px;

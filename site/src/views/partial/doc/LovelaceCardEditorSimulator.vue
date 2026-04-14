@@ -14,7 +14,6 @@ const SECTION_TOGGLES = [
   ["show_solar_production_bar", "editorShowSolarProductionBar"],
   ["show_battery_bar", "editorShowBatteryBar"],
   ["show_insights_bar", "editorShowInsightsBar"],
-  ["show_red_hp_warning", "editorShowRedHpWarning"],
   ["show_consumption", "editorShowConsumption"],
   ["show_cost", "editorShowCost"],
   ["show_savings", "editorShowSavings"],

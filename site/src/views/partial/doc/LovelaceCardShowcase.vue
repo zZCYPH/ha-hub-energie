@@ -502,27 +502,6 @@ const battChgRows = computed(() => [
   { label: i18n.value.usageGridBatt, v: battChargeBySource.value.fromGrid, color: COLOR_GRID_SOURCE },
 ]);
 
-/** Demo values so the red-HP banner can appear when the section is enabled (mirrors hub-energie-card.js logic). */
-const renewableKwhForRedHp = computed(
-  () =>
-    homeBySource.value.s +
-    homeBySource.value.b * 0.28 +
-    battChargeBySource.value.fromSolar * 0.12,
-);
-
-const rougeHpKwhDemo = computed(() => Math.max(0, totalHomeKwh.value * 0.48));
-
-const redHpBannerVisible = computed(() => {
-  if (!showSection("show_red_hp_warning")) return false;
-  if (offer !== "tempo") return false;
-  const tm = totalHomeKwh.value;
-  if (!(tm > 0)) return false;
-  const rougeHpKwh = rougeHpKwhDemo.value;
-  if (rougeHpKwh < 0.1) return false;
-  if (rougeHpKwh / tm < 0.35 || rougeHpKwh <= renewableKwhForRedHp.value) return false;
-  return true;
-});
-
 const battChgEnergyFmt = computed(() => makeSectionEnergyFormatter([totalBattChgKwh.value]));
 
 const battBreakdown = computed(() =>
@@ -1026,8 +1005,6 @@ function toggleRaw() {
         <span class="he-insight-chip">💸 {{ totalCostEur.toFixed(2) }} €</span>
         <span class="he-insight-chip" :class="vsGridClass"> ⚡ {{ vsGridSign }}{{ Math.abs(ecoTotal).toFixed(2) }}€ {{ i18n.insightVsGrid }} </span>
       </div>
-
-      <div v-if="redHpBannerVisible" class="he-red-hp-banner">{{ i18n.redHpWarning }}</div>
 
       <div v-if="showSection('show_consumption')" class="he-section">
         <div class="he-section-head">
