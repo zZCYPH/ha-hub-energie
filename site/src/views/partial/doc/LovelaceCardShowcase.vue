@@ -1,6 +1,12 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { I18N } from "../../../../../custom_components/hub_energie/frontend/src/constants/i18n.js";
+import {
+  DEFAULT_POWER_GRAPH_ROLLING_HOURS,
+  snapPowerGraphRollingHours,
+} from "../../../../../custom_components/hub_energie/frontend/src/constants/power-graph-window.js";
+import { tpl } from "../../../../../custom_components/hub_energie/frontend/src/utils/i18n-template.js";
+import LovelaceCardEditorSimulator from "./LovelaceCardEditorSimulator.vue";
 import {
   COLOR_BATTERY,
   COLOR_GRID_SOURCE,
@@ -21,6 +27,16 @@ import {
 import { buildPowerNowData } from "../../../../../custom_components/hub_energie/frontend/src/utils/live-widget-data.js";
 import { getLang } from "../../../siteShell";
 
+const props = defineProps({
+  /** Card YAML options (same keys as hub-energie-card); omitted keys default to visible like HA. */
+  cardConfig: {
+    type: Object,
+    default: () => ({}),
+  },
+});
+
+const emit = defineEmits(["update:cardConfig"]);
+
 /** Wall-clock span mapped to one Paris calendar day (mock). */
 const DAY_CYCLE_MS = 72_000;
 
@@ -34,12 +50,47 @@ const P_BATT_DIS_MAX_W = 1000;
 
 const lang = ref("en");
 
+const editorOpen = ref(false);
+const showRaw = ref(false);
+const graphOpen = ref(false);
+
 function syncLang() {
   const l = getLang();
   lang.value = l === "fr" ? "fr" : "en";
 }
 
 const i18n = computed(() => (lang.value === "fr" ? I18N.fr : I18N.en));
+
+/** Section visibility: same rule as hub-energie-card.js `_showSection`. */
+function showSection(key) {
+  const v = props.cardConfig?.[key];
+  return v !== false && v !== "false";
+}
+
+watch(
+  () => props.cardConfig?.show_raw_control,
+  (v) => {
+    if (v === false) showRaw.value = false;
+  },
+);
+
+watch(
+  () => props.cardConfig?.show_live_power,
+  (v) => {
+    if (v === false) graphOpen.value = false;
+  },
+);
+
+const graphHoursSnap = computed(() => {
+  const raw = parseFloat(props.cardConfig?.power_history_hours);
+  return snapPowerGraphRollingHours(Number.isFinite(raw) ? raw : NaN, DEFAULT_POWER_GRAPH_ROLLING_HOURS);
+});
+
+const graphStubLine = computed(() => {
+  const h = graphHoursSnap.value;
+  const unit = tpl(i18n.value.editorPowerHoursUnit, { n: h });
+  return `${i18n.value.powerHistoryWindow}: ${unit}`;
+});
 
 /** 0..<24 — virtual hour of the mocked day (0 = midnight). */
 const hourDecimal = ref(0);
@@ -451,6 +502,27 @@ const battChgRows = computed(() => [
   { label: i18n.value.usageGridBatt, v: battChargeBySource.value.fromGrid, color: COLOR_GRID_SOURCE },
 ]);
 
+/** Demo values so the red-HP banner can appear when the section is enabled (mirrors hub-energie-card.js logic). */
+const renewableKwhForRedHp = computed(
+  () =>
+    homeBySource.value.s +
+    homeBySource.value.b * 0.28 +
+    battChargeBySource.value.fromSolar * 0.12,
+);
+
+const rougeHpKwhDemo = computed(() => Math.max(0, totalHomeKwh.value * 0.48));
+
+const redHpBannerVisible = computed(() => {
+  if (!showSection("show_red_hp_warning")) return false;
+  if (offer !== "tempo") return false;
+  const tm = totalHomeKwh.value;
+  if (!(tm > 0)) return false;
+  const rougeHpKwh = rougeHpKwhDemo.value;
+  if (rougeHpKwh < 0.1) return false;
+  if (rougeHpKwh / tm < 0.35 || rougeHpKwh <= renewableKwhForRedHp.value) return false;
+  return true;
+});
+
 const battChgEnergyFmt = computed(() => makeSectionEnergyFormatter([totalBattChgKwh.value]));
 
 const battBreakdown = computed(() =>
@@ -605,6 +677,10 @@ const solarKwhData = computed(() => {
   };
 });
 
+const showSolarInConsumption = computed(
+  () => showSection("show_consumption") && showSection("show_solar_production_bar") && solarKwhData.value,
+);
+
 const originGrid = computed(() => homeBySource.value.g);
 const insightPct = computed(() => {
   const th = totalHomeKwh.value;
@@ -621,6 +697,35 @@ const insightAutoClass = computed(() => {
 
 const vsGridSign = computed(() => (ecoTotal.value >= 0 ? "−" : "+"));
 const vsGridClass = computed(() => (ecoTotal.value >= 0 ? "eco" : "neg"));
+
+const activeGridSlots = computed(() =>
+  SLOTS.filter((s) => s.id !== "unknown")
+    .map((s) => {
+      const v = gridBySlot.value[s.id] ?? 0;
+      return v > 0.0001 ? { id: s.id, v, label: slotLabel(s.id, offer, i18n.value) } : null;
+    })
+    .filter(Boolean),
+);
+
+const activeCostSlots = computed(() =>
+  SLOTS.filter((s) => s.id !== "unknown")
+    .map((s) => {
+      const v = costBySlot.value[s.id] ?? 0;
+      return v > 0.0001 ? { id: s.id, v, label: slotLabel(s.id, offer, i18n.value) } : null;
+    })
+    .filter(Boolean),
+);
+
+const rawUsageLines = computed(() => {
+  const u = homeBySource.value;
+  return [
+    { label: i18n.value.usageGridDirect, v: u.g },
+    { label: i18n.value.usageGridBatt, v: battChargeBySource.value.fromGrid },
+    { label: i18n.value.usageSolarDirect, v: u.s },
+    { label: i18n.value.usageSolarBatt, v: battChargeBySource.value.fromSolar },
+    { label: i18n.value.usageBattHome, v: u.b },
+  ];
+});
 
 /** Battery bar cells (port of hub-battery-bar.js). */
 const segmentCount = 18;
@@ -752,13 +857,36 @@ function stripSegBarStyle(seg, sectionTotal) {
 
 const footnote = computed(() =>
   lang.value === "fr"
-    ? "Démo vitrine : styles alignés sur la carte Lovelace ; ligne du temps 24 h = 72 s."
-    : "Showcase demo: styles match the Lovelace card; the 24 h timeline runs in 72 s.",
+    ? "Démo vitrine : styles alignés sur la carte Lovelace ; ligne du temps 24 h = 72 s. Utilisez « Modifier la carte » pour reproduire l’éditeur HA (sections visibles, fenêtre graphe)."
+    : "Showcase demo: styles match the Lovelace card; the 24 h timeline runs in 72 s. Use “Edit card” to mimic the HA editor (visible sections, graph window).",
 );
+
+function onEditorConfigUpdate(next) {
+  emit("update:cardConfig", next);
+}
+
+function toggleGraphStub() {
+  graphOpen.value = !graphOpen.value;
+}
+
+function toggleRaw() {
+  showRaw.value = !showRaw.value;
+}
 </script>
 
 <template>
   <div class="he-vitrine-card-wrap">
+    <div class="he-vitrine-toolbar">
+      <button type="button" class="btn btn-sm btn-outline-primary" data-i18n="lovelace.showcase_edit_card" @click="editorOpen = true"></button>
+    </div>
+    <LovelaceCardEditorSimulator
+      :model-value="cardConfig"
+      :open="editorOpen"
+      :lang="lang"
+      @update:model-value="onEditorConfigUpdate"
+      @update:open="(v) => (editorOpen = v)"
+    />
+
     <div class="he-vitrine-day-rail" aria-hidden="true">
       <p class="he-vitrine-day-rail__label">{{ i18n.powerHistoryTitle }}</p>
       <p class="he-vitrine-day-rail__clock">{{ clockLabel }}</p>
@@ -789,10 +917,18 @@ const footnote = computed(() =>
             <span class="he-range-btn">{{ i18n.year }}</span>
           </div>
           <span class="he-range-label">{{ rangeLabelShort }}</span>
+          <button
+            v-if="showSection('show_raw_control')"
+            type="button"
+            class="he-btn btn btn-sm btn-outline-secondary"
+            @click="toggleRaw"
+          >
+            {{ showRaw ? i18n.hide : i18n.details }}
+          </button>
         </div>
       </div>
 
-      <div class="he-meta-tempo-wrap">
+      <div v-if="showSection('show_day_slots')" class="he-meta-tempo-wrap">
         <div class="he-meta-days-stack">
           <div :class="todayTileClass">
             <span class="he-day-tile-line">{{ i18n.today }} : {{ currentSlotText }}</span>
@@ -814,9 +950,9 @@ const footnote = computed(() =>
         </div>
       </div>
 
-      <div v-if="powerNowData" class="he-power-now-wrap" role="img" :title="powerTooltip">
+      <div v-if="showSection('show_live_power') && powerNowData" class="he-power-now-wrap" role="img" :title="powerTooltip">
         <div class="he-cons-strip-cap">{{ i18n.powerNow }}</div>
-        <div class="he-pnl-wrap">
+        <div class="he-pnl-wrap" role="button" tabindex="0" @click="toggleGraphStub" @keydown.enter.prevent="toggleGraphStub" @keydown.space.prevent="toggleGraphStub">
           <div class="he-pnl-bar">
             <template v-if="powerSegTotal > 1">
               <span
@@ -853,13 +989,11 @@ const footnote = computed(() =>
         </div>
       </div>
 
-      <div v-if="totalHomeKwh > 0.0005" class="he-insight-bar">
-        <span class="he-insight-chip" :class="insightAutoClass">☀️ {{ insightPct }}% {{ i18n.insightAutosuff }}</span>
-        <span class="he-insight-chip">💸 {{ totalCostEur.toFixed(2) }} €</span>
-        <span class="he-insight-chip" :class="vsGridClass"> ⚡ {{ vsGridSign }}{{ Math.abs(ecoTotal).toFixed(2) }}€ {{ i18n.insightVsGrid }} </span>
+      <div v-if="showSection('show_live_power') && graphOpen" class="he-power-graph-stub">
+        {{ graphStubLine }}
       </div>
 
-      <div class="he-batt-bar-container">
+      <div v-if="showSection('show_battery_bar')" class="he-batt-bar-container">
         <div class="he-batt-section-head">
           <h3>{{ i18n.battSocTitle }}</h3>
         </div>
@@ -887,7 +1021,15 @@ const footnote = computed(() =>
         </div>
       </div>
 
-      <div class="he-section">
+      <div v-if="showSection('show_insights_bar') && totalHomeKwh > 0.0005" class="he-insight-bar">
+        <span class="he-insight-chip" :class="insightAutoClass">☀️ {{ insightPct }}% {{ i18n.insightAutosuff }}</span>
+        <span class="he-insight-chip">💸 {{ totalCostEur.toFixed(2) }} €</span>
+        <span class="he-insight-chip" :class="vsGridClass"> ⚡ {{ vsGridSign }}{{ Math.abs(ecoTotal).toFixed(2) }}€ {{ i18n.insightVsGrid }} </span>
+      </div>
+
+      <div v-if="redHpBannerVisible" class="he-red-hp-banner">{{ i18n.redHpWarning }}</div>
+
+      <div v-if="showSection('show_consumption')" class="he-section">
         <div class="he-section-head">
           <h3>{{ i18n.sectionConsumption }}</h3>
           <div class="he-section-metric">{{ i18n.totalEnergy }} <b>{{ homeEnergyFmt(totalHomeKwh) }}</b></div>
@@ -916,7 +1058,7 @@ const footnote = computed(() =>
             </div>
           </div>
 
-          <div v-if="solarKwhData" class="he-cons-strip">
+          <div v-if="showSolarInConsumption" class="he-cons-strip">
             <div class="he-cons-strip-cap">{{ i18n.solarProdTitle }}</div>
             <div class="he-bar-wrap" :title="solarKwhData.tooltip">
               <div class="he-track">
@@ -996,9 +1138,9 @@ const footnote = computed(() =>
         </div>
       </div>
 
-      <div class="he-section">
+      <div v-if="showSection('show_cost') || showSection('show_reinjection') || showSection('show_savings')" class="he-section">
         <div class="he-bars">
-          <div v-if="costStripSegs.length" class="he-cons-strip">
+          <div v-if="showSection('show_cost') && costStripSegs.length" class="he-cons-strip">
             <div class="he-cons-strip-cap">{{ i18n.costStripTitle }}</div>
             <div class="he-bar-wrap">
               <div class="he-track">
@@ -1025,7 +1167,7 @@ const footnote = computed(() =>
             </div>
           </div>
 
-          <div v-if="reinjStripSegs.length" class="he-cons-strip">
+          <div v-if="showSection('show_reinjection') && reinjStripSegs.length" class="he-cons-strip">
             <div class="he-cons-strip-cap">{{ i18n.reinjStripTitle }}</div>
             <div class="he-bar-wrap">
               <div class="he-track">
@@ -1048,7 +1190,7 @@ const footnote = computed(() =>
             </div>
           </div>
 
-          <div v-if="ecoSegments.length" class="he-cons-strip">
+          <div v-if="showSection('show_savings') && ecoSegments.length" class="he-cons-strip">
             <div class="he-cons-strip-cap">{{ i18n.ecoStripTitle }}</div>
             <div class="he-bar-wrap">
               <div class="he-track">
@@ -1072,6 +1214,74 @@ const footnote = computed(() =>
           </div>
         </div>
       </div>
+
+      <section v-if="showRaw && showSection('show_raw_control')" class="he-raw-section">
+        <h3 class="he-raw-title">{{ i18n.rawDataTitle }}</h3>
+        <div class="he-raw">
+          <div class="he-raw-grid">
+            <div>
+              <b>{{ i18n.rawSectionGridHome }}</b><br />
+              {{ tpl(i18n.rawLineGridTotal, { value: totalGridKwh.toFixed(3) }) }}<br />
+              {{ tpl(i18n.rawLineHouseTotal, { value: totalHomeKwh.toFixed(3) }) }}
+            </div>
+            <div>
+              <b>{{ i18n.rawSectionCost }}</b><br />
+              {{ tpl(i18n.rawLineCostTotal, { value: totalCostEur.toFixed(3) }) }}<br />
+              {{ tpl(i18n.rawLineSubscription, { value: aboEur.toFixed(3) }) }}
+            </div>
+            <div>
+              <b>{{ i18n.rawSectionOrigin }}</b><br />
+              {{ tpl(i18n.rawLineOriginGrid, { value: originGrid.toFixed(3) }) }}<br />
+              {{ tpl(i18n.rawLineOriginSolar, { value: (homeBySource.s + battChargeBySource.fromSolar).toFixed(3) }) }}
+            </div>
+            <div>
+              <b>{{ i18n.rawSectionSavings }}</b><br />
+              {{ tpl(i18n.rawLineSavingsSolar, { value: ecoSolar.toFixed(3) }) }}<br />
+              {{ tpl(i18n.rawLineSavingsBattery, { value: ecoBatt.toFixed(3) }) }}
+            </div>
+            <div>
+              <b>{{ i18n.rawSectionImportBySlot }}</b><br />
+              <template v-if="activeGridSlots.length">
+                <template v-for="(s, i) in activeGridSlots" :key="'ags' + s.id">
+                  <br v-if="i > 0" />
+                  {{ s.label }}: {{ s.v.toFixed(3) }} kWh
+                </template>
+              </template>
+              <template v-else>{{ i18n.emDash }}</template>
+            </div>
+            <div>
+              <b>{{ i18n.rawSectionCostBySlot }}</b><br />
+              <template v-if="activeCostSlots.length">
+                <template v-for="(s, i) in activeCostSlots" :key="'acs' + s.id">
+                  <br v-if="i > 0" />
+                  {{ s.label }}: {{ s.v.toFixed(3) }} €
+                </template>
+              </template>
+              <template v-else>{{ i18n.emDash }}</template>
+            </div>
+            <div>
+              <b>{{ i18n.rawSectionUsageDetail }}</b><br />
+              <template v-for="(ln, i) in rawUsageLines" :key="'usg' + i">
+                <br v-if="i > 0" />
+                {{ ln.label }} : {{ ln.v.toFixed(3) }}
+              </template>
+            </div>
+            <div>
+              <b>{{ i18n.rawSectionReinjection }}</b><br />
+              {{ i18n.reinjLabelSolarSurplus }}
+              {{ tpl(i18n.reinjLineKwhEur, { kwh: reinj.solarSurplus.toFixed(3), eur: (reinj.solarSurplus * 0.12).toFixed(3) }) }}<br />
+              {{ i18n.reinjLabelBatteryFull }}
+              {{ tpl(i18n.reinjLineKwhEur, { kwh: reinj.batteryFull.toFixed(3), eur: (reinj.batteryFull * 0.1).toFixed(3) }) }}<br />
+              {{ i18n.reinjLabelSwitchLatency }}
+              {{ tpl(i18n.reinjLineKwhEur, { kwh: reinj.switchLatency.toFixed(3), eur: (reinj.switchLatency * 0.08).toFixed(3) }) }}<br />
+              {{ i18n.reinjLabelOther }}
+              {{ tpl(i18n.reinjLineKwhEur, { kwh: reinj.unattributed.toFixed(3), eur: (reinj.unattributed * 0.06).toFixed(3) }) }}<br />
+              {{ i18n.reinjLabelTotal }}
+              {{ tpl(i18n.reinjLineKwhEur, { kwh: totalReinjKwh.toFixed(3), eur: reinjOppTotal.toFixed(3) }) }}
+            </div>
+          </div>
+        </div>
+      </section>
 
       <p class="he-vitrine-footnote">{{ footnote }}</p>
     </div>

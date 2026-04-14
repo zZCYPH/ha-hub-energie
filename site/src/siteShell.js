@@ -30,37 +30,44 @@ export function refreshScrollSpy() {
   }
 }
 
-export function applyLang(lang, page) {
-  if (lang !== "en" && lang !== "fr") lang = "en";
-  currentLang = lang;
-  document.documentElement.setAttribute("lang", lang);
-  document.querySelectorAll("[data-i18n]").forEach((el) => {
+/** Apply `data-i18n*` attributes under `root` (or full document if omitted). */
+export function applyDataI18nTo(root) {
+  const scope = root && typeof root.querySelectorAll === "function" ? root : document;
+  const lang = currentLang;
+  scope.querySelectorAll("[data-i18n]").forEach((el) => {
     const v = tr(lang, el.getAttribute("data-i18n"));
     if (v !== "") el.textContent = v;
   });
-  document.querySelectorAll("[data-i18n-html]").forEach((el) => {
+  scope.querySelectorAll("[data-i18n-html]").forEach((el) => {
     const v = tr(lang, el.getAttribute("data-i18n-html"));
     if (v !== "") {
       el.innerHTML = v;
       rewriteI18nHtmlAppLinks(el);
     }
   });
-  document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+  scope.querySelectorAll("[data-i18n-aria]").forEach((el) => {
     el.setAttribute("aria-label", tr(lang, el.getAttribute("data-i18n-aria")));
   });
-  document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+  scope.querySelectorAll("[data-i18n-title]").forEach((el) => {
     const v = tr(lang, el.getAttribute("data-i18n-title"));
     if (v !== "") el.setAttribute("title", v);
   });
-  document.querySelectorAll("[data-i18n-alt]").forEach((el) => {
+  scope.querySelectorAll("[data-i18n-alt]").forEach((el) => {
     const va = tr(lang, el.getAttribute("data-i18n-alt"));
     if (va !== "") el.setAttribute("alt", va);
   });
-  document.querySelectorAll("[data-i18n-bs-title]").forEach((el) => {
+  scope.querySelectorAll("[data-i18n-bs-title]").forEach((el) => {
     const k = el.getAttribute("data-i18n-bs-title");
     const vt = tr(lang, k);
     if (vt !== "") el.setAttribute("data-bs-title", vt);
   });
+}
+
+export function applyLang(lang, page) {
+  if (lang !== "en" && lang !== "fr") lang = "en";
+  currentLang = lang;
+  document.documentElement.setAttribute("lang", lang);
+  applyDataI18nTo(document);
   document.querySelectorAll("img.doc-zoomable").forEach((el) => {
     const vt = tr(lang, "common.image_open_full");
     if (vt !== "") el.setAttribute("title", vt);

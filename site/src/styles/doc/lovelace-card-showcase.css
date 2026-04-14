@@ -798,6 +798,74 @@
   gap: 4px;
 }
 
+.he-vitrine-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 8px;
+}
+
+.he-vitrine-toolbar .btn {
+  font-size: 0.78rem;
+}
+
+.he-btn {
+  cursor: pointer;
+}
+
+/* Raw data block (hub-energie-card.js .raw) */
+.he-raw-section {
+  margin-top: 10px;
+}
+
+.he-raw-title {
+  margin: 0 0 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.he-raw {
+  background: var(--secondary-background-color);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.78rem;
+  font-family: var(--ha-font-family-code, monospace);
+  line-height: 1.7;
+}
+
+.he-raw-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.he-raw-grid b {
+  display: block;
+  margin-bottom: 2px;
+}
+
+/* Red HP warning banner (hub-energie-card.js .red-hp-banner) */
+.he-red-hp-banner {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, #c62828 88%, #000);
+  color: #fff;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* Stub when live power graph is “open” in the vitrine editor demo */
+.he-power-graph-stub {
+  margin: 6px 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px dashed color-mix(in srgb, var(--divider-color) 90%, transparent);
+  background: color-mix(in srgb, var(--secondary-background-color) 70%, transparent);
+  font-size: 0.72rem;
+  color: var(--secondary-text-color);
+  line-height: 1.45;
+}
+
 .he-vitrine-footnote {
   margin: 8px 0 0;
   font-size: 0.65rem;
