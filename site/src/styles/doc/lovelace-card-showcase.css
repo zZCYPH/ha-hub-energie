@@ -328,6 +328,12 @@
   background: var(--secondary-background-color);
   font-size: 0.68rem;
   min-width: 0;
+  cursor: pointer;
+  outline: none;
+}
+
+.he-power-now-wrap:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 55%, transparent);
 }
 
 .he-cons-strip-cap {
@@ -841,18 +847,6 @@
 .he-raw-grid b {
   display: block;
   margin-bottom: 2px;
-}
-
-/* Stub when live power graph is “open” in the vitrine editor demo */
-.he-power-graph-stub {
-  margin: 6px 0 10px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px dashed color-mix(in srgb, var(--divider-color) 90%, transparent);
-  background: color-mix(in srgb, var(--secondary-background-color) 70%, transparent);
-  font-size: 0.72rem;
-  color: var(--secondary-text-color);
-  line-height: 1.45;
 }
 
 .he-vitrine-footnote {

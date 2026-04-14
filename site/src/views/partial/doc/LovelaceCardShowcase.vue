@@ -6,7 +6,10 @@ import {
   snapPowerGraphRollingHours,
 } from "../../../../../custom_components/hub_energie/frontend/src/constants/power-graph-window.js";
 import { tpl } from "../../../../../custom_components/hub_energie/frontend/src/utils/i18n-template.js";
+import { parisYmdStartUtc } from "../../../../../custom_components/hub_energie/frontend/src/utils/date-utils.js";
+import { yExtentFromPowerChartPoints } from "../../../../../custom_components/hub_energie/frontend/src/utils/power-graph-history.js";
 import LovelaceCardEditorSimulator from "./LovelaceCardEditorSimulator.vue";
+import LovelaceCardPowerGraphDemo from "./LovelaceCardPowerGraphDemo.vue";
 import {
   COLOR_BATTERY,
   COLOR_GRID_SOURCE,
@@ -37,8 +40,8 @@ const props = defineProps({
 
 const emit = defineEmits(["update:cardConfig"]);
 
-/** Wall-clock span mapped to one Paris calendar day (mock). */
-const DAY_CYCLE_MS = 72_000;
+/** Wall-clock span mapped to one Paris calendar day (mock). Doubled for a slower read of the day. */
+const DAY_CYCLE_MS = 144_000;
 
 /** Specs démo (alignées demande utilisateur). */
 const P_SOLAR_PEAK_W = 2000;
@@ -52,7 +55,8 @@ const lang = ref("en");
 
 const editorOpen = ref(false);
 const showRaw = ref(false);
-const graphOpen = ref(false);
+/** Open by default so visitors immediately see power history like the real card. */
+const graphOpen = ref(true);
 
 function syncLang() {
   const l = getLang();
@@ -84,12 +88,6 @@ watch(
 const graphHoursSnap = computed(() => {
   const raw = parseFloat(props.cardConfig?.power_history_hours);
   return snapPowerGraphRollingHours(Number.isFinite(raw) ? raw : NaN, DEFAULT_POWER_GRAPH_ROLLING_HOURS);
-});
-
-const graphStubLine = computed(() => {
-  const h = graphHoursSnap.value;
-  const unit = tpl(i18n.value.editorPowerHoursUnit, { n: h });
-  return `${i18n.value.powerHistoryWindow}: ${unit}`;
 });
 
 /** 0..<24 — virtual hour of the mocked day (0 = midnight). */
@@ -286,6 +284,53 @@ const timelineTicks = computed(() => {
 });
 
 const playheadPct = computed(() => (h.value / 24) * 100);
+
+const graphLocale = computed(() => (lang.value === "fr" ? "fr-FR" : "en-US"));
+
+/** Rolling window [now−H, now] in simulated hours (same idea as HA “today” power graph). */
+const powerGraphHistoryPts = computed(() => {
+  const slotH = graphHoursSnap.value;
+  const curH = h.value;
+  const winStart = Math.max(0, curH - slotH);
+  const winEnd = curH;
+  const dayStartMs = parisYmdStartUtc(mockDate.value).getTime();
+  if (!Number.isFinite(dayStartMs)) return [];
+  const span = Math.max(winEnd - winStart, 1e-6);
+  const n = Math.min(200, Math.max(48, Math.ceil(slotH * 12)));
+  const pts = [];
+  const soc = socSim.value;
+  for (let i = 0; i <= n; i++) {
+    const t = i / n;
+    const hr = winStart + t * span;
+    const snap = powerSnapshot(hr, soc);
+    const ts = dayStartMs + (hr / 24) * 86_400_000;
+    pts.push({
+      ts,
+      solar: snap.solar_power_w ?? 0,
+      grid: snap.grid_power_signed_w ?? 0,
+      batt: (snap.batt_discharge_power_w ?? 0) - (snap.batt_charge_power_w ?? 0),
+      load: snap.load_power_w ?? 0,
+    });
+  }
+  return pts;
+});
+
+const powerGraphDisplaySeries = computed(() => {
+  const pts = powerGraphHistoryPts.value;
+  if (!pts.length) return null;
+  const { yMin, yMax } = yExtentFromPowerChartPoints(pts);
+  return {
+    pts,
+    yMin,
+    yMax,
+    hasLoadEntity: true,
+    dayIso: mockDate.value,
+  };
+});
+
+function onPowerGraphWindowHours(hours) {
+  emit("update:cardConfig", { ...props.cardConfig, power_history_hours: hours });
+}
 
 const offer = "tempo";
 const contractPower = "9";
@@ -836,8 +881,8 @@ function stripSegBarStyle(seg, sectionTotal) {
 
 const footnote = computed(() =>
   lang.value === "fr"
-    ? "Démo vitrine : styles alignés sur la carte Lovelace ; ligne du temps 24 h = 72 s. Utilisez « Modifier la carte » pour reproduire l’éditeur HA (sections visibles, fenêtre graphe)."
-    : "Showcase demo: styles match the Lovelace card; the 24 h timeline runs in 72 s. Use “Edit card” to mimic the HA editor (visible sections, graph window).",
+    ? "Démo vitrine : styles et graphe d’historique puissance calqués sur la carte Lovelace ; ligne du temps 24 h = 144 s (boucle). « Modifier la carte » reproduit l’éditeur HA (sections, fenêtre du graphe)."
+    : "Showcase demo: layout and power-history chart mirror the Lovelace card; the 24 h timeline loops in 144 s. “Edit card” mimics the HA editor (sections, graph window).",
 );
 
 function onEditorConfigUpdate(next) {
@@ -929,9 +974,20 @@ function toggleRaw() {
         </div>
       </div>
 
-      <div v-if="showSection('show_live_power') && powerNowData" class="he-power-now-wrap" role="img" :title="powerTooltip">
+      <div
+        v-if="showSection('show_live_power') && powerNowData"
+        class="he-power-now-wrap"
+        role="button"
+        tabindex="0"
+        :aria-expanded="graphOpen ? 'true' : 'false'"
+        :aria-label="i18n.powerNowAria || i18n.powerNow"
+        :title="powerTooltip"
+        @click="toggleGraphStub"
+        @keydown.enter.prevent="toggleGraphStub"
+        @keydown.space.prevent="toggleGraphStub"
+      >
         <div class="he-cons-strip-cap">{{ i18n.powerNow }}</div>
-        <div class="he-pnl-wrap" role="button" tabindex="0" @click="toggleGraphStub" @keydown.enter.prevent="toggleGraphStub" @keydown.space.prevent="toggleGraphStub">
+        <div class="he-pnl-wrap">
           <div class="he-pnl-bar">
             <template v-if="powerSegTotal > 1">
               <span
@@ -968,9 +1024,16 @@ function toggleRaw() {
         </div>
       </div>
 
-      <div v-if="showSection('show_live_power') && graphOpen" class="he-power-graph-stub">
-        {{ graphStubLine }}
-      </div>
+      <LovelaceCardPowerGraphDemo
+        v-if="showSection('show_live_power') && graphOpen && powerGraphDisplaySeries"
+        :open="true"
+        :i18n="i18n"
+        :locale="graphLocale"
+        :display-series="powerGraphDisplaySeries"
+        :rolling-hours="graphHoursSnap"
+        :is-today-graph="true"
+        @window-hours="onPowerGraphWindowHours"
+      />
 
       <div v-if="showSection('show_battery_bar')" class="he-batt-bar-container">
         <div class="he-batt-section-head">

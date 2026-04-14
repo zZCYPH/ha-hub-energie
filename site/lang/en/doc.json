@@ -321,7 +321,7 @@
   "lovelace.editor_intro": "The card includes a full editor to adjust section visibility, Tempo controls, date range, and optional entity overrides — without YAML.",
   "lovelace.editor_title": "Visual editor",
   "lovelace.fig_alt": "Hub Énergie Lovelace card on a dashboard",
-  "lovelace.fig_cap": "Interactive mock: layout and styles mirror the real Lovelace card (including the 24 h scrubber above the card, compressed to 72 s). Numbers are fictional but follow time-of-day (e.g. no PV at night). This is not the Lit bundle running inside Home Assistant.",
+  "lovelace.fig_cap": "Interactive mock: layout, power-history chart, and styles mirror the real Lovelace card (including the 24 h scrubber above the card, compressed to 144 s per loop). Numbers are fictional but follow time-of-day (e.g. no PV at night). This is not the Lit bundle running inside Home Assistant.",
   "lovelace.intro": "A dedicated Lovelace card ships with the integration: add it to your dashboards to bring together tariff, power, energy, and costs. The steps below show how to set it up.",
   "lovelace.l1": "<span class=\"text-body\">The integration handles Lovelace setup:</span> the <strong>custom:hub-energie-card</strong> type is normally available in the dashboard editor <strong>without manual steps</strong>. For URL, cache-busting, and where the bundle lives, see <a href=\"/internals#lovelace-resources\" class=\"link-secondary\">Implementation details → Lovelace resource</a>.",
   "lovelace.l1_title": "Storage-mode dashboards (default)",

@@ -321,7 +321,7 @@
   "lovelace.editor_intro": "La carte inclut un éditeur complet pour ajuster la visibilité des sections, les contrôles Tempo, la plage de dates et les remplacements d’entités optionnels — sans YAML.",
   "lovelace.editor_title": "Éditeur visuel",
   "lovelace.fig_alt": "Carte Lovelace Hub Énergie sur un tableau de bord",
-  "lovelace.fig_cap": "Maquette interactive : mise en page et styles calqués sur la vraie carte Lovelace (avec la frise 24 h au-dessus, compressée à 72 s). Chiffres fictifs mais cohérents avec l’heure simulée (ex. pas de PV la nuit). Ce n’est pas le bundle Lit exécuté dans Home Assistant.",
+  "lovelace.fig_cap": "Maquette interactive : mise en page, graphe d’historique puissance et styles calqués sur la vraie carte Lovelace (avec la frise 24 h au-dessus, compressée à 144 s par boucle). Chiffres fictifs mais cohérents avec l’heure simulée (ex. pas de PV la nuit). Ce n’est pas le bundle Lit exécuté dans Home Assistant.",
   "lovelace.intro": "Une carte Lovelace dédiée est fournie avec l’intégration : ajoutez-la à vos tableaux de bord pour regrouper tarif, puissance, énergie et coûts. Les étapes ci-dessous indiquent comment l’installer.",
   "lovelace.l1": "<span class=\"text-body\">L’intégration prend en charge le paramétrage Lovelace :</span> le type <strong>custom:hub-energie-card</strong> est en principe disponible dans l’éditeur de tableau de bord <strong>sans action manuelle</strong>. Pour l’URL, l’invalidation de cache et l’emplacement du paquet, voir <a href=\"/internals#lovelace-resources\" class=\"link-secondary\">Fonctionnement interne — ressource Lovelace</a>.",
   "lovelace.l1_title": "Tableaux de bord en mode stockage (défaut)",
