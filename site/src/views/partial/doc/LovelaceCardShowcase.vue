@@ -58,11 +58,28 @@ function demoBucketIndex(hr) {
   return Math.min(DEMO_BUCKET - 1, Math.max(0, Math.floor((u / 24) * DEMO_BUCKET)));
 }
 
-function demoPower(field, hr) {
+/**
+ * Linear interpolation between HA-style 5‑minute buckets (display only).
+ * {@link demoKwhIntegral} / cumulative strips stay on discrete bucket means.
+ */
+function demoSeriesLinearAtHr(field, hr) {
   const arr = PARIS_DEMO[field];
-  if (!Array.isArray(arr)) return 0;
-  const v = arr[demoBucketIndex(hr)];
-  return typeof v === "number" && Number.isFinite(v) ? v : 0;
+  if (!Array.isArray(arr) || !arr.length) return 0;
+  const u = ((hr % 24) + 24) % 24;
+  const n = arr.length;
+  if (n === 1) {
+    const v = arr[0];
+    return typeof v === "number" && Number.isFinite(v) ? v : 0;
+  }
+  const f = (u / 24) * n;
+  const i0 = Math.min(n - 1, Math.max(0, Math.floor(f)));
+  const i1 = Math.min(n - 1, i0 + 1);
+  const t = f - i0;
+  const a = arr[i0];
+  const b = arr[i1];
+  const v0 = typeof a === "number" && Number.isFinite(a) ? a : 0;
+  const v1 = typeof b === "number" && Number.isFinite(b) ? b : 0;
+  return v0 + (v1 - v0) * t;
 }
 
 /** Integrate mean power (W) over 5‑minute buckets from midnight Paris to hrEnd (0..24). */
@@ -82,13 +99,27 @@ function demoKwhIntegral(field, hrEnd) {
   return kwh;
 }
 
-/** Battery SOC % from HA long-term statistics (same 5 min buckets as power). */
-function demoSocPercent(hr) {
+/** SOC % interpolated between buckets (matches smooth power snapshot for the vitrine clock). */
+function demoSocPercentSmooth(hr) {
   const arr = PARIS_DEMO.socPct;
   if (!Array.isArray(arr) || !arr.length) return 55;
-  const v = arr[demoBucketIndex(hr)];
-  if (typeof v !== "number" || !Number.isFinite(v)) return 55;
-  return Math.max(SOC_MIN, Math.min(SOC_MAX, v));
+  const u = ((hr % 24) + 24) % 24;
+  const n = arr.length;
+  if (n === 1) {
+    const v = arr[0];
+    if (typeof v !== "number" || !Number.isFinite(v)) return 55;
+    return Math.max(SOC_MIN, Math.min(SOC_MAX, v));
+  }
+  const f = (u / 24) * n;
+  const i0 = Math.min(n - 1, Math.max(0, Math.floor(f)));
+  const i1 = Math.min(n - 1, i0 + 1);
+  const t = f - i0;
+  const a = arr[i0];
+  const b = arr[i1];
+  const v0 = typeof a === "number" && Number.isFinite(a) ? a : 55;
+  const v1 = typeof b === "number" && Number.isFinite(b) ? b : v0;
+  const interp = v0 + (v1 - v0) * t;
+  return Math.max(SOC_MIN, Math.min(SOC_MAX, interp));
 }
 
 const lang = ref("en");
@@ -154,12 +185,12 @@ function tick(now) {
   const u = (elapsed % DAY_CYCLE_MS) / DAY_CYCLE_MS;
   const hr = u * 24;
   if (prevHrForWrap.value > 22 && hr < 0.5) {
-    socSim.value = demoSocPercent(0);
+    socSim.value = demoSocPercentSmooth(0);
   }
   prevHrForWrap.value = hr;
 
   lastTickMs = now;
-  socSim.value = demoSocPercent(hr);
+  socSim.value = demoSocPercentSmooth(hr);
 
   hourDecimal.value = hr;
   raf = requestAnimationFrame(tick);
@@ -185,7 +216,7 @@ onMounted(() => {
   startMs = performance.now();
   lastTickMs = startMs;
   prevHrForWrap.value = -1;
-  socSim.value = demoSocPercent(0);
+  socSim.value = demoSocPercentSmooth(0);
   raf = requestAnimationFrame(tick);
 });
 
@@ -198,7 +229,7 @@ const h = computed(() => hourDecimal.value);
 
 /** 0 at night, ~1 at peak PV for the baked-in HA statistics day. */
 const sunFactor = computed(() =>
-  Math.min(1, Math.max(0, demoPower("solarW", h.value) / DEMO_MAX_SOLAR_W)),
+  Math.min(1, Math.max(0, demoSeriesLinearAtHr("solarW", h.value) / DEMO_MAX_SOLAR_W)),
 );
 
 /** Smooth wobble for “live” feel (still tied to time of day). */
@@ -236,13 +267,13 @@ let lastTickMs = 0;
 
 /** Power snapshot from HA long-term statistics (5 min means) for {@link MOCK_DAY_ISO}. */
 function dispatchPowerFlow(hr, _socUnused) {
-  const soc = demoSocPercent(hr);
-  const load = demoPower("loadW", hr);
-  const solar = demoPower("solarW", hr);
-  const battDis = Math.max(0, demoPower("battDisW", hr));
-  const battChg = Math.max(0, demoPower("battChgW", hr));
-  const exportW = Math.max(0, demoPower("gridExportW", hr));
-  const gridSigned = demoPower("gridSignedW", hr);
+  const soc = demoSocPercentSmooth(hr);
+  const load = demoSeriesLinearAtHr("loadW", hr);
+  const solar = demoSeriesLinearAtHr("solarW", hr);
+  const battDis = Math.max(0, demoSeriesLinearAtHr("battDisW", hr));
+  const battChg = Math.max(0, demoSeriesLinearAtHr("battChgW", hr));
+  const exportW = Math.max(0, demoSeriesLinearAtHr("gridExportW", hr));
+  const gridSigned = demoSeriesLinearAtHr("gridSignedW", hr);
   const avail = (BATTERY_CAP_KWH * Math.max(0, soc - SOC_MIN)) / 100;
 
   return {
@@ -271,7 +302,7 @@ function seekVirtualDayToHour(hrTarget) {
   startMs = now - (clamped / 24) * DAY_CYCLE_MS;
   lastTickMs = now;
   prevHrForWrap.value = clamped;
-  socSim.value = demoSocPercent(clamped);
+  socSim.value = demoSocPercentSmooth(clamped);
   hourDecimal.value = clamped;
 }
 
