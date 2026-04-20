@@ -166,7 +166,8 @@ const hourDecimal = ref(0);
 let raf = 0;
 let startMs = 0;
 
-const prevHrForWrap = ref(-1);
+/** When true, the virtual day reached 24h — show restart overlay (no auto loop). */
+const awaitingDayRestart = ref(false);
 
 /** When true, the virtual day clock stops (timeline + widgets freeze). */
 const timelinePaused = ref(false);
@@ -177,17 +178,24 @@ function syncTimelineStartToFrozenHour() {
   startMs = now - (hr / 24) * DAY_CYCLE_MS;
 }
 
+/** End of virtual calendar day (avoid hr=24 which wraps in %24 consumers). */
+const HR_DAY_END = 24 - 1e-6;
+
 function tick(now) {
-  if (timelinePaused.value) {
+  if (timelinePaused.value || awaitingDayRestart.value) {
     return;
   }
   const elapsed = now - startMs;
-  const u = (elapsed % DAY_CYCLE_MS) / DAY_CYCLE_MS;
-  const hr = u * 24;
-  if (prevHrForWrap.value > 22 && hr < 0.5) {
-    socSim.value = demoSocPercentSmooth(0);
+  if (elapsed >= DAY_CYCLE_MS) {
+    raf = 0;
+    awaitingDayRestart.value = true;
+    lastTickMs = now;
+    hourDecimal.value = HR_DAY_END;
+    socSim.value = demoSocPercentSmooth(HR_DAY_END);
+    return;
   }
-  prevHrForWrap.value = hr;
+  const u = elapsed / DAY_CYCLE_MS;
+  const hr = Math.min(HR_DAY_END, u * 24);
 
   lastTickMs = now;
   socSim.value = demoSocPercentSmooth(hr);
@@ -197,6 +205,7 @@ function tick(now) {
 }
 
 function toggleTimelinePause() {
+  if (awaitingDayRestart.value) return;
   if (timelinePaused.value) {
     timelinePaused.value = false;
     syncTimelineStartToFrozenHour();
@@ -210,12 +219,23 @@ function toggleTimelinePause() {
   }
 }
 
+function restartVirtualDay() {
+  awaitingDayRestart.value = false;
+  timelinePaused.value = false;
+  startMs = performance.now();
+  lastTickMs = startMs;
+  hourDecimal.value = 0;
+  socSim.value = demoSocPercentSmooth(0);
+  cancelAnimationFrame(raf);
+  raf = requestAnimationFrame(tick);
+}
+
 onMounted(() => {
   syncLang();
   window.addEventListener("hub-energie-lang", syncLang);
+  awaitingDayRestart.value = false;
   startMs = performance.now();
   lastTickMs = startMs;
-  prevHrForWrap.value = -1;
   socSim.value = demoSocPercentSmooth(0);
   raf = requestAnimationFrame(tick);
 });
@@ -297,16 +317,20 @@ function powerSnapshot(hr, soc) {
 }
 
 function seekVirtualDayToHour(hrTarget) {
+  awaitingDayRestart.value = false;
   const now = performance.now();
-  const clamped = Math.min(24 - Number.EPSILON, Math.max(0, hrTarget));
+  const clamped = Math.min(HR_DAY_END, Math.max(0, hrTarget));
   startMs = now - (clamped / 24) * DAY_CYCLE_MS;
   lastTickMs = now;
-  prevHrForWrap.value = clamped;
   socSim.value = demoSocPercentSmooth(clamped);
   hourDecimal.value = clamped;
+  if (!timelinePaused.value && raf === 0) {
+    raf = requestAnimationFrame(tick);
+  }
 }
 
 function onTimelineTrackPointer(ev) {
+  if (awaitingDayRestart.value) return;
   const el = ev.currentTarget;
   if (!(el instanceof HTMLElement)) return;
   const rect = el.getBoundingClientRect();
@@ -1084,7 +1108,10 @@ function toggleRaw() {
     />
 
     <Teleport to="#he-modal-preview" :disabled="!editorOpen">
-      <div class="he-vitrine-card-wrap he-vitrine-preview-teleport-root" style="width: 100%; min-width: 0">
+      <div
+        class="he-vitrine-card-wrap he-vitrine-preview-teleport-root he-vitrine-preview-root--stack"
+        style="width: 100%; min-width: 0"
+      >
     <div class="he-vitrine-day-rail" role="group" :aria-label="i18n.powerHistoryTitle">
       <div class="he-vitrine-day-rail__head">
         <div class="he-vitrine-day-rail__head-text">
@@ -1094,6 +1121,7 @@ function toggleRaw() {
         <button
           type="button"
           class="btn btn-sm btn-outline-secondary he-vitrine-day-rail__pause"
+          :disabled="awaitingDayRestart"
           :aria-pressed="timelinePaused ? 'true' : 'false'"
           :aria-label="timelinePaused ? i18n.showcaseVitrineTimelinePlayAria : i18n.showcaseVitrineTimelinePauseAria"
           :title="timelinePaused ? i18n.showcaseVitrineTimelinePlay : i18n.showcaseVitrineTimelinePause"
@@ -1514,6 +1542,27 @@ function toggleRaw() {
           </div>
         </div>
       </section>
+    </div>
+
+    <div
+      v-if="awaitingDayRestart"
+      class="he-vitrine-day-end-overlay"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="i18n.showcaseVitrineRestartAria"
+    >
+      <div class="he-vitrine-day-end-overlay__panel">
+        <button
+          type="button"
+          class="btn btn-lg btn-primary he-vitrine-day-end-overlay__btn"
+          :aria-label="i18n.showcaseVitrineRestartAria"
+          @click="restartVirtualDay"
+        >
+          <i class="bi bi-arrow-repeat he-vitrine-day-end-overlay__icon" aria-hidden="true" />
+          <span>{{ i18n.showcaseVitrineRestart }}</span>
+        </button>
+        <p class="he-vitrine-day-end-overlay__hint">{{ i18n.showcaseVitrineRestartHint }}</p>
+      </div>
     </div>
       </div>
     </Teleport>

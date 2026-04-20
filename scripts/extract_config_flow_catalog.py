@@ -2,7 +2,7 @@
 """Build a JSON catalog of Hub Énergie *initial* config-flow steps for the doc vitrine.
 
 Reads ``config_flow.py`` (AST) for ``HubEnergieConfigFlow`` + ``_BatteryWizardMixin``,
-plus selected ``HubEnergieOptionsFlow`` steps (``init``, ``advanced_energy``, ``battery_pick``) for the doc vitrine,
+plus ``HubEnergieOptionsFlow`` steps needed for the doc vitrine (full Configure menu parity),
 ``strings.json`` (EN) and ``translations/fr.json`` for localized titles / field labels, plus
 a ``selector`` block (option labels).
 
@@ -104,16 +104,49 @@ OPTIONS_CATALOG_HANDLERS = frozenset(
     {
         "async_step_init",
         "async_step_expert",
+        "async_step_offer",
+        "async_step_grid",
+        "async_step_grid_tri_energy_mode",
+        "async_step_grid_tri_per_phase",
+        "async_step_grid_tri_layout",
+        "async_step_grid_phases",
+        "async_step_tri_grid_phase_1",
+        "async_step_tri_grid_phase_2",
+        "async_step_tri_grid_phase_3",
         "async_step_solar",
         "async_step_solar_config",
         "async_step_solar_estimation",
+        "async_step_battery",
+        "async_step_battery_pick",
+        "async_step_battery_add",
+        "async_step_battery_advanced",
+        "async_step_battery_more",
+        "async_step_tariff_refresh",
+        "async_step_tempo",
+        "async_step_tempo_rte",
         "async_step_reinjection",
         "async_step_advanced_energy",
-        "async_step_battery_pick",
     }
 )
 OPTIONS_CATALOG_DUP_STEP_IDS: frozenset[str] = frozenset(
-    {"solar", "solar_config", "solar_estimation"}
+    {
+        "solar",
+        "solar_config",
+        "solar_estimation",
+        "grid",
+        "grid_tri_energy_mode",
+        "grid_tri_per_phase",
+        "grid_tri_layout",
+        "grid_phases",
+        "tri_grid_phase_1",
+        "tri_grid_phase_2",
+        "tri_grid_phase_3",
+        "battery",
+        "battery_pick",
+        "battery_add",
+        "battery_advanced",
+        "battery_more",
+    }
 )
 
 

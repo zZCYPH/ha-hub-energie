@@ -39,8 +39,8 @@ import { pathTo } from "../../../sitePaths";
               data-doc-carousel="#devicesGalleryCarousel"
               data-doc-slide-to="0"
             >
-              <span class="fw-semibold d-block" data-i18n="devices.g1_t">Offre</span>
-              <span class="small text-secondary" data-i18n="devices.g1_d">Tariff &amp; contract</span>
+              <span class="fw-semibold d-block" data-i18n="devices.g1_t">Bilan énergétique</span>
+              <span class="small text-secondary" data-i18n="devices.g1_d">Energy flows</span>
             </button>
             <button
               type="button"
@@ -48,8 +48,8 @@ import { pathTo } from "../../../sitePaths";
               data-doc-carousel="#devicesGalleryCarousel"
               data-doc-slide-to="1"
             >
-              <span class="fw-semibold d-block" data-i18n="devices.g2_t">Réseau</span>
-              <span class="small text-secondary" data-i18n="devices.g2_d">Grid sensors</span>
+              <span class="fw-semibold d-block" data-i18n="devices.g2_t">Coûts</span>
+              <span class="small text-secondary" data-i18n="devices.g2_d">Monetary sensors</span>
             </button>
             <button
               type="button"
@@ -57,8 +57,8 @@ import { pathTo } from "../../../sitePaths";
               data-doc-carousel="#devicesGalleryCarousel"
               data-doc-slide-to="2"
             >
-              <span class="fw-semibold d-block" data-i18n="devices.g3_t">Solaire</span>
-              <span class="small text-secondary" data-i18n="devices.g3_d">Solar stack</span>
+              <span class="fw-semibold d-block" data-i18n="devices.g3_t">Diagnostics</span>
+              <span class="small text-secondary" data-i18n="devices.g3_d">Health &amp; quality</span>
             </button>
             <button
               type="button"
@@ -66,8 +66,8 @@ import { pathTo } from "../../../sitePaths";
               data-doc-carousel="#devicesGalleryCarousel"
               data-doc-slide-to="3"
             >
-              <span class="fw-semibold d-block" data-i18n="devices.g4_t">Batterie</span>
-              <span class="small text-secondary" data-i18n="devices.g4_d">Per-battery device</span>
+              <span class="fw-semibold d-block" data-i18n="devices.g4_t">Frontend</span>
+              <span class="small text-secondary" data-i18n="devices.g4_d">Lovelace payloads</span>
             </button>
             <button
               type="button"
@@ -75,8 +75,8 @@ import { pathTo } from "../../../sitePaths";
               data-doc-carousel="#devicesGalleryCarousel"
               data-doc-slide-to="4"
             >
-              <span class="fw-semibold d-block" data-i18n="devices.g5_t">Batteries (total)</span>
-              <span class="small text-secondary" data-i18n="devices.g5_d">Aggregated</span>
+              <span class="fw-semibold d-block" data-i18n="devices.g5_t">Batterie</span>
+              <span class="small text-secondary" data-i18n="devices.g5_d">Single battery instance</span>
             </button>
             <button
               type="button"
@@ -84,8 +84,8 @@ import { pathTo } from "../../../sitePaths";
               data-doc-carousel="#devicesGalleryCarousel"
               data-doc-slide-to="5"
             >
-              <span class="fw-semibold d-block" data-i18n="devices.g6_t">Bilan énergétique</span>
-              <span class="small text-secondary" data-i18n="devices.g6_d">Energy flows</span>
+              <span class="fw-semibold d-block" data-i18n="devices.g6_t">Offre</span>
+              <span class="small text-secondary" data-i18n="devices.g6_d">Tariff &amp; contract</span>
             </button>
             <button
               type="button"
@@ -93,8 +93,8 @@ import { pathTo } from "../../../sitePaths";
               data-doc-carousel="#devicesGalleryCarousel"
               data-doc-slide-to="6"
             >
-              <span class="fw-semibold d-block" data-i18n="devices.g7_t">Coûts</span>
-              <span class="small text-secondary" data-i18n="devices.g7_d">Cost entities</span>
+              <span class="fw-semibold d-block" data-i18n="devices.g7_t">Réseau</span>
+              <span class="small text-secondary" data-i18n="devices.g7_d">Grid sensors</span>
             </button>
             <button
               type="button"
@@ -102,8 +102,17 @@ import { pathTo } from "../../../sitePaths";
               data-doc-carousel="#devicesGalleryCarousel"
               data-doc-slide-to="7"
             >
-              <span class="fw-semibold d-block" data-i18n="devices.g8_t">Diagnostics</span>
-              <span class="small text-secondary" data-i18n="devices.g8_d">Health &amp; quality</span>
+              <span class="fw-semibold d-block" data-i18n="devices.g8_t">Solaire</span>
+              <span class="small text-secondary" data-i18n="devices.g8_d">Solar stack</span>
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-primary text-start doc-carousel-jump"
+              data-doc-carousel="#devicesGalleryCarousel"
+              data-doc-slide-to="8"
+            >
+              <span class="fw-semibold d-block" data-i18n="devices.g9_t">Batteries (total)</span>
+              <span class="small text-secondary" data-i18n="devices.g9_d">Aggregated</span>
             </button>
           </nav>
         </div>

@@ -57,9 +57,6 @@ import { pathTo } from "../../../sitePaths";
         <a class="nav-link small py-1 ps-3" href="#lovelace-showcase" data-bs-dismiss="offcanvas"
           ><span data-i18n="toc.lovelace_showcase">Card preview</span></a
         >
-        <a class="nav-link small py-1 ps-3" href="#lovelace-editor" data-bs-dismiss="offcanvas"
-          ><span data-i18n="toc.lovelace_editor">Visual editor</span></a
-        >
         <a class="nav-link" href="#devices" data-bs-dismiss="offcanvas"
           ><span data-i18n="toc.devices">Devices</span></a
         >

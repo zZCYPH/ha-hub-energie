@@ -1,8 +1,5 @@
 <script setup>
 import FlowSimulator from "../../../components/FlowSimulator.vue";
-import { useDocFlowsimJumps } from "../../../composables/docFlowsimJumps";
-
-const { jumpToOptionsFlowsim } = useDocFlowsimJumps();
 </script>
 
 <template>
@@ -60,29 +57,6 @@ const { jumpToOptionsFlowsim } = useDocFlowsimJumps();
       >
     </h3>
     <p class="doc-config-muted small mb-3" data-i18n-html="configure.advanced_intro"></p>
-    <div class="site-doc-flowsim-jump-actions d-flex flex-wrap gap-2 mb-3">
-      <button
-        type="button"
-        class="site-doc-flowsim-jump-btn btn btn-outline-primary btn-sm"
-        @click="jumpToOptionsFlowsim('battery_pick')"
-      >
-        <span data-i18n="configure.advanced_btn_flowsim_batteries">Preview: Configure → Batteries (existing)</span>
-      </button>
-      <button
-        type="button"
-        class="site-doc-flowsim-jump-btn btn btn-outline-primary btn-sm"
-        @click="jumpToOptionsFlowsim('reinjection')"
-      >
-        <span data-i18n="configure.advanced_btn_flowsim_reinjection">Preview: Configure → Reinjection tuning</span>
-      </button>
-      <button
-        type="button"
-        class="site-doc-flowsim-jump-btn btn btn-outline-primary btn-sm"
-        @click="jumpToOptionsFlowsim('advanced_energy')"
-      >
-        <span data-i18n="configure.advanced_btn_flowsim_delta">Preview: Configure → Advanced — delta caps</span>
-      </button>
-    </div>
     <div class="site-doc-flow-simulator site-doc-flow-simulator--options mb-2">
       <FlowSimulator mode="options" />
     </div>

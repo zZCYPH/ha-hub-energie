@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-10T15:05:36.956712+00:00",
+  "generated_at": "2026-04-20T23:32:04.535768+00:00",
   "source_files": {
     "config_flow": "custom_components/hub_energie/config_flow.py",
     "strings_en": "custom_components/hub_energie/strings.json",
@@ -2077,6 +2077,71 @@
       }
     },
     {
+      "step_id": "offer",
+      "handler": "async_step_offer",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Offer & supplier",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-offer)",
+          "fields": [
+            {
+              "key": "supplier",
+              "label": "Energy supplier",
+              "description": "EDF or another supplier."
+            },
+            {
+              "key": "supplier_custom_name",
+              "label": "Supplier name",
+              "description": "Required when supplier is “Other”; short display name only."
+            },
+            {
+              "key": "contract_power",
+              "label": "Subscribed power (kVA)",
+              "description": "Your subscription tier (e.g. 6, 9, 12 kVA for EDF)."
+            },
+            {
+              "key": "contract_name",
+              "label": "Contract name (optional)",
+              "description": "Free text to recognize this setup (optional)."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Offre et fournisseur",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-offer)",
+          "fields": [
+            {
+              "key": "supplier",
+              "label": "Fournisseur d'énergie",
+              "description": "EDF ou autre fournisseur."
+            },
+            {
+              "key": "supplier_custom_name",
+              "label": "Nom du fournisseur",
+              "description": "Obligatoire si fournisseur « Autre » ; nom court d’affichage."
+            },
+            {
+              "key": "contract_power",
+              "label": "Puissance souscrite (kVA)",
+              "description": "Votre puissance (par ex. 6, 9, 12 avec EDF)."
+            },
+            {
+              "key": "contract_name",
+              "label": "Nom du contrat (optionnel)",
+              "description": "Libellé libre pour retrouver ce réglage (optionnel)."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
       "step_id": "reinjection",
       "handler": "async_step_reinjection",
       "source_class": "HubEnergieOptionsFlow",
@@ -2490,6 +2555,131 @@
       }
     },
     {
+      "step_id": "tariff_refresh",
+      "handler": "async_step_tariff_refresh",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Refresh EDF tariffs",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-tariff_refresh)",
+          "fields": [
+            {
+              "key": "tariff_offer",
+              "label": "Offer type",
+              "description": "Base, HPHC, or Tempo — must match your contract."
+            },
+            {
+              "key": "contract_power",
+              "label": "Subscribed power (kVA)",
+              "description": "Must match your subscription for correct prices."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Actualiser les tarifs EDF",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-tariff_refresh)",
+          "fields": [
+            {
+              "key": "tariff_offer",
+              "label": "Type d'offre",
+              "description": "Base, HPHC ou Tempo — doit correspondre à votre contrat."
+            },
+            {
+              "key": "contract_power",
+              "label": "Puissance souscrite (kVA)",
+              "description": "Doit correspondre à votre abonnement pour des prix corrects."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "tempo",
+      "handler": "async_step_tempo",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Tempo signal source",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-tempo)",
+          "fields": [
+            {
+              "key": "tempo_mode",
+              "label": "Signal source",
+              "description": "Switch between RTE API colours and API Couleur Tempo after install."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Source du signal Tempo",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-tempo)",
+          "fields": [
+            {
+              "key": "tempo_mode",
+              "label": "Source du signal",
+              "description": "Basculer entre couleurs via API RTE et API Couleur Tempo après installation."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "tempo_rte",
+      "handler": "async_step_tempo_rte",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "RTE credentials",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-tempo_rte)",
+          "fields": [
+            {
+              "key": "rte_client_id",
+              "label": "RTE API client ID",
+              "description": "Update the RTE OAuth client id; secret can stay blank to keep the stored value."
+            },
+            {
+              "key": "rte_client_secret",
+              "label": "RTE API client secret",
+              "description": "New secret when rotating credentials; leave empty to keep the previous secret on save."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Identifiants RTE",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-tempo_rte)",
+          "fields": [
+            {
+              "key": "rte_client_id",
+              "label": "Client ID API RTE",
+              "description": "Mettre à jour l’identifiant client OAuth RTE ; le secret peut rester vide pour conserver l’existant."
+            },
+            {
+              "key": "rte_client_secret",
+              "label": "Client secret API RTE",
+              "description": "Nouveau secret lors d’une rotation ; laisser vide pour garder l’ancien à l’enregistrement."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
       "step_id": "tri_grid_phase_1",
       "handler": "async_step_tri_grid_phase_1",
       "source_class": "HubEnergieConfigFlow",
@@ -2696,6 +2886,436 @@
           ],
           "menu_choices": [],
           "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "battery",
+      "handler": "async_step_battery",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Battery systems",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-battery)",
+          "fields": [
+            {
+              "key": "has_batteries",
+              "label": "Do you have battery systems?",
+              "description": "Turn off to hide battery entities until you enable again."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Systèmes de batterie",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-battery)",
+          "fields": [
+            {
+              "key": "has_batteries",
+              "label": "Avez-vous des batteries ?",
+              "description": "Désactiver masque les entités batteries jusqu'au prochain réactivation."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "grid",
+      "handler": "async_step_grid",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Grid sensors",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-grid)",
+          "fields": [
+            {
+              "key": "grid_import_energy",
+              "label": "Grid import energy (kWh)",
+              "description": "Total increasing energy counter for grid import."
+            },
+            {
+              "key": "grid_export_energy",
+              "label": "Grid export energy (kWh, optional)",
+              "description": "Total increasing energy counter for grid export (if separate)."
+            },
+            {
+              "key": "grid_power_sign_mode",
+              "label": "Grid power sign convention",
+              "description": "Convention: is export negative or positive on this sensor?"
+            },
+            {
+              "key": "grid_power_sensor",
+              "label": "Grid power (W, optional)",
+              "description": "Instantaneous grid power for real-time display."
+            },
+            {
+              "key": "load_power_sensor",
+              "label": "House load power (W, optional)",
+              "description": "Optional house consumption for load-side diagnostics."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Capteurs réseau",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-grid)",
+          "fields": [
+            {
+              "key": "grid_import_energy",
+              "label": "Énergie importée réseau (kWh)",
+              "description": "Compteur d'énergie total croissant pour l'import."
+            },
+            {
+              "key": "grid_export_energy",
+              "label": "Énergie exportée réseau (kWh, optionnel)",
+              "description": "Compteur d'export (si compteur séparé)."
+            },
+            {
+              "key": "grid_power_sign_mode",
+              "label": "Convention de signe puissance réseau",
+              "description": "L'export est-il négatif ou positif sur ce capteur ?"
+            },
+            {
+              "key": "grid_power_sensor",
+              "label": "Puissance réseau (W, optionnel)",
+              "description": "Puissance instantanée pour l'affichage temps réel."
+            },
+            {
+              "key": "load_power_sensor",
+              "label": "Puissance maison (W, optionnel)",
+              "description": "Consommation maison optionnelle pour le diagnostic."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "grid_phases",
+      "handler": "async_step_grid_phases",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Three-phase grid sensors (JSON)",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-grid_phases)",
+          "fields": [
+            {
+              "key": "grid_import_energy_phases",
+              "label": "Import energy (JSON)",
+              "description": "JSON list of {phase, entity_id} objects for per-phase import kWh."
+            },
+            {
+              "key": "grid_export_energy_phases",
+              "label": "Export energy (JSON)",
+              "description": "Optional export list with the same JSON shape."
+            },
+            {
+              "key": "grid_power_phases",
+              "label": "Grid power (JSON)",
+              "description": "Optional per-phase grid power entities for summed live power."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Capteurs triphasé (JSON)",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-grid_phases)",
+          "fields": [
+            {
+              "key": "grid_import_energy_phases",
+              "label": "Import énergie (JSON)",
+              "description": "Liste JSON {phase, entity_id} pour les compteurs kWh d’import par phase."
+            },
+            {
+              "key": "grid_export_energy_phases",
+              "label": "Export énergie (JSON)",
+              "description": "Liste export optionnelle, même format JSON."
+            },
+            {
+              "key": "grid_power_phases",
+              "label": "Puissance réseau (JSON)",
+              "description": "Entités de puissance (W) par phase optionnelles pour la somme temps réel."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "grid_tri_energy_mode",
+      "handler": "async_step_grid_tri_energy_mode",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Three-phase grid import",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-grid_tri_energy_mode)",
+          "fields": [
+            {
+              "key": "grid_tri_energy_mode",
+              "label": "Grid import metering",
+              "description": "One total: unchanged vs. “Grid sensors”. Per phase: summed by the integration."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Import réseau triphasé",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-grid_tri_energy_mode)",
+          "fields": [
+            {
+              "key": "grid_tri_energy_mode",
+              "label": "Mesure de l'import réseau",
+              "description": "Total : inchangé par rapport à « Capteurs réseau ». Par phase : sommé par l'intégration."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "grid_tri_layout",
+      "handler": "async_step_grid_tri_layout",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Three-phase sensor layout",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-grid_tri_layout)",
+          "fields": [
+            {
+              "key": "grid_tri_sensor_layout",
+              "label": "Sensor layout",
+              "description": "One for all phases: JSON step next. One per phase: three steps for L1, L2, L3."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Répartition des capteurs triphasés",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-grid_tri_layout)",
+          "fields": [
+            {
+              "key": "grid_tri_sensor_layout",
+              "label": "Mode de saisie",
+              "description": "Un pour toutes les phases : étape JSON. Un par phase : trois étapes L1, L2, L3."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "grid_tri_per_phase",
+      "handler": "async_step_grid_tri_per_phase",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Three-phase import meters",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-grid_tri_per_phase)",
+          "fields": [],
+          "menu_choices": [],
+          "sections": [
+            {
+              "id": "tri_grid_sign",
+              "name": "Grid power",
+              "fields": [
+                {
+                  "key": "grid_power_sign_mode",
+                  "label": "Grid power sign convention",
+                  "description": "Convention: is export negative or positive on your per-phase grid power sensors?"
+                }
+              ]
+            },
+            {
+              "id": "tri_phase_l1",
+              "name": "Phase L1",
+              "fields": [
+                {
+                  "key": "tri_import_energy_p1",
+                  "label": "Grid import energy (kWh)",
+                  "description": "Total increasing kWh counter for grid import on phase L1."
+                },
+                {
+                  "key": "tri_export_energy_p1",
+                  "label": "Grid export energy (kWh, optional)",
+                  "description": "Optional export counter for L1; leave empty if unused."
+                },
+                {
+                  "key": "tri_grid_power_p1",
+                  "label": "Grid power (W, optional)",
+                  "description": "Instantaneous power on L1; the integration sums whichever phases you set for real-time display. For a single total sensor, fill only one phase."
+                }
+              ]
+            },
+            {
+              "id": "tri_phase_l2",
+              "name": "Phase L2",
+              "fields": [
+                {
+                  "key": "tri_import_energy_p2",
+                  "label": "Grid import energy (kWh)",
+                  "description": "Total increasing kWh counter for grid import on phase L2."
+                },
+                {
+                  "key": "tri_export_energy_p2",
+                  "label": "Grid export energy (kWh, optional)",
+                  "description": "Optional export counter for L2; leave empty if unused."
+                },
+                {
+                  "key": "tri_grid_power_p2",
+                  "label": "Grid power (W, optional)",
+                  "description": "Instantaneous power on L2."
+                }
+              ]
+            },
+            {
+              "id": "tri_phase_l3",
+              "name": "Phase L3",
+              "fields": [
+                {
+                  "key": "tri_import_energy_p3",
+                  "label": "Grid import energy (kWh)",
+                  "description": "Total increasing kWh counter for grid import on phase L3."
+                },
+                {
+                  "key": "tri_export_energy_p3",
+                  "label": "Grid export energy (kWh, optional)",
+                  "description": "Optional export counter for L3; leave empty if unused."
+                },
+                {
+                  "key": "tri_grid_power_p3",
+                  "label": "Grid power (W, optional)",
+                  "description": "Instantaneous power on L3."
+                }
+              ]
+            },
+            {
+              "id": "tri_phase_load",
+              "name": "House load",
+              "fields": [
+                {
+                  "key": "load_power_sensor",
+                  "label": "House load power (W, optional)",
+                  "description": "Optional house consumption for load-side diagnostics."
+                }
+              ]
+            }
+          ]
+        },
+        "fr": {
+          "title": "Compteurs d'import par phase",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-grid_tri_per_phase)",
+          "fields": [],
+          "menu_choices": [],
+          "sections": [
+            {
+              "id": "tri_grid_sign",
+              "name": "Puissance réseau",
+              "fields": [
+                {
+                  "key": "grid_power_sign_mode",
+                  "label": "Convention de signe puissance réseau",
+                  "description": "L'export est-il négatif ou positif sur vos capteurs de puissance réseau (par phase) ?"
+                }
+              ]
+            },
+            {
+              "id": "tri_phase_l1",
+              "name": "Phase L1",
+              "fields": [
+                {
+                  "key": "tri_import_energy_p1",
+                  "label": "Import réseau (kWh)",
+                  "description": "Compteur kWh total_increasing d’import réseau sur la phase L1."
+                },
+                {
+                  "key": "tri_export_energy_p1",
+                  "label": "Export réseau (kWh, optionnel)",
+                  "description": "Compteur d’export L1 optionnel ; vide si inutilisé."
+                },
+                {
+                  "key": "tri_grid_power_p1",
+                  "label": "Puissance réseau (W, optionnel)",
+                  "description": "Puissance instantanée L1 ; l'intégration additionne les phases renseignées pour le temps réel. Un seul capteur « total » : ne renseignez qu'une phase."
+                }
+              ]
+            },
+            {
+              "id": "tri_phase_l2",
+              "name": "Phase L2",
+              "fields": [
+                {
+                  "key": "tri_import_energy_p2",
+                  "label": "Import réseau (kWh)",
+                  "description": "Compteur kWh total_increasing d’import réseau sur la phase L2."
+                },
+                {
+                  "key": "tri_export_energy_p2",
+                  "label": "Export réseau (kWh, optionnel)",
+                  "description": "Compteur d’export L2 optionnel ; vide si inutilisé."
+                },
+                {
+                  "key": "tri_grid_power_p2",
+                  "label": "Puissance réseau (W, optionnel)",
+                  "description": "Puissance instantanée L2."
+                }
+              ]
+            },
+            {
+              "id": "tri_phase_l3",
+              "name": "Phase L3",
+              "fields": [
+                {
+                  "key": "tri_import_energy_p3",
+                  "label": "Import réseau (kWh)",
+                  "description": "Compteur kWh total_increasing d’import réseau sur la phase L3."
+                },
+                {
+                  "key": "tri_export_energy_p3",
+                  "label": "Export réseau (kWh, optionnel)",
+                  "description": "Compteur d’export L3 optionnel ; vide si inutilisé."
+                },
+                {
+                  "key": "tri_grid_power_p3",
+                  "label": "Puissance réseau (W, optionnel)",
+                  "description": "Puissance instantanée L3."
+                }
+              ]
+            },
+            {
+              "id": "tri_phase_load",
+              "name": "Consommation maison",
+              "fields": [
+                {
+                  "key": "load_power_sensor",
+                  "label": "Puissance maison (W, optionnel)",
+                  "description": "Consommation maison optionnelle pour le diagnostic."
+                }
+              ]
+            }
+          ]
         }
       }
     },
@@ -2907,6 +3527,171 @@
               "key": "solar_performance",
               "label": "Performance du système",
               "description": "Classe de performance (standard / optimiste / prudent) pour le modèle."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "tri_grid_phase_1",
+      "handler": "async_step_tri_grid_phase_1",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Three-phase grid — phase L1",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-tri_grid_phase_1)",
+          "fields": [
+            {
+              "key": "tri_phase_step_import_energy",
+              "label": "Import energy (kWh, optional)",
+              "description": "Optional import kWh entity for L1 when you chose per-phase layout after a single combined meter."
+            },
+            {
+              "key": "tri_phase_step_export_energy",
+              "label": "Export energy (kWh, optional)",
+              "description": "Optional export kWh for L1."
+            },
+            {
+              "key": "tri_phase_step_grid_power",
+              "label": "Grid power (W, optional)",
+              "description": "Optional grid power (W) for L1; integration sums configured phases."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Réseau triphasé — phase L1",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-tri_grid_phase_1)",
+          "fields": [
+            {
+              "key": "tri_phase_step_import_energy",
+              "label": "Import énergie (kWh, optionnel)",
+              "description": "Entité kWh d’import L1 optionnelle (disposition par phase après compteur combiné)."
+            },
+            {
+              "key": "tri_phase_step_export_energy",
+              "label": "Export énergie (kWh, optionnel)",
+              "description": "Export kWh L1 optionnel."
+            },
+            {
+              "key": "tri_phase_step_grid_power",
+              "label": "Puissance réseau (W, optionnel)",
+              "description": "Puissance réseau (W) L1 optionnelle ; somme des phases renseignées."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "tri_grid_phase_2",
+      "handler": "async_step_tri_grid_phase_2",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Three-phase grid — phase L2",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-tri_grid_phase_2)",
+          "fields": [
+            {
+              "key": "tri_phase_step_import_energy",
+              "label": "Import energy (kWh, optional)",
+              "description": "Optional import kWh entity for L2."
+            },
+            {
+              "key": "tri_phase_step_export_energy",
+              "label": "Export energy (kWh, optional)",
+              "description": "Optional export kWh for L2."
+            },
+            {
+              "key": "tri_phase_step_grid_power",
+              "label": "Grid power (W, optional)",
+              "description": "Optional grid power (W) for L2."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Réseau triphasé — phase L2",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-tri_grid_phase_2)",
+          "fields": [
+            {
+              "key": "tri_phase_step_import_energy",
+              "label": "Import énergie (kWh, optionnel)",
+              "description": "Entité kWh d’import L2 optionnelle."
+            },
+            {
+              "key": "tri_phase_step_export_energy",
+              "label": "Export énergie (kWh, optionnel)",
+              "description": "Export kWh L2 optionnel."
+            },
+            {
+              "key": "tri_phase_step_grid_power",
+              "label": "Puissance réseau (W, optionnel)",
+              "description": "Puissance réseau (W) L2 optionnelle."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "tri_grid_phase_3",
+      "handler": "async_step_tri_grid_phase_3",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Three-phase grid — phase L3",
+          "description": "[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-tri_grid_phase_3)",
+          "fields": [
+            {
+              "key": "tri_phase_step_import_energy",
+              "label": "Import energy (kWh, optional)",
+              "description": "Optional import kWh entity for L3."
+            },
+            {
+              "key": "tri_phase_step_export_energy",
+              "label": "Export energy (kWh, optional)",
+              "description": "Optional export kWh for L3."
+            },
+            {
+              "key": "tri_phase_step_grid_power",
+              "label": "Grid power (W, optional)",
+              "description": "Optional grid power (W) for L3."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Réseau triphasé — phase L3",
+          "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-tri_grid_phase_3)",
+          "fields": [
+            {
+              "key": "tri_phase_step_import_energy",
+              "label": "Import énergie (kWh, optionnel)",
+              "description": "Entité kWh d’import L3 optionnelle."
+            },
+            {
+              "key": "tri_phase_step_export_energy",
+              "label": "Export énergie (kWh, optionnel)",
+              "description": "Export kWh L3 optionnel."
+            },
+            {
+              "key": "tri_phase_step_grid_power",
+              "label": "Puissance réseau (W, optionnel)",
+              "description": "Puissance réseau (W) L3 optionnelle."
             }
           ],
           "menu_choices": [],
