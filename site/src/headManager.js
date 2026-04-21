@@ -153,6 +153,8 @@ export function applyRouteHead(route) {
   upsertMetaProperty("og:locale", lang === "fr" ? "fr_FR" : "en_US");
   const ogImage = openGraphImageUrl();
   upsertMetaProperty("og:image", ogImage);
+  upsertMetaProperty("og:image:secure_url", ogImage);
+  upsertMetaProperty("og:image:type", "image/png");
   upsertMetaProperty("og:image:width", "1200");
   upsertMetaProperty("og:image:height", "630");
   upsertMetaProperty("og:image:alt", tr(lang, "meta.og_image_alt") || "Hub Énergie");

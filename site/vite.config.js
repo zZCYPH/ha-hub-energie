@@ -14,6 +14,11 @@ function canonicalSiteRoot() {
   return `${origin}${p}`;
 }
 
+/** Escape text inside double-quoted HTML attributes (Open Graph / Twitter). */
+function escapeAttr(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
 export default defineConfig({
   plugins: [
     vue(),
@@ -25,21 +30,27 @@ export default defineConfig({
         const ogUrl = `${root}/`;
         const ogDesc =
           "Hub Énergie — une seule intégration Home Assistant pour tarifs, énergie, coûts, solaire, batteries et diagnostics.";
-        const block = `    <meta property="og:site_name" content="Hub Énergie" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="${ogUrl}" />
-    <meta property="og:title" content="Hub Énergie" />
-    <meta property="og:description" content="${ogDesc.replace(/"/g, "&quot;")}" />
-    <meta property="og:image" content="${ogImage}" />
+        const ogTitle = "Hub Énergie";
+        const ogImageAlt = "Hub Énergie — intégration Home Assistant";
+        /** Put Open Graph first: Facebook flags “inferred og:image” if image tags dominate before explicit og:image. */
+        const ogCore = `    <meta property="og:title" content="${escapeAttr(ogTitle)}" />
+    <meta property="og:description" content="${escapeAttr(ogDesc)}" />
+    <meta property="og:image" content="${escapeAttr(ogImage)}" />
+    <meta property="og:image:secure_url" content="${escapeAttr(ogImage)}" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Hub Énergie — intégration Home Assistant" />
-    <meta property="og:locale" content="fr_FR" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Hub Énergie" />
-    <meta name="twitter:description" content="${ogDesc.replace(/"/g, "&quot;")}" />
-    <meta name="twitter:image" content="${ogImage}" />`;
-        return html.replace("</title>", `</title>\n${block}`);
+    <meta property="og:image:alt" content="${escapeAttr(ogImageAlt)}" />
+    <meta property="og:url" content="${escapeAttr(ogUrl)}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="${escapeAttr(ogTitle)}" />
+    <meta property="og:locale" content="fr_FR" />`;
+        const twitterBlock = `    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeAttr(ogTitle)}" />
+    <meta name="twitter:description" content="${escapeAttr(ogDesc)}" />
+    <meta name="twitter:image" content="${escapeAttr(ogImage)}" />`;
+        const block = `${ogCore}\n${twitterBlock}`;
+        return html.replace('<meta charset="utf-8" />', `<meta charset="utf-8" />\n${block}`);
       },
     },
   ],
