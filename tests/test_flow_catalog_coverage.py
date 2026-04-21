@@ -53,10 +53,12 @@ def test_setup_async_step_handlers_all_in_catalog(extract_mod, committed_catalog
     )
 
 
-def test_catalog_step_rows_unique_step_ids(committed_catalog):
+def test_catalog_step_rows_unique_step_ids(extract_mod, committed_catalog):
     from collections import Counter
 
-    allowed_dup = frozenset({"solar", "solar_config", "solar_estimation"})
+    # Keep in sync with ``scripts/extract_config_flow_catalog.py`` ``OPTIONS_CATALOG_DUP_STEP_IDS``.
+    allowed_dup = extract_mod.OPTIONS_CATALOG_DUP_STEP_IDS
+    setup_sources = frozenset({"HubEnergieConfigFlow", "_BatteryWizardMixin"})
     ids = [s["step_id"] for s in committed_catalog["steps"]]
     counts = Counter(ids)
     bad = sorted(sid for sid, n in counts.items() if n > 1 and sid not in allowed_dup)
@@ -66,9 +68,14 @@ def test_catalog_step_rows_unique_step_ids(committed_catalog):
         if len(rows) <= 1:
             continue
         classes = {r.get("source_class") for r in rows}
-        assert classes == {"HubEnergieConfigFlow", "HubEnergieOptionsFlow"}, (
-            f"Expected setup+options rows for {sid!r}, got {rows!r}"
+        assert "HubEnergieOptionsFlow" in classes, (
+            f"Expected an options-flow row for duplicate {sid!r}, got {rows!r}"
         )
+        setup_only = classes - {"HubEnergieOptionsFlow"}
+        assert setup_only.issubset(setup_sources) and setup_only, (
+            f"Expected setup wizard row(s) for duplicate {sid!r}, got {rows!r}"
+        )
+        assert len(rows) == len(classes) == 2, f"Expected exactly two catalog rows for {sid!r}, got {rows!r}"
 
 
 def test_committed_catalog_matches_fresh_build_stable_blob(extract_mod, committed_catalog):
