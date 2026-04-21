@@ -5,6 +5,11 @@ import App from "./App.vue";
 import router from "./router";
 import { applyStoredShell, bindShellControls } from "./siteShell";
 
+const ciCommitTag = import.meta.env.VITE_CI_COMMIT_TAG;
+if (typeof ciCommitTag === "string" && ciCommitTag.length > 0) {
+  console.info("[Hub Énergie] CI deploy tag:", ciCommitTag);
+}
+
 applyStoredShell();
 const app = createApp(App);
 app.use(router);

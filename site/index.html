@@ -2,6 +2,18 @@
 <html lang="fr" data-bs-theme="dark">
   <head>
     <meta charset="utf-8" />
+    <!--
+      Social image URLs use a build-time canonical root (see vite.config.js hub-energie-html-social-meta).
+      Crawlers (Facebook, etc.) need explicit og:image in the initial HTML, not only after client JS.
+    -->
+    <meta property="og:image" content="__HUB_ENERGIE_CANONICAL_ROOT__/img/og-social.png" />
+    <meta property="og:image:secure_url" content="__HUB_ENERGIE_CANONICAL_ROOT__/img/og-social.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Hub Énergie — intégration Home Assistant" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="__HUB_ENERGIE_CANONICAL_ROOT__/img/og-social.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"

@@ -19,6 +19,8 @@ function escapeAttr(s) {
   return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 }
 
+const PLACEHOLDER_CANONICAL_ROOT = "__HUB_ENERGIE_CANONICAL_ROOT__";
+
 export default defineConfig({
   plugins: [
     vue(),
@@ -26,31 +28,37 @@ export default defineConfig({
       name: "hub-energie-html-social-meta",
       transformIndexHtml(html) {
         const root = canonicalSiteRoot();
+        if (!html.includes(PLACEHOLDER_CANONICAL_ROOT)) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[hub-energie-html-social-meta] index.html should contain ${PLACEHOLDER_CANONICAL_ROOT} for og:image URLs.`,
+          );
+        }
+        let out = html.replaceAll(PLACEHOLDER_CANONICAL_ROOT, root);
+        /** Default Open Graph for crawlers that do not execute JS (SPA). Route-specific tags still come from headManager.js. */
         const ogImage = `${root}/img/og-social.png`;
         const ogUrl = `${root}/`;
         const ogDesc =
           "Hub Énergie — une seule intégration Home Assistant pour tarifs, énergie, coûts, solaire, batteries et diagnostics.";
         const ogTitle = "Hub Énergie";
         const ogImageAlt = "Hub Énergie — intégration Home Assistant";
-        /** Put Open Graph first: Facebook flags “inferred og:image” if image tags dominate before explicit og:image. */
         const ogCore = `    <meta property="og:title" content="${escapeAttr(ogTitle)}" />
     <meta property="og:description" content="${escapeAttr(ogDesc)}" />
-    <meta property="og:image" content="${escapeAttr(ogImage)}" />
-    <meta property="og:image:secure_url" content="${escapeAttr(ogImage)}" />
-    <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="${escapeAttr(ogImageAlt)}" />
     <meta property="og:url" content="${escapeAttr(ogUrl)}" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="${escapeAttr(ogTitle)}" />
     <meta property="og:locale" content="fr_FR" />`;
-        const twitterBlock = `    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="${escapeAttr(ogTitle)}" />
-    <meta name="twitter:description" content="${escapeAttr(ogDesc)}" />
-    <meta name="twitter:image" content="${escapeAttr(ogImage)}" />`;
+        const twitterBlock = `    <meta name="twitter:title" content="${escapeAttr(ogTitle)}" />
+    <meta name="twitter:description" content="${escapeAttr(ogDesc)}" />`;
         const block = `${ogCore}\n${twitterBlock}`;
-        return html.replace('<meta charset="utf-8" />', `<meta charset="utf-8" />\n${block}`);
+        /** Match charset whether the serializer keeps self-closing void tags or not. */
+        const reCharset = /<meta\s+charset=["']utf-8["']\s*\/?>/i;
+        if (!reCharset.test(out)) {
+          // eslint-disable-next-line no-console
+          console.warn("[hub-energie-html-social-meta] could not find <meta charset> to inject default OG tags.");
+          return out;
+        }
+        return out.replace(reCharset, (m) => `${m}\n${block}`);
       },
     },
   ],

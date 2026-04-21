@@ -57,6 +57,7 @@ site_build_smoke:
   needs:
     - flow_catalog_up_to_date
   script:
+    - export VITE_CI_COMMIT_TAG="${CI_COMMIT_TAG:-}"
     - cd site
     - npm ci
     - npm run build
@@ -277,6 +278,7 @@ pages:
       node site/scripts/fetch-releases.mjs
       # History-mode SPA: Vite base + GitLab Pages `_redirects` need the project path on *.gitlab.io URLs.
       export VITE_SITE_BASE="$(node -e "const u=process.env.CI_PAGES_URL||'';if(!u){process.stdout.write('/');process.exit(0)}try{let p=new URL(u).pathname||'/';if(p!=='/'&&!p.endsWith('/'))p+='/';process.stdout.write(p)}catch{process.stdout.write('/')}")"
+      export VITE_CI_COMMIT_TAG="${CI_COMMIT_TAG}"
       (cd site && npm ci && npm run build)
       rm -rf public
       mkdir -p public
