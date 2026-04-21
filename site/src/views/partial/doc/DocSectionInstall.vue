@@ -1,5 +1,8 @@
 <script setup>
 import InstallReleasePicker from "../../../components/InstallReleasePicker.vue";
+
+/** GitHub mirror used for HACS custom repository + release ZIPs (keep in sync with README). */
+const HACS_REPO_URL = "https://github.com/zZCYPH/ha-hub-energie";
 </script>
 
 <template>
@@ -36,6 +39,18 @@ import InstallReleasePicker from "../../../components/InstallReleasePicker.vue";
       <li class="nav-item" role="presentation">
         <button
           class="nav-link active text-nowrap"
+          id="tab-hacs"
+          data-bs-toggle="tab"
+          data-bs-target="#pane-hacs"
+          type="button"
+          role="tab"
+        >
+          <span data-i18n="tab.hacs_store">HACS</span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link text-nowrap"
           id="tab-zip"
           data-bs-toggle="tab"
           data-bs-target="#pane-zip"
@@ -69,22 +84,48 @@ import InstallReleasePicker from "../../../components/InstallReleasePicker.vue";
           <span data-i18n="tab.copy">Copy files</span>
         </button>
       </li>
-      <li class="nav-item" role="presentation">
-        <button
-          class="nav-link text-nowrap"
-          id="tab-hacs"
-          data-bs-toggle="tab"
-          data-bs-target="#pane-hacs"
-          type="button"
-          role="tab"
-        >
-          <span data-i18n="tab.hacs_store">HACS</span>
-        </button>
-      </li>
     </ul>
     <div class="tab-content">
+      <div class="tab-pane fade show active" id="pane-hacs" role="tabpanel">
+        <ol class="doc-steps">
+          <li>
+            <div class="doc-step-card shadow-sm">
+              <span class="step-badge">1</span>
+              <div class="step-body">
+                <div class="step-title" data-i18n="install.hacs.s1_title">Add the GitHub repository</div>
+                <p class="small text-secondary mb-2" data-i18n-html="install.hacs.s1_p_html"></p>
+                <pre class="doc-code mt-2 mb-0"><code>{{ HACS_REPO_URL }}</code></pre>
+                <p class="small text-secondary mb-0 mt-2" data-i18n-html="install.hacs.s1_after_html"></p>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="doc-step-card shadow-sm">
+              <span class="step-badge">2</span>
+              <div class="step-body">
+                <div class="step-title" data-i18n="install.hacs.s2_title">Install from HACS</div>
+                <p class="small text-secondary mb-0" data-i18n-html="install.hacs.s2_p_html"></p>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="doc-step-card shadow-sm">
+              <span class="step-badge">3</span>
+              <div class="step-body">
+                <div class="step-title" data-i18n="install.hacs.s3_title">Restart &amp; add the integration</div>
+                <p class="small text-secondary mb-0">
+                  <span data-i18n="install.hacs.s3_p_before"></span>
+                  <a href="#configure" data-i18n="install.hacs.s3_p_link"></a>
+                  <span data-i18n="install.hacs.s3_p_after"></span>
+                </p>
+              </div>
+            </div>
+          </li>
+        </ol>
+        <p class="small text-secondary border-start border-primary border-3 ps-3 py-1 mb-0 mt-3" data-i18n-html="install.hacs.note_html"></p>
+      </div>
       <div
-        class="tab-pane fade show active"
+        class="tab-pane fade"
         id="pane-zip"
         role="tabpanel"
         data-i18n-aria="install.release_aria"
@@ -99,29 +140,8 @@ import InstallReleasePicker from "../../../components/InstallReleasePicker.vue";
             <div class="flex-shrink-0">
               <InstallReleasePicker />
             </div>
-            <p class="small text-secondary mb-0 lh-lg">
-              <span data-i18n="install.zip_after_before"></span>
-              <a href="#configure" data-i18n="install.zip_after_configure"></a>
-              <span data-i18n="install.zip_after_between"></span>
-              <a
-                href="https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/releases"
-                target="_blank"
-                rel="noopener noreferrer"
-                data-i18n="install.zip_after_link"
-              ></a>
-              <span data-i18n="install.zip_after_after"></span>
-            </p>
+            <p class="small text-secondary mb-0 lh-lg" data-i18n-html="install.zip_footer_html"></p>
           </div>
-        </div>
-      </div>
-      <div class="tab-pane fade" id="pane-hacs" role="tabpanel">
-        <div class="alert alert-secondary mb-0" role="status">
-          <h3 class="h6 alert-heading d-flex align-items-center gap-2 mb-2">
-            <i class="bi bi-puzzle" aria-hidden="true"></i>
-            <span data-i18n="install.hacs_tba_heading">HACS</span>
-          </h3>
-          <p class="small mb-2" data-i18n="install.hacs_tba_p1"></p>
-          <p class="small mb-0" data-i18n="install.hacs_tba_p2"></p>
         </div>
       </div>
       <div class="tab-pane fade" id="pane-git" role="tabpanel">
@@ -131,7 +151,7 @@ import InstallReleasePicker from "../../../components/InstallReleasePicker.vue";
               <span class="step-badge">1</span>
               <div class="step-body">
                 <div class="step-title" data-i18n="install.git.s1_title">Clone into the right folder</div>
-                <pre class="doc-code mt-2 mb-0"><code>git clone &lt;your-repo-url&gt; hub-energie-src
+                <pre class="doc-code mt-2 mb-0"><code>git clone {{ HACS_REPO_URL }} hub-energie-src
 cp -a hub-energie-src/custom_components/hub_energie /path/to/homeassistant/config/custom_components/hub_energie</code></pre>
               </div>
             </div>
