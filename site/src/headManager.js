@@ -23,6 +23,13 @@ function origin() {
   return DEFAULT_ORIGIN;
 }
 
+/** Absolute URL to the default social preview image (Facebook / Twitter / LinkedIn). */
+function openGraphImageUrl() {
+  const o = origin();
+  const prefix = appBasePath();
+  return prefix ? `${o}${prefix}/img/og-social.png` : `${o}/img/og-social.png`;
+}
+
 function upsertMetaByName(name, content) {
   if (!content) return;
   let el = document.querySelector(`meta[name="${name}"]`);
@@ -138,14 +145,21 @@ export function applyRouteHead(route) {
   const pageUrl = `${base}${prefix}${pq}`;
 
   upsertLinkRel("canonical", pageUrl);
+  upsertMetaProperty("og:site_name", "Hub Énergie");
   upsertMetaProperty("og:title", title);
   upsertMetaProperty("og:description", description);
   upsertMetaProperty("og:url", pageUrl);
   upsertMetaProperty("og:type", route.name === "home" ? "website" : "article");
   upsertMetaProperty("og:locale", lang === "fr" ? "fr_FR" : "en_US");
+  const ogImage = openGraphImageUrl();
+  upsertMetaProperty("og:image", ogImage);
+  upsertMetaProperty("og:image:width", "1200");
+  upsertMetaProperty("og:image:height", "630");
+  upsertMetaProperty("og:image:alt", tr(lang, "meta.og_image_alt") || "Hub Énergie");
   upsertMetaByName("twitter:card", "summary_large_image");
   upsertMetaByName("twitter:title", title);
   upsertMetaByName("twitter:description", description);
+  upsertMetaByName("twitter:image", ogImage);
 
   setJsonLd("hub-energie-jsonld", jsonLdForRoute(route.name, lang, pageUrl, title, description));
 }

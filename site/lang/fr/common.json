@@ -13,6 +13,7 @@
   "meta.description.developers": "Notes internes pour les mainteneurs du site de documentation Hub Énergie (aperçu du flux, catalogue généré, CI).",
   "meta.title.lovelace_cards": "Hub Énergie — Cartes Lovelace",
   "meta.description.lovelace_cards": "Aperçus interactifs des cartes tableau de bord Hub Énergie (données fictives pour le site de documentation).",
+  "meta.og_image_alt": "Hub Énergie — intégration Home Assistant (aperçu du site de documentation)",
   "nav.home": "Accueil",
   "nav.showcase": "Vitrine",
   "nav.documentation": "Vitrine",
