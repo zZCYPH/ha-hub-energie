@@ -1,31 +1,35 @@
-# Stable semver GitHub Release + ZIP for HACS (commit must be on origin/hacs; manifest == tag).
-# Pre-releases (tags with a '-' after X.Y.Z, e.g. v0.6.0-beta.1) use workflow release-beta.yml instead.
-name: Release (hacs / HACS)
+# Pre-release ZIP + GitHub Release from any branch (no origin/hacs ancestry gate).
+# Tag examples: v0.6.0-beta.1, v0.6.0-rc.2, v0.6.0-alpha.1, v0.6.0-pre.3, v0.6.0-dev.4
+name: Release (beta / pre-release)
 
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "v*-beta*"
+      - "v*-rc*"
+      - "v*-alpha*"
+      - "v*-pre*"
+      - "v*-dev*"
+      - "v*-nightly*"
+      - "v*-hotfix*"
 
 concurrency:
-  group: release-hacs-${{ github.ref }}
+  group: release-beta-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
   contents: write
 
 jobs:
-  release:
-    # Avoid clashing with beta tags that also match v*.*.* glob (e.g. v0.6.0-beta.1).
-    if: ${{ github.ref_type == 'tag' && !contains(github.ref_name, '-') }}
+  release-beta:
     runs-on: ubuntu-latest
     steps:
-      - name: Validate tag name (strict semver)
+      - name: Validate pre-release tag
         run: |
           set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
-          if ! printf '%s' "$TAG" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "Release tags must look like vX.Y.Z (no pre-release suffix on this workflow)."
+          if ! printf '%s' "$TAG" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+-[0-9A-Za-z]'; then
+            echo "Expected tag like vX.Y.Z-<prerelease> (e.g. v0.6.0-beta.1). Got: ${TAG}"
             exit 1
           fi
 
@@ -33,19 +37,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Ensure tag is on hacs lineage + manifest matches tag
+      - name: Match manifest core version to tag
         run: |
           set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
-          VERSION="${TAG#v}"
-          MANIFEST_VER="$(python3 -c "import json;print(json.load(open('custom_components/hub_energie/manifest.json'))['version'])")"
-          if [ "$MANIFEST_VER" != "$VERSION" ]; then
-            echo "manifest.json version ($MANIFEST_VER) must match tag ($VERSION) without the leading v"
+          FULL="${TAG#v}"
+          if ! printf '%s' "$FULL" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+-'; then
+            echo "Could not parse semver pre-release from tag: ${TAG}"
             exit 1
           fi
-          git fetch origin hacs
-          if ! git merge-base --is-ancestor "${GITHUB_SHA}" "origin/hacs"; then
-            echo "This tag's commit must be an ancestor of origin/hacs (releases only from the stable hacs line)."
+          CORE="$(printf '%s' "$FULL" | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
+          MANIFEST_VER="$(python3 -c "import json;print(json.load(open('custom_components/hub_energie/manifest.json'))['version'])")"
+          if [ "$MANIFEST_VER" != "$CORE" ]; then
+            echo "For pre-release tag ${TAG}, manifest.json version (${MANIFEST_VER}) must equal the X.Y.Z core (${CORE}) before the '-' in the tag."
             exit 1
           fi
 
@@ -130,16 +134,22 @@ jobs:
           echo "zip_name=${ZIP_NAME}" >> "${GITHUB_OUTPUT}"
           echo "Built ${ZIP_NAME}"
 
-      - name: Publish GitHub Release (ZIP asset for HACS / manual installs)
+      - name: Publish GitHub pre-release (ZIP asset)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
+          prerelease: true
+          make_latest: false
           generate_release_notes: true
           body: |
+            **Pre-release / beta** — install only if you accept breaking changes and rough edges.
+
             **Home Assistant:** unzip at the root of your `config/` folder so you get `config/custom_components/hub_energie/`. The Lovelace bundle is pre-built under `frontend/dist/` (served by HA at `/hub_energie/`).
 
-            **HACS:** install or upgrade from this release when offered in the UI; the archive layout matches what HACS expects for custom integrations.
+            **HACS:** you can track this tag from the pre-release entry when your HACS version exposes it; layout matches the custom integration convention.
+
+            **Branch policy:** this workflow does **not** require the commit to be on `origin/hacs` — tag any tested commit on any branch.
           files: ${{ steps.zip.outputs.zip_name }}
           fail_on_unmatched_files: true
           allowUpdates: true
