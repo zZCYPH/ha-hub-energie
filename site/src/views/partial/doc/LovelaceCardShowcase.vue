@@ -18,7 +18,7 @@ import {
   COLOR_SUBSCRIPTION,
 } from "../../../../../custom_components/hub_energie/frontend/src/constants/colors.js";
 import { SLOTS } from "../../../../../custom_components/hub_energie/frontend/src/constants/slots.js";
-import { offerLabel, slotLabel, dayColorLabel, dayColorClass } from "../../../../../custom_components/hub_energie/frontend/src/utils/energy-utils.js";
+import { offerLabel, slotLabel, dayColorLabel } from "../../../../../custom_components/hub_energie/frontend/src/utils/energy-utils.js";
 import {
   makeSectionEnergyFormatter,
   fmtPowerCompact,
@@ -269,16 +269,25 @@ const tomorrowColorRaw =
     ? DEMO_TEMPO_DAY_COLORS.tomorrow.trim()
     : "white";
 
+/** `today_color` from the baked HA snapshot (e.g. `bleu` / `blanc` / `rouge`). */
+function tempoDayPrefixFromSnapshot() {
+  const c = String(todayColorRaw ?? "").toLowerCase();
+  if (c.includes("bleu") || c.includes("blue")) return "bleu";
+  if (c.includes("blanc") || c.includes("white")) return "blanc";
+  if (c.includes("rouge") || c.includes("red")) return "rouge";
+  return "bleu";
+}
+
 /**
- * Tempo import slot (heures entières).
- * **HP** = 6h–22h ; **HC** = 0h–6h et 22h–24h.
- * Jour « bleu » : HC nuit = bleu ; dès **6h** on passe **blanc** en HP jusqu’à 22h, puis blanc HC.
+ * Tempo import slot for the **simulated calendar day** (`MOCK_DAY_ISO`), from `tempoDayColors.today`.
+ * Same window rules as HA: **HC** 0h–6h & 22h–24h, **HP** 6h–22h — slot id = `{jour}_hc` / `{jour}_hp`
+ * (e.g. 2026-04-13 snapshot: bleu → `bleu_hc` / `bleu_hp` / `bleu_hc`).
  */
 function tempoSlotIdAtHour(hrFloat) {
-  const H = Math.floor(hrFloat) % 24;
-  if (H < 6) return "bleu_hc";
-  if (H < 22) return "blanc_hp";
-  return "blanc_hc";
+  const H = Math.floor(((hrFloat % 24) + 24) % 24);
+  const p = tempoDayPrefixFromSnapshot();
+  const tail = H < 6 || H >= 22 ? "hc" : "hp";
+  return `${p}_${tail}`;
 }
 
 /** SOC % — sampled from baked HA statistics (`socPct`) each frame. */
@@ -486,12 +495,23 @@ const loadStr = computed(() => {
 
 const powerTooltip = computed(() => powerNowData.value?.tooltip ?? "");
 
-/** Tempo **import** slot: changes only on full hours (6h, 22h); max two day colours (bleu + blanc) in this demo. */
+/**
+ * Doc vitrine only: Tempo day tile modifier classes (avoid generic `color-*` on the Bootstrap doc shell).
+ * The HA card still uses `dayColorClass()` from `energy-utils.js`.
+ */
+function vitrineDayTileClass(v) {
+  const c = String(v ?? "").toLowerCase();
+  if (c.includes("blue") || c.includes("bleu")) return "he-tempo-day--blue";
+  if (c.includes("white") || c.includes("blanc")) return "he-tempo-day--white";
+  if (c.includes("red") || c.includes("rouge")) return "he-tempo-day--red";
+  return "he-tempo-day--na";
+}
+
 const currentSlotId = computed(() => tempoSlotIdAtHour(h.value));
 const currentSlotText = computed(() => slotLabel(currentSlotId.value, offer, i18n.value));
 
-const todayTileClass = computed(() => `he-day-tile ${dayColorClass(todayColorRaw)}`);
-const tomorrowTileClass = computed(() => `he-day-tile ${dayColorClass(tomorrowColorRaw)}`);
+const todayTileClass = computed(() => `he-day-tile ${vitrineDayTileClass(todayColorRaw)}`);
+const tomorrowTileClass = computed(() => `he-day-tile ${vitrineDayTileClass(tomorrowColorRaw)}`);
 
 /** Fallback if demo bundle has no `tempoDays` (HA snapshot). */
 const FALLBACK_TEMPO_DAYS = {
@@ -533,23 +553,24 @@ const gridSlotBreakdownRows = computed(() =>
         label: lbl,
         value: gridEnergyFmt.value(v),
         rawV: v,
-        swatchClass: [labelLooksHc(lbl) ? "fill-hc" : "", swatchIconClass(s.color)].filter(Boolean).join(" "),
+        swatchClass: tempoSwatchClass(lbl, s.color),
       };
     })
     .filter(Boolean),
 );
 
-/** kWh imported per Tempo slot: only bleu + blanc segments, cumulative hours × fixed kW rate (smooth wobble). */
-const TEMPO_SLOT_IMPORT_KW = {
-  bleu_hc: 1.85,
-  blanc_hp: 2.05,
-  blanc_hc: 1.55,
-};
+/** Shape weights (kW) per slot tail — scaled to `demoKwhIntegral("gridImportW", hr)` (vitrine only). */
+const TEMPO_SLOT_IMPORT_KW_BY_TAIL = { hc: 1.85, hp: 2.05 };
 
+/** Hours elapsed inside a Tempo slot by virtual time `hr` (0..24): HC = two windows (0–6h, 22–24h), HP = 6–22h. */
 function hoursIntoTempoSlot(slotId, hr) {
-  if (slotId === "bleu_hc") return Math.min(6, Math.max(0, hr));
-  if (slotId === "blanc_hp") return Math.min(16, Math.max(0, hr - 6));
-  if (slotId === "blanc_hc") return Math.min(2, Math.max(0, hr - 22));
+  const u = Math.min(24, Math.max(0, hr));
+  if (String(slotId).endsWith("_hc")) {
+    let t = Math.min(6, u);
+    if (u > 22) t += Math.min(2, u - 22);
+    return t;
+  }
+  if (String(slotId).endsWith("_hp")) return Math.min(16, Math.max(0, u - 6));
   return 0;
 }
 
@@ -559,12 +580,16 @@ const baseScale = computed(() => 0.35 + 0.65 * dayFrac.value);
 const gridBySlot = computed(() => {
   const hr = h.value;
   const targetKwh = demoKwhIntegral("gridImportW", hr);
+  const prefix = tempoDayPrefixFromSnapshot();
+  const slotHc = `${prefix}_hc`;
+  const slotHp = `${prefix}_hp`;
+  const kwMap = { [slotHc]: TEMPO_SLOT_IMPORT_KW_BY_TAIL.hc, [slotHp]: TEMPO_SLOT_IMPORT_KW_BY_TAIL.hp };
   const shape = {};
   let sumShape = 0;
   const wob = 0.94 + 0.06 * Math.sin(hr * 0.25 + 1.1);
-  for (const id of Object.keys(TEMPO_SLOT_IMPORT_KW)) {
+  for (const id of Object.keys(kwMap)) {
     const hrs = hoursIntoTempoSlot(id, hr);
-    const v = hrs * TEMPO_SLOT_IMPORT_KW[id] * wob;
+    const v = hrs * kwMap[id] * wob;
     if (v > 0.0001) {
       shape[id] = v;
       sumShape += v;
@@ -1066,6 +1091,18 @@ function swatchIconClass(color) {
   return isLightHexColor(color) ? "he-swatch-icon-dark" : "";
 }
 
+/** HC stripes: white on dark slot colours, dark stripes on light Tempo “blanc” fills. */
+function tempoSwatchClass(label, colorHex) {
+  const parts = [];
+  if (labelLooksHc(label)) {
+    parts.push("fill-hc");
+    if (isLightHexColor(colorHex)) parts.push("fill-hc-on-light");
+  }
+  const ic = swatchIconClass(colorHex);
+  if (ic) parts.push(ic);
+  return parts.filter(Boolean).join(" ");
+}
+
 /** Stacked strip segment width vs section total (matches hub-energy-strip fill). */
 function stripSegBarStyle(seg, sectionTotal) {
   const tot = sectionTotal > 0 ? sectionTotal : 1;
@@ -1075,8 +1112,10 @@ function stripSegBarStyle(seg, sectionTotal) {
     backgroundColor: seg.color,
   };
   if (seg.className === "fill-hc") {
-    style.backgroundImage =
-      "repeating-linear-gradient(135deg, rgba(255,255,255,0.35) 0px, rgba(255,255,255,0.35) 4px, transparent 4px, transparent 8px)";
+    const onLight = isLightHexColor(seg.color);
+    style.backgroundImage = onLight
+      ? "repeating-linear-gradient(135deg, rgba(16,32,39,0.16) 0px, rgba(16,32,39,0.16) 4px, transparent 4px, transparent 8px)"
+      : "repeating-linear-gradient(135deg, rgba(255,255,255,0.35) 0px, rgba(255,255,255,0.35) 4px, transparent 4px, transparent 8px)";
   }
   return style;
 }
@@ -1360,11 +1399,7 @@ function toggleRaw() {
             </div>
             <div class="he-icon-brk">
               <span v-for="(r, i) in homeBreakdown" :key="'hb' + i" class="he-icon-brk-item">
-                <span
-                  class="he-icon-brk-swatch"
-                  :class="[labelLooksHc(r.label) ? 'fill-hc' : '', swatchIconClass(r.color)]"
-                  :style="{ backgroundColor: r.color }"
-                >
+                <span class="he-icon-brk-swatch" :class="tempoSwatchClass(r.label, r.color)" :style="{ backgroundColor: r.color }">
                   <i class="bi" :class="mdiToBi(r.icon)" aria-hidden="true" />
                 </span>
                 <span>{{ r.label }}</span>&nbsp;<b>{{ r.value }}</b>
@@ -1414,11 +1449,7 @@ function toggleRaw() {
             </div>
             <div class="he-icon-brk">
               <span v-for="(r, i) in costBreakdown" :key="'cb' + i" class="he-icon-brk-item">
-                <span
-                  class="he-icon-brk-swatch"
-                  :class="[labelLooksHc(r.label) ? 'fill-hc' : '', swatchIconClass(r.color)]"
-                  :style="{ backgroundColor: r.color }"
-                >
+                <span class="he-icon-brk-swatch" :class="tempoSwatchClass(r.label, r.color)" :style="{ backgroundColor: r.color }">
                   <i class="bi" :class="mdiToBi(r.icon)" aria-hidden="true" />
                 </span>
                 <span>{{ r.label }}</span>&nbsp;<b>{{ r.value }}</b>
