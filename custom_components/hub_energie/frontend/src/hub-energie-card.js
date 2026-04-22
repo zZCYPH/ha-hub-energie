@@ -28,7 +28,6 @@ import {
   discoverCostEntityId,
   discoverLovelaceCardEntityId,
   entityMapFromCostAttributes,
-  hubSitesFromStates,
   makeEntityMap,
   mergeHubCardAttributes,
   offerLabel,
@@ -908,29 +907,6 @@ class HubEnergieCard extends LitElement {
     this.__lastKey = null;
   }
 
-  _onSiteChange(ev) {
-    ev.stopPropagation();
-    const sel = ev.target;
-    if (sel?.value === undefined) return;
-    const v = sel.value;
-    const next = { ...this._config, type: "custom:hub-energie-card" };
-    if (v === "" || v === "__auto__") delete next.site_index;
-    else next.site_index = Math.max(0, Math.trunc(Number(v)));
-    this._config = next;
-    this.__lastKey = null;
-    this._hist = null;
-    this._histLoading = false;
-    this._histErr = null;
-    this.requestUpdate();
-    this.dispatchEvent(
-      new CustomEvent("config-changed", {
-        bubbles: true,
-        composed: true,
-        detail: { config: next },
-      }),
-    );
-  }
-
   _loadHistory() {
     if (this._isLiveMode()) return;
     if (!this.hass || this._histLoading || this._hist !== null) return;
@@ -1458,40 +1434,28 @@ class HubEnergieCard extends LitElement {
 
     const totalReinjRaw = reinj.solarSurplus + reinj.batteryFull + reinj.switchLatency + reinj.unattributed;
 
-    const hubSites = hubSitesFromStates(this.hass?.states);
-    const siteIdx = this._siteIndexFromConfig();
-    const siteSelectValue =
-      siteIdx === null || siteIdx === undefined ? "__auto__" : String(Math.max(0, Math.trunc(siteIdx)));
+    let siteSegmentLabel = "";
+    try {
+      const cid = discoverCostEntityId(this.hass?.states, this._siteIndexFromConfig());
+      const raw = this.hass?.states?.[cid]?.attributes?.card_site_segment;
+      siteSegmentLabel = typeof raw === "string" ? raw.trim() : "";
+    } catch {
+      siteSegmentLabel = "";
+    }
+    const subtitleParts = [];
+    if (siteSegmentLabel) subtitleParts.push(siteSegmentLabel);
+    subtitleParts.push(offerLabel(offer));
+    if (contractPower) subtitleParts.push(`${contractPower}kVA`);
+    const headerSubtitle = subtitleParts.join(" · ");
 
     return html`
       <ha-card>
         <div class="header">
           <div class="header-title-side">
             <h2>Hub Énergie</h2>
-            <span class="header-subtitle">${offerLabel(offer)}${contractPower ? ` ${contractPower}kVA` : ""}</span>
+            <span class="header-subtitle">${headerSubtitle}</span>
           </div>
           <div class="controls">
-            ${hubSites.length >= 1
-              ? html`
-                  <label>${i18n.siteLabel}</label>
-                  <ha-select
-                    .value=${siteSelectValue}
-                    @closed=${this._onSiteChange}
-                    .fixedMenuPosition=${true}
-                    .naturalMenuWidth=${true}
-                    style="min-width:5.5rem"
-                  >
-                    <ha-list-item value="__auto__">${i18n.siteAuto}</ha-list-item>
-                    ${hubSites.map(
-                      (s) => html`
-                        <ha-list-item value="${String(s.index)}">
-                          ${tpl(i18n.editorSiteOption, { index: String(s.index), segment: s.segment })}
-                        </ha-list-item>
-                      `,
-                    )}
-                  </ha-select>
-                `
-              : nothing}
             <label>${i18n.date}</label>
             <input type="date" .value=${this._date} max=${todayParisISO()} @change=${this._onDateChange} />
             <label>${i18n.range}</label>
