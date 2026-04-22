@@ -188,6 +188,9 @@ export const I18N = Object.freeze({
       "Vide = détection auto via le <code>cost_detail</code> du site (même segment <code>hub_energie_…</code> que sur la carte principale), puis <code>frontend_*</code> courts si besoin.",
     flowEditorReducedMotionNote:
       "Les animations des câbles suivent le réglage d’accessibilité « réduire les mouvements » du système (pas une option de performance).",
+    flowEditorGlassPanel: "Panneau verre (expérimental)",
+    flowEditorGlassHint:
+      "Flou d’arrière-plan et ombre portée sur le diagramme. À tester sur l’app mobile Home Assistant : certains navigateurs ne gèrent pas bien backdrop-filter.",
     flowDataAgeLabel: "Live · {age}",
     flowDataAgeUnknown: "Live · —",
     flowAgeSeconds: "{n} s",
@@ -382,6 +385,9 @@ export const I18N = Object.freeze({
       "Empty = auto-detect via the site’s <code>cost_detail</code> (same <code>hub_energie_…</code> segment as the main card), then short <code>frontend_*</code> if needed.",
     flowEditorReducedMotionNote:
       "Cable animations follow the system “reduce motion” accessibility setting (not a performance toggle).",
+    flowEditorGlassPanel: "Glass panel (experimental)",
+    flowEditorGlassHint:
+      "Backdrop blur and drop shadow on the diagram. Verify on the Home Assistant mobile app: some WebViews handle backdrop-filter poorly.",
     flowDataAgeLabel: "Live · {age}",
     flowDataAgeUnknown: "Live · —",
     flowAgeSeconds: "{n} s",

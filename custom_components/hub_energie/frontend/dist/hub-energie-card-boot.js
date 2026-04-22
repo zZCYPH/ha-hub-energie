@@ -1,10 +1,10 @@
-import { i as g, a as f, I as c, h as m, A as p, b as l } from "./energy-utils.js";
+import { i as f, a as m, I as h, h as p, A as w, b as c } from "./energy-utils.js";
 import { t as S } from "./i18n-template.js";
-function $(n, t) {
-  const e = n?.editorSiteOption ?? "{index} — {segment}", i = String(t?.index ?? ""), s = t?.segment != null && String(t.segment).trim() !== "" ? String(t.segment).trim() : i;
+function $(r, t) {
+  const e = r?.editorSiteOption ?? "{index} — {segment}", i = String(t?.index ?? ""), s = t?.segment != null && String(t.segment).trim() !== "" ? String(t.segment).trim() : i;
   return String(e).split("{index}").join(i).split("{segment}").join(s);
 }
-const h = "custom:hub-energie-card", d = /* @__PURE__ */ new Set([24, 12, 6, 3, 1]), x = [1, 3, 6, 12, 24], C = [
+const d = "custom:hub-energie-card", u = /* @__PURE__ */ new Set([24, 12, 6, 3, 1]), x = [1, 3, 6, 12, 24], E = [
   ["show_day_slots", "editorShowDaySlots"],
   ["show_live_power", "editorShowLivePower"],
   ["show_solar_production_bar", "editorShowSolarProductionBar"],
@@ -17,12 +17,12 @@ const h = "custom:hub-energie-card", d = /* @__PURE__ */ new Set([24, 12, 6, 3, 
   ["show_reinjection", "editorShowReinjection"],
   ["show_raw_control", "editorShowRawControl"]
 ];
-class E extends g {
+class C extends f {
   static properties = {
     hass: { attribute: !1 },
     _config: { state: !0 }
   };
-  static styles = f`
+  static styles = m`
     :host {
       display: block;
     }
@@ -47,17 +47,17 @@ class E extends g {
     }
   `;
   setConfig(t) {
-    this._config = t && typeof t == "object" ? { ...t } : { type: h }, this._config.type || (this._config.type = h);
+    this._config = t && typeof t == "object" ? { ...t } : { type: d }, this._config.type || (this._config.type = d);
   }
   _i18n() {
-    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? c.en : c.fr;
+    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? h.en : h.fr;
   }
   _sectionOn(t) {
     const e = this._config?.[t];
     return e !== !1 && e !== "false";
   }
   _hubSites() {
-    return m(this.hass?.states);
+    return p(this.hass?.states);
   }
   _siteSelectValue() {
     const t = this._config?.site_index;
@@ -66,51 +66,51 @@ class E extends g {
     return Number.isFinite(e) && e >= 0 ? String(e) : "__auto__";
   }
   render() {
-    const t = this._config ?? {}, e = this._i18n(), i = parseFloat(t.power_history_hours), s = Math.trunc(i), r = d.has(s) ? s : 6, o = this._hubSites(), b = this._siteSelectValue();
-    return l`
+    const t = this._config ?? {}, e = this._i18n(), i = parseFloat(t.power_history_hours), s = Math.trunc(i), n = u.has(s) ? s : 6, a = this._hubSites(), o = this._siteSelectValue();
+    return c`
       <div class="card-config">
-        ${o.length >= 1 ? l`
+        ${a.length >= 1 ? c`
               <div class="field">
                 <ha-select
                   label=${e.editorSiteLabel}
-                  .value=${b}
+                  .value=${o}
                   @closed=${this._onSiteClosed}
                   .fixedMenuPosition=${!0}
                   .naturalMenuWidth=${!0}
                 >
                   <ha-list-item value="__auto__">${e.siteAuto}</ha-list-item>
-                  ${o.map(
-      (a) => l`
-                      <ha-list-item value="${String(a.index)}">${$(e, a)}</ha-list-item>
+                  ${a.map(
+      (l) => c`
+                      <ha-list-item value="${String(l.index)}">${$(e, l)}</ha-list-item>
                     `
     )}
                 </ha-select>
                 <p class="hint">${e.editorSiteHint}</p>
               </div>
-            ` : p}
+            ` : w}
         <div class="field">
           <ha-select
             label=${e.editorPowerGraphWindow}
-            .value=${String(r)}
+            .value=${String(n)}
             @closed=${this._onPowerHoursClosed}
             .fixedMenuPosition=${!0}
             .naturalMenuWidth=${!0}
           >
             ${x.map(
-      (a) => l`<ha-list-item value="${String(a)}">${S(e.editorPowerHoursUnit, { n: a })}</ha-list-item>`
+      (l) => c`<ha-list-item value="${String(l)}">${S(e.editorPowerHoursUnit, { n: l })}</ha-list-item>`
     )}
           </ha-select>
           <p class="hint">${e.editorPowerHoursHint}</p>
         </div>
 
         <div class="sections-title">${e.editorSectionsTitle}</div>
-        ${C.map(
-      ([a, v]) => l`
+        ${E.map(
+      ([l, v]) => c`
             <div class="field">
               <ha-formfield .label=${e[v]}>
                 <ha-switch
-                  .checked=${this._sectionOn(a)}
-                  @change=${(y) => this._setSectionFlag(a, y.target.checked)}
+                  .checked=${this._sectionOn(l)}
+                  @change=${(y) => this._setSectionFlag(l, y.target.checked)}
                 ></ha-switch>
               </ha-formfield>
             </div>
@@ -125,7 +125,7 @@ class E extends g {
   }
   _emit(t) {
     const e = { ...t };
-    e.type = h, this.dispatchEvent(
+    e.type = d, this.dispatchEvent(
       new CustomEvent("config-changed", {
         bubbles: !0,
         composed: !0,
@@ -149,26 +149,26 @@ class E extends g {
     const e = t.target;
     if (e.value === "" || e.value === void 0) return;
     const i = Math.trunc(Number(e.value));
-    if (!d.has(i)) return;
-    const s = parseFloat(this._config?.power_history_hours), r = d.has(Math.trunc(s)) ? Math.trunc(s) : 6;
-    if (i === r) return;
-    const o = { ...this._config, power_history_hours: i };
-    this._emit(o);
+    if (!u.has(i)) return;
+    const s = parseFloat(this._config?.power_history_hours), n = u.has(Math.trunc(s)) ? Math.trunc(s) : 6;
+    if (i === n) return;
+    const a = { ...this._config, power_history_hours: i };
+    this._emit(a);
   }
 }
-customElements.get("hub-energie-card-editor") || customElements.define("hub-energie-card-editor", E);
-const u = "custom:hub-energie-flow-card";
-function M(n, t) {
-  const e = n?.editorSiteOption ?? "{index} — {segment}", i = String(t?.index ?? ""), s = t?.segment != null && String(t.segment).trim() !== "" ? String(t.segment).trim() : i;
+customElements.get("hub-energie-card-editor") || customElements.define("hub-energie-card-editor", C);
+const _ = "custom:hub-energie-flow-card";
+function M(r, t) {
+  const e = r?.editorSiteOption ?? "{index} — {segment}", i = String(t?.index ?? ""), s = t?.segment != null && String(t.segment).trim() !== "" ? String(t.segment).trim() : i;
   return String(e).split("{index}").join(i).split("{segment}").join(s);
 }
-const _ = ["auto", "full", "compact"];
-class L extends g {
+const g = ["auto", "full", "compact"];
+class L extends f {
   static properties = {
     hass: { attribute: !1 },
     _config: { state: !0 }
   };
-  static styles = f`
+  static styles = m`
     :host {
       display: block;
     }
@@ -193,10 +193,10 @@ class L extends g {
     }
   `;
   setConfig(t) {
-    this._config = t && typeof t == "object" ? { ...t } : { type: u }, this._config.type || (this._config.type = u);
+    this._config = t && typeof t == "object" ? { ...t } : { type: _ }, this._config.type || (this._config.type = _);
   }
   _hubSites() {
-    return m(this.hass?.states);
+    return p(this.hass?.states);
   }
   _siteSelectValue() {
     const t = this._config?.site_index;
@@ -205,8 +205,8 @@ class L extends g {
     return Number.isFinite(e) && e >= 0 ? String(e) : "__auto__";
   }
   render() {
-    const t = this._i18n(), e = _.includes(this._config?.layout) ? this._config.layout : "auto", i = this._config?.debug === !0 || this._config?.debug === "true", s = this._hubSites(), r = this._siteSelectValue();
-    return l`
+    const t = this._i18n(), e = g.includes(this._config?.layout) ? this._config.layout : "auto", i = this._config?.debug === !0 || this._config?.debug === "true", s = this._config?.glass_panel === !0 || this._config?.glass_panel === "true", n = this._hubSites(), a = this._siteSelectValue();
+    return c`
       <div class="field">
         <ha-textfield
           label=${t.flowEditorTitle}
@@ -228,25 +228,25 @@ class L extends g {
         </ha-select>
         <p class="hint">${t.flowEditorLayoutHint}</p>
       </div>
-      ${s.length >= 1 ? l`
+      ${n.length >= 1 ? c`
             <div class="field">
               <ha-select
                 label=${t.editorSiteLabel}
-                .value=${r}
+                .value=${a}
                 @closed=${this._onSiteClosed}
                 .fixedMenuPosition=${!0}
                 .naturalMenuWidth=${!0}
               >
                 <ha-list-item value="__auto__">${t.siteAuto}</ha-list-item>
-                ${s.map(
-      (o) => l`
+                ${n.map(
+      (o) => c`
                     <ha-list-item value="${String(o.index)}">${M(t, o)}</ha-list-item>
                   `
     )}
               </ha-select>
               <p class="hint">${t.editorSiteHint}</p>
             </div>
-          ` : p}
+          ` : w}
       <div class="field">
         <ha-formfield .label=${t.flowEditorDebug}>
           <ha-switch
@@ -256,6 +256,15 @@ class L extends g {
         </ha-formfield>
         <p class="hint">${t.flowEditorDebugHint}</p>
         <p class="motion-note">${t.flowEditorReducedMotionNote}</p>
+      </div>
+      <div class="field">
+        <ha-formfield .label=${t.flowEditorGlassPanel}>
+          <ha-switch
+            .checked=${s}
+            @change=${(o) => this._setBool("glass_panel", o.target.checked)}
+          ></ha-switch>
+        </ha-formfield>
+        <p class="hint">${t.flowEditorGlassHint}</p>
       </div>
       <div class="field">
         <ha-entity-picker
@@ -281,14 +290,14 @@ class L extends g {
     `;
   }
   _i18n() {
-    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? c.en : c.fr;
+    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? h.en : h.fr;
   }
   _emit(t) {
     this.dispatchEvent(
       new CustomEvent("config-changed", {
         bubbles: !0,
         composed: !0,
-        detail: { config: { ...t, type: u } }
+        detail: { config: { ...t, type: _ } }
       })
     );
   }
@@ -299,7 +308,7 @@ class L extends g {
   _onLayoutClosed(t) {
     t.stopPropagation();
     const e = String(t.target?.value ?? "auto");
-    if (!_.includes(e)) return;
+    if (!g.includes(e)) return;
     const i = { ...this._config };
     e === "auto" ? delete i.layout : i.layout = e, this._emit(i);
   }
@@ -315,17 +324,17 @@ class L extends g {
     e ? i[t] = !0 : delete i[t], this._emit(i);
   }
   _onEntityChanged(t, e) {
-    const i = e.detail?.value ?? "", s = String(i).trim(), r = { ...this._config };
-    s ? r[t] = s : delete r[t], this._emit(r);
+    const i = e.detail?.value ?? "", s = String(i).trim(), n = { ...this._config };
+    s ? n[t] = s : delete n[t], this._emit(n);
   }
 }
 customElements.get("hub-energie-flow-card-editor") || customElements.define("hub-energie-flow-card-editor", L);
-function w(n) {
-  const t = new URL(import.meta.url), e = t.searchParams.get("v"), i = new URL(n, t);
+function b(r) {
+  const t = new URL(import.meta.url), e = t.searchParams.get("v"), i = new URL(r, t);
   return e && i.searchParams.set("v", e), i.href;
 }
-import(w("./hub-energie-flow-card.js")).catch((n) => {
-  console.error("[hub-energie-card-boot] flow module failed to load", n);
+import(b("./hub-energie-flow-card.js")).catch((r) => {
+  console.error("[hub-energie-card-boot] flow module failed to load", r);
 });
 const P = `
   <style>
@@ -344,11 +353,11 @@ class H extends HTMLElement {
   _ensureCore() {
     return this._loadPromise ? this._loadPromise : (this._loadPromise = (async () => {
       try {
-        await import(w("./hub-energie-card.js"));
+        await import(b("./hub-energie-card.js"));
       } catch (s) {
         console.error("[hub-energie-card-boot] core module failed to load", s);
-        const o = (s && (s.message || String(s)) ? String(s.message || s) : "unknown").replace(/</g, "&lt;").slice(0, 400);
-        this.shadowRoot.innerHTML = `<style>:host{display:block}</style><ha-card><div style="padding:16px;font:14px/1.4 sans-serif"><strong>Hub Énergie</strong> (load error)<br/><small style="opacity:.85">${o}</small></div></ha-card>`;
+        const a = (s && (s.message || String(s)) ? String(s.message || s) : "unknown").replace(/</g, "&lt;").slice(0, 400);
+        this.shadowRoot.innerHTML = `<style>:host{display:block}</style><ha-card><div style="padding:16px;font:14px/1.4 sans-serif"><strong>Hub Énergie</strong> (load error)<br/><small style="opacity:.85">${a}</small></div></ha-card>`;
         return;
       }
       if (!customElements.get("hub-energie-card-core") || this._core) return;
