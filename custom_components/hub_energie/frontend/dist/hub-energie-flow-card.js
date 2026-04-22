@@ -1,6 +1,6 @@
-import { w, i as Q, a as tt, A as x, b as M, I as H } from "./i18n.js";
-import { C as et, a as I, c as ot, b as it, e as nt } from "./colors.js";
-function lt(r) {
+import { w, i as Q, a as tt, A as x, b as D, f as at, I as H } from "./energy-utils.js";
+import { C as et, a as I, c as ot, b as nt, e as lt } from "./colors.js";
+function ct(r) {
   const t = r;
   return w`
     <symbol id="hub-${t}-ic-sun" viewBox="-14 -14 28 28">
@@ -52,7 +52,7 @@ function lt(r) {
     </symbol>
   `;
 }
-function ct(r, t) {
+function dt(r, t) {
   return t === "battery_unknown" ? `hub-${r}-ic-q` : t === "battery" ? `hub-${r}-ic-batt` : t === "grid" ? `hub-${r}-ic-grid` : t === "home" ? `hub-${r}-ic-home` : `hub-${r}-ic-sun`;
 }
 const X = Object.freeze({
@@ -61,20 +61,20 @@ const X = Object.freeze({
   home: "var(--primary-color, #03a9f4)",
   battery: et,
   neutral: "var(--secondary-text-color, #9e9e9e)"
-}), dt = Object.freeze({
+}), ut = Object.freeze({
   solar: 0,
   grid: 1,
   battery: 2,
   home: 3
 });
-function ut(r) {
+function pt(r) {
   return r === "home" ? 28 : 22;
 }
 function P(r, t, e) {
-  const o = Number(t), a = Number(e), s = Number.isFinite(o) ? o : 2, i = Number.isFinite(a) ? a : 1;
-  return `fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:${r};stroke-width:${s}px;opacity:${i}`;
+  const o = Number(t), i = Number(e), s = Number.isFinite(o) ? o : 2, a = Number.isFinite(i) ? i : 1;
+  return `fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:${r};stroke-width:${s}px;opacity:${a}`;
 }
-class pt extends Q {
+class ht extends Q {
   static properties = {
     data: { attribute: !1 },
     i18n: { attribute: !1 },
@@ -315,11 +315,11 @@ class pt extends Q {
       if (this.data && !e && (this._enterGen += 1), this.data?.nodes) {
         const o = [];
         for (const s of ["grid", "solar", "home", "battery"]) {
-          const i = this.data.nodes[s];
-          i && o.push(`${s}:${i.value ?? ""}|${i.detail ?? ""}`);
+          const a = this.data.nodes[s];
+          a && o.push(`${s}:${a.value ?? ""}|${a.detail ?? ""}`);
         }
-        const a = o.join(";");
-        a !== this._lastValueSig && (this._lastValueSig = a, e != null && (this._valuePulse += 1));
+        const i = o.join(";");
+        i !== this._lastValueSig && (this._lastValueSig = i, e != null && (this._valuePulse += 1));
       }
     }
     t.has("energyThemeDark") && this.classList.toggle("hub-flow-energy--dark", !!this.energyThemeDark);
@@ -354,15 +354,15 @@ class pt extends Q {
     const o = this._focusKey;
     if (!o || !t) return 1;
     if (o.startsWith("node:")) return o === `node:${e.kind}` ? 1 : 0.34;
-    const a = o.slice(5), s = t.edgeMap?.[a];
+    const i = o.slice(5), s = t.edgeMap?.[i];
     return s ? this._edgeTouchesNode(s, e.kind) ? 1 : 0.34 : 1;
   }
   _edgeDim(t, e) {
     const o = this._focusKey;
     if (!o || !t) return 1;
     if (o.startsWith("edge:")) return o === `edge:${e.key}` ? 1 : 0.22;
-    const a = o.slice(5);
-    return this._edgeTouchesNode(e, a) ? 1 : 0.22;
+    const i = o.slice(5);
+    return this._edgeTouchesNode(e, i) ? 1 : 0.22;
   }
   _nodeFocused(t) {
     return this._focusKey === `node:${t.kind}`;
@@ -371,7 +371,7 @@ class pt extends Q {
     const t = this._gid;
     return w`
       <defs>
-        ${lt(t)}
+        ${ct(t)}
         <linearGradient id="hub-${t}-surface" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stop-color="#ffffff" stop-opacity="0.06"></stop>
           <stop offset="55%" stop-color="#ffffff" stop-opacity="0"></stop>
@@ -419,8 +419,8 @@ class pt extends Q {
   render() {
     const t = this.data;
     if (!t) return x;
-    const e = Object.values(t.nodes).filter(Boolean), o = this.debug || this.layout !== "compact", a = this.debug || this.layout !== "compact", s = this.i18n.flowCardTitle ?? "Live power flows", i = this._gid;
-    return M`
+    const e = Object.values(t.nodes).filter(Boolean), o = this.debug || this.layout !== "compact", i = this.debug || this.layout !== "compact", s = this.i18n.flowCardTitle ?? "Live power flows", a = this._gid;
+    return D`
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 400 400"
@@ -448,7 +448,7 @@ class pt extends Q {
               width="388"
               height="388"
               rx="26"
-              fill="url(#hub-${i}-grid)"
+              fill="url(#hub-${a}-grid)"
               pointer-events="none"
             ></rect>
             <rect
@@ -457,7 +457,7 @@ class pt extends Q {
               width="388"
               height="388"
               rx="26"
-              fill="url(#hub-${i}-surface)"
+              fill="url(#hub-${a}-surface)"
               pointer-events="none"
             ></rect>
             <rect
@@ -466,7 +466,7 @@ class pt extends Q {
               width="388"
               height="388"
               rx="26"
-              fill="url(#hub-${i}-vignette)"
+              fill="url(#hub-${a}-vignette)"
               pointer-events="none"
             ></rect>
             <rect
@@ -480,27 +480,27 @@ class pt extends Q {
             ></rect>
           </g>
         `}
-        ${t.edges.map((n, l) => this._renderEdge(n, o, t, l))}
-        ${e.map((n) => this._renderNode(n, a, t))}
+        ${t.edges.map((c, d) => this._renderEdge(c, o, t, d))}
+        ${e.map((c) => this._renderNode(c, i, t))}
       </svg>
     `;
   }
-  _renderEdge(t, e, o, a) {
+  _renderEdge(t, e, o, i) {
     if (!t.visible) return x;
-    const s = t.color, i = Number(t.width), n = Number(t.opacity), l = Number(t.duration), d = !!t.primaryToHome, p = (Number.isFinite(i) ? i : 2.4) * (d ? 1.35 : 1), D = Number.isFinite(n) ? n : 0.96, g = Math.min(1, D * (d ? 1.06 : 1)), v = Number.isFinite(l) && l > 0 ? l : 2.5, f = !!t.ghost, k = f ? 0.14 : d ? 0.34 : 0.26, N = f ? 0.06 : d ? 0.14 : 0.11, $ = P(s, p + 2, g * k), C = P(s, p + 5, g * N), E = f ? v * 1.65 : v, y = this.energyThemeDark ? 1.08 : 1, z = Math.max(p * 1.25 + 2.8, 4.5) * (d ? 1.05 : 1) * y, c = Math.max(p * 0.42 + 1.1, 1.65) * (d ? 1.08 : 1), m = f ? g * 0.22 : g * (d ? 0.58 : 0.5), S = f ? g * 0.4 : Math.min(1, g * (d ? 1.08 : 1.02)), T = [
+    const s = t.color, a = Number(t.width), c = Number(t.opacity), d = Number(t.duration), n = !!t.primaryToHome, u = (Number.isFinite(a) ? a : 2.4) * (n ? 1.35 : 1), E = Number.isFinite(c) ? c : 0.96, g = Math.min(1, E * (n ? 1.06 : 1)), v = Number.isFinite(d) && d > 0 ? d : 2.5, f = !!t.ghost, k = f ? 0.14 : n ? 0.34 : 0.26, F = f ? 0.06 : n ? 0.14 : 0.11, $ = P(s, u + 2, g * k), C = P(s, u + 5, g * F), S = f ? v * 1.65 : v, y = this.energyThemeDark ? 1.08 : 1, z = Math.max(u * 1.25 + 2.8, 4.5) * (n ? 1.05 : 1) * y, l = Math.max(u * 0.42 + 1.1, 1.65) * (n ? 1.08 : 1), m = f ? g * 0.22 : g * (n ? 0.58 : 0.5), O = f ? g * 0.4 : Math.min(1, g * (n ? 1.08 : 1.02)), T = [
       P(s, z, m),
-      `--hub-bolt-period:${E}s`
-    ].join(";"), F = [
+      `--hub-bolt-period:${S}s`
+    ].join(";"), A = [
       "fill:none",
       "stroke:#ffffff",
-      `stroke-width:${c}px`,
-      `stroke-opacity:${S}`,
+      `stroke-width:${l}px`,
+      `stroke-opacity:${O}`,
       "stroke-linecap:round",
       "stroke-linejoin:round",
-      `--hub-bolt-period:${E}s`
-    ].join(";"), O = f ? "edge-bolt-glow edge-bolt-glow--ghost" : "edge-bolt-glow", L = f ? "edge-bolt edge-bolt--ghost" : "edge-bolt", W = this._edgeDim(o, t), Y = (at) => {
-      at.stopPropagation(), this._toggleFocus(`edge:${t.key}`);
-    }, K = "fill:none;stroke:transparent;stroke-width:18px;stroke-linecap:round;stroke-linejoin:round;pointer-events:stroke;cursor:pointer", rt = 40 + a * 45, st = this._enterGen > 0 ? "edge-stagger" : "";
+      `--hub-bolt-period:${S}s`
+    ].join(";"), L = f ? "edge-bolt-glow edge-bolt-glow--ghost" : "edge-bolt-glow", N = f ? "edge-bolt edge-bolt--ghost" : "edge-bolt", W = this._edgeDim(o, t), Y = (it) => {
+      it.stopPropagation(), this._toggleFocus(`edge:${t.key}`);
+    }, K = "fill:none;stroke:transparent;stroke-width:18px;stroke-linecap:round;stroke-linejoin:round;pointer-events:stroke;cursor:pointer", rt = 40 + i * 45, st = this._enterGen > 0 ? "edge-stagger" : "";
     return w`
       <g
         class="flow-dim ${st}"
@@ -509,21 +509,21 @@ class pt extends Q {
         <path class="edge-base" d=${t.path} style=${$} pointer-events="none"></path>
         <path class="edge-glow" d=${t.path} style=${C} pointer-events="none"></path>
         <path
-          class=${O}
+          class=${L}
           d=${t.path}
           pathLength="100"
           style=${T}
           pointer-events="none"
         ></path>
         <path
-          class=${L}
+          class=${N}
           d=${t.path}
           pathLength="100"
-          style=${F}
+          style=${A}
           pointer-events="none"
         ></path>
         ${e && t.label ? w`<text
-              class="edge-label ${d ? "edge-label--primary" : ""}"
+              class="edge-label ${n ? "edge-label--primary" : ""}"
               x=${t.labelX}
               y=${t.labelY}
               style="fill:var(--primary-text-color,#e0e0e0);cursor:pointer"
@@ -539,88 +539,99 @@ class pt extends Q {
     return e ? o ? { labelY: t + 22, valueY: t + 44, detailY: t + 64 } : { labelY: t + 20, valueY: t + 38, detailY: t + 54 } : o ? { labelY: t + 16, valueY: t + 32, detailY: t + 48 } : { labelY: t + 14, valueY: t + 24, detailY: t + 40 };
   }
   _renderNode(t, e, o) {
-    const a = ut(t.kind), s = X[t.kind] ?? X.neutral, i = t.muted ? "node-muted" : "", n = e && t.detail ? t.detail : null, l = e && !!t.value, { labelY: d, valueY: h, detailY: u } = this._nodeTextYs(a, t.kind === "home", l), p = this._nodeDim(o, t), D = (K) => {
+    const i = pt(t.kind), s = X[t.kind] ?? X.neutral, a = t.muted ? "node-muted" : "", c = e && t.detail ? t.detail : null, d = e && !!t.value, { labelY: n, valueY: p, detailY: h } = this._nodeTextYs(i, t.kind === "home", d), u = this._nodeDim(o, t), E = (K) => {
       K.stopPropagation(), this._toggleFocus(`node:${t.kind}`);
-    }, b = t.status === "idle" || t.status === "unknown", v = !b && t.pulse ? "node-halo node-halo--live" : "node-halo", f = b ? "fill:none;stroke:var(--disabled-text-color,#9e9e9e);stroke-opacity:0.22;stroke-width:1" : `fill:none;stroke:${s};stroke-opacity:0.35;stroke-width:1.5`, k = this._gid, N = b ? `url(#hub-${k}-core-idle)` : `url(#hub-${k}-core-${t.kind})`, $ = b ? "fill:#757575;fill-opacity:0.1;stroke:#9e9e9e;stroke-opacity:0.5;stroke-width:1.75" : `fill:${s};fill-opacity:0.09;stroke:${s};stroke-opacity:0.75;stroke-width:1.75`, C = `fill:${N};stroke:#000000;stroke-opacity:0.22;stroke-width:1`, E = b ? "fill:#ffffff;fill-opacity:0.04" : `fill:${s};fill-opacity:0.14`, y = i === "node-muted" ? "fill:var(--disabled-text-color,#9e9e9e)" : "fill:var(--primary-text-color,#e0e0e0)", z = "fill:var(--secondary-text-color,#b0b0b0)", c = "cursor:pointer", m = t.iconKey ?? "solar", S = ct(k, m), F = 20 + (dt[t.kind] ?? 0) * 70, O = this._nodeFocused(t), L = O ? a + 9 : a + 8, W = this._enterGen > 0 ? "node-stagger" : "", Y = `${t.kind}|${this._valuePulse}|${t.value ?? ""}`;
+    }, b = t.status === "idle" || t.status === "unknown", v = !b && t.pulse ? "node-halo node-halo--live" : "node-halo", f = b ? "fill:none;stroke:var(--disabled-text-color,#9e9e9e);stroke-opacity:0.22;stroke-width:1" : `fill:none;stroke:${s};stroke-opacity:0.35;stroke-width:1.5`, k = this._gid, F = b ? `url(#hub-${k}-core-idle)` : `url(#hub-${k}-core-${t.kind})`, $ = b ? "fill:#757575;fill-opacity:0.1;stroke:#9e9e9e;stroke-opacity:0.5;stroke-width:1.75" : `fill:${s};fill-opacity:0.09;stroke:${s};stroke-opacity:0.75;stroke-width:1.75`, C = `fill:${F};stroke:#000000;stroke-opacity:0.22;stroke-width:1`, S = b ? "fill:#ffffff;fill-opacity:0.04" : `fill:${s};fill-opacity:0.14`, y = a === "node-muted" ? "fill:var(--disabled-text-color,#9e9e9e)" : "fill:var(--primary-text-color,#e0e0e0)", z = "fill:var(--secondary-text-color,#b0b0b0)", l = "cursor:pointer", m = t.iconKey ?? "solar", O = dt(k, m), A = 20 + (ut[t.kind] ?? 0) * 70, L = this._nodeFocused(t), N = L ? i + 9 : i + 8, W = this._enterGen > 0 ? "node-stagger" : "", Y = `${t.kind}|${this._valuePulse}|${t.value ?? ""}`;
     return w`
       <g
         class="flow-dim"
-        style=${`opacity:${p};${c}`}
+        style=${`opacity:${u};${l}`}
         transform="translate(${t.x} ${t.y})"
-        @pointerdown=${D}
+        @pointerdown=${E}
       >
-        <g class=${W} style=${`--hub-stagger:${F}ms`}>
+        <g class=${W} style=${`--hub-stagger:${A}ms`}>
           <circle
-            class=${`node-focus-ring ${O ? "node-focus-ring--on" : ""}`}
-            r=${L}
+            class=${`node-focus-ring ${L ? "node-focus-ring--on" : ""}`}
+            r=${N}
           ></circle>
-          <circle class=${v} r=${a + 14} style=${f}></circle>
-          <circle class="node-ring ${t.status}" r=${a + 5} style=${$}></circle>
-          <circle class="node-core" r=${a} style=${C}></circle>
-          <circle cx="0" cy=${-a * 0.35} r=${a * 0.42} style=${E}></circle>
-          <g class="node-icon-use ${i}" style=${y}>
+          <circle class=${v} r=${i + 14} style=${f}></circle>
+          <circle class="node-ring ${t.status}" r=${i + 5} style=${$}></circle>
+          <circle class="node-core" r=${i} style=${C}></circle>
+          <circle cx="0" cy=${-i * 0.35} r=${i * 0.42} style=${S}></circle>
+          <g class="node-icon-use ${a}" style=${y}>
             <use
-              href="#${S}"
+              href="#${O}"
               width="26"
               height="26"
               x="-13"
               y="-13"
-              transform="scale(${a >= 26 ? 1.05 : 0.92})"
+              transform="scale(${i >= 26 ? 1.05 : 0.92})"
             ></use>
           </g>
-          <text class="node-label ${i}" x="0" y=${d} style=${y}>
+          <text class="node-label ${a}" x="0" y=${n} style=${y}>
             ${t.label}
           </text>
           ${t.value ? w`<text
-                class="node-value node-value--tick ${i}"
+                class="node-value node-value--tick ${a}"
                 x="0"
-                y=${h}
+                y=${p}
                 style=${y}
                 key=${Y}
               >
                 ${t.value}
               </text>` : x}
-          ${n ? w`<text class="node-detail ${i}" x="0" y=${u} style=${z}>
-                ${n}
+          ${c ? w`<text class="node-detail ${a}" x="0" y=${h} style=${z}>
+                ${c}
               </text>` : x}
         </g>
       </g>
     `;
   }
 }
-customElements.get("hub-power-flow-diagram") || customElements.define("hub-power-flow-diagram", pt);
-const ht = "sensor.hub_energie_";
-function ft(r = ht) {
-  const t = r;
-  return {
-    frontendData: `${t}frontend_data`,
-    frontendMeta: `${t}frontend_meta`
-  };
+customElements.get("hub-power-flow-diagram") || customElements.define("hub-power-flow-diagram", ht);
+function ft(r) {
+  const t = r?.site_index;
+  if (t === "" || t === void 0 || t === null) return null;
+  const e = Math.trunc(Number(t));
+  return Number.isFinite(e) && e >= 0 ? e : null;
+}
+function mt(r) {
+  if (typeof r != "string" || !r.startsWith("sensor.")) return null;
+  const t = r.slice(7), e = "_cost_detail";
+  if (!t.endsWith(e)) return null;
+  const o = t.slice(0, -e.length);
+  return o ? {
+    data: `sensor.${o}_frontend_data`,
+    meta: `sensor.${o}_frontend_meta`
+  } : null;
 }
 function q(r, t) {
   if (!r || typeof r != "object") return null;
-  const e = (l) => typeof l == "string" ? l.trim() : "", o = e(t?.frontend_data_entity), a = e(t?.frontend_meta_entity), s = (l, d) => {
-    if (!l || !d) return null;
-    const h = r[l], u = r[d];
-    return h && u ? { data: l, meta: d } : null;
+  const e = (n) => typeof n == "string" ? n.trim() : "", o = e(t?.frontend_data_entity), i = e(t?.frontend_meta_entity), s = (n, p) => {
+    if (!n || !p) return null;
+    const h = r[n], u = r[p];
+    return h && u ? { data: n, meta: p } : null;
   };
-  if (o && a) {
-    const l = s(o, a);
-    if (l) return l;
+  if (o && i) {
+    const n = s(o, i);
+    if (n) return n;
   }
-  const i = ft();
-  let n = s(i.frontendData, i.frontendMeta);
-  return n || (n = s("sensor.frontend_data", "sensor.frontend_meta"), n) ? n : null;
+  const a = ft(t), c = at(r, a), d = mt(c);
+  if (d) {
+    const n = s(d.data, d.meta);
+    if (n) return n;
+  }
+  return s("sensor.frontend_data", "sensor.frontend_meta");
 }
 function V(r, t) {
   const e = String(r ?? "").toLowerCase();
   return e.includes("blue") || e.includes("bleu") ? t?.tempoDayBlue ?? "Blue" : e.includes("white") || e.includes("blanc") ? t?.tempoDayWhite ?? "White" : e.includes("red") || e.includes("rouge") ? t?.tempoDayRed ?? "Red" : e === "n/a" ? t?.dayColorNA ?? "N/A" : e || (t?.emDash ?? "—");
 }
-function mt(r, t, e) {
+function bt(r, t, e) {
   const o = r?.[t]?.attributes?.[e];
   if (o == null || o === "") return null;
-  const a = Number(o);
-  return Number.isFinite(a) ? a : null;
+  const i = Number(o);
+  return Number.isFinite(i) ? i : null;
 }
 function _(r) {
   const t = Number(r);
@@ -628,20 +639,20 @@ function _(r) {
   const e = Math.abs(t);
   return e >= 1e3 ? `${(t / 1e3).toFixed(e >= 1e4 ? 0 : 1)} kW` : `${Math.round(t)} W`;
 }
-function bt(r, t, e) {
+function gt(r, t, e) {
   if (!r) return null;
   const o = Date.parse(r);
   if (!Number.isFinite(o)) return null;
-  const a = Math.max(0, Math.floor((t - o) / 1e3));
-  if (a < 60) return e.flowAgeSeconds.replace("{n}", String(a));
-  const s = Math.floor(a / 60);
+  const i = Math.max(0, Math.floor((t - o) / 1e3));
+  if (i < 60) return e.flowAgeSeconds.replace("{n}", String(i));
+  const s = Math.floor(i / 60);
   if (s < 60) return e.flowAgeMinutes.replace("{n}", String(s));
-  const i = Math.floor(s / 60);
-  if (i < 48) return e.flowAgeHours.replace("{n}", String(i));
-  const n = Math.floor(i / 24);
-  return e.flowAgeDays.replace("{n}", String(n));
+  const a = Math.floor(s / 60);
+  if (a < 48) return e.flowAgeHours.replace("{n}", String(a));
+  const c = Math.floor(a / 24);
+  return e.flowAgeDays.replace("{n}", String(c));
 }
-const G = "custom:hub-energie-flow-card", gt = 520, B = 5, yt = 20, U = 54, Z = 156 + U, _t = 194 + U, wt = 40 + U, R = Object.freeze([
+const G = "custom:hub-energie-flow-card", yt = 520, B = 5, _t = 20, U = 54, Z = 156 + U, wt = 194 + U, xt = 40 + U, R = Object.freeze([
   {
     key: "solar_to_home_power_w",
     from: "solar",
@@ -682,7 +693,7 @@ const G = "custom:hub-energie-flow-card", gt = 520, B = 5, yt = 20, U = 54, Z = 
     key: "grid_to_battery_power_w",
     from: "grid",
     to: "battery",
-    color: it,
+    color: nt,
     path: "M78 222 C200 312 322 222",
     labelX: 200,
     labelY: 286
@@ -691,17 +702,17 @@ const G = "custom:hub-energie-flow-card", gt = 520, B = 5, yt = 20, U = 54, Z = 
     key: "solar_export_power_w",
     from: "solar",
     to: "grid",
-    color: nt,
+    color: lt,
     path: "M186 112 C142 130 102 162 78 188",
     labelX: 128,
     labelY: 144
   }
-]), J = ["solar_to_home_power_w", "battery_to_home_power_w", "grid_to_home_power_w"], xt = [
+]), J = ["solar_to_home_power_w", "battery_to_home_power_w", "grid_to_home_power_w"], vt = [
   "battery_to_home_power_w",
   "solar_to_battery_power_w",
   "grid_to_battery_power_w",
   "battery_discharge_power_w"
-], vt = [
+], kt = [
   "battery_configured",
   "solar_configured",
   "battery_system_count",
@@ -710,36 +721,36 @@ const G = "custom:hub-energie-flow-card", gt = 520, B = 5, yt = 20, U = 54, Z = 
   "tomorrow_color",
   "input_status"
 ];
-function kt(r) {
+function $t(r) {
   return r === !0 || r === "true";
 }
-function $t(r) {
+function Ct(r) {
   return r === "compact" || r === "full" ? r : "auto";
 }
-function A(r) {
+function M(r) {
   return Array.isArray(r) ? r.join(",") : r == null ? "" : String(r);
 }
 function j(r) {
   return r.every((t) => t != null) ? r.reduce((t, e) => t + e, 0) : null;
 }
-function Ct(r, t) {
+function Mt(r, t) {
   if (r == null) return 0;
   const e = Math.abs(r);
-  return t ? e > 0 ? 0.96 : 0.18 : e < B ? 0 : e < yt ? 0.2 : 0.96;
+  return t ? e > 0 ? 0.96 : 0.18 : e < B ? 0 : e < _t ? 0.2 : 0.96;
 }
-function Mt(r) {
+function Dt(r) {
   const t = Math.max(0, Math.abs(Number(r) || 0));
   return Math.max(1.85, Math.min(7.8, 1.85 + Math.log10(t + 1) * 2.15));
 }
-function Dt(r) {
+function Et(r) {
   const t = Math.max(0, Math.abs(Number(r) || 0)), e = 4.8 - Math.log10(t + 1) * 0.92;
   return Math.max(1.1, Math.min(4.8, e));
 }
-function Et(r) {
+function St(r) {
   const t = String(r ?? "").trim();
   return t ? t.replace(/_/g, " ") : "ok";
 }
-function St(r) {
+function Ot(r) {
   const t = r?.themes;
   if (t && typeof t.darkMode == "boolean") return t.darkMode;
   if (typeof document > "u") return !1;
@@ -756,32 +767,32 @@ function St(r) {
 function Tt(r, t, e, o) {
   return t === "unknown" ? { value: "?", detail: r.flowBatteryUnknown, muted: !0 } : t === "idle" ? { value: null, detail: r.flowBatteryIdle, muted: !0 } : o > 0 ? { value: _(o), detail: r.flowBatteryCharging, muted: !1 } : e > 0 ? { value: _(e), detail: r.flowBatteryDischarging, muted: !1 } : { value: null, detail: null, muted: !1 };
 }
-function Ot(r, t, e, o, a) {
+function Lt(r, t, e, o, i) {
   const s = Object.fromEntries(
-    R.map((c) => [c.key, t[c.key] ?? null])
+    R.map((l) => [l.key, t[l.key] ?? null])
   );
   s.battery_discharge_power_w = t.battery_discharge_power_w ?? null, s.home_power_w = t.home_power_w ?? null;
-  const i = R.map((c) => {
-    const m = s[c.key], S = Ct(m, a), T = m == null ? 0 : Math.abs(Number(m) || 0), F = m != null && T >= B ? _(m) : null, O = !!(a && m != null && T < B), L = a ? m != null : S > 0;
+  const a = R.map((l) => {
+    const m = s[l.key], O = Mt(m, i), T = m == null ? 0 : Math.abs(Number(m) || 0), A = m != null && T >= B ? _(m) : null, L = !!(i && m != null && T < B), N = i ? m != null : O > 0;
     return {
-      ...c,
+      ...l,
       value: m,
-      visible: L,
-      opacity: S,
-      width: Mt(m),
-      duration: Dt(m),
-      label: F,
-      ghost: O,
-      _homeW: J.includes(c.key) && L ? T : -1
+      visible: N,
+      opacity: O,
+      width: Dt(m),
+      duration: Et(m),
+      label: A,
+      ghost: L,
+      _homeW: J.includes(l.key) && N ? T : -1
     };
   });
-  let n = null, l = -1;
-  for (const c of i)
-    c._homeW > l && (l = c._homeW, n = c.key);
-  const d = i.map(({ _homeW: c, ...m }) => ({
+  let c = null, d = -1;
+  for (const l of a)
+    l._homeW > d && (d = l._homeW, c = l.key);
+  const n = a.map(({ _homeW: l, ...m }) => ({
     ...m,
-    primaryToHome: m.key === n && n != null
-  })), h = Object.fromEntries(d.map((c) => [c.key, c])), u = j(J.map((c) => s[c])), p = j([
+    primaryToHome: m.key === c && c != null
+  })), p = Object.fromEntries(n.map((l) => [l.key, l])), h = j(J.map((l) => s[l])), u = j([
     s.solar_to_home_power_w,
     s.solar_to_battery_power_w,
     s.solar_export_power_w
@@ -789,10 +800,10 @@ function Ot(r, t, e, o, a) {
     s.grid_to_home_power_w,
     s.grid_to_battery_power_w,
     s.solar_export_power_w
-  ]) == null ? null : s.grid_to_home_power_w + s.grid_to_battery_power_w - s.solar_export_power_w, g = e.battery_configured === !0, v = xt.map((c) => s[c]).filter((c) => c != null);
+  ]) == null ? null : s.grid_to_home_power_w + s.grid_to_battery_power_w - s.solar_export_power_w, g = e.battery_configured === !0, v = vt.map((l) => s[l]).filter((l) => l != null);
   let f = "absent";
-  g && (v.length === 0 ? f = "unknown" : v.some((c) => Math.abs(c) >= 0.5) ? f = "active" : f = "idle");
-  const k = (s.solar_to_battery_power_w ?? 0) + (s.grid_to_battery_power_w ?? 0), N = s.battery_to_home_power_w ?? s.battery_discharge_power_w ?? 0, $ = Tt(r, f, N, k), C = (c) => c != null && Math.abs(c) >= B, E = {
+  g && (v.length === 0 ? f = "unknown" : v.some((l) => Math.abs(l) >= 0.5) ? f = "active" : f = "idle");
+  const k = (s.solar_to_battery_power_w ?? 0) + (s.grid_to_battery_power_w ?? 0), F = s.battery_to_home_power_w ?? s.battery_discharge_power_w ?? 0, $ = Tt(r, f, F, k), C = (l) => l != null && Math.abs(l) >= B, S = {
     grid: {
       kind: "grid",
       iconKey: "grid",
@@ -809,25 +820,25 @@ function Ot(r, t, e, o, a) {
       kind: "solar",
       iconKey: "solar",
       label: r.flowNodeSolar,
-      value: p != null ? _(p) : null,
-      detail: null,
-      muted: !1,
-      status: "active",
-      x: 200,
-      y: wt,
-      pulse: C(p)
-    },
-    home: {
-      kind: "home",
-      iconKey: "home",
-      label: r.flowNodeHome,
       value: u != null ? _(u) : null,
       detail: null,
       muted: !1,
       status: "active",
       x: 200,
-      y: _t,
+      y: xt,
       pulse: C(u)
+    },
+    home: {
+      kind: "home",
+      iconKey: "home",
+      label: r.flowNodeHome,
+      value: h != null ? _(h) : null,
+      detail: null,
+      muted: !1,
+      status: "active",
+      x: 200,
+      y: wt,
+      pulse: C(h)
     },
     battery: g ? {
       kind: "battery",
@@ -841,18 +852,18 @@ function Ot(r, t, e, o, a) {
       y: Z,
       pulse: f === "active"
     } : null
-  }, y = s.home_power_w, z = a && u != null && y != null ? {
-    expected: u,
+  }, y = s.home_power_w, z = i && h != null && y != null ? {
+    expected: h,
     reported: y,
-    delta: y - u,
+    delta: y - h,
     tolerance: Math.max(25, Math.abs(y) * 0.04)
   } : null;
   return {
     layout: o,
-    debug: a,
-    nodes: E,
-    edges: d,
-    edgeMap: h,
+    debug: i,
+    nodes: S,
+    edges: n,
+    edgeMap: p,
     meta: {
       currentSlot: e.current_slot ?? null,
       todayColor: e.today_color ?? null,
@@ -862,7 +873,7 @@ function Ot(r, t, e, o, a) {
     mismatch: z
   };
 }
-class Lt extends Q {
+class Nt extends Q {
   static properties = {
     hass: { attribute: !1 },
     _config: { state: !0 },
@@ -1046,9 +1057,9 @@ class Lt extends Q {
     return !0;
   }
   render() {
-    const t = this._i18n(), e = this._resolvedLayout(), o = this._viewModel(t, e), a = this._debugEnabled();
+    const t = this._i18n(), e = this._resolvedLayout(), o = this._viewModel(t, e), i = this._debugEnabled();
     if (!o.ready)
-      return M`
+      return D`
         <ha-card>
           <div class="wrap">
             <div class="header">
@@ -1064,31 +1075,31 @@ class Lt extends Q {
           </div>
         </ha-card>
       `;
-    const s = o.model.mismatch && Math.abs(o.model.mismatch.delta) > o.model.mismatch.tolerance ? t.flowDebugConservationWarn.replace("{derived}", _(o.model.mismatch.expected)).replace("{reported}", _(o.model.mismatch.reported)).replace("{delta}", _(o.model.mismatch.delta)) : null, i = o.dataEntityId ? this.hass.states[o.dataEntityId] : null, n = i?.last_updated ?? i?.last_changed ?? "", l = bt(String(n), Date.now(), t), d = l ? t.flowDataAgeLabel.replace("{age}", l) : t.flowDataAgeUnknown, h = [];
-    o.model.meta.currentSlot && h.push(`${t.flowMetaSlot}: ${o.model.meta.currentSlot}`), o.model.meta.todayColor && h.push(`${t.flowMetaToday}: ${V(o.model.meta.todayColor, t)}`), o.model.meta.tomorrowColor && h.push(`${t.flowMetaTomorrow}: ${V(o.model.meta.tomorrowColor, t)}`), o.model.meta.inputStatus && o.model.meta.inputStatus !== "ok" && h.push(`${t.flowMetaInputStatus}: ${Et(o.model.meta.inputStatus)}`);
-    const u = St(this.hass);
-    return M`
-      <ha-card class=${a ? "debug-card" : ""}>
+    const s = o.model.mismatch && Math.abs(o.model.mismatch.delta) > o.model.mismatch.tolerance ? t.flowDebugConservationWarn.replace("{derived}", _(o.model.mismatch.expected)).replace("{reported}", _(o.model.mismatch.reported)).replace("{delta}", _(o.model.mismatch.delta)) : null, a = o.dataEntityId ? this.hass.states[o.dataEntityId] : null, c = a?.last_updated ?? a?.last_changed ?? "", d = gt(String(c), Date.now(), t), n = d ? t.flowDataAgeLabel.replace("{age}", d) : t.flowDataAgeUnknown, p = [];
+    o.model.meta.currentSlot && p.push(`${t.flowMetaSlot}: ${o.model.meta.currentSlot}`), o.model.meta.todayColor && p.push(`${t.flowMetaToday}: ${V(o.model.meta.todayColor, t)}`), o.model.meta.tomorrowColor && p.push(`${t.flowMetaTomorrow}: ${V(o.model.meta.tomorrowColor, t)}`), o.model.meta.inputStatus && o.model.meta.inputStatus !== "ok" && p.push(`${t.flowMetaInputStatus}: ${St(o.model.meta.inputStatus)}`);
+    const h = Ot(this.hass);
+    return D`
+      <ha-card class=${i ? "debug-card" : ""}>
         <div class="wrap">
           <div class="header">
             <div class="head-main">
               <div class="title">${this._config?.title || t.flowCardTitle}</div>
-              <div class="subtitle">${d}</div>
+              <div class="subtitle">${n}</div>
             </div>
-            ${a ? M`<span class="badge">${t.flowDebugBadge}</span>` : x}
+            ${i ? D`<span class="badge">${t.flowDebugBadge}</span>` : x}
           </div>
-          ${s ? M`<div class="warning">${s}</div>` : x}
+          ${s ? D`<div class="warning">${s}</div>` : x}
           <hub-power-flow-diagram
             .data=${o.model}
             .i18n=${t}
             .layout=${e}
-            .debug=${a}
-            .energyThemeDark=${u}
+            .debug=${i}
+            .energyThemeDark=${h}
           ></hub-power-flow-diagram>
-          ${h.length ? M`
+          ${p.length ? D`
                 <div class="meta">
-                  ${h.map((p) => M`
-                    <span class="chip ${p.includes(t.flowMetaInputStatus) ? "alert" : ""}">${p}</span>
+                  ${p.map((u) => D`
+                    <span class="chip ${u.includes(t.flowMetaInputStatus) ? "alert" : ""}">${u}</span>
                   `)}
                 </div>
               ` : x}
@@ -1102,7 +1113,7 @@ class Lt extends Q {
   _scheduleLayoutMeasure() {
     this._resizeTimer != null && clearTimeout(this._resizeTimer), this._resizeTimer = setTimeout(() => {
       this._resizeTimer = null;
-      const t = this.offsetWidth > 0 && this.offsetWidth < gt;
+      const t = this.offsetWidth > 0 && this.offsetWidth < yt;
       t !== this._autoCompact && (this._autoCompact = t);
     }, 100);
   }
@@ -1110,59 +1121,60 @@ class Lt extends Q {
     return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? H.en : H.fr;
   }
   _debugEnabled() {
-    return kt(this._config?.debug);
+    return $t(this._config?.debug);
   }
   _resolvedLayout() {
-    const t = $t(this._config?.layout);
+    const t = Ct(this._config?.layout);
     return t === "auto" ? this._autoCompact ? "compact" : "full" : t;
   }
   _viewModel(t, e) {
-    const o = this.hass?.states, a = q(o, this._config);
-    if (!a)
+    const o = this.hass?.states, i = q(o, this._config);
+    if (!i)
       return { ready: !1, model: null };
-    const { data: s, meta: i } = a, n = o[s], l = o[i];
-    if (!n || !l)
+    const { data: s, meta: a } = i, c = o[s], d = o[a];
+    if (!c || !d)
       return { ready: !1, model: null };
-    n.attributes;
-    const d = l.attributes ?? {}, h = Object.fromEntries(
+    c.attributes;
+    const n = d.attributes ?? {}, p = Object.fromEntries(
       [
-        ...R.map((u) => u.key),
+        ...R.map((h) => h.key),
         "battery_discharge_power_w",
         "home_power_w"
-      ].map((u) => [u, mt(o, s, u)])
+      ].map((h) => [h, bt(o, s, h)])
     );
     return {
       ready: !0,
       dataEntityId: s,
-      model: Ot(t, h, d, e, this._debugEnabled())
+      model: Lt(t, p, n, e, this._debugEnabled())
     };
   }
   _stateFingerprint() {
     const t = this.hass?.states;
     if (!t) return null;
-    const e = q(t, this._config), o = this._resolvedLayout(), a = this._debugEnabled();
+    const e = q(t, this._config), o = this._resolvedLayout(), i = this._debugEnabled();
     if (!e) {
-      const p = String(this._config?.frontend_data_entity ?? "").trim(), D = String(this._config?.frontend_meta_entity ?? "").trim();
-      return `missing|${o}|${a}|${p}|${D}`;
+      const u = String(this._config?.frontend_data_entity ?? "").trim(), E = String(this._config?.frontend_meta_entity ?? "").trim();
+      return `missing|${o}|${i}|${M(this._config?.site_index)}|${u}|${E}`;
     }
-    const { data: s, meta: i } = e, n = t[s], l = t[i];
-    if (!n || !l)
-      return `missing|${o}|${a}|${s}|${i}`;
-    const d = n.attributes ?? {}, h = l.attributes ?? {};
+    const { data: s, meta: a } = e, c = t[s], d = t[a];
+    if (!c || !d)
+      return `missing|${o}|${i}|${s}|${a}`;
+    const n = c.attributes ?? {}, p = d.attributes ?? {};
     return [
       s,
-      i,
-      o,
       a,
-      A(n.last_updated ?? n.last_changed),
-      ...R.map((p) => A(d[p.key])),
-      A(d.battery_discharge_power_w),
-      a ? A(d.home_power_w) : "",
-      ...vt.map((p) => A(h[p]))
+      o,
+      i,
+      M(this._config?.site_index),
+      M(c.last_updated ?? c.last_changed),
+      ...R.map((u) => M(n[u.key])),
+      M(n.battery_discharge_power_w),
+      i ? M(n.home_power_w) : "",
+      ...kt.map((u) => M(p[u]))
     ].join("|");
   }
 }
-customElements.get("hub-energie-flow-card") || customElements.define("hub-energie-flow-card", Lt);
+customElements.get("hub-energie-flow-card") || customElements.define("hub-energie-flow-card", Nt);
 export {
-  Lt as HubEnergieFlowCard
+  Nt as HubEnergieFlowCard
 };

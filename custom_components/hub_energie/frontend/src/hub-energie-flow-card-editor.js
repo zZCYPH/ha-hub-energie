@@ -1,7 +1,15 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, nothing } from "lit";
 import { I18N } from "./constants/i18n.js";
+import { hubSitesFromStates } from "./utils/energy-utils.js";
 
 const CARD_TYPE = "custom:hub-energie-flow-card";
+
+function siteOptionLabel(i18n, site) {
+  const t = i18n?.editorSiteOption ?? "{index} — {segment}";
+  const idx = String(site?.index ?? "");
+  const seg = site?.segment != null && String(site.segment).trim() !== "" ? String(site.segment).trim() : idx;
+  return String(t).split("{index}").join(idx).split("{segment}").join(seg);
+}
 const LAYOUT_OPTIONS = ["auto", "full", "compact"];
 
 export class HubEnergieFlowCardEditor extends LitElement {
@@ -40,10 +48,23 @@ export class HubEnergieFlowCardEditor extends LitElement {
     if (!this._config.type) this._config.type = CARD_TYPE;
   }
 
+  _hubSites() {
+    return hubSitesFromStates(this.hass?.states);
+  }
+
+  _siteSelectValue() {
+    const raw = this._config?.site_index;
+    if (raw === "" || raw === undefined || raw === null) return "__auto__";
+    const n = Math.trunc(Number(raw));
+    return Number.isFinite(n) && n >= 0 ? String(n) : "__auto__";
+  }
+
   render() {
     const i18n = this._i18n();
     const layout = LAYOUT_OPTIONS.includes(this._config?.layout) ? this._config.layout : "auto";
     const debug = this._config?.debug === true || this._config?.debug === "true";
+    const sites = this._hubSites();
+    const siteSel = this._siteSelectValue();
     return html`
       <div class="field">
         <ha-textfield
@@ -66,6 +87,27 @@ export class HubEnergieFlowCardEditor extends LitElement {
         </ha-select>
         <p class="hint">${i18n.flowEditorLayoutHint}</p>
       </div>
+      ${sites.length >= 1
+        ? html`
+            <div class="field">
+              <ha-select
+                label=${i18n.editorSiteLabel}
+                .value=${siteSel}
+                @closed=${this._onSiteClosed}
+                .fixedMenuPosition=${true}
+                .naturalMenuWidth=${true}
+              >
+                <ha-list-item value="__auto__">${i18n.siteAuto}</ha-list-item>
+                ${sites.map(
+                  (s) => html`
+                    <ha-list-item value="${String(s.index)}">${siteOptionLabel(i18n, s)}</ha-list-item>
+                  `,
+                )}
+              </ha-select>
+              <p class="hint">${i18n.editorSiteHint}</p>
+            </div>
+          `
+        : nothing}
       <div class="field">
         <ha-formfield .label=${i18n.flowEditorDebug}>
           <ha-switch
@@ -130,6 +172,16 @@ export class HubEnergieFlowCardEditor extends LitElement {
     const next = { ...this._config };
     if (value === "auto") delete next.layout;
     else next.layout = value;
+    this._emit(next);
+  }
+
+  _onSiteClosed(ev) {
+    ev.stopPropagation();
+    const sel = ev.target;
+    if (sel?.value === undefined) return;
+    const next = { ...this._config };
+    if (sel.value === "__auto__") delete next.site_index;
+    else next.site_index = Math.max(0, Math.trunc(Number(sel.value)));
     this._emit(next);
   }
 

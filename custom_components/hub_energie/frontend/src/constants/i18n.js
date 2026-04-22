@@ -157,7 +157,7 @@ export const I18N = Object.freeze({
     flowCardTitle: "Flux de puissance",
     flowCardWaiting: "En attente des capteurs Frontend data / Frontend meta…",
     flowCardEntityHint:
-      "IDs attendus : <code>sensor.hub_energie_frontend_data</code> + <code>…_meta</code>, ou les IDs courts <code>sensor.frontend_data</code> / <code>sensor.frontend_meta</code>. Sinon, forcez-les dans l’éditeur de carte.",
+      "Résolution auto : même logique de site que la carte principale (<code>site_index</code>) via le <code>cost_detail</code> Hub Énergie → paire <code>frontend_data</code> / <code>frontend_meta</code> avec le même segment (<code>hub_energie_…</code>). Sinon, renseignez les entités ou utilisez <code>sensor.frontend_data</code> / <code>sensor.frontend_meta</code>.",
     flowNodeGrid: "Réseau",
     flowNodeSolar: "Solaire",
     flowNodeHome: "Maison",
@@ -185,7 +185,7 @@ export const I18N = Object.freeze({
     flowEditorDataEntity: "Capteur live (frontend_data)",
     flowEditorMetaEntity: "Capteur meta (frontend_meta)",
     flowEditorEntityHint:
-      "Vide = détection auto (<code>hub_energie_frontend_*</code> puis <code>frontend_*</code>).",
+      "Vide = détection auto via le <code>cost_detail</code> du site (même segment <code>hub_energie_…</code> que sur la carte principale), puis <code>frontend_*</code> courts si besoin.",
     flowEditorReducedMotionNote:
       "Les animations des câbles suivent le réglage d’accessibilité « réduire les mouvements » du système (pas une option de performance).",
     flowDataAgeLabel: "Live · {age}",
@@ -351,7 +351,7 @@ export const I18N = Object.freeze({
     flowCardTitle: "Power flow",
     flowCardWaiting: "Waiting for Frontend data / Frontend meta sensors…",
     flowCardEntityHint:
-      "Expected IDs: <code>sensor.hub_energie_frontend_data</code> + <code>…_meta</code>, or short <code>sensor.frontend_data</code> / <code>sensor.frontend_meta</code>. Otherwise set them in the card editor.",
+      "Auto-resolve: same site logic as the main card (<code>site_index</code>) via the Hub Énergie <code>cost_detail</code> sensor → <code>frontend_data</code> + <code>frontend_meta</code> with the same <code>hub_energie_…</code> segment. Otherwise set entities in the editor, or use <code>sensor.frontend_data</code> / <code>sensor.frontend_meta</code>.",
     flowNodeGrid: "Grid",
     flowNodeSolar: "Solar",
     flowNodeHome: "Home",
@@ -379,7 +379,7 @@ export const I18N = Object.freeze({
     flowEditorDataEntity: "Live sensor (frontend_data)",
     flowEditorMetaEntity: "Meta sensor (frontend_meta)",
     flowEditorEntityHint:
-      "Empty = auto-detect (<code>hub_energie_frontend_*</code> then <code>frontend_*</code>).",
+      "Empty = auto-detect via the site’s <code>cost_detail</code> (same <code>hub_energie_…</code> segment as the main card), then short <code>frontend_*</code> if needed.",
     flowEditorReducedMotionNote:
       "Cable animations follow the system “reduce motion” accessibility setting (not a performance toggle).",
     flowDataAgeLabel: "Live · {age}",

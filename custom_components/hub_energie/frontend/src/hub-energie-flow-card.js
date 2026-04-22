@@ -707,7 +707,7 @@ export class HubEnergieFlowCard extends LitElement {
     if (!resolved) {
       const exD = String(this._config?.frontend_data_entity ?? "").trim();
       const exM = String(this._config?.frontend_meta_entity ?? "").trim();
-      return `missing|${layout}|${debug}|${exD}|${exM}`;
+      return `missing|${layout}|${debug}|${fpPart(this._config?.site_index)}|${exD}|${exM}`;
     }
     const { data: dataId, meta: metaId } = resolved;
     const liveState = states[dataId];
@@ -722,6 +722,7 @@ export class HubEnergieFlowCard extends LitElement {
       metaId,
       layout,
       debug,
+      fpPart(this._config?.site_index),
       fpPart(liveState.last_updated ?? liveState.last_changed),
       ...EDGE_CONFIG.map((edge) => fpPart(liveAttrs[edge.key])),
       fpPart(liveAttrs.battery_discharge_power_w),
