@@ -4,6 +4,7 @@ import { I18N } from "./constants/i18n.js";
 import {
   dayColorLabel,
   fmtPowerCompact,
+  formatFlowDataAge,
   readAttrOptionalFloat,
   resolveHubFrontendPayloadEntities,
 } from "./utils/hub-flow-resolve.js";
@@ -20,10 +21,15 @@ const AUTO_LAYOUT_BREAKPOINT = 520;
 const EDGE_HIDE_W = 5;
 const EDGE_FADE_W = 20;
 
-/** Horizontal row (grid / home / battery); lowered so solar fits inside the inner frame. */
-const ROW_CY = 140;
-/** Solar cy; outer ring top = SOLAR_CY − 28 must stay ≥ backdrop top + margin (~18). */
-const SOLAR_CY = 48;
+/** Vertical padding so the flow geometry fits a square viewBox (see diagram viewBox height). */
+const FLOW_Y_PAD = 54;
+
+/** Grid / battery row — raised slightly vs home so lateral cables arc above the home label block. */
+const ROW_CY = 156 + FLOW_Y_PAD;
+/** Home sits lower so the solar→home segment is tall enough for labels and flow lines. */
+const HOME_CY = 194 + FLOW_Y_PAD;
+/** Solar cy; keep halo (r+14) inside the rounded backdrop (y ≥ ~8). */
+const SOLAR_CY = 40 + FLOW_Y_PAD;
 
 const EDGE_CONFIG = Object.freeze([
   {
@@ -31,54 +37,54 @@ const EDGE_CONFIG = Object.freeze([
     from: "solar",
     to: "home",
     color: COLOR_SOLAR,
-    path: "M200 78 C200 98 200 116 200 128",
+    path: "M200 116 C200 156 200 192 200 220",
     labelX: 200,
-    labelY: 96,
+    labelY: 166,
   },
   {
     key: "battery_to_home_power_w",
     from: "battery",
     to: "home",
     color: COLOR_BATTERY,
-    path: "M316 140 C290 140 258 140 232 140",
-    labelX: 274,
-    labelY: 128,
+    path: "M322 210 C288 226 252 240 228 246",
+    labelX: 278,
+    labelY: 220,
   },
   {
     key: "grid_to_home_power_w",
     from: "grid",
     to: "home",
     color: COLOR_GRID_SOURCE,
-    path: "M84 140 C110 140 142 140 172 140",
-    labelX: 126,
-    labelY: 128,
+    path: "M78 210 C112 226 148 240 172 246",
+    labelX: 124,
+    labelY: 220,
   },
   {
     key: "solar_to_battery_power_w",
     from: "solar",
     to: "battery",
     color: COLOR_SOLAR,
-    path: "M214 76 C252 88 290 108 316 128",
-    labelX: 270,
-    labelY: 88,
+    path: "M214 112 C252 128 292 156 322 188",
+    labelX: 268,
+    labelY: 144,
   },
   {
     key: "grid_to_battery_power_w",
     from: "grid",
     to: "battery",
     color: COLOR_GRID_TO_BATT,
-    path: "M84 156 C146 202 252 202 316 156",
+    path: "M78 222 C200 312 322 222",
     labelX: 200,
-    labelY: 200,
+    labelY: 286,
   },
   {
     key: "solar_export_power_w",
     from: "solar",
     to: "grid",
     color: COLOR_SOLAR_EXPORT,
-    path: "M186 76 C148 88 110 108 84 128",
-    labelX: 132,
-    labelY: 88,
+    path: "M186 112 C142 130 102 162 78 188",
+    labelX: 128,
+    labelY: 144,
   },
 ]);
 
@@ -145,6 +151,23 @@ function humanizeToken(value) {
   return text ? text.replace(/_/g, " ") : "ok";
 }
 
+/** Heuristic dark theme for flow diagram contrast (no backend). */
+function isEnergyDarkTheme(hass) {
+  const t = hass?.themes;
+  if (t && typeof t.darkMode === "boolean") return t.darkMode;
+  if (typeof document === "undefined") return false;
+  const root = document.documentElement;
+  if (root.classList.contains("dark")) return true;
+  const attr = root.getAttribute("data-theme");
+  if (attr && String(attr).toLowerCase().includes("dark")) return true;
+  try {
+    if (window.matchMedia?.("(prefers-color-scheme: dark)")?.matches) return true;
+  } catch {
+    /* ignore */
+  }
+  return false;
+}
+
 function batteryPresentation(i18n, state, dischargeW, chargeW) {
   if (state === "unknown") {
     return { value: "?", detail: i18n.flowBatteryUnknown, muted: true };
@@ -168,24 +191,40 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
   values.battery_discharge_power_w = liveAttrs.battery_discharge_power_w ?? null;
   values.home_power_w = liveAttrs.home_power_w ?? null;
 
-  const edges = EDGE_CONFIG.map((edge) => {
+  const edgesDraft = EDGE_CONFIG.map((edge) => {
     const value = values[edge.key];
     const opacity = activeOpacity(value, debug);
     const w = value == null ? 0 : Math.abs(Number(value) || 0);
     const label =
       value != null && w >= EDGE_HIDE_W ? fmtPowerCompact(value) : null;
     const ghost = Boolean(debug && value != null && w < EDGE_HIDE_W);
+    const visible = debug ? value != null : opacity > 0;
     return {
       ...edge,
       value,
-      visible: debug ? value != null : opacity > 0,
+      visible,
       opacity,
       width: edgeWidth(value),
       duration: edgeDuration(value),
       label,
       ghost,
+      _homeW: HOME_EDGE_KEYS.includes(edge.key) && visible ? w : -1,
     };
   });
+
+  let primaryHomeKey = null;
+  let primaryHomeW = -1;
+  for (const e of edgesDraft) {
+    if (e._homeW > primaryHomeW) {
+      primaryHomeW = e._homeW;
+      primaryHomeKey = e.key;
+    }
+  }
+
+  const edges = edgesDraft.map(({ _homeW, ...edge }) => ({
+    ...edge,
+    primaryToHome: edge.key === primaryHomeKey && primaryHomeKey != null,
+  }));
 
   const edgeMap = Object.fromEntries(edges.map((edge) => [edge.key, edge]));
   const homeFromEdges = sumKnown(HOME_EDGE_KEYS.map((key) => values[key]));
@@ -219,7 +258,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
   const nodes = {
     grid: {
       kind: "grid",
-      icon: "⚡",
+      iconKey: "grid",
       label: i18n.flowNodeGrid,
       value: gridDisplay != null ? fmtPowerCompact(gridDisplay) : null,
       detail: null,
@@ -231,7 +270,7 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
     },
     solar: {
       kind: "solar",
-      icon: "☀",
+      iconKey: "solar",
       label: i18n.flowNodeSolar,
       value: solarFromEdges != null ? fmtPowerCompact(solarFromEdges) : null,
       detail: null,
@@ -243,20 +282,20 @@ function buildDiagramModel(i18n, liveAttrs, metaAttrs, layout, debug) {
     },
     home: {
       kind: "home",
-      icon: "⌂",
+      iconKey: "home",
       label: i18n.flowNodeHome,
       value: homeFromEdges != null ? fmtPowerCompact(homeFromEdges) : null,
       detail: null,
       muted: false,
       status: "active",
       x: 200,
-      y: ROW_CY,
+      y: HOME_CY,
       pulse: pulse(homeFromEdges),
     },
     battery: batteryConfigured
       ? {
           kind: "battery",
-          icon: batteryState === "unknown" ? "?" : "B",
+          iconKey: batteryState === "unknown" ? "battery_unknown" : "battery",
           label: i18n.flowNodeBattery,
           value: batteryUi.value,
           detail: batteryUi.detail,
@@ -300,6 +339,8 @@ export class HubEnergieFlowCard extends LitElement {
     hass: { attribute: false },
     _config: { state: true },
     _autoCompact: { state: true },
+    /** Bumps periodically so the live-data age line refreshes when values are unchanged. */
+    _dataAgePulse: { state: true },
   };
 
   static styles = css`
@@ -324,11 +365,21 @@ export class HubEnergieFlowCard extends LitElement {
     .header {
       margin-bottom: 8px;
     }
+    .head-main {
+      flex: 1;
+      min-width: 0;
+    }
     .title {
       font-size: 1rem;
       font-weight: 700;
       line-height: 1.25;
       color: var(--primary-text-color);
+    }
+    .subtitle {
+      margin-top: 2px;
+      font-size: 0.72rem;
+      line-height: 1.3;
+      color: var(--secondary-text-color);
     }
     .badge,
     .chip {
@@ -337,7 +388,7 @@ export class HubEnergieFlowCard extends LitElement {
       gap: 6px;
       min-height: 22px;
       padding: 0 8px;
-      border-radius: 999px;
+      border-radius: 20px;
       font-size: 0.74rem;
       font-weight: 700;
       line-height: 1;
@@ -386,6 +437,39 @@ export class HubEnergieFlowCard extends LitElement {
     .debug-card {
       box-shadow: 0 0 0 1px color-mix(in srgb, var(--error-color) 32%, transparent) inset;
     }
+    .flow-skel {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-width: 100%;
+      border-radius: 26px;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--divider-color) 22%, transparent);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--divider-color) 40%, transparent) inset;
+    }
+    .flow-skel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      transform: translateX(-60%);
+      background: linear-gradient(
+        105deg,
+        transparent 0%,
+        color-mix(in srgb, var(--primary-text-color) 8%, transparent) 45%,
+        transparent 90%
+      );
+      animation: hub-flow-skel-shimmer 1.35s ease-in-out infinite;
+    }
+    @keyframes hub-flow-skel-shimmer {
+      to {
+        transform: translateX(60%);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .flow-skel::after {
+        animation: none;
+      }
+    }
   `;
 
   constructor() {
@@ -393,14 +477,19 @@ export class HubEnergieFlowCard extends LitElement {
     this.hass = undefined;
     this._config = { type: CARD_TYPE };
     this._autoCompact = false;
+    this._dataAgePulse = 0;
     this._lastFp = null;
     this._resizeObserver = null;
     this._resizeTimer = null;
+    this._dataAgeTimer = null;
   }
 
   connectedCallback() {
     super.connectedCallback();
     this._attachResizeObserver();
+    this._dataAgeTimer = window.setInterval(() => {
+      this._dataAgePulse += 1;
+    }, 15000);
   }
 
   disconnectedCallback() {
@@ -409,6 +498,10 @@ export class HubEnergieFlowCard extends LitElement {
     this._resizeObserver = null;
     if (this._resizeTimer != null) clearTimeout(this._resizeTimer);
     this._resizeTimer = null;
+    if (this._dataAgeTimer != null) {
+      window.clearInterval(this._dataAgeTimer);
+      this._dataAgeTimer = null;
+    }
   }
 
   firstUpdated() {
@@ -422,7 +515,7 @@ export class HubEnergieFlowCard extends LitElement {
   }
 
   getCardSize() {
-    return 5;
+    return 7;
   }
 
   getGridOptions() {
@@ -431,7 +524,7 @@ export class HubEnergieFlowCard extends LitElement {
     return {
       columns: span * 12,
       min_columns: 3,
-      rows: 5,
+      rows: 7,
       min_rows: 3,
     };
   }
@@ -449,6 +542,7 @@ export class HubEnergieFlowCard extends LitElement {
   }
 
   shouldUpdate(changedProps) {
+    if (changedProps.has("_dataAgePulse")) return true;
     if (changedProps.has("hass") && changedProps.size === 1) {
       const fp = this._stateFingerprint();
       if (fp !== null && fp === this._lastFp) return false;
@@ -466,10 +560,17 @@ export class HubEnergieFlowCard extends LitElement {
     if (!vm.ready) {
       return html`
         <ha-card>
-          <div class="placeholder">
-            <div class="title">${this._config?.title || i18n.flowCardTitle}</div>
-            <div class="hint">${i18n.flowCardWaiting}</div>
-            <div class="hint">${i18n.flowCardEntityHint}</div>
+          <div class="wrap">
+            <div class="header">
+              <div class="head-main">
+                <div class="title">${this._config?.title || i18n.flowCardTitle}</div>
+              </div>
+            </div>
+            <div class="flow-skel" aria-hidden="true"></div>
+            <div class="placeholder" style="padding:12px 0 0;margin:0">
+              <div class="hint">${i18n.flowCardWaiting}</div>
+              <div class="hint">${i18n.flowCardEntityHint}</div>
+            </div>
           </div>
         </ha-card>
       `;
@@ -481,6 +582,13 @@ export class HubEnergieFlowCard extends LitElement {
           .replace("{reported}", fmtPowerCompact(vm.model.mismatch.reported))
           .replace("{delta}", fmtPowerCompact(vm.model.mismatch.delta))
       : null;
+
+    const liveEnt = vm.dataEntityId ? this.hass.states[vm.dataEntityId] : null;
+    const liveTs = liveEnt?.last_updated ?? liveEnt?.last_changed ?? "";
+    const ageStr = formatFlowDataAge(String(liveTs), Date.now(), i18n);
+    const subtitle = ageStr
+      ? i18n.flowDataAgeLabel.replace("{age}", ageStr)
+      : i18n.flowDataAgeUnknown;
 
     const chips = [];
     if (vm.model.meta.currentSlot) {
@@ -496,11 +604,16 @@ export class HubEnergieFlowCard extends LitElement {
       chips.push(`${i18n.flowMetaInputStatus}: ${humanizeToken(vm.model.meta.inputStatus)}`);
     }
 
+    const energyDark = isEnergyDarkTheme(this.hass);
+
     return html`
       <ha-card class=${debug ? "debug-card" : ""}>
         <div class="wrap">
           <div class="header">
-            <div class="title">${this._config?.title || i18n.flowCardTitle}</div>
+            <div class="head-main">
+              <div class="title">${this._config?.title || i18n.flowCardTitle}</div>
+              <div class="subtitle">${subtitle}</div>
+            </div>
             ${debug ? html`<span class="badge">${i18n.flowDebugBadge}</span>` : nothing}
           </div>
           ${mismatchWarning ? html`<div class="warning">${mismatchWarning}</div>` : nothing}
@@ -509,6 +622,7 @@ export class HubEnergieFlowCard extends LitElement {
             .i18n=${i18n}
             .layout=${resolvedLayout}
             .debug=${debug}
+            .energyThemeDark=${energyDark}
           ></hub-power-flow-diagram>
           ${chips.length
             ? html`
@@ -579,6 +693,7 @@ export class HubEnergieFlowCard extends LitElement {
 
     return {
       ready: true,
+      dataEntityId: dataId,
       model: buildDiagramModel(i18n, live, metaAttrs, layout, this._debugEnabled()),
     };
   }
@@ -592,7 +707,7 @@ export class HubEnergieFlowCard extends LitElement {
     if (!resolved) {
       const exD = String(this._config?.frontend_data_entity ?? "").trim();
       const exM = String(this._config?.frontend_meta_entity ?? "").trim();
-      return `missing|${layout}|${debug}|${exD}|${exM}`;
+      return `missing|${layout}|${debug}|${fpPart(this._config?.site_index)}|${exD}|${exM}`;
     }
     const { data: dataId, meta: metaId } = resolved;
     const liveState = states[dataId];
@@ -607,6 +722,8 @@ export class HubEnergieFlowCard extends LitElement {
       metaId,
       layout,
       debug,
+      fpPart(this._config?.site_index),
+      fpPart(liveState.last_updated ?? liveState.last_changed),
       ...EDGE_CONFIG.map((edge) => fpPart(liveAttrs[edge.key])),
       fpPart(liveAttrs.battery_discharge_power_w),
       debug ? fpPart(liveAttrs.home_power_w) : "",

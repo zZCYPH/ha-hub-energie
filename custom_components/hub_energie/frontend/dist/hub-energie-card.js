@@ -1,6 +1,6 @@
-import { i as at, a as st, b, A as y, w as ut, I as Jt } from "./i18n.js";
-import { C as tt, a as et, b as he, c as $t, d as Qt, e as ue } from "./colors.js";
-import { S as Nt, r as Wt, s as K, C as te, a as Kt, b as Vt, m as se, i as gt, d as ee, e as ge, c as me, f as be, g as Bt, j as re, k as oe, l as fe, t as A, n as we, o as xe } from "./energy-utils.js";
+import { S as Nt, r as Wt, s as K, C as Jt, c as Kt, d as Vt, m as se, i as at, a as st, b, A as y, w as ut, e as gt, I as Qt, f as te, g as he, j as ue, k as ge, l as Bt, n as ee, o as re, p as me, q as be, t as fe } from "./energy-utils.js";
+import { C as tt, a as et, b as we, c as $t, d as oe, e as xe } from "./colors.js";
+import { t as A } from "./i18n-template.js";
 const qt = [24, 12, 6, 3, 1], it = 6;
 function _t(s, t = it) {
   if (!Number.isFinite(s)) return t;
@@ -174,7 +174,7 @@ function Ge(s, t, e, r) {
     isHc: x.id.endsWith("_hc")
   })), N = W(a, t.cost, "abonnement_eur"), G = X(a, t.ecoSolar), C = X(a, t.ecoBatt), T = X(a, t.originGrid), m = X(a, t.originSolar), k = {
     gridDirect: { label: e.usageGridDirect, v: X(a, t.usageGridDirect), color: $t },
-    gridBatt: { label: e.usageGridBatt, v: X(a, t.usageGridBatt), color: he },
+    gridBatt: { label: e.usageGridBatt, v: X(a, t.usageGridBatt), color: we },
     solarDirect: { label: e.usageSolarDirect, v: X(a, t.usageSolarDirect), color: et },
     solarBatt: { label: e.usageSolarBatt, v: X(a, t.usageSolarBatt), color: "#fbc02d" },
     battHome: { label: e.usageBattHome, v: X(a, t.usageBattHome), color: tt }
@@ -224,7 +224,7 @@ async function Be(s, t, e, r, o, a) {
           (!F || x >= F.ts) && _.set(B, { ts: x, v: P });
         }
         if (k === o && m?.attributes && typeof m.attributes == "object")
-          for (const _ of te) {
+          for (const _ of Jt) {
             const F = parseFloat(m.attributes?.[_]);
             if (!Number.isFinite(F)) continue;
             v.has(_) || v.set(_, /* @__PURE__ */ new Map());
@@ -282,7 +282,7 @@ async function Be(s, t, e, r, o, a) {
     if (T === o) {
       const x = S.get(o)?.state, B = M ? S.get(M)?.state : null;
       k = se(B?.attributes, x?.attributes);
-      for (const P of te) k[P] = N(v.get(P));
+      for (const P of Jt) k[P] = N(v.get(P));
       for (const P of Kt) k[P] = N($.get(P));
       for (const P of Vt) k[P] = G(u.get(P));
     }
@@ -2628,7 +2628,7 @@ class tr extends at {
     super.updated(t), (t.has("hass") || t.has("_date") || t.has("_rangePreset")) && (this._loadHistory(), this.__livePollSnap = null, this._syncLiveStatePollTimer()), this._powerGraphOpen && (t.has("_date") || t.has("_powerGraphRollingHours")) && this.hass && (this._powerGraphSeries = null, this._powerGraphErr = null, this._loadPowerGraph({ force: !0 }), this._syncPowerGraphPollTimer());
   }
   _i18n() {
-    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? Jt.en : Jt.fr;
+    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? Qt.en : Qt.fr;
   }
   /** Section visibility: default on; explicit false hides. */
   _showSection(t) {
@@ -2636,8 +2636,8 @@ class tr extends at {
     return e !== !1 && e !== "false";
   }
   _map() {
-    const t = this.hass?.states, e = ee(t, this._siteIndexFromConfig()), r = t?.[e]?.attributes;
-    return ge(r, we(), e);
+    const t = this.hass?.states, e = te(t, this._siteIndexFromConfig()), r = t?.[e]?.attributes;
+    return he(r, be(), e);
   }
   /** ``sensor.*_lovelace_card`` (Frontend) for live W / kWh card attrs; falls back to ``cost_detail``. */
   _payloadEntityId() {
@@ -2650,8 +2650,8 @@ class tr extends at {
       return null;
     }
     if (e.lovelaceCard && t[e.lovelaceCard]) return e.lovelaceCard;
-    const r = me(t, this._siteIndexFromConfig());
-    return r && t[r]?.attributes?.[be] === !0 ? r : e.cost;
+    const r = ue(t, this._siteIndexFromConfig());
+    return r && t[r]?.attributes?.[ge] === !0 ? r : e.cost;
   }
   _mergedCostAttributes() {
     const t = this.hass?.states;
@@ -2945,7 +2945,7 @@ class tr extends at {
       reinj: m,
       gridBattBySlot: k,
       solarBattBySlot: x
-    } = this._extract(t), B = l.reduce((n, I) => n + I.v, 0), P = c.reduce((n, I) => n + I.v, 0), j = l.filter((n) => n.v > 1e-3), _ = h.filter((n) => n.v > 5e-4), F = g + f, D = yt([B, ...l.map((n) => n.v), u.gridDirect.v, u.gridBatt.v]), H = u.gridDirect.v, Z = Math.max(0, u.solarDirect.v - u.solarBatt.v), bt = u.battHome.v, nt = H + Z + bt, lt = yt([nt, H, Z, bt]), ct = u.gridBatt.v + u.solarBatt.v, pt = M ? re(S, k, t) : [], ft = M ? re(S, x, t) : [], Ht = M && (pt.length > 0 || ft.length > 0), z = [];
+    } = this._extract(t), B = l.reduce((n, I) => n + I.v, 0), P = c.reduce((n, I) => n + I.v, 0), j = l.filter((n) => n.v > 1e-3), _ = h.filter((n) => n.v > 5e-4), F = g + f, D = yt([B, ...l.map((n) => n.v), u.gridDirect.v, u.gridBatt.v]), H = u.gridDirect.v, Z = Math.max(0, u.solarDirect.v - u.solarBatt.v), bt = u.battHome.v, nt = H + Z + bt, lt = yt([nt, H, Z, bt]), ct = u.gridBatt.v + u.solarBatt.v, pt = M ? ee(S, k, t) : [], ft = M ? ee(S, x, t) : [], Ht = M && (pt.length > 0 || ft.length > 0), z = [];
     if (Ht) {
       if (ft.length) {
         const n = ft.reduce((I, Zt) => I + (Number.isFinite(Zt?.v) ? Zt.v : 0), 0);
@@ -3015,7 +3015,7 @@ class tr extends at {
       rawV: n.v
     })), Ft = [
       ..._.map((n) => ({ value: n.v, color: n.color, className: n.isHc ? "fill-hc" : "" })),
-      ...d > 5e-4 ? [{ value: d, color: Qt }] : []
+      ...d > 5e-4 ? [{ value: d, color: oe }] : []
     ], Et = [
       ..._.map((n) => ({
         label: K(n.id, S, t),
@@ -3023,7 +3023,7 @@ class tr extends at {
         color: n.color,
         rawV: n.v
       })),
-      ...d > 5e-4 ? [{ label: t.costSubscription, value: `${d.toFixed(2)} €`, color: Qt, rawV: d }] : []
+      ...d > 5e-4 ? [{ label: t.costSubscription, value: `${d.toFixed(2)} €`, color: oe, rawV: d }] : []
     ], ot = [
       { label: t.reinjCauseSolarSurplus, v: m.solarSurplus, eur: m.oppSolarEur, color: et },
       { label: t.reinjCauseBatteryFull, v: m.batteryFull, eur: m.oppBatteryEur, color: tt },
@@ -3059,7 +3059,7 @@ class tr extends at {
         {
           label: t.solarProdSegExport,
           value: m.solarSurplus,
-          color: ue,
+          color: xe,
           icon: "mdi:transmission-tower-export"
         }
       ],
@@ -3069,13 +3069,13 @@ class tr extends at {
     } : null, ce = M && this.hass?.states ? Pe(this.hass.states, dt) : null, pe = m.solarSurplus + m.batteryFull + m.switchLatency + m.unattributed;
     let Lt = "";
     try {
-      const n = ee(this.hass?.states, this._siteIndexFromConfig()), I = this.hass?.states?.[n]?.attributes?.card_site_segment;
+      const n = te(this.hass?.states, this._siteIndexFromConfig()), I = this.hass?.states?.[n]?.attributes?.card_site_segment;
       Lt = typeof I == "string" ? I.trim() : "";
     } catch {
       Lt = "";
     }
     const Gt = [];
-    Lt && Gt.push(Lt), Gt.push(xe(S)), w && Gt.push(`${w}kVA`);
+    Lt && Gt.push(Lt), Gt.push(fe(S)), w && Gt.push(`${w}kVA`);
     const de = Gt.join(" · ");
     return b`
       <ha-card>
@@ -3104,11 +3104,11 @@ class tr extends at {
 
         ${this._showSection("show_day_slots") ? b` <div class="meta-tempo-wrap">
           <div class="meta-days-stack">
-            <div class="day-tile ${S === "tempo" ? oe(C) : "color-na"}">
+            <div class="day-tile ${S === "tempo" ? re(C) : "color-na"}">
               <span class="day-tile-line">${t.today} : ${K(N, S, t)}</span>
             </div>
-            <div class="day-tile ${S === "tempo" ? oe(T) : "color-na"}">
-              <span class="day-tile-line">${t.tomorrow} : ${S === "tempo" ? fe(T, t) : t.emDash}</span>
+            <div class="day-tile ${S === "tempo" ? re(T) : "color-na"}">
+              <span class="day-tile-line">${t.tomorrow} : ${S === "tempo" ? me(T, t) : t.emDash}</span>
             </div>
           </div>
           ${S === "tempo" && G && typeof G == "object" ? b`
