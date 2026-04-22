@@ -61,6 +61,7 @@ from ..const import (
     DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH,
     DATA_CARD_ENTITY_IDS,
     DATA_CARD_SITE_INDEX,
+    DATA_CARD_SITE_SEGMENT,
     LOGIC_VERSION,
 )
 from ..coordinator import HubEnergieCoordinator
@@ -68,6 +69,7 @@ from ..entity_id_stability import (
     apply_stable_suggested_object_id,
     build_card_entity_id_map,
     hub_entity_slot,
+    object_id_entity_segment,
 )
 from ..device_info import _device_battery_summary, _device_cost, _device_solar_config
 from .base import (
@@ -110,6 +112,10 @@ class HubEnergieCostDetailSensor(HubEnergieSensor):
         cbs = data.get(DATA_COST_BY_SLOT)
         attrs: dict[str, Any] = {
             DATA_CARD_SITE_INDEX: hub_entity_slot(self.hass, self.coordinator.entry),
+            DATA_CARD_SITE_SEGMENT: object_id_entity_segment(
+                self.hass,
+                self.coordinator.entry,
+            ),
             DATA_CARD_ENTITY_IDS: build_card_entity_id_map(self.hass, self.coordinator.entry),
             DATA_POWER_GRAPH_ENTITY_MAP: _build_power_graph_entity_map(
                 self.hass,

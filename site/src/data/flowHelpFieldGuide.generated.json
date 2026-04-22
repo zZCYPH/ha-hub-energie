@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-10T15:05:36.959717+00:00",
+  "generated_at": "2026-04-22T13:38:12.440614+00:00",
   "source_files": {
     "strings_en": "custom_components/hub_energie/strings.json",
     "strings_fr": "custom_components/hub_energie/translations/fr.json"
@@ -1782,6 +1782,30 @@
         "sections": [],
         "menu_choices": []
       }
+    },
+    "site": {
+      "en": {
+        "fields": [
+          {
+            "key": "site_slug",
+            "label": "Site key (optional)",
+            "description": "Lowercase letters and digits only, 2–10 characters. Example: `maison`, `pv42`. Empty = default numeric segment until you set a key in Configure."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "site_slug",
+            "label": "Clé site (optionnel)",
+            "description": "Lettres minuscules et chiffres uniquement, 2 à 10 caractères. Ex. : `maison`, `pv42`. Vide = segment numérique par défaut jusqu’à saisie dans Configurer."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
     }
   },
   "options": {
@@ -1790,6 +1814,10 @@
         "fields": [],
         "sections": [],
         "menu_choices": [
+          {
+            "key": "site",
+            "label": "Site key & entity IDs"
+          },
           {
             "key": "offer",
             "label": "Offer & tariffs"
@@ -1829,6 +1857,10 @@
         "sections": [],
         "menu_choices": [
           {
+            "key": "site",
+            "label": "Clé site & entity_id"
+          },
+          {
             "key": "offer",
             "label": "Offre & tarifs"
           },
@@ -1861,6 +1893,30 @@
             "label": "Paramétrage expert"
           }
         ]
+      }
+    },
+    "site": {
+      "en": {
+        "fields": [
+          {
+            "key": "site_slug",
+            "label": "Site key",
+            "description": "Lowercase letters and digits only. Must be unique across Hub Énergie entries."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "site_slug",
+            "label": "Clé site",
+            "description": "Lettres minuscules et chiffres uniquement. Doit être unique entre les entrées Hub Énergie."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
       }
     },
     "offer": {

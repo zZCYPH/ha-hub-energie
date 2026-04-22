@@ -2615,10 +2615,11 @@ class qe extends at {
       r.usageSolarDirect,
       r.usageSolarBatt,
       r.usageBattHome
-    ], a = e[r.cost]?.attributes ?? {}, s = a.card_entity_ids, l = s && typeof s == "object" ? Object.keys(s).sort().map((d) => `${d}:${s[d]}`).join("|") : "", c = [
+    ], a = e[r.cost]?.attributes ?? {}, s = a.card_site_segment, l = a.card_entity_ids, c = l && typeof l == "object" ? Object.keys(l).sort().map((p) => `${p}:${l[p]}`).join("|") : "", d = [
       String(this._siteIndexFromConfig() ?? ""),
       r.cost,
-      l,
+      s ?? "",
+      c,
       a.offer ?? "",
       a.contract_power ?? "",
       a.tariff_fetched_at ?? "",
@@ -2639,7 +2640,7 @@ class qe extends at {
       Gt(a.usage_solar_batt_charge_by_slot_kwh),
       e[r.cost]?.last_updated ?? ""
     ].join("|");
-    return `${o.map((d) => e[d]?.state ?? "").join("|")}|${c}`;
+    return `${o.map((p) => e[p]?.state ?? "").join("|")}|${d}`;
   }
   _states() {
     return (this._isLiveMode() ? this.hass?.states : this._hist) ?? {};

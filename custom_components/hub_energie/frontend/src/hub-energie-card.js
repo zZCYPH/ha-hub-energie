@@ -738,6 +738,7 @@ class HubEnergieCard extends LitElement {
       E.usageBattHome,
     ];
     const costAttrs = states[E.cost]?.attributes ?? {};
+    const cardSeg = costAttrs.card_site_segment;
     const cardIds = costAttrs.card_entity_ids;
     const cardIdsKey =
       cardIds && typeof cardIds === "object"
@@ -749,6 +750,7 @@ class HubEnergieCard extends LitElement {
     const attrsKey = [
       String(this._siteIndexFromConfig() ?? ""),
       E.cost,
+      cardSeg ?? "",
       cardIdsKey,
       costAttrs.offer ?? "",
       costAttrs.contract_power ?? "",

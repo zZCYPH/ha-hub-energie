@@ -150,6 +150,7 @@ def test_migrate_v1_renames_legacy_hub_energie_entities() -> None:
         migration.CONFIG_ENTRY_VERSION_ENTITY_PREFIX_V3,
         migration.CONFIG_ENTRY_VERSION_CARD_SHORT_SLUGS,
         migration.CONFIG_ENTRY_VERSION_LONG_SLUG,
+        migration.CONFIG_ENTRY_VERSION_INDEXED_IDS,
         migration.CONFIG_ENTRY_VERSION,
     ]
 
@@ -190,6 +191,7 @@ def test_migrate_v2_unprefixed_frontend_entities_renamed_to_v3() -> None:
         migration.CONFIG_ENTRY_VERSION_ENTITY_PREFIX_V3,
         migration.CONFIG_ENTRY_VERSION_CARD_SHORT_SLUGS,
         migration.CONFIG_ENTRY_VERSION_LONG_SLUG,
+        migration.CONFIG_ENTRY_VERSION_INDEXED_IDS,
         migration.CONFIG_ENTRY_VERSION,
     ]
     assert reg.async_get("sensor.hub_energie_cost_detail") is not None
@@ -199,8 +201,8 @@ def test_migrate_v2_unprefixed_frontend_entities_renamed_to_v3() -> None:
     assert reg.async_get("sensor.hub_energie_frontend_meta") is not None
 
 
-def test_migrate_entry_already_at_v6_is_noop() -> None:
-    """Version already 6: no registry renames and no version update."""
+def test_migrate_entry_already_at_v7_is_noop() -> None:
+    """Version already 7: no registry renames and no version update."""
     reg = _InMemoryEntityRegistry()
     reg.register("sensor.hub_energie_legacy", DOMAIN, "ce_3b")
 
@@ -246,6 +248,7 @@ def test_migrate_v3_to_v6_renames_entities_to_indexed_ids() -> None:
     assert hass.config_entries.version_updates == [  # type: ignore[attr-defined]
         migration.CONFIG_ENTRY_VERSION_CARD_SHORT_SLUGS,
         migration.CONFIG_ENTRY_VERSION_LONG_SLUG,
+        migration.CONFIG_ENTRY_VERSION_INDEXED_IDS,
         migration.CONFIG_ENTRY_VERSION,
     ]
     assert reg.async_get("sensor.hub_energie_solaire_economies_solaire") is None

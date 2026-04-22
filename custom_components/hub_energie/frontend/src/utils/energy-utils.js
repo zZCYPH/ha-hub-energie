@@ -24,8 +24,10 @@ export const COST_AGG_DICT_ATTRS = Object.freeze([
 /** Default Hub Énergie sensor namespace (legacy fallbacks before ``card_entity_ids`` on cost_detail). */
 export const DEFAULT_HUB_ENTITY_PREFIX = "sensor.hub_energie_";
 
-/** Attribute on cost_detail: 0-based site index (matches ``hub_energie_<n>_`` ids). */
+/** Attribute on cost_detail: 0-based site index (stable slot; matches card ``site_index``). */
 export const CARD_SITE_INDEX_ATTR = "card_site_index";
+/** Segment in ``entity_id`` after ``hub_energie_`` (digits or site slug). */
+export const CARD_SITE_SEGMENT_ATTR = "card_site_segment";
 
 /** Keys on ``cost_detail`` attribute ``card_entity_ids`` (matches integration). */
 export const CARD_ENTITY_MAP_KEYS = Object.freeze([
@@ -91,6 +93,16 @@ export function siteIndexFromCostEntityId(entityId) {
   return Number.isFinite(n) ? n : null;
 }
 
+/** Prefer ``card_site_index`` on attributes; else parse numeric segment from ``entity_id``. */
+export function costSiteSlotFromState(st, entityId) {
+  const a = st?.attributes;
+  if (a && typeof a === "object") {
+    const declared = a[CARD_SITE_INDEX_ATTR];
+    if (typeof declared === "number" && Number.isFinite(declared)) return Math.trunc(declared);
+  }
+  return siteIndexFromCostEntityId(entityId);
+}
+
 /**
  * Resolve the cost_detail ``entity_id``: legacy default, optional ``siteIndex`` filter,
  * ``card_entity_ids`` self-ref, then cost-shaped attributes (deterministic sort if several).
@@ -112,11 +124,7 @@ export function discoverCostEntityId(states, siteIndex) {
     if (!a || typeof a !== "object") continue;
     const m = a.card_entity_ids;
     if (!m || typeof m !== "object" || m.cost !== eid) continue;
-    const declared = a[CARD_SITE_INDEX_ATTR];
-    const effectiveIdx =
-      typeof declared === "number" && Number.isFinite(declared)
-        ? Math.trunc(declared)
-        : siteIndexFromCostEntityId(eid) ?? 0;
+    const effectiveIdx = costSiteSlotFromState(st, eid) ?? 0;
     if (wantIdx !== null && effectiveIdx !== wantIdx) continue;
     withCardMap.push(eid);
   }
@@ -130,8 +138,9 @@ export function discoverCostEntityId(states, siteIndex) {
     const a = st?.attributes;
     if (!a || typeof a !== "object") continue;
     if (typeof a.eco_solar === "number" && a.grid_by_slot_kwh != null && typeof a.grid_by_slot_kwh === "object") {
-      const idx = siteIndexFromCostEntityId(eid);
-      if (wantIdx !== null && idx !== wantIdx) continue;
+      const idx = costSiteSlotFromState(st, eid);
+      if (wantIdx !== null && idx !== null && idx !== wantIdx) continue;
+      if (wantIdx !== null && idx === null) continue;
       legacy.push(eid);
     }
   }

@@ -1,11 +1,11 @@
-import { i as y, a as $, I as g, A as v, b as _ } from "./i18n.js";
-function C(o, t) {
+import { i as S, a as y, I as p, A as $, b as _ } from "./i18n.js";
+function v(o, t) {
   let e = String(o);
   for (const [r, n] of Object.entries(t))
     e = e.split(`{${r}}`).join(String(n));
   return e;
 }
-const p = Object.freeze([
+const b = Object.freeze([
   { id: "bleu_hc", label: "Blue HC", color: "#1e88e5" },
   { id: "bleu_hp", label: "Blue HP", color: "#1e88e5" },
   { id: "blanc_hc", label: "White HC", color: "#b0bec5" },
@@ -14,7 +14,7 @@ const p = Object.freeze([
   { id: "rouge_hp", label: "Red HP", color: "#e53935" },
   { id: "unknown", label: "Unknown", color: "#78909c" }
 ]), P = Object.freeze([
-  ...p.map((o) => `${o.id}_eur`),
+  ...b.map((o) => `${o.id}_eur`),
   "abonnement_eur",
   "export_due_to_solar_surplus_kwh",
   "export_due_to_battery_full_or_absent_kwh",
@@ -28,7 +28,7 @@ const p = Object.freeze([
 ]), A = Object.freeze([
   "grid_by_slot_kwh",
   "maison_by_slot_kwh"
-]), H = "sensor.hub_energie_", x = "card_site_index", k = Object.freeze([
+]), C = "sensor.hub_energie_", H = "card_site_index", x = Object.freeze([
   "ecoSolar",
   "ecoBatt",
   "originGrid",
@@ -39,7 +39,7 @@ const p = Object.freeze([
   "usageSolarBatt",
   "usageBattHome"
 ]);
-function B(o = H) {
+function k(o = C) {
   const t = o;
   return {
     cost: `${t}cost_detail`,
@@ -65,15 +65,23 @@ function m(o) {
   }
   return t;
 }
-function w(o) {
+function B(o) {
   if (typeof o != "string" || !o.startsWith("sensor.")) return null;
   const t = o.slice(7), e = /^hub_energie_(\d+)_/.exec(t);
   if (!e) return null;
   const r = parseInt(e[1], 10);
   return Number.isFinite(r) ? r : null;
 }
+function g(o, t) {
+  const e = o?.attributes;
+  if (e && typeof e == "object") {
+    const r = e[H];
+    if (typeof r == "number" && Number.isFinite(r)) return Math.trunc(r);
+  }
+  return B(t);
+}
 function F(o, t) {
-  const r = B().cost;
+  const r = k().cost;
   if (!o) return r;
   const n = t === "" || t === void 0 || t === null ? null : Math.max(0, Math.trunc(Number(t))), i = [];
   for (const [s, u] of Object.entries(o)) {
@@ -81,8 +89,8 @@ function F(o, t) {
     if (!c || typeof c != "object") continue;
     const l = c.card_entity_ids;
     if (!l || typeof l != "object" || l.cost !== s) continue;
-    const h = c[x], S = typeof h == "number" && Number.isFinite(h) ? Math.trunc(h) : w(s) ?? 0;
-    n !== null && S !== n || i.push(s);
+    const w = g(u, s) ?? 0;
+    n !== null && w !== n || i.push(s);
   }
   if (i.length === 1) return i[0];
   if (i.length > 1) return [...i].sort()[0];
@@ -91,8 +99,8 @@ function F(o, t) {
   for (const [s, u] of Object.entries(o)) {
     const c = u?.attributes;
     if (!(!c || typeof c != "object") && typeof c.eco_solar == "number" && c.grid_by_slot_kwh != null && typeof c.grid_by_slot_kwh == "object") {
-      const l = w(s);
-      if (n !== null && l !== n) continue;
+      const l = g(u, s);
+      if (n !== null && l !== null && l !== n || n !== null && l === null) continue;
       a.push(s);
     }
   }
@@ -103,7 +111,7 @@ function F(o, t) {
 function D(o, t, e) {
   const r = { ...t, cost: e }, n = o?.card_entity_ids;
   if (!n || typeof n != "object") return r;
-  for (const i of k) {
+  for (const i of x) {
     const a = n[i];
     typeof a == "string" && a.includes(".") && (r[i] = a);
   }
@@ -141,7 +149,7 @@ function I(o) {
   return t.includes("blue") || t.includes("bleu") ? "color-blue" : t.includes("white") || t.includes("blanc") ? "color-white" : t.includes("red") || t.includes("rouge") ? "color-red" : "color-na";
 }
 function L(o, t, e) {
-  return !t || typeof t != "object" ? [] : p.map((r) => {
+  return !t || typeof t != "object" ? [] : b.map((r) => {
     const n = t[r.id], i = typeof n == "number" ? n : parseFloat(n);
     return !Number.isFinite(i) || i <= 1e-4 ? null : {
       label: R(r.id, o, e),
@@ -152,12 +160,12 @@ function L(o, t, e) {
   }).filter(Boolean);
 }
 function U(o) {
-  return !o || typeof o != "object" ? "" : p.map((t) => {
+  return !o || typeof o != "object" ? "" : b.map((t) => {
     const e = o[t.id], r = typeof e == "number" ? e : parseFloat(e);
     return `${t.id}:${Number.isFinite(r) ? r : 0}`;
   }).join(",");
 }
-const f = "custom:hub-energie-card", b = /* @__PURE__ */ new Set([24, 12, 6, 3, 1]), E = [1, 3, 6, 12, 24], T = [
+const h = "custom:hub-energie-card", f = /* @__PURE__ */ new Set([24, 12, 6, 3, 1]), E = [1, 3, 6, 12, 24], T = [
   ["show_day_slots", "editorShowDaySlots"],
   ["show_live_power", "editorShowLivePower"],
   ["show_solar_production_bar", "editorShowSolarProductionBar"],
@@ -170,12 +178,12 @@ const f = "custom:hub-energie-card", b = /* @__PURE__ */ new Set([24, 12, 6, 3, 
   ["show_reinjection", "editorShowReinjection"],
   ["show_raw_control", "editorShowRawControl"]
 ];
-class j extends y {
+class j extends S {
   static properties = {
     hass: { attribute: !1 },
     _config: { state: !0 }
   };
-  static styles = $`
+  static styles = y`
     :host {
       display: block;
     }
@@ -200,10 +208,10 @@ class j extends y {
     }
   `;
   setConfig(t) {
-    this._config = t && typeof t == "object" ? { ...t } : { type: f }, this._config.type || (this._config.type = f);
+    this._config = t && typeof t == "object" ? { ...t } : { type: h }, this._config.type || (this._config.type = h);
   }
   _i18n() {
-    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? g.en : g.fr;
+    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? p.en : p.fr;
   }
   _sectionOn(t) {
     const e = this._config?.[t];
@@ -219,7 +227,7 @@ class j extends y {
     return Number.isFinite(e) && e >= 0 ? String(e) : "__auto__";
   }
   render() {
-    const t = this._config ?? {}, e = this._i18n(), r = parseFloat(t.power_history_hours), n = Math.trunc(r), i = b.has(n) ? n : 6, a = this._siteCount(), d = this._siteSelectValue();
+    const t = this._config ?? {}, e = this._i18n(), r = parseFloat(t.power_history_hours), n = Math.trunc(r), i = f.has(n) ? n : 6, a = this._siteCount(), d = this._siteSelectValue();
     return _`
       <div class="card-config">
         ${a > 1 ? _`
@@ -238,7 +246,7 @@ class j extends y {
                 </ha-select>
                 <p class="hint">${e.editorSiteHint}</p>
               </div>
-            ` : v}
+            ` : $}
         <div class="field">
           <ha-select
             label=${e.editorPowerGraphWindow}
@@ -248,7 +256,7 @@ class j extends y {
             .naturalMenuWidth=${!0}
           >
             ${E.map(
-      (s) => _`<ha-list-item value="${String(s)}">${C(e.editorPowerHoursUnit, { n: s })}</ha-list-item>`
+      (s) => _`<ha-list-item value="${String(s)}">${v(e.editorPowerHoursUnit, { n: s })}</ha-list-item>`
     )}
           </ha-select>
           <p class="hint">${e.editorPowerHoursHint}</p>
@@ -276,7 +284,7 @@ class j extends y {
   }
   _emit(t) {
     const e = { ...t };
-    e.type = f, this.dispatchEvent(
+    e.type = h, this.dispatchEvent(
       new CustomEvent("config-changed", {
         bubbles: !0,
         composed: !0,
@@ -300,8 +308,8 @@ class j extends y {
     const e = t.target;
     if (e.value === "" || e.value === void 0) return;
     const r = Math.trunc(Number(e.value));
-    if (!b.has(r)) return;
-    const n = parseFloat(this._config?.power_history_hours), i = b.has(Math.trunc(n)) ? Math.trunc(n) : 6;
+    if (!f.has(r)) return;
+    const n = parseFloat(this._config?.power_history_hours), i = f.has(Math.trunc(n)) ? Math.trunc(n) : 6;
     if (r === i) return;
     const a = { ...this._config, power_history_hours: r };
     this._emit(a);
@@ -310,7 +318,7 @@ class j extends y {
 customElements.get("hub-energie-card-editor") || customElements.define("hub-energie-card-editor", j);
 export {
   P as C,
-  p as S,
+  b as S,
   A as a,
   U as b,
   L as c,
@@ -320,9 +328,9 @@ export {
   G as g,
   m as h,
   M as i,
-  B as m,
+  k as m,
   W as o,
   N as r,
   R as s,
-  C as t
+  v as t
 };

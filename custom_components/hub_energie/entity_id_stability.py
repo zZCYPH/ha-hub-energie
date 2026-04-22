@@ -1,22 +1,8 @@
-"""Short, stable ``entity_id`` object_ids for Hub Énergie (per config entry slot).
+"""Stable ``entity_id`` object_ids for Hub Énergie (per config entry).
 
-Home Assistant builds default ``entity_id`` from device + entity names when
-``has_entity_name`` is True, so translated labels produce unpredictable slugs.
-
-We steer registration with ``_attr_suggested_object_id`` using:
-
-    ``hub_energie_<n>_<unique_id_suffix>``
-
-where ``<n>`` is a stable 0-based index among all loaded Hub Énergie config
-entries (sorted by ``entry_id``), and ``<unique_id_suffix>`` is the part of the
-entity ``unique_id`` after ``{entry.unique_id}_`` (ASCII, from our code).
-
-This stays short for a single bridge (e.g. ``sensor.hub_energie_0_frontend_data``),
-remains unique across several entries, and does not embed supplier / meter
-strings in every id.
-
-Renames go through the entity registry (``async_update_entity``), which Home
-Assistant uses to keep long-term statistics attached to the same logical entity.
+Uses ``hub_energie_<segment>_<unique_id_suffix>`` where ``<segment>`` is either a
+user-chosen ASCII **site slug** (``[a-z0-9]{2,10}``, immutable once locked) or
+the numeric **site index** among Hub Énergie entries (sorted by ``entry_id``).
 """
 
 from __future__ import annotations
@@ -74,8 +60,18 @@ def hub_entity_slot(hass: HomeAssistant, entry: ConfigEntry) -> int:
     return 0
 
 
+def object_id_entity_segment(hass: HomeAssistant, entry: ConfigEntry) -> str:
+    """Segment between ``hub_energie_`` and ``_<suffix>`` in suggested ``entity_id``."""
+    from .site_slug import site_slug_for_entry
+
+    slug = site_slug_for_entry(entry)
+    if slug:
+        return slug
+    return str(hub_entity_slot(hass, entry))
+
+
 def indexed_object_id_from_entry(hass: HomeAssistant, entry: ConfigEntry, entity_unique_id: str) -> str | None:
-    """Return ``object_id`` (no domain prefix) ``hub_energie_<n>_<suffix>``."""
+    """Return ``object_id`` ``hub_energie_<segment>_<suffix>`` (segment = slug or index)."""
     uid = str(entity_unique_id).strip()
     prefix = f"{entry.unique_id}_"
     if not uid.startswith(prefix):
@@ -83,8 +79,8 @@ def indexed_object_id_from_entry(hass: HomeAssistant, entry: ConfigEntry, entity
     suffix = uid[len(prefix) :]
     if not suffix:
         return None
-    n = hub_entity_slot(hass, entry)
-    return f"{DOMAIN}_{n}_{suffix}"
+    seg = object_id_entity_segment(hass, entry)
+    return f"{DOMAIN}_{seg}_{suffix}"
 
 
 def apply_stable_suggested_object_id(entity: Any) -> None:

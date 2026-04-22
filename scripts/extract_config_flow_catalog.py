@@ -67,10 +67,12 @@ FLOW_HELP_WIZARD_IDS: tuple[str, ...] = (
     "battery_add",
     "battery_advanced",
     "battery_more",
+    "site",
 )
 
 FLOW_HELP_OPTIONS_IDS: tuple[str, ...] = (
     "init",
+    "site",
     "offer",
     "tariff_refresh",
     "tempo",
@@ -103,6 +105,7 @@ OPTIONS_FLOW_CLASS = "HubEnergieOptionsFlow"
 OPTIONS_CATALOG_HANDLERS = frozenset(
     {
         "async_step_init",
+        "async_step_site",
         "async_step_expert",
         "async_step_solar",
         "async_step_solar_config",
@@ -113,7 +116,7 @@ OPTIONS_CATALOG_HANDLERS = frozenset(
     }
 )
 OPTIONS_CATALOG_DUP_STEP_IDS: frozenset[str] = frozenset(
-    {"solar", "solar_config", "solar_estimation"}
+    {"solar", "solar_config", "solar_estimation", "site"}
 )
 
 
