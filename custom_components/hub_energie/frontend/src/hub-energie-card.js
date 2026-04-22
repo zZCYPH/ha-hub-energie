@@ -24,10 +24,13 @@ import {
   dayColorClass,
   dayColorLabel,
   isCardReady,
+  CARD_PAYLOAD_MARKER_ATTR,
   discoverCostEntityId,
+  discoverLovelaceCardEntityId,
   entityMapFromCostAttributes,
   hubEnergieSiteCountFromStates,
   makeEntityMap,
+  mergeHubCardAttributes,
   offerLabel,
   readSlotValue,
   slotLabel,
@@ -526,12 +529,16 @@ class HubEnergieCard extends LitElement {
     if (!this.hass) return;
     if (!this._isLiveMode()) return;
     let costId;
+    let payloadId;
     try {
-      costId = this._map().cost;
+      const E = this._map();
+      costId = E.cost;
+      payloadId = this._payloadEntityId() ?? costId;
     } catch {
       return;
     }
     if (!isCardReady(this.hass.states, costId)) return;
+    if (payloadId !== costId && !isCardReady(this.hass.states, payloadId)) return;
     this._liveStatePollTimer = window.setInterval(() => {
       if (!this.hass || !this._isLiveMode()) return;
       let snap;
@@ -751,6 +758,40 @@ class HubEnergieCard extends LitElement {
     return entityMapFromCostAttributes(costAttrs, makeEntityMap(), costId);
   }
 
+  /** ``sensor.*_lovelace_card`` (Frontend) for live W / kWh card attrs; falls back to ``cost_detail``. */
+  _payloadEntityId() {
+    const states = this.hass?.states;
+    if (!states) return null;
+    let E;
+    try {
+      E = this._map();
+    } catch {
+      return null;
+    }
+    if (E.lovelaceCard && states[E.lovelaceCard]) return E.lovelaceCard;
+    const discovered = discoverLovelaceCardEntityId(states, this._siteIndexFromConfig());
+    if (discovered && states[discovered]?.attributes?.[CARD_PAYLOAD_MARKER_ATTR] === true) return discovered;
+    return E.cost;
+  }
+
+  _mergedCostAttributes() {
+    const states = this.hass?.states;
+    if (!states) return {};
+    let E;
+    try {
+      E = this._map();
+    } catch {
+      return {};
+    }
+    const costId = E.cost;
+    const lcId = this._payloadEntityId();
+    if (!costId) return {};
+    return mergeHubCardAttributes(
+      lcId ? states[lcId]?.attributes : undefined,
+      states[costId]?.attributes,
+    );
+  }
+
   _getRange() {
     return rangeFromPreset(this._date ?? todayParisISO(), this._rangePreset ?? "day");
   }
@@ -779,8 +820,10 @@ class HubEnergieCard extends LitElement {
     const states = this.hass?.states;
     if (!states) return null;
     const E = this._map();
+    const payloadId = this._payloadEntityId() ?? E.cost;
     const ids = [
       E.cost,
+      E.lovelaceCard,
       E.ecoSolar,
       E.ecoBatt,
       E.originGrid,
@@ -791,7 +834,7 @@ class HubEnergieCard extends LitElement {
       E.usageSolarBatt,
       E.usageBattHome,
     ];
-    const costAttrs = states[E.cost]?.attributes ?? {};
+    const costAttrs = this._mergedCostAttributes();
     const cardSeg = costAttrs.card_site_segment;
     const cardIds = costAttrs.card_entity_ids;
     const cardIdsKey =
@@ -827,6 +870,7 @@ class HubEnergieCard extends LitElement {
       slotMapFingerprint(costAttrs.usage_grid_batt_charge_by_slot_kwh),
       slotMapFingerprint(costAttrs.usage_solar_batt_charge_by_slot_kwh),
       states[E.cost]?.last_updated ?? "",
+      states[payloadId]?.last_updated ?? "",
     ].join("|");
     return `${ids.map((id) => states[id]?.state ?? "").join("|")}|${attrsKey}`;
   }
@@ -836,7 +880,8 @@ class HubEnergieCard extends LitElement {
   }
 
   _extract(i18n) {
-    return extractHubCardViewModel(this._states(), this._map(), i18n);
+    const merged = this._isLiveMode() ? this._mergedCostAttributes() : undefined;
+    return extractHubCardViewModel(this._states(), this._map(), i18n, merged);
   }
 
   _onDateChange(e) {
@@ -890,8 +935,10 @@ class HubEnergieCard extends LitElement {
     this._histLoading = true;
     const E = this._map();
     const r = this._getRange();
+    const lcId = E.lovelaceCard;
     const ids = [
       E.cost,
+      ...(lcId && lcId !== E.cost ? [lcId] : []),
       E.ecoSolar,
       E.ecoBatt,
       E.originGrid,
@@ -903,7 +950,7 @@ class HubEnergieCard extends LitElement {
       E.usageBattHome,
     ];
 
-    fetchHistoryStates(this.hass, r.startIso, r.endIso, ids, E.cost)
+    fetchHistoryStates(this.hass, r.startIso, r.endIso, ids, E.cost, lcId !== E.cost ? lcId : undefined)
       .then((data) => {
         this._hist = data;
         this._histErr = null;
@@ -930,6 +977,7 @@ class HubEnergieCard extends LitElement {
     if (!this._powerGraphOpen) return;
     const E = this._map();
     const costId = E.cost;
+    const payloadId = this._payloadEntityId() ?? costId;
     if (!costId) return;
     if (!refresh) {
       if (!force && (this._powerGraphLoading || this._powerGraphSeries !== null)) return;
@@ -992,7 +1040,7 @@ class HubEnergieCard extends LitElement {
 
     const i18n = this._i18n();
     try {
-      const mapRaw = this.hass.states[costId]?.attributes?.power_graph_entity_map;
+      const mapRaw = this.hass.states[payloadId]?.attributes?.power_graph_entity_map;
       const map = mapRaw && typeof mapRaw === "object" ? mapRaw : null;
       const statisticIds = collectPowerGraphStatisticIds(map);
       if (!statisticIds.length) {
@@ -1089,7 +1137,8 @@ class HubEnergieCard extends LitElement {
     const useLive = ser.useLiveTail === true;
     const E = this._map();
     const costId = E.cost;
-    const mapRaw = costId ? this.hass?.states[costId]?.attributes?.power_graph_entity_map : null;
+    const payloadId = this._payloadEntityId() ?? costId;
+    const mapRaw = payloadId ? this.hass?.states[payloadId]?.attributes?.power_graph_entity_map : null;
     const map = mapRaw && typeof mapRaw === "object" ? mapRaw : null;
     const live = useLive && map && this.hass ? readLivePowerGraphComponents(this.hass, map) : null;
     const pts = useLive ? mergeStatsPointsWithLiveTail(ser.statsPts, live) : ser.statsPts;
@@ -1152,7 +1201,12 @@ class HubEnergieCard extends LitElement {
     const isToday = this._isLiveMode();
     const E = this._map();
 
-    if (isToday && !isCardReady(this.hass?.states, E.cost)) {
+    const payloadId = this._payloadEntityId() ?? E.cost;
+    if (
+      isToday &&
+      (!isCardReady(this.hass?.states, E.cost) ||
+        (payloadId !== E.cost && !isCardReady(this.hass?.states, payloadId)))
+    ) {
       if (this._liveBootstrapWaiting(E.cost)) {
         return html`
           <ha-card>
@@ -1359,7 +1413,8 @@ class HubEnergieCard extends LitElement {
       : [];
 
     const liveStates = this._states();
-    const powerNowData = isToday && costEntityOk ? buildPowerNowData(liveStates, E.cost, i18n) : null;
+    const payloadForLive = this._payloadEntityId() ?? E.cost;
+    const powerNowData = isToday && costEntityOk ? buildPowerNowData(liveStates, payloadForLive, i18n) : null;
     const solarKwhTotal = homeSolarKwh + usage.solarBatt.v + reinj.solarSurplus;
     const solarKwhFmt = makeSectionEnergyFormatter([
       solarKwhTotal,
@@ -1396,7 +1451,7 @@ class HubEnergieCard extends LitElement {
           }
         : null;
     const batteryData =
-      costEntityOk && this.hass?.states ? buildBatteryData(this.hass.states, E.cost) : null;
+      costEntityOk && this.hass?.states ? buildBatteryData(this.hass.states, payloadForLive) : null;
 
     const totalReinjRaw = reinj.solarSurplus + reinj.batteryFull + reinj.switchLatency + reinj.unattributed;
 

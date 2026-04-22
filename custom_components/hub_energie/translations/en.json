@@ -1126,6 +1126,12 @@
   },
   "entity": {
     "sensor": {
+      "lovelace_card": {
+        "name": "Lovelace card"
+      },
+      "site_ids": {
+        "name": "Site IDs"
+      },
       "health": {
         "name": "Overall health",
         "state": {

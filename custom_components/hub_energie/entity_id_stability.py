@@ -36,6 +36,7 @@ def stable_object_id_from_unique_id_legacy(unique_id: str) -> str | None:
 # ``unique_id`` suffix (after ``{entry.unique_id}_``) → key on ``cost_detail.card_entity_ids``.
 _CARD_ENTITY_SUFFIX_TO_KEY: dict[str, str] = {
     "cost_detail": "cost",
+    "lovelace_card": "lovelaceCard",
     "savings_solar_eur": "ecoSolar",
     "savings_battery_eur": "ecoBatt",
     "origin_grid_kwh": "originGrid",

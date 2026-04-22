@@ -1,9 +1,13 @@
 import { SLOTS } from "../constants/slots.js";
 
-/** Numeric cost_detail attributes aggregated (summed) across history days. */
-export const COST_AGG_ATTRS = Object.freeze([
+/** Per-slot € + subscription — stay on ``cost_detail`` (history aggregation). */
+export const COST_AGG_MONETARY_ATTRS = Object.freeze([
   ...SLOTS.map((s) => `${s.id}_eur`),
   "abonnement_eur",
+]);
+
+/** kWh / reinjection € aggregates — read from ``lovelace_card`` in history. */
+export const COST_AGG_CARD_ATTRS = Object.freeze([
   "export_due_to_solar_surplus_kwh",
   "export_due_to_battery_full_or_absent_kwh",
   "export_due_to_switch_latency_kwh",
@@ -15,7 +19,10 @@ export const COST_AGG_ATTRS = Object.freeze([
   "export_opportunity_cost_unattributed_eur",
 ]);
 
-/** Dict-valued cost_detail attributes aggregated per-key across history days. */
+/** @deprecated Use COST_AGG_MONETARY_ATTRS + COST_AGG_CARD_ATTRS */
+export const COST_AGG_ATTRS = Object.freeze([...COST_AGG_MONETARY_ATTRS, ...COST_AGG_CARD_ATTRS]);
+
+/** Dict-valued attributes aggregated per-key across history days (on ``lovelace_card``). */
 export const COST_AGG_DICT_ATTRS = Object.freeze([
   "grid_by_slot_kwh",
   "maison_by_slot_kwh",
@@ -28,6 +35,8 @@ export const DEFAULT_HUB_ENTITY_PREFIX = "sensor.hub_energie_";
 export const CARD_SITE_INDEX_ATTR = "card_site_index";
 /** Segment in ``entity_id`` after ``hub_energie_`` (digits or site slug). */
 export const CARD_SITE_SEGMENT_ATTR = "card_site_segment";
+/** True on ``sensor.*_lovelace_card`` (Frontend device) for discovery. */
+export const CARD_PAYLOAD_MARKER_ATTR = "hub_energie_card_payload";
 
 /** Keys on ``cost_detail`` attribute ``card_entity_ids`` (matches integration). */
 export const CARD_ENTITY_MAP_KEYS = Object.freeze([
@@ -61,6 +70,7 @@ export function makeEntityMap(prefix = DEFAULT_HUB_ENTITY_PREFIX) {
     usageSolarDirect: `${p}usage_solar_direct_kwh`,
     usageSolarBatt: `${p}usage_solar_batt_charge_kwh`,
     usageBattHome: `${p}usage_batt_home_kwh`,
+    lovelaceCard: `${p}lovelace_card`,
   };
 }
 
@@ -70,13 +80,16 @@ export function makeEntityMap(prefix = DEFAULT_HUB_ENTITY_PREFIX) {
  */
 export function hubEnergieSiteCountFromStates(states) {
   if (!states) return 0;
-  let n = 0;
-  for (const st of Object.values(states)) {
+  const seen = new Set();
+  for (const [eid, st] of Object.entries(states)) {
     const a = st?.attributes;
-    const m = a?.card_entity_ids;
-    if (m && typeof m === "object" && typeof m.cost === "string" && m.cost) n += 1;
+    if (!a || typeof a !== "object") continue;
+    const m = a.card_entity_ids;
+    if (!m || typeof m !== "object" || typeof m.cost !== "string" || !m.cost) continue;
+    const idx = costSiteSlotFromState(st, eid) ?? 0;
+    seen.add(idx);
   }
-  return n;
+  return seen.size;
 }
 
 /**
@@ -153,6 +166,33 @@ export function discoverCostEntityId(states, siteIndex) {
 }
 
 /**
+ * ``sensor.*_lovelace_card`` for this site (live payload on Frontend device).
+ * @param {Record<string, { attributes?: Record<string, unknown> }> | undefined} states
+ */
+export function discoverLovelaceCardEntityId(states, siteIndex) {
+  const base = makeEntityMap();
+  const fallback = base.lovelaceCard;
+  if (!states) return fallback;
+  const wantIdx =
+    siteIndex === "" || siteIndex === undefined || siteIndex === null
+      ? null
+      : Math.max(0, Math.trunc(Number(siteIndex)));
+
+  const hits = [];
+  for (const [eid, st] of Object.entries(states)) {
+    const a = st?.attributes;
+    if (!a || typeof a !== "object") continue;
+    if (a[CARD_PAYLOAD_MARKER_ATTR] !== true) continue;
+    const effectiveIdx = costSiteSlotFromState(st, eid) ?? 0;
+    if (wantIdx !== null && effectiveIdx !== wantIdx) continue;
+    hits.push(eid);
+  }
+  if (hits.length === 1) return hits[0];
+  if (hits.length > 1) return [...hits].sort()[0];
+  return fallback;
+}
+
+/**
  * Merge ``card_entity_ids`` from cost_detail attributes into the entity map.
  * @param {Record<string, unknown> | undefined} costAttrs
  * @param {ReturnType<typeof makeEntityMap>} baseMap
@@ -166,7 +206,21 @@ export function entityMapFromCostAttributes(costAttrs, baseMap, costEntityId) {
     const v = card[k];
     if (typeof v === "string" && v.includes(".")) out[k] = v;
   }
+  if (typeof card.lovelaceCard === "string" && card.lovelaceCard.includes(".")) {
+    out.lovelaceCard = card.lovelaceCard;
+  }
   return out;
+}
+
+/**
+ * Live / history view: monetary attrs stay on ``cost_detail``; card UI attrs on ``lovelace_card``.
+ * @param {Record<string, unknown> | undefined} costAttrs
+ * @param {Record<string, unknown> | undefined} lovelaceAttrs
+ */
+export function mergeHubCardAttributes(costAttrs, lovelaceAttrs) {
+  const a = lovelaceAttrs && typeof lovelaceAttrs === "object" ? lovelaceAttrs : {};
+  const b = costAttrs && typeof costAttrs === "object" ? costAttrs : {};
+  return { ...a, ...b };
 }
 
 // ── Data access helpers ──────────────────────────────────────────────────

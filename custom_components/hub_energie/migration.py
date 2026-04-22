@@ -8,6 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, split_entity_id
 from homeassistant.helpers import entity_registry as er
 
+from .bridge_title import hub_energie_bridge_title
 from .const import CONF_SITE_SLUG_LOCKED, DOMAIN
 from .entity_id_stability import (
     indexed_object_id_from_entry,
@@ -28,7 +29,9 @@ CONFIG_ENTRY_VERSION_LONG_SLUG = 5
 # v6 short ids: ``hub_energie_<n>_<suffix>`` (n = stable index among Hub Énergie entries).
 CONFIG_ENTRY_VERSION_INDEXED_IDS = 6
 # v7 optional rename to ``hub_energie_<site_slug>_<suffix>`` when site slug is locked in config.
-CONFIG_ENTRY_VERSION = 7
+CONFIG_ENTRY_VERSION_SITE_SLUG_IDS = 7
+# v8 bridge title uses site slug when set; new ``lovelace_card`` / ``site_ids`` sensors registered on reload.
+CONFIG_ENTRY_VERSION = 8
 
 
 def _entity_needs_domain_prefix(object_id: str) -> bool:
@@ -190,12 +193,19 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
             version=CONFIG_ENTRY_VERSION_INDEXED_IDS,
         )
 
-    if config_entry.version < CONFIG_ENTRY_VERSION:
+    if config_entry.version < CONFIG_ENTRY_VERSION_SITE_SLUG_IDS:
         _migrate_entity_ids_for_config_entry(hass, config_entry)
         if config_entry.data.get(CONF_SITE_SLUG_LOCKED) and site_slug_for_entry(config_entry):
             rename_hub_entities_to_site_slug(hass, config_entry)
         hass.config_entries.async_update_entry(
             config_entry,
+            version=CONFIG_ENTRY_VERSION_SITE_SLUG_IDS,
+        )
+
+    if config_entry.version < CONFIG_ENTRY_VERSION:
+        hass.config_entries.async_update_entry(
+            config_entry,
+            title=hub_energie_bridge_title(dict(config_entry.data)),
             version=CONFIG_ENTRY_VERSION,
         )
 

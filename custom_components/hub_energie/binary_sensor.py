@@ -29,7 +29,7 @@ from .entity_id_stability import apply_stable_suggested_object_id
 from .device_info import (
     _device_battery,
     _device_diagnostics,
-    _device_site,
+    _device_offer,
     _device_solar_config,
 )
 
@@ -108,7 +108,7 @@ class HubEnergieOffPeakSensor(
         self._attr_unique_id = f"{entry.unique_id}_off_peak"
         apply_stable_suggested_object_id(self)
         self._attr_name = "Heures creuses Tempo"
-        self._attr_device_info = _device_site(coordinator)
+        self._attr_device_info = _device_offer(coordinator)
 
     @property
     def is_on(self) -> bool | None:

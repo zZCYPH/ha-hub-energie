@@ -22,7 +22,7 @@ from ..const import (
 )
 from ..coordinator import HubEnergieCoordinator
 from ..entity_id_stability import apply_stable_suggested_object_id
-from ..device_info import _device_offer, _device_site
+from ..device_info import _device_offer
 from .base import _safe_int
 
 _INFO_LABELS: dict[str, str] = {
@@ -60,7 +60,7 @@ class HubEnergieInfoSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntit
         self._attr_name = _INFO_LABELS.get(
             info, info.replace("_", " ").title(),
         )
-        self._attr_device_info = _device_site(coordinator)
+        self._attr_device_info = _device_offer(coordinator)
         if info in ("today_color", "tomorrow_color"):
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
@@ -89,7 +89,7 @@ class HubEnergieRteDataSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEn
         self._attr_unique_id = f"{entry.unique_id}_tempo_rte_data"
         apply_stable_suggested_object_id(self)
         self._attr_name = "Source Tempo"
-        self._attr_device_info = _device_site(coordinator)
+        self._attr_device_info = _device_offer(coordinator)
 
     @property
     def native_value(self) -> str | None:
@@ -136,7 +136,7 @@ class HubEnergieQuotaDaySensor(CoordinatorEntity[HubEnergieCoordinator], SensorE
         apply_stable_suggested_object_id(self)
         adj = _TEMPO_QUOTA_DAY_LABEL.get(color_key, color_key)
         self._attr_name = f"Jours {adj} restants"
-        self._attr_device_info = _device_site(coordinator)
+        self._attr_device_info = _device_offer(coordinator)
 
     @property
     def native_value(self) -> int | None:
@@ -175,7 +175,7 @@ class HubEnergieNextColourChangeSensor(CoordinatorEntity[HubEnergieCoordinator],
         self._attr_unique_id = f"{entry.unique_id}_tempo_next_colour_change"
         apply_stable_suggested_object_id(self)
         self._attr_name = "Prochain changement de couleur"
-        self._attr_device_info = _device_site(coordinator)
+        self._attr_device_info = _device_offer(coordinator)
 
     @property
     def native_value(self) -> datetime | None:
@@ -199,7 +199,7 @@ class HubEnergieNextHcStartSensor(CoordinatorEntity[HubEnergieCoordinator], Sens
         self._attr_unique_id = f"{entry.unique_id}_tempo_next_hc_start"
         apply_stable_suggested_object_id(self)
         self._attr_name = "Prochain début heures creuses"
-        self._attr_device_info = _device_site(coordinator)
+        self._attr_device_info = _device_offer(coordinator)
 
     @property
     def native_value(self) -> datetime | None:

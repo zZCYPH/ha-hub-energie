@@ -4,9 +4,18 @@ import {
   parisYmdStartUtc,
   todayParisISO,
 } from "./date-utils.js";
-import { COST_AGG_ATTRS, COST_AGG_DICT_ATTRS } from "./energy-utils.js";
+import {
+  COST_AGG_CARD_ATTRS,
+  COST_AGG_DICT_ATTRS,
+  COST_AGG_MONETARY_ATTRS,
+  mergeHubCardAttributes,
+} from "./energy-utils.js";
 
-export async function fetchHistoryStates(hass, startIso, endIso, entityIds, costEntityId) {
+/**
+ * @param {string} costEntityId
+ * @param {string | null | undefined} lovelaceCardEntityId - when set, kWh/reinj attrs are read from its history
+ */
+export async function fetchHistoryStates(hass, startIso, endIso, entityIds, costEntityId, lovelaceCardEntityId) {
   const startIsoN = /^\d{4}-\d{2}-\d{2}$/.test(String(startIso)) ? String(startIso) : todayParisISO();
   const endIsoN = /^\d{4}-\d{2}-\d{2}$/.test(String(endIso)) ? String(endIso) : todayParisISO();
   let start = parisYmdStartUtc(startIsoN);
@@ -24,8 +33,10 @@ export async function fetchHistoryStates(hass, startIso, endIso, entityIds, cost
   // For history rendering we want the day-end value (latest state that day),
   // not the max. Some sensors can briefly spike then be corrected/reset.
   const entityDayLast = new Map(); // id -> day -> {ts, v}
-  const costAttrDayLast = new Map(); // attr -> day -> {ts, v}
-  const costDictAttrDayLast = new Map(); // attr -> day -> {ts, dict}
+  const costMonetaryAttrDayLast = new Map(); // attr -> day -> {ts, v}
+  const cardAttrDayLast = new Map(); // attr -> day -> {ts, v}
+  const cardDictAttrDayLast = new Map(); // attr -> day -> {ts, dict}
+  const lcId = lovelaceCardEntityId && lovelaceCardEntityId !== costEntityId ? lovelaceCardEntityId : null;
   const latestById = new Map();
   const idSet = new Set(entityIds);
 
@@ -47,19 +58,52 @@ export async function fetchHistoryStates(hass, startIso, endIso, entityIds, cost
       }
 
       if (id === costEntityId && s?.attributes && typeof s.attributes === "object") {
-        for (const k of COST_AGG_ATTRS) {
+        for (const k of COST_AGG_MONETARY_ATTRS) {
           const v = parseFloat(s.attributes?.[k]);
           if (!Number.isFinite(v)) continue;
-          if (!costAttrDayLast.has(k)) costAttrDayLast.set(k, new Map());
-          const byDay = costAttrDayLast.get(k);
+          if (!costMonetaryAttrDayLast.has(k)) costMonetaryAttrDayLast.set(k, new Map());
+          const byDay = costMonetaryAttrDayLast.get(k);
+          const prev = byDay.get(day);
+          if (!prev || ts >= prev.ts) byDay.set(day, { ts, v });
+        }
+      }
+      if (
+        lcId &&
+        id === lcId &&
+        s?.attributes &&
+        typeof s.attributes === "object"
+      ) {
+        for (const k of COST_AGG_CARD_ATTRS) {
+          const v = parseFloat(s.attributes?.[k]);
+          if (!Number.isFinite(v)) continue;
+          if (!cardAttrDayLast.has(k)) cardAttrDayLast.set(k, new Map());
+          const byDay = cardAttrDayLast.get(k);
           const prev = byDay.get(day);
           if (!prev || ts >= prev.ts) byDay.set(day, { ts, v });
         }
         for (const k of COST_AGG_DICT_ATTRS) {
           const dict = s.attributes?.[k];
           if (!dict || typeof dict !== "object") continue;
-          if (!costDictAttrDayLast.has(k)) costDictAttrDayLast.set(k, new Map());
-          const byDay = costDictAttrDayLast.get(k);
+          if (!cardDictAttrDayLast.has(k)) cardDictAttrDayLast.set(k, new Map());
+          const byDay = cardDictAttrDayLast.get(k);
+          const prev = byDay.get(day);
+          if (!prev || ts >= prev.ts) byDay.set(day, { ts, dict });
+        }
+      }
+      if (!lcId && id === costEntityId && s?.attributes && typeof s.attributes === "object") {
+        for (const k of COST_AGG_CARD_ATTRS) {
+          const v = parseFloat(s.attributes?.[k]);
+          if (!Number.isFinite(v)) continue;
+          if (!cardAttrDayLast.has(k)) cardAttrDayLast.set(k, new Map());
+          const byDay = cardAttrDayLast.get(k);
+          const prev = byDay.get(day);
+          if (!prev || ts >= prev.ts) byDay.set(day, { ts, v });
+        }
+        for (const k of COST_AGG_DICT_ATTRS) {
+          const dict = s.attributes?.[k];
+          if (!dict || typeof dict !== "object") continue;
+          if (!cardDictAttrDayLast.has(k)) cardDictAttrDayLast.set(k, new Map());
+          const byDay = cardDictAttrDayLast.get(k);
           const prev = byDay.get(day);
           if (!prev || ts >= prev.ts) byDay.set(day, { ts, dict });
         }
@@ -88,10 +132,14 @@ export async function fetchHistoryStates(hass, startIso, endIso, entityIds, cost
   const out = {};
   for (const id of idSet) {
     const latest = latestById.get(id)?.state;
-    const attrs = { ...(latest?.attributes ?? {}) };
+    let attrs = { ...(latest?.attributes ?? {}) };
     if (id === costEntityId) {
-      for (const k of COST_AGG_ATTRS) attrs[k] = sumDayLast(costAttrDayLast.get(k));
-      for (const k of COST_AGG_DICT_ATTRS) attrs[k] = sumDictDayLast(costDictAttrDayLast.get(k));
+      const costSt = latestById.get(costEntityId)?.state;
+      const lcSt = lcId ? latestById.get(lcId)?.state : null;
+      attrs = mergeHubCardAttributes(lcSt?.attributes, costSt?.attributes);
+      for (const k of COST_AGG_MONETARY_ATTRS) attrs[k] = sumDayLast(costMonetaryAttrDayLast.get(k));
+      for (const k of COST_AGG_CARD_ATTRS) attrs[k] = sumDayLast(cardAttrDayLast.get(k));
+      for (const k of COST_AGG_DICT_ATTRS) attrs[k] = sumDictDayLast(cardDictAttrDayLast.get(k));
     }
     out[id] = {
       entity_id: id,

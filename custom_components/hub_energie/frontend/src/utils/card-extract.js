@@ -8,8 +8,15 @@ import { SLOTS } from "../constants/slots.js";
 import { readAttrNum, readNum } from "./format-utils.js";
 import { readSlotValue, slotLabel } from "./energy-utils.js";
 
-export function extractHubCardViewModel(states, E, i18n) {
-  const st = states;
+/**
+ * @param {Record<string, unknown> | undefined} mergedCostAttrs - merged cost_detail + lovelace_card attrs (live)
+ */
+export function extractHubCardViewModel(states, E, i18n, mergedCostAttrs) {
+  const base = states?.[E.cost];
+  const st =
+    mergedCostAttrs && base && typeof base === "object"
+      ? { ...states, [E.cost]: { ...base, attributes: mergedCostAttrs } }
+      : states;
   const costAttrs = st?.[E.cost]?.attributes ?? {};
 
   const offer = String(costAttrs.offer ?? "tempo").toLowerCase();

@@ -1097,7 +1097,7 @@ class _BatteryWizardMixin(_StepLoggingMixin):
 class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     """Multi-step setup wizard for Hub Energie."""
 
-    VERSION = 7
+    VERSION = 8
 
     def __init__(self) -> None:
         self._data: dict[str, Any] = {}
@@ -1868,9 +1868,10 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
         self._nav_stack.clear()
         await self.async_set_unique_id(_flow_unique_id(self._data))
         self._abort_if_unique_id_configured()
-        supplier_label = self._data.get(CONF_SUPPLIER_CUSTOM_NAME) or str(self._data.get(CONF_SUPPLIER, "")).upper()
+        from .bridge_title import hub_energie_bridge_title
+
         return self.async_create_entry(
-            title=f"Hub Energie - {supplier_label}",
+            title=hub_energie_bridge_title(self._data),
             data=self._data,
             options=self._options,
         )
@@ -1929,10 +1930,22 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
         _LOGGER.debug("Persist candidate data=%s errors=%s", _redact_user_input(new_data), errors)
         if errors:
             raise ValueError(errors)
+        from .bridge_title import hub_energie_bridge_title
+
+        title = hub_energie_bridge_title(new_data)
         if options_patch is None:
-            self.hass.config_entries.async_update_entry(self.config_entry, data=new_data)
+            self.hass.config_entries.async_update_entry(
+                self.config_entry,
+                data=new_data,
+                title=title,
+            )
         else:
-            self.hass.config_entries.async_update_entry(self.config_entry, data=new_data, options=new_options)
+            self.hass.config_entries.async_update_entry(
+                self.config_entry,
+                data=new_data,
+                options=new_options,
+                title=title,
+            )
         await self.hass.config_entries.async_reload(self.config_entry.entry_id)
         return self.async_abort(reason=reason)
 

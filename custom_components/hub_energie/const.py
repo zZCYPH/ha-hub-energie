@@ -517,6 +517,8 @@ DATA_CARD_ENTITY_IDS: Final = "card_entity_ids"
 DATA_CARD_SITE_INDEX: Final = "card_site_index"
 # Segment used in ``entity_id`` after ``hub_energie_`` (numeric string or site slug).
 DATA_CARD_SITE_SEGMENT: Final = "card_site_segment"
+# True on ``sensor.*_lovelace_card`` attributes (Frontend device) for card discovery.
+DATA_CARD_PAYLOAD_MARKER: Final = "hub_energie_card_payload"
 
 DATA_ORIGIN_GRID: Final = "origin_grid"
 DATA_ORIGIN_SOLAR: Final = "origin_solar"
