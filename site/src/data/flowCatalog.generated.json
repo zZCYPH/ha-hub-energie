@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-10T15:05:36.956712+00:00",
+  "generated_at": "2026-04-22T14:03:13.541780+00:00",
   "source_files": {
     "config_flow": "custom_components/hub_energie/config_flow.py",
     "strings_en": "custom_components/hub_energie/strings.json",
@@ -1253,6 +1253,10 @@
           "fields": [],
           "menu_choices": [
             {
+              "key": "site_slug",
+              "label": "Site key & entity IDs"
+            },
+            {
               "key": "offer",
               "label": "Offer & tariffs"
             },
@@ -1292,6 +1296,10 @@
           "description": "[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-init)",
           "fields": [],
           "menu_choices": [
+            {
+              "key": "site_slug",
+              "label": "Clé site & entity_id"
+            },
             {
               "key": "offer",
               "label": "Offre & tarifs"
@@ -2174,6 +2182,76 @@
               "key": "reinjection_batt_full_min_soc_frac",
               "label": "Seuil SOC batterie pleine (0-1)",
               "description": "Rapport de SOC (0–1). Si le SOC est connu et strictement inférieur, certaines branches privilégient solar_surplus ; au-delà, avec peu de charge, la batterie est vue comme « assez pleine » pour des causes proches de battery_full_or_absent."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "site",
+      "handler": "async_step_site",
+      "source_class": "HubEnergieConfigFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Site key (optional)",
+          "description": "Short ASCII key (2–10 characters: **a–z** and **0–9** only) used inside **entity_id** values for this installation (e.g. `sensor.hub_energie_<key>_cost_detail`). **If you set it now, it cannot be changed later** — leave empty to keep the default numeric segment and set a key later under **Configure**.\n\nThis is for internal uniqueness and stable IDs, not a display name.\n\n[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#site)",
+          "fields": [
+            {
+              "key": "site_slug",
+              "label": "Site key (optional)",
+              "description": "Lowercase letters and digits only, 2–10 characters. Example: `maison`, `pv42`. Empty = default numeric segment until you set a key in Configure."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Clé site (optionnel)",
+          "description": "Clé ASCII courte (2 à 10 caractères : **a–z** et **0–9** uniquement) utilisée dans les **entity_id** de cette installation (ex. `sensor.hub_energie_<cle>_cost_detail`). **Si vous la renseignez maintenant, elle ne pourra plus être modifiée** — laissez vide pour garder le segment numérique par défaut et définir une clé plus tard dans **Configurer**.\n\nUsage interne pour unicité des entités, pas un nom d’affichage.\n\n[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#site)",
+          "fields": [
+            {
+              "key": "site_slug",
+              "label": "Clé site (optionnel)",
+              "description": "Lettres minuscules et chiffres uniquement, 2 à 10 caractères. Ex. : `maison`, `pv42`. Vide = segment numérique par défaut jusqu’à saisie dans Configurer."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "site_slug",
+      "handler": "async_step_site_slug",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Site key (entity_id)",
+          "description": "Set a short ASCII key (2–10: **a–z**, **0–9**) once: **entity_id** values will be renamed to `hub_energie_<key>_…`. **Locked after save** — it cannot be changed later.\n\n[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-site_slug)",
+          "fields": [
+            {
+              "key": "site_slug",
+              "label": "Site key",
+              "description": "Lowercase letters and digits only. Must be unique across Hub Énergie entries."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Clé site (entity_id)",
+          "description": "Définissez une clé ASCII (2–10 : **a–z**, **0–9**) une seule fois : les **entity_id** seront renommés vers `hub_energie_<cle>_…`. **Verrouillée après enregistrement** — impossible de la changer ensuite.\n\n[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-site_slug)",
+          "fields": [
+            {
+              "key": "site_slug",
+              "label": "Clé site",
+              "description": "Lettres minuscules et chiffres uniquement. Doit être unique entre les entrées Hub Énergie."
             }
           ],
           "menu_choices": [],

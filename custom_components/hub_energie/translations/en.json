@@ -601,6 +601,17 @@
         "data_description": {
           "add_another": "Turn on to define another battery after saving the current one."
         }
+      },
+      "site": {
+        "title": "Site key (optional)",
+        "description": "Short ASCII key (2–10 characters: **a–z** and **0–9** only) used inside **entity_id** values for this installation (e.g. `sensor.hub_energie_<key>_cost_detail`). **If you set it now, it cannot be changed later** — leave empty to keep the default numeric segment and set a key later under **Configure**.\n\nThis is for internal uniqueness and stable IDs, not a display name.\n\n[I need help with this step]({step_help_url})",
+        "data": {
+          "site_slug": "Site key (optional)",
+          "flow_nav": "Wizard navigation"
+        },
+        "data_description": {
+          "site_slug": "Lowercase letters and digits only, 2–10 characters. Example: `maison`, `pv42`. Empty = default numeric segment until you set a key in Configure."
+        }
       }
     },
     "error": {
@@ -616,7 +627,10 @@
       "tri_export_all_or_none": "Either leave all three export phase sensors empty or configure all three.",
       "tri_import_phases_incomplete": "Configure import energy sensors for all three phases (L1, L2, L3).",
       "schedule_incomplete_row": "Each slot needs both start and end times, or leave the row empty.",
-      "invalid_reinjection_thresholds": "Reinjection thresholds must be valid numbers within the allowed ranges."
+      "invalid_reinjection_thresholds": "Reinjection thresholds must be valid numbers within the allowed ranges.",
+      "site_slug_format": "Site key must be 2–10 characters: lowercase letters a–z and digits 0–9 only.",
+      "site_slug_duplicate": "This site key is already used by another Hub Énergie entry.",
+      "site_slug_locked": "The site key is locked and cannot be changed."
     },
     "abort": {
       "already_configured": "This integration is already configured."
@@ -628,6 +642,7 @@
         "title": "Hub Énergie – Options",
         "description": "[I need help with this step]({step_help_url})",
         "menu_options": {
+          "site_slug": "Site key & entity IDs",
           "offer": "Offer & tariffs",
           "grid": "Grid sensors",
           "grid_tri": "Three-phase grid (optional)",
@@ -1022,6 +1037,16 @@
           "add_another": "Turn on to define another battery after saving the current one."
         }
       },
+      "site_slug": {
+        "title": "Site key (entity_id)",
+        "description": "Set a short ASCII key (2–10: **a–z**, **0–9**) once: **entity_id** values will be renamed to `hub_energie_<key>_…`. **Locked after save** — it cannot be changed later.\n\n[I need help with this step]({step_help_url})",
+        "data": {
+          "site_slug": "Site key"
+        },
+        "data_description": {
+          "site_slug": "Lowercase letters and digits only. Must be unique across Hub Énergie entries."
+        }
+      },
       "tariff_refresh": {
         "title": "Refresh EDF tariffs",
         "description": "[I need help with this step]({step_help_url})",
@@ -1059,7 +1084,10 @@
     "error": {
       "tariff_fetch_failed": "Failed to fetch tariffs. Check offer, kVA, and network.",
       "battery_pick_conflicting_options": "Turn off either “delete selected battery” or “add a new battery”, then try again.",
-      "invalid_reinjection_thresholds": "Reinjection thresholds must be valid numbers within the allowed ranges."
+      "invalid_reinjection_thresholds": "Reinjection thresholds must be valid numbers within the allowed ranges.",
+      "site_slug_format": "Site key must be 2–10 characters: lowercase letters a–z and digits 0–9 only.",
+      "site_slug_duplicate": "This site key is already used by another Hub Énergie entry.",
+      "site_slug_locked": "The site key is locked and cannot be changed."
     }
   },
   "selector": {
@@ -1098,6 +1126,12 @@
   },
   "entity": {
     "sensor": {
+      "lovelace_card": {
+        "name": "Lovelace card"
+      },
+      "site_ids": {
+        "name": "Site IDs"
+      },
       "health": {
         "name": "Overall health",
         "state": {

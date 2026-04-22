@@ -34,11 +34,13 @@ export const FLOW_HELP_WIZARD_IDS = [
   "battery_add",
   "battery_advanced",
   "battery_more",
+  "site",
 ];
 
 /** Options menu step_ids (HubEnergieOptionsFlow). */
 export const FLOW_HELP_OPTIONS_IDS = [
   "init",
+  "site_slug",
   "offer",
   "tariff_refresh",
   "tempo",

@@ -41,6 +41,80 @@ CONF_TRI_GRID_POWER_P2: Final = "tri_grid_power_p2"
 CONF_TRI_GRID_POWER_P3: Final = "tri_grid_power_p3"
 
 # ---------------------------------------------------------------------------
+# Tariff mode
+# ---------------------------------------------------------------------------
+TARIFF_MODE_AUTO: Final = "auto"
+TARIFF_MODE_MANUAL: Final = "manual"
+
+# ---------------------------------------------------------------------------
+# Pricing structure (manual mode)
+# ---------------------------------------------------------------------------
+PRICING_FLAT: Final = "flat"
+PRICING_TIME_OF_USE: Final = "time_of_use"
+PRICING_SCHEDULE: Final = "schedule"
+PRICING_OPTIONS: Final[list[str]] = [PRICING_FLAT, PRICING_TIME_OF_USE, PRICING_SCHEDULE]
+
+# ---------------------------------------------------------------------------
+# Price basis
+# ---------------------------------------------------------------------------
+PRICE_BASIS_TTC: Final = "TTC"
+PRICE_BASIS_HT: Final = "HT"
+PRICE_BASIS_OPTIONS: Final[list[str]] = [PRICE_BASIS_TTC, PRICE_BASIS_HT]
+
+# ---------------------------------------------------------------------------
+# Day types for schedule
+# ---------------------------------------------------------------------------
+DAY_TYPE_ALL: Final = "all"
+DAY_TYPE_WEEKDAYS: Final = "weekdays"
+DAY_TYPE_WEEKENDS: Final = "weekends"
+DAY_TYPE_OPTIONS: Final[list[str]] = [DAY_TYPE_ALL, DAY_TYPE_WEEKDAYS, DAY_TYPE_WEEKENDS]
+
+# ---------------------------------------------------------------------------
+# Config flow keys – Offer scope
+# ---------------------------------------------------------------------------
+CONF_SUPPLIER: Final = "supplier"
+CONF_SUPPLIER_CUSTOM_NAME: Final = "supplier_custom_name"
+CONF_TARIFF_MODE: Final = "tariff_mode"
+CONF_CONTRACT_POWER: Final = "contract_power"
+CONF_CONTRACT_NAME: Final = "contract_name"
+CONF_PHASE_TYPE: Final = "phase_type"
+CONF_PRICING_STRUCTURE: Final = "pricing_structure"
+CONF_PRICE_BASIS: Final = "price_basis"
+CONF_CURRENCY: Final = "currency"
+
+# Flat tariff
+CONF_ENERGY_PRICE: Final = "energy_price"
+CONF_SUBSCRIPTION_PRICE: Final = "subscription_price"
+
+# Config-flow UI: bottom-of-form navigation (initial setup wizard only)
+CONF_FLOW_NAV: Final = "flow_nav"
+FLOW_NAV_CONTINUE: Final = "continue"
+FLOW_NAV_BACK: Final = "back"
+
+# Short ASCII site key for ``entity_id`` object_ids: ``hub_energie_<site_slug>_…`` (immutable once set).
+CONF_SITE_SLUG: Final = "site_slug"
+# True when a site slug was committed (install or first options save); slug can no longer be changed.
+CONF_SITE_SLUG_LOCKED: Final = "site_slug_locked"
+
+# Time-of-use tariff
+CONF_TOU_PERIODS: Final = "tou_periods"
+# Fixed rows in ``manual_tou`` (HP/HC — two slots).
+TOU_FORM_MAX_SLOTS: Final = 2
+TOU_FORM_SECTION_PREFIX: Final = "tou_slot_"
+
+# Advanced schedule
+CONF_SCHEDULE_SLOTS: Final = "schedule_slots"
+# Fixed rows in the config-flow form (add/remove is not supported by the HA schema).
+SCHEDULE_FORM_MAX_SLOTS: Final = 6
+# ``section()`` keys in ``manual_schedule_form`` (visual grouping in the UI).
+SCHEDULE_FORM_SECTION_PREFIX: Final = "sched_slot_"
+
+# EDF auto-fetch
+CONF_TARIFF_OFFER: Final = "tariff_offer"
+CONF_TARIFF_FETCHED_AT: Final = "tariff_fetched_at"
+CONF_TARIFF_SOURCE: Final = "tariff_source"
+
+# ---------------------------------------------------------------------------
 # Config flow keys – Grid scope
 # ---------------------------------------------------------------------------
 CONF_GRID_IMPORT_ENERGY: Final = "grid_import_energy"
@@ -307,6 +381,15 @@ DATA_USAGE_BATT_CHARGE_METHOD: Final = "usage_batt_charge_method"
 DATA_BATT_CHARGE_METER_KWH: Final = "batt_charge_meter_kwh"
 DATA_USAGE_GRID_BATT_CHARGE_BY_SLOT_KWH: Final = "usage_grid_batt_charge_by_slot_kwh"
 DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH: Final = "usage_solar_batt_charge_by_slot_kwh"
+# Lovelace hub-energie-card: resolved sensor entity_ids (stable per entry; see entity_id_stability).
+DATA_CARD_ENTITY_IDS: Final = "card_entity_ids"
+# 0-based site index among Hub Énergie config entries (when entity ids use numeric segment).
+DATA_CARD_SITE_INDEX: Final = "card_site_index"
+# Segment used in ``entity_id`` after ``hub_energie_`` (numeric string or site slug).
+DATA_CARD_SITE_SEGMENT: Final = "card_site_segment"
+# True on ``sensor.*_lovelace_card`` attributes (Frontend device) for card discovery.
+DATA_CARD_PAYLOAD_MARKER: Final = "hub_energie_card_payload"
+
 DATA_ORIGIN_GRID: Final = "origin_grid"
 DATA_ORIGIN_SOLAR: Final = "origin_solar"
 DATA_ORIGIN_GRID_ATTRS: Final = "origin_grid_attrs"
