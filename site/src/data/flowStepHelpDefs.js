@@ -40,7 +40,7 @@ export const FLOW_HELP_WIZARD_IDS = [
 /** Options menu step_ids (HubEnergieOptionsFlow). */
 export const FLOW_HELP_OPTIONS_IDS = [
   "init",
-  "site",
+  "site_slug",
   "offer",
   "tariff_refresh",
   "tempo",

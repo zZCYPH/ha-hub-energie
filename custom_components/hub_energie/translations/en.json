@@ -642,7 +642,7 @@
         "title": "Hub Énergie – Options",
         "description": "[I need help with this step]({step_help_url})",
         "menu_options": {
-          "site": "Site key & entity IDs",
+          "site_slug": "Site key & entity IDs",
           "offer": "Offer & tariffs",
           "grid": "Grid sensors",
           "grid_tri": "Three-phase grid (optional)",
@@ -1037,7 +1037,7 @@
           "add_another": "Turn on to define another battery after saving the current one."
         }
       },
-      "site": {
+      "site_slug": {
         "title": "Site key (entity_id)",
         "description": "Set a short ASCII key (2–10: **a–z**, **0–9**) once: **entity_id** values will be renamed to `hub_energie_<key>_…`. **Locked after save** — it cannot be changed later.\n\n[I need help with this step]({step_help_url})",
         "data": {

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-22T13:38:12.440614+00:00",
+  "generated_at": "2026-04-22T14:03:13.544553+00:00",
   "source_files": {
     "strings_en": "custom_components/hub_energie/strings.json",
     "strings_fr": "custom_components/hub_energie/translations/fr.json"
@@ -1815,7 +1815,7 @@
         "sections": [],
         "menu_choices": [
           {
-            "key": "site",
+            "key": "site_slug",
             "label": "Site key & entity IDs"
           },
           {
@@ -1857,7 +1857,7 @@
         "sections": [],
         "menu_choices": [
           {
-            "key": "site",
+            "key": "site_slug",
             "label": "Clé site & entity_id"
           },
           {
@@ -1895,7 +1895,7 @@
         ]
       }
     },
-    "site": {
+    "site_slug": {
       "en": {
         "fields": [
           {

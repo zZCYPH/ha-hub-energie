@@ -649,7 +649,7 @@
         "title": "Hub Énergie – Options",
         "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})",
         "menu_options": {
-          "site": "Clé site & entity_id",
+          "site_slug": "Clé site & entity_id",
           "offer": "Offre & tarifs",
           "grid": "Capteurs réseau",
           "grid_tri": "Réseau triphasé (optionnel)",
@@ -1044,7 +1044,7 @@
           "add_another": "Activez pour enchaîner sur une autre batterie après celle-ci."
         }
       },
-      "site": {
+      "site_slug": {
         "title": "Clé site (entity_id)",
         "description": "Définissez une clé ASCII (2–10 : **a–z**, **0–9**) une seule fois : les **entity_id** seront renommés vers `hub_energie_<cle>_…`. **Verrouillée après enregistrement** — impossible de la changer ensuite.\n\n[J'ai besoin d'aide pour saisir cette étape]({step_help_url})",
         "data": {

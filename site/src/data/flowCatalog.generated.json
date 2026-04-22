@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-22T13:38:12.437202+00:00",
+  "generated_at": "2026-04-22T14:03:13.541780+00:00",
   "source_files": {
     "config_flow": "custom_components/hub_energie/config_flow.py",
     "strings_en": "custom_components/hub_energie/strings.json",
@@ -1253,7 +1253,7 @@
           "fields": [],
           "menu_choices": [
             {
-              "key": "site",
+              "key": "site_slug",
               "label": "Site key & entity IDs"
             },
             {
@@ -1297,7 +1297,7 @@
           "fields": [],
           "menu_choices": [
             {
-              "key": "site",
+              "key": "site_slug",
               "label": "Clé site & entity_id"
             },
             {
@@ -2225,6 +2225,41 @@
       }
     },
     {
+      "step_id": "site_slug",
+      "handler": "async_step_site_slug",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Site key (entity_id)",
+          "description": "Set a short ASCII key (2–10: **a–z**, **0–9**) once: **entity_id** values will be renamed to `hub_energie_<key>_…`. **Locked after save** — it cannot be changed later.\n\n[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-site_slug)",
+          "fields": [
+            {
+              "key": "site_slug",
+              "label": "Site key",
+              "description": "Lowercase letters and digits only. Must be unique across Hub Énergie entries."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Clé site (entity_id)",
+          "description": "Définissez une clé ASCII (2–10 : **a–z**, **0–9**) une seule fois : les **entity_id** seront renommés vers `hub_energie_<cle>_…`. **Verrouillée après enregistrement** — impossible de la changer ensuite.\n\n[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-site_slug)",
+          "fields": [
+            {
+              "key": "site_slug",
+              "label": "Clé site",
+              "description": "Lettres minuscules et chiffres uniquement. Doit être unique entre les entrées Hub Énergie."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        }
+      }
+    },
+    {
       "step_id": "solar",
       "handler": "async_step_solar",
       "source_class": "HubEnergieConfigFlow",
@@ -2735,41 +2770,6 @@
               "key": "phase_type",
               "label": "Type de phase",
               "description": "Installation monophasée ou triphasée."
-            }
-          ],
-          "menu_choices": [],
-          "sections": []
-        }
-      }
-    },
-    {
-      "step_id": "site",
-      "handler": "async_step_site",
-      "source_class": "HubEnergieOptionsFlow",
-      "kind": "form",
-      "menu_options": null,
-      "strings": {
-        "en": {
-          "title": "Site key (entity_id)",
-          "description": "Set a short ASCII key (2–10: **a–z**, **0–9**) once: **entity_id** values will be renamed to `hub_energie_<key>_…`. **Locked after save** — it cannot be changed later.\n\n[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-site)",
-          "fields": [
-            {
-              "key": "site_slug",
-              "label": "Site key",
-              "description": "Lowercase letters and digits only. Must be unique across Hub Énergie entries."
-            }
-          ],
-          "menu_choices": [],
-          "sections": []
-        },
-        "fr": {
-          "title": "Clé site (entity_id)",
-          "description": "Définissez une clé ASCII (2–10 : **a–z**, **0–9**) une seule fois : les **entity_id** seront renommés vers `hub_energie_<cle>_…`. **Verrouillée après enregistrement** — impossible de la changer ensuite.\n\n[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-site)",
-          "fields": [
-            {
-              "key": "site_slug",
-              "label": "Clé site",
-              "description": "Lettres minuscules et chiffres uniquement. Doit être unique entre les entrées Hub Énergie."
             }
           ],
           "menu_choices": [],

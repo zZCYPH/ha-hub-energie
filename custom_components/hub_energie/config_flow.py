@@ -1891,7 +1891,7 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
         data = self.config_entry.data
         options = []
         if not site_slug_is_locked(self.config_entry):
-            options.append("site")
+            options.append("site_slug")
         options.extend(["offer", "grid", "solar", "battery"])
         if data.get(CONF_PHASE_TYPE) == PHASE_TRI:
             options.insert(2, "grid_tri")
@@ -1958,7 +1958,7 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
     ) -> ConfigFlowResult:
         return self._show_doc_menu(step_id="init", menu_options=self._menu_options())
 
-    async def async_step_site(
+    async def async_step_site_slug(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Set site slug once (optional at install); renames ``entity_id``\\ s when first saved here."""
@@ -2004,7 +2004,7 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
             extra=vol.ALLOW_EXTRA,
         )
         return self._show_doc_form(
-            step_id="site",
+            step_id="site_slug",
             data_schema=schema,
             errors=errors,
         )
