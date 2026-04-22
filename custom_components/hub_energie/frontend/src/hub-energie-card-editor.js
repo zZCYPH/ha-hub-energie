@@ -3,6 +3,14 @@ import { I18N } from "./constants/i18n.js";
 import { tpl } from "./utils/i18n-template.js";
 import { hubSitesFromStates } from "./utils/energy-utils.js";
 
+/** Site row label for ha-list-item (avoid tpl from another chunk in boot bundle). */
+function siteOptionLabel(i18n, site) {
+  const t = i18n?.editorSiteOption ?? "{index} — {segment}";
+  const idx = String(site?.index ?? "");
+  const seg = site?.segment != null && String(site.segment).trim() !== "" ? String(site.segment).trim() : idx;
+  return String(t).split("{index}").join(idx).split("{segment}").join(seg);
+}
+
 const CARD_TYPE = "custom:hub-energie-card";
 
 /** Allowed values; must match snap list in hub-energie-card.js */
@@ -107,9 +115,7 @@ export class HubEnergieCardEditor extends LitElement {
                   <ha-list-item value="__auto__">${i18n.siteAuto}</ha-list-item>
                   ${sites.map(
                     (s) => html`
-                      <ha-list-item value="${String(s.index)}">
-                        ${tpl(i18n.editorSiteOption, { index: String(s.index), segment: s.segment })}
-                      </ha-list-item>
+                      <ha-list-item value="${String(s.index)}">${siteOptionLabel(i18n, s)}</ha-list-item>
                     `,
                   )}
                 </ha-select>
