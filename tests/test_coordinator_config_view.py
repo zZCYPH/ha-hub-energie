@@ -20,7 +20,7 @@ def _ensure_pkg(name: str, path: Path) -> None:
 _ensure_pkg("hub_energie", HUB_DIR)
 
 const = importlib.import_module("hub_energie.const")
-cv = importlib.import_module("hub_energie.coordinator_config_view")
+cv = importlib.import_module("hub_energie.coordinator.config_view")
 
 
 def test_entry_tariff_offer_options_override_data() -> None:

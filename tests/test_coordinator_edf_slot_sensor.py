@@ -28,7 +28,7 @@ def _ensure_pkg(name: str, path: Path) -> None:
 
 _ensure_pkg("hub_energie", HUB_DIR)
 
-slot_mod = importlib.import_module("hub_energie.coordinator_edf_slot_sensor")
+slot_mod = importlib.import_module("hub_energie.coordinator.edf_slot_sensor")
 
 
 def test_apply_current_slot_no_sensor_skips_hass_lookup() -> None:

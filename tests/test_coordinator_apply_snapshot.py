@@ -23,7 +23,7 @@ def _ensure_pkg(name: str, path: Path) -> None:
 
 _ensure_pkg("hub_energie", HUB_DIR)
 
-as_mod = importlib.import_module("hub_energie.coordinator_apply_snapshot")
+as_mod = importlib.import_module("hub_energie.coordinator.apply_snapshot")
 
 
 async def _run_apply(*, clear: bool) -> None:

@@ -21,7 +21,7 @@ def _ensure_pkg(name: str, path: Path) -> None:
 
 _ensure_pkg("hub_energie", HUB_DIR)
 
-maint = importlib.import_module("hub_energie.coordinator_maintenance")
+maint = importlib.import_module("hub_energie.coordinator.maintenance")
 
 
 async def _run() -> None:

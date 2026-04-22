@@ -25,7 +25,7 @@ def _ensure_pkg(name: str, path: Path) -> None:
 _ensure_pkg("hub_energie", HUB_DIR)
 
 const = importlib.import_module("hub_energie.const")
-tw = importlib.import_module("hub_energie.coordinator_tariff_wiring")
+tw = importlib.import_module("hub_energie.coordinator.tariff_wiring")
 refresh_mod = importlib.import_module("hub_energie.tariff.refresh")
 
 

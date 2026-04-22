@@ -24,7 +24,7 @@ def _ensure_pkg(name: str, path: Path) -> None:
 
 _ensure_pkg("hub_energie", HUB_DIR)
 
-sb = importlib.import_module("hub_energie.coordinator_snapshot_build")
+sb = importlib.import_module("hub_energie.coordinator.snapshot_build")
 
 
 def test_run_coordinator_snapshot_build_updates_flow_ts_and_probe_flags() -> None:

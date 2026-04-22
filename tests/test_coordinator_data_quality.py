@@ -22,7 +22,7 @@ def _ensure_pkg(name: str, path: Path) -> None:
 _ensure_pkg("hub_energie", HUB_DIR)
 
 const = importlib.import_module("hub_energie.const")
-dq_mod = importlib.import_module("hub_energie.coordinator_data_quality")
+dq_mod = importlib.import_module("hub_energie.coordinator.data_quality")
 
 
 def test_data_quality_good() -> None:
