@@ -63,6 +63,7 @@ export class HubEnergieFlowCardEditor extends LitElement {
     const i18n = this._i18n();
     const layout = LAYOUT_OPTIONS.includes(this._config?.layout) ? this._config.layout : "auto";
     const debug = this._config?.debug === true || this._config?.debug === "true";
+    const glass = this._config?.glass_panel === true || this._config?.glass_panel === "true";
     const sites = this._hubSites();
     const siteSel = this._siteSelectValue();
     return html`
@@ -117,6 +118,15 @@ export class HubEnergieFlowCardEditor extends LitElement {
         </ha-formfield>
         <p class="hint">${i18n.flowEditorDebugHint}</p>
         <p class="motion-note">${i18n.flowEditorReducedMotionNote}</p>
+      </div>
+      <div class="field">
+        <ha-formfield .label=${i18n.flowEditorGlassPanel}>
+          <ha-switch
+            .checked=${glass}
+            @change=${(event) => this._setBool("glass_panel", event.target.checked)}
+          ></ha-switch>
+        </ha-formfield>
+        <p class="hint">${i18n.flowEditorGlassHint}</p>
       </div>
       <div class="field">
         <ha-entity-picker

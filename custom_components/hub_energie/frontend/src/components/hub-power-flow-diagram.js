@@ -44,6 +44,8 @@ export class HubPowerFlowDiagram extends LitElement {
     debug: { type: Boolean },
     /** Dark card / theme: stronger diagram contrast */
     energyThemeDark: { type: Boolean },
+    /** Optional glass blur + drop shadow (experimental; editor toggle). */
+    glassPanel: { type: Boolean },
     /** 'node:grid' | 'edge:solar_to_home_power_w' | null */
     _focusKey: { state: true },
     _enterGen: { state: true },
@@ -55,6 +57,16 @@ export class HubPowerFlowDiagram extends LitElement {
     :host {
       display: block;
       min-height: 200px;
+    }
+    :host(.hub-flow-glass) {
+      border-radius: 26px;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--card-background-color, #1e1e1e) 58%, transparent);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+    }
+    :host(.hub-flow-glass) svg {
+      filter: drop-shadow(0 10px 26px rgba(0, 0, 0, 0.24));
     }
     :host(.hub-flow-energy--dark) {
       --hub-flow-label-stroke: 5px;
@@ -277,6 +289,7 @@ export class HubPowerFlowDiagram extends LitElement {
     this.layout = "full";
     this.debug = false;
     this.energyThemeDark = false;
+    this.glassPanel = false;
     this._focusKey = null;
     this._enterGen = 0;
     this._valuePulse = 0;
@@ -306,6 +319,9 @@ export class HubPowerFlowDiagram extends LitElement {
     }
     if (changed.has("energyThemeDark")) {
       this.classList.toggle("hub-flow-energy--dark", Boolean(this.energyThemeDark));
+    }
+    if (changed.has("glassPanel")) {
+      this.classList.toggle("hub-flow-glass", Boolean(this.glassPanel));
     }
   }
 

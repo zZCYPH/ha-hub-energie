@@ -623,6 +623,7 @@ export class HubEnergieFlowCard extends LitElement {
             .layout=${resolvedLayout}
             .debug=${debug}
             .energyThemeDark=${energyDark}
+            .glassPanel=${this._glassPanelEnabled()}
           ></hub-power-flow-diagram>
           ${chips.length
             ? html`
@@ -660,6 +661,10 @@ export class HubEnergieFlowCard extends LitElement {
 
   _debugEnabled() {
     return boolConfig(this._config?.debug);
+  }
+
+  _glassPanelEnabled() {
+    return boolConfig(this._config?.glass_panel);
   }
 
   _resolvedLayout() {
@@ -723,6 +728,7 @@ export class HubEnergieFlowCard extends LitElement {
       layout,
       debug,
       fpPart(this._config?.site_index),
+      fpPart(this._config?.glass_panel),
       fpPart(liveState.last_updated ?? liveState.last_changed),
       ...EDGE_CONFIG.map((edge) => fpPart(liveAttrs[edge.key])),
       fpPart(liveAttrs.battery_discharge_power_w),
