@@ -26,7 +26,12 @@ _ensure_pkg("hub_energie.time", HUB_DIR / "time")
 
 paris_time = importlib.import_module("hub_energie.time.paris_time")
 ParisTime = paris_time.ParisTime
+LocalTime = paris_time.LocalTime
 PARIS_TZ = paris_time.PARIS_TZ
+
+
+def test_local_time_is_alias_of_paris_time() -> None:
+    assert LocalTime is ParisTime
 
 
 def test_day_start_utc_midnight_paris_winter_maps_to_utc() -> None:

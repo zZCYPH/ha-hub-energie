@@ -309,7 +309,7 @@ def test_load_from_store_hydrates_and_writes_yesterday_to_recorder() -> None:
         async def async_save(self, data: dict) -> None:
             saves.append(data)
 
-    class _FixedParis(paris_time_mod.ParisTime):
+    class _FixedParis(paris_time_mod.LocalTime):
         @staticmethod
         def today() -> str:
             return "2026-04-02"
@@ -326,7 +326,7 @@ def test_load_from_store_hydrates_and_writes_yesterday_to_recorder() -> None:
 
     async def _run() -> None:
         with patch.object(persistence_mod, "Store", _MemStore):
-            with patch.object(persistence_mod, "ParisTime", _FixedParis):
+            with patch.object(persistence_mod, "LocalTime", _FixedParis):
                 pm = _pm(rs)
                 loaded, rebuilt = await pm.load()
         assert loaded is True
@@ -360,7 +360,7 @@ def test_load_corrupt_store_rebuilds_from_recorder_rows() -> None:
         async def async_save(self, _data: dict) -> None:
             return None
 
-    class _ParisRebuild(paris_time_mod.ParisTime):
+    class _ParisRebuild(paris_time_mod.LocalTime):
         @staticmethod
         def today() -> str:
             return "2026-05-20"
@@ -374,7 +374,7 @@ def test_load_corrupt_store_rebuilds_from_recorder_rows() -> None:
 
         async def _go() -> None:
             with patch.object(persistence_mod, "Store", _BadStore):
-                with patch.object(persistence_mod, "ParisTime", _ParisRebuild):
+                with patch.object(persistence_mod, "LocalTime", _ParisRebuild):
                     pm = _pm(rs)
                     loaded, rebuilt = await pm.load()
                     assert loaded is False
@@ -431,7 +431,7 @@ def test_load_warns_when_written_stats_but_missing_lts_floor(caplog: pytest.LogC
         async def async_save(self, _data: dict) -> None:
             return None
 
-    class _FixedParis(paris_time_mod.ParisTime):
+    class _FixedParis(paris_time_mod.LocalTime):
         @staticmethod
         def today() -> str:
             return "2026-04-02"
@@ -448,7 +448,7 @@ def test_load_warns_when_written_stats_but_missing_lts_floor(caplog: pytest.LogC
 
     async def _run() -> None:
         with patch.object(persistence_mod, "Store", _MemStore):
-            with patch.object(persistence_mod, "ParisTime", _FixedParis):
+            with patch.object(persistence_mod, "LocalTime", _FixedParis):
                 pm = _pm(rs)
                 await pm.load()
 
@@ -481,7 +481,7 @@ def test_load_no_lts_floor_warning_on_legacy_first_migration(caplog: pytest.LogC
         async def async_save(self, _data: dict) -> None:
             return None
 
-    class _FixedParis(paris_time_mod.ParisTime):
+    class _FixedParis(paris_time_mod.LocalTime):
         @staticmethod
         def today() -> str:
             return "2026-04-03"
@@ -498,7 +498,7 @@ def test_load_no_lts_floor_warning_on_legacy_first_migration(caplog: pytest.LogC
 
     async def _run() -> None:
         with patch.object(persistence_mod, "Store", _MemStore):
-            with patch.object(persistence_mod, "ParisTime", _FixedParis):
+            with patch.object(persistence_mod, "LocalTime", _FixedParis):
                 pm = _pm(rs)
                 loaded, _rebuilt = await pm.load()
         assert loaded is True

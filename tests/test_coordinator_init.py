@@ -41,7 +41,7 @@ def test_wire_hub_energie_coordinator_after_super_order() -> None:
         def _read_energy_kwh_for_persistence(self, _eid: str | None) -> float | None:
             return None
 
-        def _next_poll_fire_paris(self, _after: object) -> object:
+        def _next_poll_fire_local(self, _after: object) -> object:
             return object()
 
         async def _async_scheduled_poll(self) -> None:
@@ -81,7 +81,7 @@ def test_wire_hub_energie_coordinator_after_super_order() -> None:
     assert kwargs["hass"] is co.hass
     assert kwargs["entry"] is co.entry
     # MagicMock call recording can duplicate bound-method objects; __eq__ still matches.
-    assert kwargs["next_poll_fire_paris"] == co._next_poll_fire_paris
+    assert kwargs["next_poll_fire_local"] == co._next_poll_fire_local
     assert kwargs["on_scheduled_poll"] == co._async_scheduled_poll
     assert kwargs["on_midnight"] == co._async_midnight_maintenance
     assert co._scheduler is sch.return_value

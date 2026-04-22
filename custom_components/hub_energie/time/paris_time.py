@@ -35,7 +35,7 @@ def hub_energy_tz() -> ZoneInfo:
     return ZoneInfo(FR_TZ)
 
 
-class ParisTime:
+class LocalTime:
     """Centralized local date-time helpers (HA default timezone)."""
 
     @staticmethod
@@ -44,11 +44,11 @@ class ParisTime:
 
     @staticmethod
     def today() -> str:
-        return ParisTime.now().date().isoformat()
+        return LocalTime.now().date().isoformat()
 
     @staticmethod
     def yesterday() -> str:
-        return (ParisTime.now().date() - timedelta(days=1)).isoformat()
+        return (LocalTime.now().date() - timedelta(days=1)).isoformat()
 
     @staticmethod
     def day_start(dt: datetime) -> datetime:
@@ -58,3 +58,7 @@ class ParisTime:
     def day_start_utc(iso_day: str) -> datetime:
         """UTC instant of 00:00 local (HA default TZ) for ``iso_day`` (`YYYY-MM-DD`)."""
         return datetime.strptime(iso_day, "%Y-%m-%d").replace(tzinfo=hub_energy_tz()).astimezone(UTC)
+
+
+# Back-compat for older imports / tests (same type as ``LocalTime``).
+ParisTime = LocalTime

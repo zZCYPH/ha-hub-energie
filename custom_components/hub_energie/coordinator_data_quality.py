@@ -7,7 +7,7 @@ from typing import Any
 
 from .const.energy_data import SOURCE_GRID
 from .const.tariff_edf import SLOT_UNKNOWN
-from .time.paris_time import ParisTime
+from .time.paris_time import LocalTime
 
 
 def compute_snapshot_data_quality(
@@ -15,7 +15,7 @@ def compute_snapshot_data_quality(
     delta_telemetry: Mapping[str, Any],
 ) -> str:
     """Degraded when unknown grid bucket, indirect attribution, or long delta gaps."""
-    day = ParisTime.today()
+    day = LocalTime.today()
     day_acc = snapshot_data_for_day(day)
     grid = day_acc.get(SOURCE_GRID, {})
     unk = (

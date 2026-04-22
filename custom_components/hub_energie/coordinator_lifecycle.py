@@ -27,7 +27,7 @@ async def coordinator_rebuild_from_recorder(co: Any) -> None:
     await co._persistence.rebuild_from_recorder()
 
 
-def coordinator_next_poll_fire_paris(
+def coordinator_next_poll_fire_local(
     after: datetime,
     *,
     is_edf: bool,
@@ -42,6 +42,9 @@ def coordinator_next_poll_fire_paris(
         tempo_mode=tempo_mode,
         tomorrow_color=tomorrow_color,
     )
+
+
+coordinator_next_poll_fire_paris = coordinator_next_poll_fire_local
 
 
 def coordinator_cancel_poll_schedule(co: Any) -> None:

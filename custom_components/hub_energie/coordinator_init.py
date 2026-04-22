@@ -97,7 +97,7 @@ def wire_hub_energie_coordinator_after_super(
     co._scheduler = Scheduler(
         hass=co.hass,
         entry=co.entry,
-        next_poll_fire_paris=co._next_poll_fire_paris,
+        next_poll_fire_local=co._next_poll_fire_local,
         on_scheduled_poll=co._async_scheduled_poll,
         on_midnight=co._async_midnight_maintenance,
         on_tariff_refresh=lambda: co._async_refresh_tariffs(update_entry=True),

@@ -32,7 +32,7 @@ from .const.tariff_edf import SLOT_UNKNOWN, TARIFF_OFFER_TEMPO, TEMPO_MODE_RTE
 from .coordinator_data_quality import compute_snapshot_data_quality
 from .energy.delta_observability import seconds_since_last_applied_delta
 from .energy.trust_level import TrustInputs, compute_trust
-from .time.paris_time import ParisTime
+from .time.paris_time import LocalTime
 from .utils.input_availability import (
     compute_input_probe,
     derive_input_status,
@@ -75,7 +75,7 @@ def finalize_snapshot_after_pipeline(
         snap[DATA_DELTA_TELEMETRY],
     )
 
-    day_today = ParisTime.today()
+    day_today = LocalTime.today()
     grid_day = snapshot_data_for_day(day_today).get(SOURCE_GRID, {})
     unk_today = (
         float(grid_day.get(SLOT_UNKNOWN, 0.0))

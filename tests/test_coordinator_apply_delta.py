@@ -61,7 +61,7 @@ async def _unknown_then_bleu_hp() -> None:
     coord._async_notify_all = AsyncMock()
     coord._reader.read_energy_kwh = lambda _eid: 12.0
     # Skip Tempo day-boundary refresh so we only count the UNKNOWN-slot retry.
-    coord._energy_attrib_date = coordinator_policy.paris_today_iso()
+    coord._energy_attrib_date = coordinator_policy.local_today_iso()
 
     results = [
         slot_attribution.SlotAttributionResult(const.SLOT_UNKNOWN, "unknown"),

@@ -8,14 +8,18 @@ from ..const.tariff_edf import TARIFF_OFFER_TEMPO, TEMPO_MODE_API
 from ..time.paris_time import hub_energy_tz
 
 __all__ = (
-    "POLL_SLOTS_PARIS",
+    "POLL_SLOTS_LOCAL",
     "ceil_minutes",
+    "next_poll_fire_local_after",
+    "next_poll_fire_local_edf_tempo_api",
+    "resolve_next_poll",
+    # Back-compat
+    "POLL_SLOTS_PARIS",
     "next_poll_fire_paris_after",
     "next_poll_fire_paris_edf_tempo_api",
-    "resolve_next_poll",
 )
 
-POLL_SLOTS_PARIS: tuple[tuple[int, int], ...] = tuple(
+POLL_SLOTS_LOCAL: tuple[tuple[int, int], ...] = tuple(
     sorted(
         {(h, 0) for h in range(0, 24, 2)}
         | {(5, 30), (6, 30), (10, 30), (11, 0), (11, 30), (21, 50), (22, 30)},
@@ -23,19 +27,24 @@ POLL_SLOTS_PARIS: tuple[tuple[int, int], ...] = tuple(
     )
 )
 
+POLL_SLOTS_PARIS = POLL_SLOTS_LOCAL
 
-def next_poll_fire_paris_after(after: datetime) -> datetime:
+
+def next_poll_fire_local_after(after: datetime) -> datetime:
     """Next scheduled coordinator refresh strictly after *after* (local TZ)."""
     tz = hub_energy_tz()
     after = after.astimezone(tz) if after.tzinfo else after.replace(tzinfo=tz)
     day = after.date()
     for _ in range(3):
-        for hour, minute in POLL_SLOTS_PARIS:
+        for hour, minute in POLL_SLOTS_LOCAL:
             candidate = datetime(day.year, day.month, day.day, hour, minute, 0, tzinfo=tz)
             if candidate > after:
                 return candidate
         day += timedelta(days=1)
     return after + timedelta(hours=2)
+
+
+next_poll_fire_paris_after = next_poll_fire_local_after
 
 
 def ceil_minutes(dt: datetime, step_min: int) -> datetime:
@@ -50,7 +59,7 @@ def ceil_minutes(dt: datetime, step_min: int) -> datetime:
     return out if out > dt else out + timedelta(minutes=step_min)
 
 
-def next_poll_fire_paris_edf_tempo_api(after: datetime, *, tomorrow_color: str | None) -> datetime:
+def next_poll_fire_local_edf_tempo_api(after: datetime, *, tomorrow_color: str | None) -> datetime:
     """Dynamic poll schedule for EDF Tempo API colour fetches (local TZ)."""
     tz = hub_energy_tz()
     after = after.astimezone(tz) if after.tzinfo else after.replace(tzinfo=tz)
@@ -74,6 +83,9 @@ def next_poll_fire_paris_edf_tempo_api(after: datetime, *, tomorrow_color: str |
     return datetime(nd.year, nd.month, nd.day, 5, 30, 0, tzinfo=tz)
 
 
+next_poll_fire_paris_edf_tempo_api = next_poll_fire_local_edf_tempo_api
+
+
 def resolve_next_poll(
     after: datetime,
     *,
@@ -83,5 +95,5 @@ def resolve_next_poll(
     tomorrow_color: str | None,
 ) -> datetime:
     if not (is_edf and tariff_offer == TARIFF_OFFER_TEMPO and tempo_mode == TEMPO_MODE_API):
-        return next_poll_fire_paris_after(after)
-    return next_poll_fire_paris_edf_tempo_api(after, tomorrow_color=tomorrow_color)
+        return next_poll_fire_local_after(after)
+    return next_poll_fire_local_edf_tempo_api(after, tomorrow_color=tomorrow_color)

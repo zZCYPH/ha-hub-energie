@@ -1,4 +1,4 @@
-"""Coordinator policy helpers (delta caps, Paris calendar, reinjection diag ordering)."""
+"""Coordinator policy helpers (delta caps, local calendar, reinjection diag ordering)."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ from .const.reinjection import (
     DIAG_CAUSE_UNATTRIBUTED,
 )
 from .energy.delta_policy import DeltaPolicy
-from .time.paris_time import ParisTime
+from .time.paris_time import LocalTime
 
 DIAG_CAUSES: tuple[str, ...] = (
     DIAG_CAUSE_SOLAR_SURPLUS,
@@ -59,13 +59,19 @@ def delta_policy_from_entry(entry: ConfigEntry) -> DeltaPolicy:
     )
 
 
-def paris_now() -> datetime:
-    return ParisTime.now()
+def local_now() -> datetime:
+    return LocalTime.now()
 
 
-def paris_today_iso() -> str:
-    return ParisTime.today()
+def local_today_iso() -> str:
+    return LocalTime.today()
 
 
-def paris_yesterday() -> str:
-    return ParisTime.yesterday()
+def local_yesterday_iso() -> str:
+    return LocalTime.yesterday()
+
+
+# Back-compat names (many call sites still read “paris” in git history).
+paris_now = local_now
+paris_today_iso = local_today_iso
+paris_yesterday = local_yesterday_iso
