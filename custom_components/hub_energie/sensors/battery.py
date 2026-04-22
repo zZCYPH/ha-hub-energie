@@ -24,7 +24,6 @@ from ..const import (
     DATA_BATTERY_TOTAL_NET_POWER_W,
 )
 from ..coordinator import HubEnergieCoordinator
-from ..entity_id_stability import apply_stable_suggested_object_id
 from ..device_info import _device_battery, _device_battery_summary
 from .base import HubEnergieSensor, _safe_float
 
@@ -109,7 +108,6 @@ class HubEnergieBatterySensor(HubEnergieSensor):
         cfg = _BATTERY_METRIC_CONFIG[metric]
         self._snapshot_key = cfg["snapshot_key"]
         self._attr_unique_id = f"{entry.unique_id}_battery_{batt_id}_{metric}"
-        apply_stable_suggested_object_id(self)
         self._attr_name = _BATTERY_ENTITY_LABELS.get(
             metric, metric.replace("_", " ").title()
         )
@@ -185,7 +183,6 @@ class HubEnergieBatterySummarySensor(HubEnergieSensor):
         cfg = _BATTERY_SUMMARY_CONFIG[metric]
         self._snapshot_key = cfg["snapshot_key"]
         self._attr_unique_id = f"{entry.unique_id}_battery_summary_{metric}"
-        apply_stable_suggested_object_id(self)
         self._attr_name = _BATTERY_SUMMARY_LABELS.get(
             metric, metric.replace("_", " ").title()
         )

@@ -18,7 +18,6 @@ from ..const import (
     DATA_SOLAR_EXPORT_REVENUE_EUR,
 )
 from ..coordinator import HubEnergieCoordinator
-from ..entity_id_stability import apply_stable_suggested_object_id
 from ..device_info import _device_solar_config
 from .base import HubEnergieSensor
 
@@ -69,7 +68,6 @@ class HubEnergieSolarEstimateSensor(HubEnergieSensor):
         cfg = _SOLAR_ESTIMATE_CONFIG[metric]
         self._snapshot_key = cfg["snapshot_key"]
         self._attr_unique_id = f"{entry.unique_id}_solar_estimate_{metric}"
-        apply_stable_suggested_object_id(self)
         self._attr_name = _SOLAR_ESTIMATE_LABELS.get(
             metric, metric.replace("_", " ").title(),
         )
@@ -97,7 +95,6 @@ class HubEnergieSolarRevenueSensor(HubEnergieSensor):
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_solar_export_revenue"
-        apply_stable_suggested_object_id(self)
         self._attr_name = "Revenus d'injection"
         self._attr_device_info = _device_solar_config(coordinator)
 

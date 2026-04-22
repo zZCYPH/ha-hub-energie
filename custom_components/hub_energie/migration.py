@@ -9,18 +9,14 @@ from homeassistant.core import HomeAssistant, split_entity_id
 from homeassistant.helpers import entity_registry as er
 
 from .const import DOMAIN
-from .entity_id_stability import stable_object_id_from_unique_id
 
 _LOGGER = logging.getLogger(__name__)
 
 # First entity_id prefix sweep (legacy slugs → hub_energie_*).
 CONFIG_ENTRY_VERSION_ENTITY_ID_PREFIX = 2
+# Current config entry version; keep in sync with HubEnergieConfigFlow.VERSION.
 # v3 re-runs the prefix sweep so entities created after v2 (e.g. frontend_data) are renamed.
-CONFIG_ENTRY_VERSION_ENTITY_PREFIX_V3 = 3
-# v4 renamed a fixed list of card-facing sensors to short ``hub_energie_*`` slugs (collision-prone with multiple entries).
-CONFIG_ENTRY_VERSION_CARD_SHORT_SLUGS = 4
-# v5 renames **all** integration entities to ``hub_energie_`` + slug(full unique_id) (translation-proof, entry-unique).
-CONFIG_ENTRY_VERSION = 5
+CONFIG_ENTRY_VERSION = 3
 
 
 def _entity_needs_domain_prefix(object_id: str) -> bool:
@@ -59,45 +55,8 @@ def _migrate_entity_ids_for_config_entry(
         registry.async_update_entity(reg.entity_id, new_entity_id=new_entity_id)
 
 
-def _migrate_stable_unique_id_slugs(
-    hass: HomeAssistant,
-    config_entry: ConfigEntry,
-) -> None:
-    """Rename every ``hub_energie`` platform entity to ``<domain>.hub_energie_<slug(unique_id)>``."""
-    registry = er.async_get(hass)
-    entries = er.async_entries_for_config_entry(registry, config_entry.entry_id)
-    for reg in sorted(entries, key=lambda e: e.entity_id):
-        if reg.platform != DOMAIN:
-            continue
-        uid = reg.unique_id
-        if not isinstance(uid, str) or not uid.strip():
-            continue
-        domain_part, _old_obj = split_entity_id(reg.entity_id)
-        new_tail = stable_object_id_from_unique_id(uid)
-        if not new_tail:
-            continue
-        new_entity_id = f"{domain_part}.{new_tail}"
-        if reg.entity_id == new_entity_id:
-            continue
-        existing = registry.async_get(new_entity_id)
-        if existing is not None and existing.id != reg.id:
-            _LOGGER.warning(
-                "Entity ID migration v5: cannot rename %s -> %s (target already used by another entity); "
-                "rename manually or free the entity id",
-                reg.entity_id,
-                new_entity_id,
-            )
-            continue
-        _LOGGER.info(
-            "Entity ID migration v5 (stable slug from unique_id): %s -> %s",
-            reg.entity_id,
-            new_entity_id,
-        )
-        registry.async_update_entity(reg.entity_id, new_entity_id=new_entity_id)
-
-
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
-    """Migrate config entry: ``hub_energie_`` prefix (v2/v3) and stable entity slugs (v4→v5)."""
+    """Migrate config entry; v2/v3 ensure entity object_ids use the ``hub_energie_`` prefix."""
     version = config_entry.version
 
     if version > CONFIG_ENTRY_VERSION:
@@ -115,23 +74,8 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
             version=CONFIG_ENTRY_VERSION_ENTITY_ID_PREFIX,
         )
 
-    if config_entry.version < CONFIG_ENTRY_VERSION_ENTITY_PREFIX_V3:
-        _migrate_entity_ids_for_config_entry(hass, config_entry)
-        hass.config_entries.async_update_entry(
-            config_entry,
-            version=CONFIG_ENTRY_VERSION_ENTITY_PREFIX_V3,
-        )
-
-    if config_entry.version < CONFIG_ENTRY_VERSION_CARD_SHORT_SLUGS:
-        _migrate_entity_ids_for_config_entry(hass, config_entry)
-        hass.config_entries.async_update_entry(
-            config_entry,
-            version=CONFIG_ENTRY_VERSION_CARD_SHORT_SLUGS,
-        )
-
     if config_entry.version < CONFIG_ENTRY_VERSION:
         _migrate_entity_ids_for_config_entry(hass, config_entry)
-        _migrate_stable_unique_id_slugs(hass, config_entry)
         hass.config_entries.async_update_entry(
             config_entry,
             version=CONFIG_ENTRY_VERSION,

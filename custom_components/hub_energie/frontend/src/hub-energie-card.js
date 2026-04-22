@@ -24,8 +24,6 @@ import {
   dayColorClass,
   dayColorLabel,
   isCardReady,
-  discoverCostEntityId,
-  entityMapFromCostAttributes,
   makeEntityMap,
   offerLabel,
   readSlotValue,
@@ -682,10 +680,7 @@ class HubEnergieCard extends LitElement {
   }
 
   _map() {
-    const states = this.hass?.states;
-    const costId = discoverCostEntityId(states);
-    const costAttrs = states?.[costId]?.attributes;
-    return entityMapFromCostAttributes(costAttrs, makeEntityMap(), costId);
+    return makeEntityMap();
   }
 
   _getRange() {
@@ -729,17 +724,7 @@ class HubEnergieCard extends LitElement {
       E.usageBattHome,
     ];
     const costAttrs = states[E.cost]?.attributes ?? {};
-    const cardIds = costAttrs.card_entity_ids;
-    const cardIdsKey =
-      cardIds && typeof cardIds === "object"
-        ? Object.keys(cardIds)
-            .sort()
-            .map((k) => `${k}:${cardIds[k]}`)
-            .join("|")
-        : "";
     const attrsKey = [
-      E.cost,
-      cardIdsKey,
       costAttrs.offer ?? "",
       costAttrs.contract_power ?? "",
       costAttrs.tariff_fetched_at ?? "",

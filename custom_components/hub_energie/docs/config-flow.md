@@ -10,7 +10,7 @@ This document describes the **initial setup** wizard (`HubEnergieConfigFlow`) in
 
 **Doc site release label:** User-visible “doc snapshot **v…**” strings and HTML fallbacks use placeholders expanded at **build time** from **`manifest.json` → `version`** (`{{HUB_ENERGIE_VERSION}}`, `{{HUB_ENERGIE_VERSION_SERIES}}`) plus the doc bundle date (`{{HUB_ENERGIE_DOC_SNAPSHOT_ISO_DATE}}`, UTC `YYYY-MM-DD`); see `site/scripts/manifest-version.mjs` and `site/scripts/build-i18n.mjs`.
 
-- **Implementation:** `config_flow.py` → class `HubEnergieConfigFlow` (flow `VERSION = 5`).
+- **Implementation:** `config_flow.py` → class `HubEnergieConfigFlow` (flow `VERSION = 3`).
 - **Dialog titles/descriptions (EN):** `translations/en.json` under `config.step.<step_id>`.
 - **French:** `translations/fr.json` (same keys).
 

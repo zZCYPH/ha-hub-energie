@@ -506,9 +506,6 @@ DATA_USAGE_BATT_CHARGE_METHOD: Final = "usage_batt_charge_method"
 DATA_BATT_CHARGE_METER_KWH: Final = "batt_charge_meter_kwh"
 DATA_USAGE_GRID_BATT_CHARGE_BY_SLOT_KWH: Final = "usage_grid_batt_charge_by_slot_kwh"
 DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH: Final = "usage_solar_batt_charge_by_slot_kwh"
-# Lovelace hub-energie-card: resolved sensor entity_ids (stable per entry; see entity_id_stability).
-DATA_CARD_ENTITY_IDS: Final = "card_entity_ids"
-
 DATA_ORIGIN_GRID: Final = "origin_grid"
 DATA_ORIGIN_SOLAR: Final = "origin_solar"
 DATA_ORIGIN_GRID_ATTRS: Final = "origin_grid_attrs"

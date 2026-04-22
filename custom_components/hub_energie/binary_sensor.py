@@ -25,7 +25,6 @@ from .const import (
     TARIFF_OFFER_TEMPO,
 )
 from .coordinator import HubEnergieCoordinator
-from .entity_id_stability import apply_stable_suggested_object_id
 from .device_info import (
     _device_battery,
     _device_diagnostics,
@@ -84,7 +83,6 @@ class HubEnergieConnectivitySensor(
     ) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_connectivity"
-        apply_stable_suggested_object_id(self)
         self._attr_name = "Connexion"
         self._attr_device_info = _device_diagnostics(coordinator, model="Diagnostics")
 
@@ -106,7 +104,6 @@ class HubEnergieOffPeakSensor(
     ) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_off_peak"
-        apply_stable_suggested_object_id(self)
         self._attr_name = "Heures creuses Tempo"
         self._attr_device_info = _device_offer(coordinator)
 
@@ -132,7 +129,6 @@ class HubEnergieSolarProducingSensor(
     ) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_solar_producing"
-        apply_stable_suggested_object_id(self)
         self._attr_name = "Production active"
         self._attr_device_info = _device_solar_config(coordinator)
 
@@ -161,7 +157,6 @@ class HubEnergieSolarEstimateActiveSensor(
     ) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_solar_estimate_active"
-        apply_stable_suggested_object_id(self)
         self._attr_name = "Estimation PV active"
         self._attr_device_info = _device_solar_config(coordinator)
 
@@ -195,7 +190,6 @@ class HubEnergieBatteryChargingSensor(
         super().__init__(coordinator)
         self._batt_id = batt_id
         self._attr_unique_id = f"{entry.unique_id}_battery_{batt_id}_charging"
-        apply_stable_suggested_object_id(self)
         self._attr_name = "En charge"
         self._attr_device_info = _device_battery(coordinator, batt_id, batt_name)
 
