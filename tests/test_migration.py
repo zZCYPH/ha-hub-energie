@@ -88,6 +88,7 @@ def _ensure_entity_registry_module() -> None:
 _ensure_entity_registry_module()
 
 migration = importlib.import_module("hub_energie.migration")
+stability = importlib.import_module("hub_energie.entity_id_stability")
 DOMAIN = importlib.import_module("hub_energie.const").DOMAIN
 
 
@@ -114,7 +115,7 @@ def _run_migrate(hass: object, entry: object) -> bool:
 
 
 def test_migrate_v1_renames_legacy_hub_energie_entities() -> None:
-    """v1 legacy object_ids get ``hub_energie_`` prefix; entry version becomes 3."""
+    """v1 legacy object_ids get ``hub_energie_`` prefix; entry version becomes current."""
     reg = _InMemoryEntityRegistry()
     reg.register("sensor.grid_power", DOMAIN, "ce_1")
     reg.register("binary_sensor.motion_flag", DOMAIN, "ce_1")
@@ -127,6 +128,7 @@ def test_migrate_v1_renames_legacy_hub_energie_entities() -> None:
     assert hass.config_entries.version_updates == [  # type: ignore[attr-defined]
         migration.CONFIG_ENTRY_VERSION_ENTITY_ID_PREFIX,
         migration.CONFIG_ENTRY_VERSION_ENTITY_PREFIX_V3,
+        migration.CONFIG_ENTRY_VERSION_CARD_SHORT_SLUGS,
         migration.CONFIG_ENTRY_VERSION,
     ]
 
@@ -165,6 +167,7 @@ def test_migrate_v2_unprefixed_frontend_entities_renamed_to_v3() -> None:
     assert entry.version == migration.CONFIG_ENTRY_VERSION
     assert hass.config_entries.version_updates == [  # type: ignore[attr-defined]
         migration.CONFIG_ENTRY_VERSION_ENTITY_PREFIX_V3,
+        migration.CONFIG_ENTRY_VERSION_CARD_SHORT_SLUGS,
         migration.CONFIG_ENTRY_VERSION,
     ]
     assert reg.async_get("sensor.hub_energie_cost_detail") is not None
@@ -174,8 +177,8 @@ def test_migrate_v2_unprefixed_frontend_entities_renamed_to_v3() -> None:
     assert reg.async_get("sensor.hub_energie_frontend_meta") is not None
 
 
-def test_migrate_entry_already_at_v4_is_noop() -> None:
-    """Version already 4: no registry renames and no version update."""
+def test_migrate_entry_already_at_v5_is_noop() -> None:
+    """Version already 5: no registry renames and no version update."""
     reg = _InMemoryEntityRegistry()
     reg.register("sensor.hub_energie_legacy", DOMAIN, "ce_3b")
 
@@ -188,21 +191,25 @@ def test_migrate_entry_already_at_v4_is_noop() -> None:
     assert reg.async_get("sensor.hub_energie_legacy") is not None
 
 
-def test_migrate_v3_to_v4_renames_savings_entities_by_unique_id() -> None:
-    """v4 renames card-facing sensors to stable ``hub_energie_*`` object_ids when free."""
+def test_migrate_v3_to_v5_renames_entities_to_slug_of_unique_id() -> None:
+    """v5 renames every entity to ``hub_energie_`` + slug(full unique_id)."""
     reg = _InMemoryEntityRegistry()
     uid_base = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    uid_solar = f"{uid_base}_savings_solar_eur"
+    uid_batt = f"{uid_base}_savings_battery_eur"
+    expected_solar = f"sensor.{stability.stable_object_id_from_unique_id(uid_solar)}"
+    expected_batt = f"sensor.{stability.stable_object_id_from_unique_id(uid_batt)}"
     reg.register(
         "sensor.hub_energie_solaire_economies_solaire",
         DOMAIN,
         "ce_v4",
-        unique_id=f"{uid_base}_savings_solar_eur",
+        unique_id=uid_solar,
     )
     reg.register(
         "sensor.hub_energie_toutes_batteries_economies_batterie",
         DOMAIN,
         "ce_v4",
-        unique_id=f"{uid_base}_savings_battery_eur",
+        unique_id=uid_batt,
     )
 
     hass = _hass_with_registry(reg)
@@ -213,11 +220,14 @@ def test_migrate_v3_to_v4_renames_savings_entities_by_unique_id() -> None:
 
     assert _run_migrate(hass, entry) is True
     assert entry.version == migration.CONFIG_ENTRY_VERSION
-    assert hass.config_entries.version_updates == [migration.CONFIG_ENTRY_VERSION]  # type: ignore[attr-defined]
+    assert hass.config_entries.version_updates == [  # type: ignore[attr-defined]
+        migration.CONFIG_ENTRY_VERSION_CARD_SHORT_SLUGS,
+        migration.CONFIG_ENTRY_VERSION,
+    ]
     assert reg.async_get("sensor.hub_energie_solaire_economies_solaire") is None
-    assert reg.async_get("sensor.hub_energie_savings_solar_eur") is not None
+    assert reg.async_get(expected_solar) is not None
     assert reg.async_get("sensor.hub_energie_toutes_batteries_economies_batterie") is None
-    assert reg.async_get("sensor.hub_energie_savings_battery_eur") is not None
+    assert reg.async_get(expected_batt) is not None
 
 
 def test_migrate_rejects_entry_newer_than_supported() -> None:

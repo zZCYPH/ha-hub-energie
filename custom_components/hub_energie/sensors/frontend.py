@@ -45,6 +45,7 @@ from ..const import (
     CONF_HAS_SOLAR,
 )
 from ..coordinator import EnergyData, HubEnergieCoordinator
+from ..entity_id_stability import apply_stable_suggested_object_id
 from ..device_info import _device_frontend
 from .base import HubEnergieSensor, _build_power_graph_entity_map, _input_status_sensor_attributes
 
@@ -221,7 +222,7 @@ class HubEnergieFrontendDataSensor(_HubEnergieFrontendPayloadSensor):
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_frontend_data"
         self._attr_name = "Frontend data"
-        self._attr_suggested_object_id = "hub_energie_frontend_data"
+        apply_stable_suggested_object_id(self)
 
     def _build_attributes(self, data: EnergyData | None) -> dict[str, Any]:
         return _frontend_live_attributes(data)
@@ -238,7 +239,7 @@ class HubEnergieFrontendMetaSensor(_HubEnergieFrontendPayloadSensor):
         self._entry = entry
         self._attr_unique_id = f"{entry.unique_id}_frontend_meta"
         self._attr_name = "Frontend meta"
-        self._attr_suggested_object_id = "hub_energie_frontend_meta"
+        apply_stable_suggested_object_id(self)
 
     def _build_attributes(self, data: EnergyData | None) -> dict[str, Any]:
         return _frontend_meta_attributes(self.coordinator, data)

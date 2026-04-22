@@ -44,6 +44,7 @@ from ..const import (
     SUPPLIER_EDF,
 )
 from ..coordinator import HubEnergieCoordinator
+from ..entity_id_stability import apply_stable_suggested_object_id
 from ..device_info import (
     _device_diagnostics,
     _device_for_diagnostic_metric_key,
@@ -85,6 +86,7 @@ class HubEnergieHealthSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEnt
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_health"
+        apply_stable_suggested_object_id(self)
         self._attr_name = "État général"
         self._attr_device_info = _device_diagnostics(coordinator)
 
@@ -140,6 +142,7 @@ class HubEnergieDiagUnknownBucketSensor(HubEnergieSensor):
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_grid_unknown_bucket_today"
+        apply_stable_suggested_object_id(self)
         self._attr_name = "Réseau — créneau indéterminé (jour en cours)"
         self._attr_device_info = _device_grid_config(coordinator)
 
@@ -162,6 +165,7 @@ class HubEnergieDiagStalenessSensor(HubEnergieSensor):
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_seconds_since_last_applied_delta"
+        apply_stable_suggested_object_id(self)
         self._attr_name = "Délai depuis dernière mise à jour compteur"
         self._attr_device_info = _device_diagnostics(coordinator)
 
@@ -186,6 +190,7 @@ class HubEnergieDiagInfoSensor(CoordinatorEntity[HubEnergieCoordinator], SensorE
         super().__init__(coordinator)
         self._key = key
         self._attr_unique_id = f"{entry.unique_id}_{key}"
+        apply_stable_suggested_object_id(self)
         self._attr_name = _DIAG_ENTITY_LABELS.get(
             key, key.replace("_", " ").title(),
         )
@@ -236,6 +241,7 @@ class HubEnergieDiagPowerSensor(HubEnergieSensor):
         super().__init__(coordinator)
         self._key = key
         self._attr_unique_id = f"{entry.unique_id}_{key}"
+        apply_stable_suggested_object_id(self)
         self._attr_name = _DIAG_ENTITY_LABELS.get(
             key, key.replace("_", " ").title(),
         )
@@ -265,6 +271,7 @@ class HubEnergieDiagEnergySensor(HubEnergieSensor):
         super().__init__(coordinator)
         self._key = key
         self._attr_unique_id = f"{entry.unique_id}_{key}"
+        apply_stable_suggested_object_id(self)
         self._attr_name = _DIAG_ENTITY_LABELS.get(
             key, key.replace("_", " ").title(),
         )
@@ -294,6 +301,7 @@ class HubEnergieDiagCostSensor(HubEnergieSensor):
         super().__init__(coordinator)
         self._key = key
         self._attr_unique_id = f"{entry.unique_id}_{key}"
+        apply_stable_suggested_object_id(self)
         self._attr_name = _DIAG_ENTITY_LABELS.get(
             key, key.replace("_", " ").title(),
         )
@@ -315,6 +323,7 @@ class HubEnergieConfigOverviewSensor(CoordinatorEntity[HubEnergieCoordinator], S
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_configuration_overview"
+        apply_stable_suggested_object_id(self)
         self._attr_name = "Aperçu de la configuration"
         self._attr_device_info = _device_diagnostics(coordinator)
 

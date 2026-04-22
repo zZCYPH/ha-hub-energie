@@ -22,6 +22,7 @@ from ..const import (
     DATA_SOLAR_TO_HOME_POWER_W,
 )
 from ..coordinator import HubEnergieCoordinator
+from ..entity_id_stability import apply_stable_suggested_object_id
 from ..device_info import _device_for_power_flow_kind
 from .base import HubEnergieSensor
 
@@ -60,6 +61,7 @@ class HubEnergiePowerFlowSensor(HubEnergieSensor):
         cfg = _FLOW_POWER_CONFIG[kind]
         self._snapshot_key = cfg["snapshot_key"]
         self._attr_unique_id = f"{entry.unique_id}_{kind}_power_w"
+        apply_stable_suggested_object_id(self)
         self._attr_name = cfg["name"]
         self._attr_entity_registry_enabled_default = enabled_default
         self._attr_device_info = _device_for_power_flow_kind(coordinator, kind)
