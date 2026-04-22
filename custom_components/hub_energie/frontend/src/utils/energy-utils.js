@@ -21,11 +21,25 @@ export const COST_AGG_DICT_ATTRS = Object.freeze([
   "maison_by_slot_kwh",
 ]);
 
-/** Default Hub Énergie sensor namespace (entity object_ids follow this prefix). */
+/** Default Hub Énergie sensor namespace (legacy fallbacks before ``card_entity_ids`` on cost_detail). */
 export const DEFAULT_HUB_ENTITY_PREFIX = "sensor.hub_energie_";
 
+/** Keys on ``cost_detail`` attribute ``card_entity_ids`` (matches integration). */
+export const CARD_ENTITY_MAP_KEYS = Object.freeze([
+  "ecoSolar",
+  "ecoBatt",
+  "originGrid",
+  "originSolar",
+  "usageGridDirect",
+  "usageGridBatt",
+  "usageSolarDirect",
+  "usageSolarBatt",
+  "usageBattHome",
+]);
+
 /**
- * Entity IDs the card reads via the history API and live state (fixed integration namespace).
+ * Entity IDs the card reads via the history API and live state.
+ * Legacy defaults use the ``hub_energie_`` prefix; current installs resolve via ``card_entity_ids``.
  */
 export function makeEntityMap(prefix = DEFAULT_HUB_ENTITY_PREFIX) {
   const p = prefix;
@@ -43,6 +57,54 @@ export function makeEntityMap(prefix = DEFAULT_HUB_ENTITY_PREFIX) {
     usageSolarBatt: `${p}usage_solar_batt_charge_kwh`,
     usageBattHome: `${p}usage_batt_home_kwh`,
   };
+}
+
+/**
+ * Resolve the cost_detail ``entity_id``: prefer legacy default, then ``card_entity_ids`` self-ref,
+ * then any sensor with Hub cost_detail-shaped attributes (deterministic sort if several).
+ * @param {Record<string, { attributes?: Record<string, unknown> }> | undefined} states
+ */
+export function discoverCostEntityId(states) {
+  const base = makeEntityMap();
+  const fallback = base.cost;
+  if (!states) return fallback;
+  if (states[fallback]?.attributes) return fallback;
+  const withCardMap = [];
+  for (const [eid, st] of Object.entries(states)) {
+    const a = st?.attributes;
+    if (!a || typeof a !== "object") continue;
+    const m = a.card_entity_ids;
+    if (m && typeof m === "object" && m.cost === eid) withCardMap.push(eid);
+  }
+  if (withCardMap.length === 1) return withCardMap[0];
+  if (withCardMap.length > 1) return [...withCardMap].sort()[0];
+  const legacy = [];
+  for (const [eid, st] of Object.entries(states)) {
+    const a = st?.attributes;
+    if (!a || typeof a !== "object") continue;
+    if (typeof a.eco_solar === "number" && a.grid_by_slot_kwh != null && typeof a.grid_by_slot_kwh === "object") {
+      legacy.push(eid);
+    }
+  }
+  if (legacy.length >= 1) return [...legacy].sort()[0];
+  return fallback;
+}
+
+/**
+ * Merge ``card_entity_ids`` from cost_detail attributes into the entity map.
+ * @param {Record<string, unknown> | undefined} costAttrs
+ * @param {ReturnType<typeof makeEntityMap>} baseMap
+ * @param {string} costEntityId
+ */
+export function entityMapFromCostAttributes(costAttrs, baseMap, costEntityId) {
+  const out = { ...baseMap, cost: costEntityId };
+  const card = costAttrs?.card_entity_ids;
+  if (!card || typeof card !== "object") return out;
+  for (const k of CARD_ENTITY_MAP_KEYS) {
+    const v = card[k];
+    if (typeof v === "string" && v.includes(".")) out[k] = v;
+  }
+  return out;
 }
 
 // ── Data access helpers ──────────────────────────────────────────────────

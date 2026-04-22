@@ -59,9 +59,11 @@ from ..const import (
     DATA_USAGE_BATT_CHARGE_METHOD,
     DATA_USAGE_GRID_BATT_CHARGE_BY_SLOT_KWH,
     DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH,
+    DATA_CARD_ENTITY_IDS,
     LOGIC_VERSION,
 )
 from ..coordinator import HubEnergieCoordinator
+from ..entity_id_stability import apply_stable_suggested_object_id, build_card_entity_id_map
 from ..device_info import _device_battery_summary, _device_cost, _device_solar_config
 from .base import (
     HubEnergieSensor,
@@ -89,6 +91,7 @@ class HubEnergieCostDetailSensor(HubEnergieSensor):
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_cost_detail"
+        apply_stable_suggested_object_id(self)
         self._attr_name = "Coût du jour"
         self._attr_device_info = _device_cost(coordinator)
 
@@ -101,6 +104,7 @@ class HubEnergieCostDetailSensor(HubEnergieSensor):
         data = self.coordinator.data or {}
         cbs = data.get(DATA_COST_BY_SLOT)
         attrs: dict[str, Any] = {
+            DATA_CARD_ENTITY_IDS: build_card_entity_id_map(self.hass, self.coordinator.entry),
             DATA_POWER_GRAPH_ENTITY_MAP: _build_power_graph_entity_map(
                 self.hass,
                 self.coordinator.entry,
@@ -217,6 +221,7 @@ class HubEnergieSavingsSensor(HubEnergieSensor):
         super().__init__(coordinator)
         self._kind = kind
         self._attr_unique_id = f"{entry.unique_id}_savings_{kind}_eur"
+        apply_stable_suggested_object_id(self)
         self._attr_name = _SAVINGS_LABELS.get(kind, kind.title())
         self._attr_device_info = (
             _device_solar_config(coordinator)
