@@ -24,6 +24,9 @@ export const COST_AGG_DICT_ATTRS = Object.freeze([
 /** Default Hub Énergie sensor namespace (legacy fallbacks before ``card_entity_ids`` on cost_detail). */
 export const DEFAULT_HUB_ENTITY_PREFIX = "sensor.hub_energie_";
 
+/** Attribute on cost_detail: 0-based site index (matches ``hub_energie_<n>_`` ids). */
+export const CARD_SITE_INDEX_ATTR = "card_site_index";
+
 /** Keys on ``cost_detail`` attribute ``card_entity_ids`` (matches integration). */
 export const CARD_ENTITY_MAP_KEYS = Object.freeze([
   "ecoSolar",
@@ -60,33 +63,83 @@ export function makeEntityMap(prefix = DEFAULT_HUB_ENTITY_PREFIX) {
 }
 
 /**
- * Resolve the cost_detail ``entity_id``: prefer legacy default, then ``card_entity_ids`` self-ref,
- * then any sensor with Hub cost_detail-shaped attributes (deterministic sort if several).
+ * Count Hub Énergie sites that expose ``card_entity_ids`` (one cost_detail per entry).
  * @param {Record<string, { attributes?: Record<string, unknown> }> | undefined} states
  */
-export function discoverCostEntityId(states) {
+export function hubEnergieSiteCountFromStates(states) {
+  if (!states) return 0;
+  let n = 0;
+  for (const st of Object.values(states)) {
+    const a = st?.attributes;
+    const m = a?.card_entity_ids;
+    if (m && typeof m === "object" && typeof m.cost === "string" && m.cost) n += 1;
+  }
+  return n;
+}
+
+/**
+ * Parse site index n from ``sensor.hub_energie_<n>_cost_detail`` (or legacy ids → null).
+ * @param {string} entityId
+ * @returns {number | null}
+ */
+export function siteIndexFromCostEntityId(entityId) {
+  if (typeof entityId !== "string" || !entityId.startsWith("sensor.")) return null;
+  const obj = entityId.slice("sensor.".length);
+  const m = /^hub_energie_(\d+)_/.exec(obj);
+  if (!m) return null;
+  const n = parseInt(m[1], 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Resolve the cost_detail ``entity_id``: legacy default, optional ``siteIndex`` filter,
+ * ``card_entity_ids`` self-ref, then cost-shaped attributes (deterministic sort if several).
+ * @param {Record<string, { attributes?: Record<string, unknown> }> | undefined} states
+ * @param {number | null | undefined} siteIndex 0-based site; null/undefined = auto (single site or smallest id)
+ */
+export function discoverCostEntityId(states, siteIndex) {
   const base = makeEntityMap();
   const fallback = base.cost;
   if (!states) return fallback;
-  if (states[fallback]?.attributes) return fallback;
+  const wantIdx =
+    siteIndex === "" || siteIndex === undefined || siteIndex === null
+      ? null
+      : Math.max(0, Math.trunc(Number(siteIndex)));
+
   const withCardMap = [];
   for (const [eid, st] of Object.entries(states)) {
     const a = st?.attributes;
     if (!a || typeof a !== "object") continue;
     const m = a.card_entity_ids;
-    if (m && typeof m === "object" && m.cost === eid) withCardMap.push(eid);
+    if (!m || typeof m !== "object" || m.cost !== eid) continue;
+    const declared = a[CARD_SITE_INDEX_ATTR];
+    const effectiveIdx =
+      typeof declared === "number" && Number.isFinite(declared)
+        ? Math.trunc(declared)
+        : siteIndexFromCostEntityId(eid) ?? 0;
+    if (wantIdx !== null && effectiveIdx !== wantIdx) continue;
+    withCardMap.push(eid);
   }
   if (withCardMap.length === 1) return withCardMap[0];
   if (withCardMap.length > 1) return [...withCardMap].sort()[0];
+
+  if (wantIdx === null && states[fallback]?.attributes) return fallback;
+
   const legacy = [];
   for (const [eid, st] of Object.entries(states)) {
     const a = st?.attributes;
     if (!a || typeof a !== "object") continue;
     if (typeof a.eco_solar === "number" && a.grid_by_slot_kwh != null && typeof a.grid_by_slot_kwh === "object") {
+      const idx = siteIndexFromCostEntityId(eid);
+      if (wantIdx !== null && idx !== wantIdx) continue;
       legacy.push(eid);
     }
   }
   if (legacy.length >= 1) return [...legacy].sort()[0];
+
+  const nSites = hubEnergieSiteCountFromStates(states);
+  if (wantIdx === null && nSites <= 1 && states[fallback]) return fallback;
+
   return fallback;
 }
 

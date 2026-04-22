@@ -129,6 +129,11 @@ export const I18N = Object.freeze({
     reinjCauseSwitchLatency: "Latence batt",
     reinjCauseOther: "Autre",
     sectionConsumption: "Consommation",
+    siteLabel: "Site",
+    siteAuto: "Auto",
+    editorSiteLabel: "Site",
+    editorSiteHint:
+      "Plusieurs intégrations Hub Énergie : choisissez l’index (0, 1, …). « Auto » si une seule installation.",
     editorPowerGraphWindow: "Fenêtre par défaut du graphe de puissance",
     editorPowerHoursUnit: "{n} heures",
     editorPowerHoursHint:
@@ -310,6 +315,11 @@ export const I18N = Object.freeze({
     reinjCauseSwitchLatency: "Switch latency",
     reinjCauseOther: "Other",
     sectionConsumption: "Consumption",
+    siteLabel: "Site",
+    siteAuto: "Auto",
+    editorSiteLabel: "Site",
+    editorSiteHint:
+      "Multiple Hub Énergie installs: pick the index (0, 1, …). \"Auto\" when only one site is present.",
     editorPowerGraphWindow: "Power graph default window",
     editorPowerHoursUnit: "{n} hours",
     editorPowerHoursHint: "Rolling history length when opening the live power graph.",

@@ -1,11 +1,163 @@
-import { i as u, a as f, I as l, b as n } from "./i18n.js";
-function p(h, e) {
-  let t = String(h);
-  for (const [o, s] of Object.entries(e))
-    t = t.split(`{${o}}`).join(String(s));
+import { i as y, a as $, I as g, A as v, b as _ } from "./i18n.js";
+function C(o, t) {
+  let e = String(o);
+  for (const [r, n] of Object.entries(t))
+    e = e.split(`{${r}}`).join(String(n));
+  return e;
+}
+const p = Object.freeze([
+  { id: "bleu_hc", label: "Blue HC", color: "#1e88e5" },
+  { id: "bleu_hp", label: "Blue HP", color: "#1e88e5" },
+  { id: "blanc_hc", label: "White HC", color: "#b0bec5" },
+  { id: "blanc_hp", label: "White HP", color: "#b0bec5" },
+  { id: "rouge_hc", label: "Red HC", color: "#e53935" },
+  { id: "rouge_hp", label: "Red HP", color: "#e53935" },
+  { id: "unknown", label: "Unknown", color: "#78909c" }
+]), P = Object.freeze([
+  ...p.map((o) => `${o.id}_eur`),
+  "abonnement_eur",
+  "export_due_to_solar_surplus_kwh",
+  "export_due_to_battery_full_or_absent_kwh",
+  "export_due_to_switch_latency_kwh",
+  "export_unattributed_kwh",
+  "export_opportunity_cost_total_eur",
+  "export_opportunity_cost_solar_surplus_eur",
+  "export_opportunity_cost_battery_full_or_absent_eur",
+  "export_opportunity_cost_switch_latency_eur",
+  "export_opportunity_cost_unattributed_eur"
+]), A = Object.freeze([
+  "grid_by_slot_kwh",
+  "maison_by_slot_kwh"
+]), H = "sensor.hub_energie_", x = "card_site_index", k = Object.freeze([
+  "ecoSolar",
+  "ecoBatt",
+  "originGrid",
+  "originSolar",
+  "usageGridDirect",
+  "usageGridBatt",
+  "usageSolarDirect",
+  "usageSolarBatt",
+  "usageBattHome"
+]);
+function B(o = H) {
+  const t = o;
+  return {
+    cost: `${t}cost_detail`,
+    frontendData: `${t}frontend_data`,
+    frontendMeta: `${t}frontend_meta`,
+    ecoSolar: `${t}savings_solar_eur`,
+    ecoBatt: `${t}savings_battery_eur`,
+    originGrid: `${t}origin_grid_kwh`,
+    originSolar: `${t}origin_solar_kwh`,
+    usageGridDirect: `${t}usage_grid_direct_kwh`,
+    usageGridBatt: `${t}usage_grid_batt_charge_kwh`,
+    usageSolarDirect: `${t}usage_solar_direct_kwh`,
+    usageSolarBatt: `${t}usage_solar_batt_charge_kwh`,
+    usageBattHome: `${t}usage_batt_home_kwh`
+  };
+}
+function m(o) {
+  if (!o) return 0;
+  let t = 0;
+  for (const e of Object.values(o)) {
+    const n = e?.attributes?.card_entity_ids;
+    n && typeof n == "object" && typeof n.cost == "string" && n.cost && (t += 1);
+  }
   return t;
 }
-const a = "custom:hub-energie-card", c = /* @__PURE__ */ new Set([24, 12, 6, 3, 1]), w = [1, 3, 6, 12, 24], g = [
+function w(o) {
+  if (typeof o != "string" || !o.startsWith("sensor.")) return null;
+  const t = o.slice(7), e = /^hub_energie_(\d+)_/.exec(t);
+  if (!e) return null;
+  const r = parseInt(e[1], 10);
+  return Number.isFinite(r) ? r : null;
+}
+function F(o, t) {
+  const r = B().cost;
+  if (!o) return r;
+  const n = t === "" || t === void 0 || t === null ? null : Math.max(0, Math.trunc(Number(t))), i = [];
+  for (const [s, u] of Object.entries(o)) {
+    const c = u?.attributes;
+    if (!c || typeof c != "object") continue;
+    const l = c.card_entity_ids;
+    if (!l || typeof l != "object" || l.cost !== s) continue;
+    const h = c[x], S = typeof h == "number" && Number.isFinite(h) ? Math.trunc(h) : w(s) ?? 0;
+    n !== null && S !== n || i.push(s);
+  }
+  if (i.length === 1) return i[0];
+  if (i.length > 1) return [...i].sort()[0];
+  if (n === null && o[r]?.attributes) return r;
+  const a = [];
+  for (const [s, u] of Object.entries(o)) {
+    const c = u?.attributes;
+    if (!(!c || typeof c != "object") && typeof c.eco_solar == "number" && c.grid_by_slot_kwh != null && typeof c.grid_by_slot_kwh == "object") {
+      const l = w(s);
+      if (n !== null && l !== n) continue;
+      a.push(s);
+    }
+  }
+  if (a.length >= 1) return [...a].sort()[0];
+  const d = m(o);
+  return n === null && d <= 1 && o[r], r;
+}
+function D(o, t, e) {
+  const r = { ...t, cost: e }, n = o?.card_entity_ids;
+  if (!n || typeof n != "object") return r;
+  for (const i of k) {
+    const a = n[i];
+    typeof a == "string" && a.includes(".") && (r[i] = a);
+  }
+  return r;
+}
+function N(o, t) {
+  if (!o || typeof o != "object") return 0;
+  const e = o[t], r = typeof e == "number" ? e : parseFloat(e);
+  return Number.isFinite(r) ? r : 0;
+}
+function M(o, t) {
+  return !!o?.[t];
+}
+function W(o) {
+  return o === "hphc" ? "HP/HC" : o === "base" ? "BASE" : "TEMPO";
+}
+function R(o, t, e) {
+  const r = e?.emDash ?? "—";
+  return o ? t === "base" ? e?.slotBase ?? "Base" : t === "hphc" ? o.endsWith("_hc") ? e?.slotHc ?? "HC" : e?.slotHp ?? "HP" : {
+    bleu_hc: e?.slotBleuHc,
+    bleu_hp: e?.slotBleuHp,
+    blanc_hc: e?.slotBlancHc,
+    blanc_hp: e?.slotBlancHp,
+    rouge_hc: e?.slotRougeHc,
+    rouge_hp: e?.slotRougeHp,
+    unknown: e?.slotUnknown
+  }[o] ?? o : r;
+}
+function G(o, t) {
+  const e = String(o ?? "").toLowerCase();
+  return e.includes("blue") || e.includes("bleu") ? t?.tempoDayBlue ?? "Blue" : e.includes("white") || e.includes("blanc") ? t?.tempoDayWhite ?? "White" : e.includes("red") || e.includes("rouge") ? t?.tempoDayRed ?? "Red" : e === "n/a" ? t?.dayColorNA ?? "N/A" : e || (t?.emDash ?? "—");
+}
+function I(o) {
+  const t = String(o ?? "").toLowerCase();
+  return t.includes("blue") || t.includes("bleu") ? "color-blue" : t.includes("white") || t.includes("blanc") ? "color-white" : t.includes("red") || t.includes("rouge") ? "color-red" : "color-na";
+}
+function L(o, t, e) {
+  return !t || typeof t != "object" ? [] : p.map((r) => {
+    const n = t[r.id], i = typeof n == "number" ? n : parseFloat(n);
+    return !Number.isFinite(i) || i <= 1e-4 ? null : {
+      label: R(r.id, o, e),
+      v: i,
+      color: r.color,
+      isHc: r.id.endsWith("_hc")
+    };
+  }).filter(Boolean);
+}
+function U(o) {
+  return !o || typeof o != "object" ? "" : p.map((t) => {
+    const e = o[t.id], r = typeof e == "number" ? e : parseFloat(e);
+    return `${t.id}:${Number.isFinite(r) ? r : 0}`;
+  }).join(",");
+}
+const f = "custom:hub-energie-card", b = /* @__PURE__ */ new Set([24, 12, 6, 3, 1]), E = [1, 3, 6, 12, 24], T = [
   ["show_day_slots", "editorShowDaySlots"],
   ["show_live_power", "editorShowLivePower"],
   ["show_solar_production_bar", "editorShowSolarProductionBar"],
@@ -18,12 +170,12 @@ const a = "custom:hub-energie-card", c = /* @__PURE__ */ new Set([24, 12, 6, 3, 
   ["show_reinjection", "editorShowReinjection"],
   ["show_raw_control", "editorShowRawControl"]
 ];
-class m extends u {
+class j extends y {
   static properties = {
     hass: { attribute: !1 },
     _config: { state: !0 }
   };
-  static styles = f`
+  static styles = $`
     :host {
       display: block;
     }
@@ -47,43 +199,69 @@ class m extends u {
       display: block;
     }
   `;
-  setConfig(e) {
-    this._config = e && typeof e == "object" ? { ...e } : { type: a }, this._config.type || (this._config.type = a);
+  setConfig(t) {
+    this._config = t && typeof t == "object" ? { ...t } : { type: f }, this._config.type || (this._config.type = f);
   }
   _i18n() {
-    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? l.en : l.fr;
+    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? g.en : g.fr;
   }
-  _sectionOn(e) {
-    const t = this._config?.[e];
-    return t !== !1 && t !== "false";
+  _sectionOn(t) {
+    const e = this._config?.[t];
+    return e !== !1 && e !== "false";
+  }
+  _siteCount() {
+    return m(this.hass?.states);
+  }
+  _siteSelectValue() {
+    const t = this._config?.site_index;
+    if (t === "" || t === void 0 || t === null) return "__auto__";
+    const e = Math.trunc(Number(t));
+    return Number.isFinite(e) && e >= 0 ? String(e) : "__auto__";
   }
   render() {
-    const e = this._config ?? {}, t = this._i18n(), o = parseFloat(e.power_history_hours), s = Math.trunc(o), r = c.has(s) ? s : 6;
-    return n`
+    const t = this._config ?? {}, e = this._i18n(), r = parseFloat(t.power_history_hours), n = Math.trunc(r), i = b.has(n) ? n : 6, a = this._siteCount(), d = this._siteSelectValue();
+    return _`
       <div class="card-config">
+        ${a > 1 ? _`
+              <div class="field">
+                <ha-select
+                  label=${e.editorSiteLabel}
+                  .value=${d}
+                  @closed=${this._onSiteClosed}
+                  .fixedMenuPosition=${!0}
+                  .naturalMenuWidth=${!0}
+                >
+                  <ha-list-item value="__auto__">${e.siteAuto}</ha-list-item>
+                  ${Array.from({ length: a }, (s, u) => _`
+                    <ha-list-item value="${String(u)}">${String(u)}</ha-list-item>
+                  `)}
+                </ha-select>
+                <p class="hint">${e.editorSiteHint}</p>
+              </div>
+            ` : v}
         <div class="field">
           <ha-select
-            label=${t.editorPowerGraphWindow}
-            .value=${String(r)}
+            label=${e.editorPowerGraphWindow}
+            .value=${String(i)}
             @closed=${this._onPowerHoursClosed}
             .fixedMenuPosition=${!0}
             .naturalMenuWidth=${!0}
           >
-            ${w.map(
-      (i) => n`<ha-list-item value="${String(i)}">${p(t.editorPowerHoursUnit, { n: i })}</ha-list-item>`
+            ${E.map(
+      (s) => _`<ha-list-item value="${String(s)}">${C(e.editorPowerHoursUnit, { n: s })}</ha-list-item>`
     )}
           </ha-select>
-          <p class="hint">${t.editorPowerHoursHint}</p>
+          <p class="hint">${e.editorPowerHoursHint}</p>
         </div>
 
-        <div class="sections-title">${t.editorSectionsTitle}</div>
-        ${g.map(
-      ([i, d]) => n`
+        <div class="sections-title">${e.editorSectionsTitle}</div>
+        ${T.map(
+      ([s, u]) => _`
             <div class="field">
-              <ha-formfield .label=${t[d]}>
+              <ha-formfield .label=${e[u]}>
                 <ha-switch
-                  .checked=${this._sectionOn(i)}
-                  @change=${(_) => this._setSectionFlag(i, _.target.checked)}
+                  .checked=${this._sectionOn(s)}
+                  @change=${(c) => this._setSectionFlag(s, c.target.checked)}
                 ></ha-switch>
               </ha-formfield>
             </div>
@@ -91,38 +269,60 @@ class m extends u {
     )}
 
         <p class="hint">
-          ${t.editorAdvancedYamlBefore}<code>power_history_refresh_seconds</code>${t.editorAdvancedYamlAfter}
+          ${e.editorAdvancedYamlBefore}<code>power_history_refresh_seconds</code>${e.editorAdvancedYamlAfter}
         </p>
       </div>
     `;
   }
-  _emit(e) {
-    const t = { ...e };
-    t.type = a, this.dispatchEvent(
+  _emit(t) {
+    const e = { ...t };
+    e.type = f, this.dispatchEvent(
       new CustomEvent("config-changed", {
         bubbles: !0,
         composed: !0,
-        detail: { config: t }
+        detail: { config: e }
       })
     );
   }
-  _setSectionFlag(e, t) {
-    const o = { ...this._config };
-    t ? delete o[e] : o[e] = !1, this._emit(o);
+  _setSectionFlag(t, e) {
+    const r = { ...this._config };
+    e ? delete r[t] : r[t] = !1, this._emit(r);
   }
-  _onPowerHoursClosed(e) {
-    e.stopPropagation();
-    const t = e.target;
-    if (!t?.value) return;
-    const o = Math.trunc(Number(t.value));
-    if (!c.has(o)) return;
-    const s = parseFloat(this._config?.power_history_hours), r = c.has(Math.trunc(s)) ? Math.trunc(s) : 6;
-    if (o === r) return;
-    const i = { ...this._config, power_history_hours: o };
-    this._emit(i);
+  _onSiteClosed(t) {
+    t.stopPropagation();
+    const e = t.target;
+    if (e?.value === void 0) return;
+    const r = { ...this._config };
+    e.value === "__auto__" ? delete r.site_index : r.site_index = Math.max(0, Math.trunc(Number(e.value))), this._emit(r);
+  }
+  _onPowerHoursClosed(t) {
+    t.stopPropagation();
+    const e = t.target;
+    if (e.value === "" || e.value === void 0) return;
+    const r = Math.trunc(Number(e.value));
+    if (!b.has(r)) return;
+    const n = parseFloat(this._config?.power_history_hours), i = b.has(Math.trunc(n)) ? Math.trunc(n) : 6;
+    if (r === i) return;
+    const a = { ...this._config, power_history_hours: r };
+    this._emit(a);
   }
 }
-customElements.get("hub-energie-card-editor") || customElements.define("hub-energie-card-editor", m);
+customElements.get("hub-energie-card-editor") || customElements.define("hub-energie-card-editor", j);
 export {
-  p as t
+  P as C,
+  p as S,
+  A as a,
+  U as b,
+  L as c,
+  F as d,
+  D as e,
+  I as f,
+  G as g,
+  m as h,
+  M as i,
+  B as m,
+  W as o,
+  N as r,
+  R as s,
+  C as t
 };

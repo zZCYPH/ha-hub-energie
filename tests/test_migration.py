@@ -88,13 +88,18 @@ def _ensure_entity_registry_module() -> None:
 _ensure_entity_registry_module()
 
 migration = importlib.import_module("hub_energie.migration")
-stability = importlib.import_module("hub_energie.entity_id_stability")
 DOMAIN = importlib.import_module("hub_energie.const").DOMAIN
 
 
 class _ConfigEntries:
     def __init__(self) -> None:
         self.version_updates: list[int] = []
+
+    def async_entries(self, domain: str) -> list[SimpleNamespace]:
+        """No Hub Énergie entries unless overridden — migration v6 uses slot 0."""
+        if domain != DOMAIN:
+            return []
+        return []
 
     def async_update_entry(self, entry: object, **kwargs: object) -> None:
         for key, value in kwargs.items():
@@ -103,10 +108,25 @@ class _ConfigEntries:
             self.version_updates.append(int(kwargs["version"]))  # type: ignore[arg-type]
 
 
-def _hass_with_registry(registry: _InMemoryEntityRegistry) -> object:
+class _HassConfigEntries(_ConfigEntries):
+    """Adds ``async_entries`` for Hub Énergie slot indexing in migration v6."""
+
+    def __init__(self, entry_ids: list[str]) -> None:
+        super().__init__()
+        self._hub_entry_ids = sorted(entry_ids)
+
+    def async_entries(self, domain: str) -> list[SimpleNamespace]:
+        if domain != DOMAIN:
+            return []
+        return [SimpleNamespace(entry_id=eid, domain=DOMAIN) for eid in self._hub_entry_ids]
+
+
+def _hass_with_registry(registry: _InMemoryEntityRegistry, *, hub_entry_ids: list[str] | None = None) -> object:
     hass = ha_core.HomeAssistant()
     hass._entity_registry = registry  # type: ignore[attr-defined]
-    hass.config_entries = _ConfigEntries()  # type: ignore[attr-defined]
+    hass.config_entries = (  # type: ignore[attr-defined]
+        _HassConfigEntries(hub_entry_ids) if hub_entry_ids is not None else _ConfigEntries()
+    )
     return hass
 
 
@@ -129,6 +149,7 @@ def test_migrate_v1_renames_legacy_hub_energie_entities() -> None:
         migration.CONFIG_ENTRY_VERSION_ENTITY_ID_PREFIX,
         migration.CONFIG_ENTRY_VERSION_ENTITY_PREFIX_V3,
         migration.CONFIG_ENTRY_VERSION_CARD_SHORT_SLUGS,
+        migration.CONFIG_ENTRY_VERSION_LONG_SLUG,
         migration.CONFIG_ENTRY_VERSION,
     ]
 
@@ -168,6 +189,7 @@ def test_migrate_v2_unprefixed_frontend_entities_renamed_to_v3() -> None:
     assert hass.config_entries.version_updates == [  # type: ignore[attr-defined]
         migration.CONFIG_ENTRY_VERSION_ENTITY_PREFIX_V3,
         migration.CONFIG_ENTRY_VERSION_CARD_SHORT_SLUGS,
+        migration.CONFIG_ENTRY_VERSION_LONG_SLUG,
         migration.CONFIG_ENTRY_VERSION,
     ]
     assert reg.async_get("sensor.hub_energie_cost_detail") is not None
@@ -177,8 +199,8 @@ def test_migrate_v2_unprefixed_frontend_entities_renamed_to_v3() -> None:
     assert reg.async_get("sensor.hub_energie_frontend_meta") is not None
 
 
-def test_migrate_entry_already_at_v5_is_noop() -> None:
-    """Version already 5: no registry renames and no version update."""
+def test_migrate_entry_already_at_v6_is_noop() -> None:
+    """Version already 6: no registry renames and no version update."""
     reg = _InMemoryEntityRegistry()
     reg.register("sensor.hub_energie_legacy", DOMAIN, "ce_3b")
 
@@ -191,14 +213,14 @@ def test_migrate_entry_already_at_v5_is_noop() -> None:
     assert reg.async_get("sensor.hub_energie_legacy") is not None
 
 
-def test_migrate_v3_to_v5_renames_entities_to_slug_of_unique_id() -> None:
-    """v5 renames every entity to ``hub_energie_`` + slug(full unique_id)."""
+def test_migrate_v3_to_v6_renames_entities_to_indexed_ids() -> None:
+    """v5 then v6: long slug then ``hub_energie_<n>_<suffix>`` (slot from config_entries)."""
     reg = _InMemoryEntityRegistry()
     uid_base = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     uid_solar = f"{uid_base}_savings_solar_eur"
     uid_batt = f"{uid_base}_savings_battery_eur"
-    expected_solar = f"sensor.{stability.stable_object_id_from_unique_id(uid_solar)}"
-    expected_batt = f"sensor.{stability.stable_object_id_from_unique_id(uid_batt)}"
+    expected_solar = "sensor.hub_energie_0_savings_solar_eur"
+    expected_batt = "sensor.hub_energie_0_savings_battery_eur"
     reg.register(
         "sensor.hub_energie_solaire_economies_solaire",
         DOMAIN,
@@ -212,16 +234,18 @@ def test_migrate_v3_to_v5_renames_entities_to_slug_of_unique_id() -> None:
         unique_id=uid_batt,
     )
 
-    hass = _hass_with_registry(reg)
+    hass = _hass_with_registry(reg, hub_entry_ids=["ce_v4"])
     entry = SimpleNamespace(
         version=migration.CONFIG_ENTRY_VERSION_ENTITY_PREFIX_V3,
         entry_id="ce_v4",
+        unique_id=uid_base,
     )
 
     assert _run_migrate(hass, entry) is True
     assert entry.version == migration.CONFIG_ENTRY_VERSION
     assert hass.config_entries.version_updates == [  # type: ignore[attr-defined]
         migration.CONFIG_ENTRY_VERSION_CARD_SHORT_SLUGS,
+        migration.CONFIG_ENTRY_VERSION_LONG_SLUG,
         migration.CONFIG_ENTRY_VERSION,
     ]
     assert reg.async_get("sensor.hub_energie_solaire_economies_solaire") is None

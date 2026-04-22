@@ -1,13 +1,13 @@
-const T = globalThis, O = T.ShadowRoot && (T.ShadyCSS === void 0 || T.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, j = /* @__PURE__ */ Symbol(), G = /* @__PURE__ */ new WeakMap();
+const T = globalThis, N = T.ShadowRoot && (T.ShadyCSS === void 0 || T.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, O = /* @__PURE__ */ Symbol(), G = /* @__PURE__ */ new WeakMap();
 let Q = class {
   constructor(e, t, o) {
-    if (this._$cssResult$ = !0, o !== j) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+    if (this._$cssResult$ = !0, o !== O) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
     this.cssText = e, this.t = t;
   }
   get styleSheet() {
     let e = this.o;
     const t = this.t;
-    if (O && e === void 0) {
+    if (N && e === void 0) {
       const o = t !== void 0 && t.length === 1;
       o && (e = G.get(t)), e === void 0 && ((this.o = e = new CSSStyleSheet()).replaceSync(this.cssText), o && G.set(t, e));
     }
@@ -17,25 +17,25 @@ let Q = class {
     return this.cssText;
   }
 };
-const se = (i) => new Q(typeof i == "string" ? i : i + "", void 0, j), Be = (i, ...e) => {
+const se = (i) => new Q(typeof i == "string" ? i : i + "", void 0, O), Be = (i, ...e) => {
   const t = i.length === 1 ? i[0] : e.reduce((o, r, s) => o + ((a) => {
     if (a._$cssResult$ === !0) return a.cssText;
     if (typeof a == "number") return a;
     throw Error("Value passed to 'css' function must be a 'css' function result: " + a + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
   })(r) + i[s + 1], i[0]);
-  return new Q(t, i, j);
+  return new Q(t, i, O);
 }, ae = (i, e) => {
-  if (O) i.adoptedStyleSheets = e.map((t) => t instanceof CSSStyleSheet ? t : t.styleSheet);
+  if (N) i.adoptedStyleSheets = e.map((t) => t instanceof CSSStyleSheet ? t : t.styleSheet);
   else for (const t of e) {
     const o = document.createElement("style"), r = T.litNonce;
     r !== void 0 && o.setAttribute("nonce", r), o.textContent = t.cssText, i.appendChild(o);
   }
-}, I = O ? (i) => i : (i) => i instanceof CSSStyleSheet ? ((e) => {
+}, I = N ? (i) => i : (i) => i instanceof CSSStyleSheet ? ((e) => {
   let t = "";
   for (const o of e.cssRules) t += o.cssText;
   return se(t);
 })(i) : i;
-const { is: ne, defineProperty: le, getOwnPropertyDescriptor: de, getOwnPropertyNames: he, getOwnPropertySymbols: ce, getPrototypeOf: ue } = Object, R = globalThis, W = R.trustedTypes, pe = W ? W.emptyScript : "", ge = R.reactiveElementPolyfillSupport, b = (i, e) => i, N = { toAttribute(i, e) {
+const { is: ne, defineProperty: le, getOwnPropertyDescriptor: de, getOwnPropertyNames: he, getOwnPropertySymbols: ce, getPrototypeOf: ue } = Object, L = globalThis, W = L.trustedTypes, pe = W ? W.emptyScript : "", ge = L.reactiveElementPolyfillSupport, b = (i, e) => i, x = { toAttribute(i, e) {
   switch (e) {
     case Boolean:
       i = i ? pe : null;
@@ -63,8 +63,8 @@ const { is: ne, defineProperty: le, getOwnPropertyDescriptor: de, getOwnProperty
       }
   }
   return t;
-} }, X = (i, e) => !ne(i, e), V = { attribute: !0, type: String, converter: N, reflect: !1, useDefault: !1, hasChanged: X };
-Symbol.metadata ??= /* @__PURE__ */ Symbol("metadata"), R.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
+} }, X = (i, e) => !ne(i, e), V = { attribute: !0, type: String, converter: x, reflect: !1, useDefault: !1, hasChanged: X };
+Symbol.metadata ??= /* @__PURE__ */ Symbol("metadata"), L.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
 let S = class extends HTMLElement {
   static addInitializer(e) {
     this._$Ei(), (this.l ??= []).push(e);
@@ -162,14 +162,14 @@ let S = class extends HTMLElement {
   _$ET(e, t) {
     const o = this.constructor.elementProperties.get(e), r = this.constructor._$Eu(e, o);
     if (r !== void 0 && o.reflect === !0) {
-      const s = (o.converter?.toAttribute !== void 0 ? o.converter : N).toAttribute(t, o.type);
+      const s = (o.converter?.toAttribute !== void 0 ? o.converter : x).toAttribute(t, o.type);
       this._$Em = e, s == null ? this.removeAttribute(r) : this.setAttribute(r, s), this._$Em = null;
     }
   }
   _$AK(e, t) {
     const o = this.constructor, r = o._$Eh.get(e);
     if (r !== void 0 && this._$Em !== r) {
-      const s = o.getPropertyOptions(r), a = typeof s.converter == "function" ? { fromAttribute: s.converter } : s.converter?.fromAttribute !== void 0 ? s.converter : N;
+      const s = o.getPropertyOptions(r), a = typeof s.converter == "function" ? { fromAttribute: s.converter } : s.converter?.fromAttribute !== void 0 ? s.converter : x;
       this._$Em = r;
       const d = a.fromAttribute(t, s.type);
       this[r] = d ?? this._$Ej?.get(r) ?? d, this._$Em = null;
@@ -246,8 +246,8 @@ let S = class extends HTMLElement {
   firstUpdated(e) {
   }
 };
-S.elementStyles = [], S.shadowRootOptions = { mode: "open" }, S[b("elementProperties")] = /* @__PURE__ */ new Map(), S[b("finalized")] = /* @__PURE__ */ new Map(), ge?.({ ReactiveElement: S }), (R.reactiveElementVersions ??= []).push("2.1.2");
-const x = globalThis, F = (i) => i, D = x.trustedTypes, q = D ? D.createPolicy("lit-html", { createHTML: (i) => i }) : void 0, ee = "$lit$", f = `lit$${Math.random().toFixed(9).slice(2)}$`, te = "?" + f, fe = `<${te}>`, m = document, v = () => m.createComment(""), E = (i) => i === null || typeof i != "object" && typeof i != "function", M = Array.isArray, ye = (i) => M(i) || typeof i?.[Symbol.iterator] == "function", k = `[ 	
+S.elementStyles = [], S.shadowRootOptions = { mode: "open" }, S[b("elementProperties")] = /* @__PURE__ */ new Map(), S[b("finalized")] = /* @__PURE__ */ new Map(), ge?.({ ReactiveElement: S }), (L.reactiveElementVersions ??= []).push("2.1.2");
+const j = globalThis, F = (i) => i, D = j.trustedTypes, q = D ? D.createPolicy("lit-html", { createHTML: (i) => i }) : void 0, ee = "$lit$", f = `lit$${Math.random().toFixed(9).slice(2)}$`, te = "?" + f, fe = `<${te}>`, m = document, v = () => m.createComment(""), E = (i) => i === null || typeof i != "object" && typeof i != "function", M = Array.isArray, ye = (i) => M(i) || typeof i?.[Symbol.iterator] == "function", k = `[ 	
 \f\r]`, A = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, z = /-->/g, Y = />/g, y = RegExp(`>|${k}(?:([^\\s"'>=/]+)(${k}*=${k}*(?:[^ 	
 \f\r"'\`<>=]|("|')|))|$)`, "g"), J = /'/g, K = /"/g, oe = /^(?:script|style|textarea|title)$/i, re = (i) => (e, ...t) => ({ _$litType$: i, strings: e, values: t }), Te = re(1), Pe = re(2), $ = /* @__PURE__ */ Symbol.for("lit-noChange"), c = /* @__PURE__ */ Symbol.for("lit-nothing"), Z = /* @__PURE__ */ new WeakMap(), w = m.createTreeWalker(m, 129);
 function ie(i, e) {
@@ -280,7 +280,7 @@ class C {
       if (r.nodeType === 1) {
         if (r.hasAttributes()) for (const l of r.getAttributeNames()) if (l.endsWith(ee)) {
           const p = u[a++], g = r.getAttribute(l).split(f), H = /([.?@])?(.*)/.exec(p);
-          n.push({ type: 1, index: s, name: H[2], strings: g, ctor: H[1] === "." ? Se : H[1] === "?" ? $e : H[1] === "@" ? _e : L }), r.removeAttribute(l);
+          n.push({ type: 1, index: s, name: H[2], strings: g, ctor: H[1] === "." ? Se : H[1] === "?" ? $e : H[1] === "@" ? _e : R }), r.removeAttribute(l);
         } else l.startsWith(f) && (n.push({ type: 6, index: s }), r.removeAttribute(l));
         if (oe.test(r.tagName)) {
           const l = r.textContent.split(f), p = l.length - 1;
@@ -396,7 +396,7 @@ class B {
     this._$AM === void 0 && (this._$Cv = e, this._$AP?.(e));
   }
 }
-class L {
+class R {
   get tagName() {
     return this.element.tagName;
   }
@@ -421,7 +421,7 @@ class L {
     e === c ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
   }
 }
-class Se extends L {
+class Se extends R {
   constructor() {
     super(...arguments), this.type = 3;
   }
@@ -429,7 +429,7 @@ class Se extends L {
     this.element[this.name] = e === c ? void 0 : e;
   }
 }
-class $e extends L {
+class $e extends R {
   constructor() {
     super(...arguments), this.type = 4;
   }
@@ -437,7 +437,7 @@ class $e extends L {
     this.element.toggleAttribute(this.name, !!e && e !== c);
   }
 }
-class _e extends L {
+class _e extends R {
   constructor(e, t, o, r, s) {
     super(e, t, o, r, s), this.type = 5;
   }
@@ -461,8 +461,8 @@ class Ae {
     _(this, e);
   }
 }
-const be = x.litHtmlPolyfillSupport;
-be?.(C, B), (x.litHtmlVersions ??= []).push("3.3.2");
+const be = j.litHtmlPolyfillSupport;
+be?.(C, B), (j.litHtmlVersions ??= []).push("3.3.2");
 const ve = (i, e, t) => {
   const o = t?.renderBefore ?? e;
   let r = o._$litPart$;
@@ -625,6 +625,10 @@ const De = Object.freeze({
     reinjCauseSwitchLatency: "Latence batt",
     reinjCauseOther: "Autre",
     sectionConsumption: "Consommation",
+    siteLabel: "Site",
+    siteAuto: "Auto",
+    editorSiteLabel: "Site",
+    editorSiteHint: "Plusieurs intégrations Hub Énergie : choisissez l’index (0, 1, …). « Auto » si une seule installation.",
     editorPowerGraphWindow: "Fenêtre par défaut du graphe de puissance",
     editorPowerHoursUnit: "{n} heures",
     editorPowerHoursHint: "Durée d'historique glissant à l'ouverture du graphe de puissance en direct.",
@@ -796,6 +800,10 @@ const De = Object.freeze({
     reinjCauseSwitchLatency: "Switch latency",
     reinjCauseOther: "Other",
     sectionConsumption: "Consumption",
+    siteLabel: "Site",
+    siteAuto: "Auto",
+    editorSiteLabel: "Site",
+    editorSiteHint: 'Multiple Hub Énergie installs: pick the index (0, 1, …). "Auto" when only one site is present.',
     editorPowerGraphWindow: "Power graph default window",
     editorPowerHoursUnit: "{n} hours",
     editorPowerHoursHint: "Rolling history length when opening the live power graph.",

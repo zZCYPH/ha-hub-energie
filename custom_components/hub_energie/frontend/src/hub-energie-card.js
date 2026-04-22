@@ -26,6 +26,7 @@ import {
   isCardReady,
   discoverCostEntityId,
   entityMapFromCostAttributes,
+  hubEnergieSiteCountFromStates,
   makeEntityMap,
   offerLabel,
   readSlotValue,
@@ -593,6 +594,14 @@ class HubEnergieCard extends LitElement {
     this.requestUpdate();
   }
 
+  /** 0-based Hub Énergie site index from card YAML (``site_index``); null = auto when only one site. */
+  _siteIndexFromConfig() {
+    const raw = this._config?.site_index;
+    if (raw === "" || raw === undefined || raw === null) return null;
+    const n = Math.trunc(Number(raw));
+    return Number.isFinite(n) && n >= 0 ? n : null;
+  }
+
   getCardSize() {
     return 8;
   }
@@ -683,7 +692,7 @@ class HubEnergieCard extends LitElement {
 
   _map() {
     const states = this.hass?.states;
-    const costId = discoverCostEntityId(states);
+    const costId = discoverCostEntityId(states, this._siteIndexFromConfig());
     const costAttrs = states?.[costId]?.attributes;
     return entityMapFromCostAttributes(costAttrs, makeEntityMap(), costId);
   }
@@ -738,6 +747,7 @@ class HubEnergieCard extends LitElement {
             .join("|")
         : "";
     const attrsKey = [
+      String(this._siteIndexFromConfig() ?? ""),
       E.cost,
       cardIdsKey,
       costAttrs.offer ?? "",
@@ -790,6 +800,29 @@ class HubEnergieCard extends LitElement {
   _onRawToggle() {
     this._showRaw = !this._showRaw;
     this.__lastKey = null;
+  }
+
+  _onSiteChange(ev) {
+    ev.stopPropagation();
+    const sel = ev.target;
+    if (sel?.value === undefined) return;
+    const v = sel.value;
+    const next = { ...this._config, type: "custom:hub-energie-card" };
+    if (v === "" || v === "__auto__") delete next.site_index;
+    else next.site_index = Math.max(0, Math.trunc(Number(v)));
+    this._config = next;
+    this.__lastKey = null;
+    this._hist = null;
+    this._histLoading = false;
+    this._histErr = null;
+    this.requestUpdate();
+    this.dispatchEvent(
+      new CustomEvent("config-changed", {
+        bubbles: true,
+        composed: true,
+        detail: { config: next },
+      }),
+    );
   }
 
   _loadHistory() {
@@ -1309,6 +1342,11 @@ class HubEnergieCard extends LitElement {
 
     const totalReinjRaw = reinj.solarSurplus + reinj.batteryFull + reinj.switchLatency + reinj.unattributed;
 
+    const siteCount = hubEnergieSiteCountFromStates(this.hass?.states);
+    const siteIdx = this._siteIndexFromConfig();
+    const siteSelectValue =
+      siteIdx === null || siteIdx === undefined ? "__auto__" : String(Math.max(0, Math.trunc(siteIdx)));
+
     return html`
       <ha-card>
         <div class="header">
@@ -1317,6 +1355,23 @@ class HubEnergieCard extends LitElement {
             <span class="header-subtitle">${offerLabel(offer)}${contractPower ? ` ${contractPower}kVA` : ""}</span>
           </div>
           <div class="controls">
+            ${siteCount > 1
+              ? html`
+                  <label>${i18n.siteLabel}</label>
+                  <ha-select
+                    .value=${siteSelectValue}
+                    @closed=${this._onSiteChange}
+                    .fixedMenuPosition=${true}
+                    .naturalMenuWidth=${true}
+                    style="min-width:5.5rem"
+                  >
+                    <ha-list-item value="__auto__">${i18n.siteAuto}</ha-list-item>
+                    ${Array.from({ length: siteCount }, (_, i) => html`
+                      <ha-list-item value="${String(i)}">${String(i)}</ha-list-item>
+                    `)}
+                  </ha-select>
+                `
+              : nothing}
             <label>${i18n.date}</label>
             <input type="date" .value=${this._date} max=${todayParisISO()} @change=${this._onDateChange} />
             <label>${i18n.range}</label>
