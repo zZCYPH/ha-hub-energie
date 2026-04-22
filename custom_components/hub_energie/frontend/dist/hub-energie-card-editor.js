@@ -1,8 +1,8 @@
-import { i as y, a as C, I as g, A as v, b as d } from "./i18n.js";
-function $(o, t) {
+import { i as C, a as $, I as g, A as x, b as d } from "./i18n.js";
+function m(o, t) {
   let e = String(o);
-  for (const [r, n] of Object.entries(t))
-    e = e.split(`{${r}}`).join(String(n));
+  for (const [n, r] of Object.entries(t))
+    e = e.split(`{${n}}`).join(String(r));
   return e;
 }
 const p = Object.freeze([
@@ -13,10 +13,10 @@ const p = Object.freeze([
   { id: "rouge_hc", label: "Red HC", color: "#e53935" },
   { id: "rouge_hp", label: "Red HP", color: "#e53935" },
   { id: "unknown", label: "Unknown", color: "#78909c" }
-]), H = Object.freeze([
+]), R = Object.freeze([
   ...p.map((o) => `${o.id}_eur`),
   "abonnement_eur"
-]), R = Object.freeze([
+]), H = Object.freeze([
   "export_due_to_solar_surplus_kwh",
   "export_due_to_battery_full_or_absent_kwh",
   "export_due_to_switch_latency_kwh",
@@ -27,11 +27,11 @@ const p = Object.freeze([
   "export_opportunity_cost_switch_latency_eur",
   "export_opportunity_cost_unattributed_eur"
 ]);
-Object.freeze([...H, ...R]);
-const D = Object.freeze([
+Object.freeze([...R, ...H]);
+const N = Object.freeze([
   "grid_by_slot_kwh",
   "maison_by_slot_kwh"
-]), j = "sensor.hub_energie_", x = "card_site_index", T = "hub_energie_card_payload", k = Object.freeze([
+]), T = "sensor.hub_energie_", j = "card_site_index", w = "card_site_segment", E = "hub_energie_card_payload", k = Object.freeze([
   "ecoSolar",
   "ecoBatt",
   "originGrid",
@@ -42,7 +42,7 @@ const D = Object.freeze([
   "usageSolarBatt",
   "usageBattHome"
 ]);
-function m(o = j) {
+function S(o = T) {
   const t = o;
   return {
     cost: `${t}cost_detail`,
@@ -60,99 +60,110 @@ function m(o = j) {
     lovelaceCard: `${t}lovelace_card`
   };
 }
-function w(o) {
-  if (!o) return 0;
-  const t = /* @__PURE__ */ new Set();
-  for (const [e, r] of Object.entries(o)) {
-    const n = r?.attributes;
-    if (!n || typeof n != "object") continue;
-    const i = n.card_entity_ids;
-    if (!i || typeof i != "object" || typeof i.cost != "string" || !i.cost) continue;
-    const s = h(r, e) ?? 0;
-    t.add(s);
+function y(o) {
+  if (!o) return [];
+  const t = /* @__PURE__ */ new Map();
+  for (const [e, n] of Object.entries(o)) {
+    const r = n?.attributes;
+    if (!r || typeof r != "object") continue;
+    const i = r.card_entity_ids;
+    if (i && typeof i == "object" && i.cost === e) {
+      const s = h(n, e) ?? 0, c = r[w], a = typeof c == "string" && c.trim() !== "" ? String(c).trim() : String(s);
+      t.set(s, { index: s, segment: a, costEntityId: e });
+      continue;
+    }
+    if (typeof r.eco_solar == "number" && r.grid_by_slot_kwh != null && typeof r.grid_by_slot_kwh == "object") {
+      const s = h(n, e) ?? 0;
+      if (t.has(s)) continue;
+      const c = r[w], a = typeof c == "string" && c.trim() !== "" ? String(c).trim() : String(s);
+      t.set(s, { index: s, segment: a, costEntityId: e });
+    }
   }
-  return t.size;
+  return [...t.values()].sort((e, n) => e.index - n.index);
 }
-function E(o) {
+function O(o) {
+  return y(o).length;
+}
+function A(o) {
   if (typeof o != "string" || !o.startsWith("sensor.")) return null;
   const t = o.slice(7), e = /^hub_energie_(\d+)_/.exec(t);
   if (!e) return null;
-  const r = parseInt(e[1], 10);
-  return Number.isFinite(r) ? r : null;
+  const n = parseInt(e[1], 10);
+  return Number.isFinite(n) ? n : null;
 }
 function h(o, t) {
   const e = o?.attributes;
   if (e && typeof e == "object") {
-    const r = e[x];
-    if (typeof r == "number" && Number.isFinite(r)) return Math.trunc(r);
+    const n = e[j];
+    if (typeof n == "number" && Number.isFinite(n)) return Math.trunc(n);
   }
-  return E(t);
+  return A(t);
 }
-function M(o, t) {
-  const r = m().cost;
-  if (!o) return r;
-  const n = t === "" || t === void 0 || t === null ? null : Math.max(0, Math.trunc(Number(t))), i = [];
-  for (const [a, c] of Object.entries(o)) {
-    const u = c?.attributes;
+function G(o, t) {
+  const n = S().cost;
+  if (!o) return n;
+  const r = t === "" || t === void 0 || t === null ? null : Math.max(0, Math.trunc(Number(t))), i = [];
+  for (const [a, l] of Object.entries(o)) {
+    const u = l?.attributes;
     if (!u || typeof u != "object") continue;
-    const l = u.card_entity_ids;
-    if (!l || typeof l != "object" || l.cost !== a) continue;
-    const S = h(c, a) ?? 0;
-    n !== null && S !== n || i.push(a);
+    const _ = u.card_entity_ids;
+    if (!_ || typeof _ != "object" || _.cost !== a) continue;
+    const v = h(l, a) ?? 0;
+    r !== null && v !== r || i.push(a);
   }
   if (i.length === 1) return i[0];
   if (i.length > 1) return [...i].sort()[0];
-  if (n === null && o[r]?.attributes) return r;
+  if (r === null && o[n]?.attributes) return n;
   const s = [];
-  for (const [a, c] of Object.entries(o)) {
-    const u = c?.attributes;
+  for (const [a, l] of Object.entries(o)) {
+    const u = l?.attributes;
     if (!(!u || typeof u != "object") && typeof u.eco_solar == "number" && u.grid_by_slot_kwh != null && typeof u.grid_by_slot_kwh == "object") {
-      const l = h(c, a);
-      if (n !== null && l !== null && l !== n || n !== null && l === null) continue;
+      const _ = h(l, a);
+      if (r !== null && _ !== null && _ !== r || r !== null && _ === null) continue;
       s.push(a);
     }
   }
   if (s.length >= 1) return [...s].sort()[0];
-  const _ = w(o);
-  return n === null && _ <= 1 && o[r], r;
-}
-function N(o, t) {
-  const r = m().lovelaceCard;
-  if (!o) return r;
-  const n = t === "" || t === void 0 || t === null ? null : Math.max(0, Math.trunc(Number(t))), i = [];
-  for (const [s, _] of Object.entries(o)) {
-    const a = _?.attributes;
-    if (!a || typeof a != "object" || a[T] !== !0) continue;
-    const c = h(_, s) ?? 0;
-    n !== null && c !== n || i.push(s);
-  }
-  return i.length === 1 ? i[0] : i.length > 1 ? [...i].sort()[0] : r;
-}
-function G(o, t, e) {
-  const r = { ...t, cost: e }, n = o?.card_entity_ids;
-  if (!n || typeof n != "object") return r;
-  for (const i of k) {
-    const s = n[i];
-    typeof s == "string" && s.includes(".") && (r[i] = s);
-  }
-  return typeof n.lovelaceCard == "string" && n.lovelaceCard.includes(".") && (r.lovelaceCard = n.lovelaceCard), r;
-}
-function W(o, t) {
-  return { ...t && typeof t == "object" ? t : {}, ...o && typeof o == "object" ? o : {} };
-}
-function L(o, t) {
-  if (!o || typeof o != "object") return 0;
-  const e = o[t], r = typeof e == "number" ? e : parseFloat(e);
-  return Number.isFinite(r) ? r : 0;
+  const c = O(o);
+  return r === null && c <= 1 && o[n], n;
 }
 function I(o, t) {
+  const n = S().lovelaceCard;
+  if (!o) return n;
+  const r = t === "" || t === void 0 || t === null ? null : Math.max(0, Math.trunc(Number(t))), i = [];
+  for (const [s, c] of Object.entries(o)) {
+    const a = c?.attributes;
+    if (!a || typeof a != "object" || a[E] !== !0) continue;
+    const l = h(c, s) ?? 0;
+    r !== null && l !== r || i.push(s);
+  }
+  return i.length === 1 ? i[0] : i.length > 1 ? [...i].sort()[0] : n;
+}
+function W(o, t, e) {
+  const n = { ...t, cost: e }, r = o?.card_entity_ids;
+  if (!r || typeof r != "object") return n;
+  for (const i of k) {
+    const s = r[i];
+    typeof s == "string" && s.includes(".") && (n[i] = s);
+  }
+  return typeof r.lovelaceCard == "string" && r.lovelaceCard.includes(".") && (n.lovelaceCard = r.lovelaceCard), n;
+}
+function L(o, t) {
+  return { ...t && typeof t == "object" ? t : {}, ...o && typeof o == "object" ? o : {} };
+}
+function Y(o, t) {
+  if (!o || typeof o != "object") return 0;
+  const e = o[t], n = typeof e == "number" ? e : parseFloat(e);
+  return Number.isFinite(n) ? n : 0;
+}
+function z(o, t) {
   return !!o?.[t];
 }
-function Y(o) {
+function U(o) {
   return o === "hphc" ? "HP/HC" : o === "base" ? "BASE" : "TEMPO";
 }
-function O(o, t, e) {
-  const r = e?.emDash ?? "—";
+function B(o, t, e) {
+  const n = e?.emDash ?? "—";
   return o ? t === "base" ? e?.slotBase ?? "Base" : t === "hphc" ? o.endsWith("_hc") ? e?.slotHc ?? "HC" : e?.slotHp ?? "HP" : {
     bleu_hc: e?.slotBleuHc,
     bleu_hp: e?.slotBleuHp,
@@ -161,34 +172,34 @@ function O(o, t, e) {
     rouge_hc: e?.slotRougeHc,
     rouge_hp: e?.slotRougeHp,
     unknown: e?.slotUnknown
-  }[o] ?? o : r;
+  }[o] ?? o : n;
 }
-function z(o, t) {
+function V(o, t) {
   const e = String(o ?? "").toLowerCase();
   return e.includes("blue") || e.includes("bleu") ? t?.tempoDayBlue ?? "Blue" : e.includes("white") || e.includes("blanc") ? t?.tempoDayWhite ?? "White" : e.includes("red") || e.includes("rouge") ? t?.tempoDayRed ?? "Red" : e === "n/a" ? t?.dayColorNA ?? "N/A" : e || (t?.emDash ?? "—");
 }
-function U(o) {
+function K(o) {
   const t = String(o ?? "").toLowerCase();
   return t.includes("blue") || t.includes("bleu") ? "color-blue" : t.includes("white") || t.includes("blanc") ? "color-white" : t.includes("red") || t.includes("rouge") ? "color-red" : "color-na";
 }
-function V(o, t, e) {
-  return !t || typeof t != "object" ? [] : p.map((r) => {
-    const n = t[r.id], i = typeof n == "number" ? n : parseFloat(n);
+function X(o, t, e) {
+  return !t || typeof t != "object" ? [] : p.map((n) => {
+    const r = t[n.id], i = typeof r == "number" ? r : parseFloat(r);
     return !Number.isFinite(i) || i <= 1e-4 ? null : {
-      label: O(r.id, o, e),
+      label: B(n.id, o, e),
       v: i,
-      color: r.color,
-      isHc: r.id.endsWith("_hc")
+      color: n.color,
+      isHc: n.id.endsWith("_hc")
     };
   }).filter(Boolean);
 }
-function K(o) {
+function q(o) {
   return !o || typeof o != "object" ? "" : p.map((t) => {
-    const e = o[t.id], r = typeof e == "number" ? e : parseFloat(e);
-    return `${t.id}:${Number.isFinite(r) ? r : 0}`;
+    const e = o[t.id], n = typeof e == "number" ? e : parseFloat(e);
+    return `${t.id}:${Number.isFinite(n) ? n : 0}`;
   }).join(",");
 }
-const f = "custom:hub-energie-card", b = /* @__PURE__ */ new Set([24, 12, 6, 3, 1]), A = [1, 3, 6, 12, 24], B = [
+const f = "custom:hub-energie-card", b = /* @__PURE__ */ new Set([24, 12, 6, 3, 1]), P = [1, 3, 6, 12, 24], F = [
   ["show_day_slots", "editorShowDaySlots"],
   ["show_live_power", "editorShowLivePower"],
   ["show_solar_production_bar", "editorShowSolarProductionBar"],
@@ -201,12 +212,12 @@ const f = "custom:hub-energie-card", b = /* @__PURE__ */ new Set([24, 12, 6, 3, 
   ["show_reinjection", "editorShowReinjection"],
   ["show_raw_control", "editorShowRawControl"]
 ];
-class P extends y {
+class D extends C {
   static properties = {
     hass: { attribute: !1 },
     _config: { state: !0 }
   };
-  static styles = C`
+  static styles = $`
     :host {
       display: block;
     }
@@ -240,8 +251,8 @@ class P extends y {
     const e = this._config?.[t];
     return e !== !1 && e !== "false";
   }
-  _siteCount() {
-    return w(this.hass?.states);
+  _hubSites() {
+    return y(this.hass?.states);
   }
   _siteSelectValue() {
     const t = this._config?.site_index;
@@ -250,26 +261,30 @@ class P extends y {
     return Number.isFinite(e) && e >= 0 ? String(e) : "__auto__";
   }
   render() {
-    const t = this._config ?? {}, e = this._i18n(), r = parseFloat(t.power_history_hours), n = Math.trunc(r), i = b.has(n) ? n : 6, s = this._siteCount(), _ = this._siteSelectValue();
+    const t = this._config ?? {}, e = this._i18n(), n = parseFloat(t.power_history_hours), r = Math.trunc(n), i = b.has(r) ? r : 6, s = this._hubSites(), c = this._siteSelectValue();
     return d`
       <div class="card-config">
-        ${s > 1 ? d`
+        ${s.length >= 1 ? d`
               <div class="field">
                 <ha-select
                   label=${e.editorSiteLabel}
-                  .value=${_}
+                  .value=${c}
                   @closed=${this._onSiteClosed}
                   .fixedMenuPosition=${!0}
                   .naturalMenuWidth=${!0}
                 >
                   <ha-list-item value="__auto__">${e.siteAuto}</ha-list-item>
-                  ${Array.from({ length: s }, (a, c) => d`
-                    <ha-list-item value="${String(c)}">${String(c)}</ha-list-item>
-                  `)}
+                  ${s.map(
+      (a) => d`
+                      <ha-list-item value="${String(a.index)}">
+                        ${m(e.editorSiteOption, { index: String(a.index), segment: a.segment })}
+                      </ha-list-item>
+                    `
+    )}
                 </ha-select>
                 <p class="hint">${e.editorSiteHint}</p>
               </div>
-            ` : v}
+            ` : x}
         <div class="field">
           <ha-select
             label=${e.editorPowerGraphWindow}
@@ -278,18 +293,18 @@ class P extends y {
             .fixedMenuPosition=${!0}
             .naturalMenuWidth=${!0}
           >
-            ${A.map(
-      (a) => d`<ha-list-item value="${String(a)}">${$(e.editorPowerHoursUnit, { n: a })}</ha-list-item>`
+            ${P.map(
+      (a) => d`<ha-list-item value="${String(a)}">${m(e.editorPowerHoursUnit, { n: a })}</ha-list-item>`
     )}
           </ha-select>
           <p class="hint">${e.editorPowerHoursHint}</p>
         </div>
 
         <div class="sections-title">${e.editorSectionsTitle}</div>
-        ${B.map(
-      ([a, c]) => d`
+        ${F.map(
+      ([a, l]) => d`
             <div class="field">
-              <ha-formfield .label=${e[c]}>
+              <ha-formfield .label=${e[l]}>
                 <ha-switch
                   .checked=${this._sectionOn(a)}
                   @change=${(u) => this._setSectionFlag(a, u.target.checked)}
@@ -316,48 +331,48 @@ class P extends y {
     );
   }
   _setSectionFlag(t, e) {
-    const r = { ...this._config };
-    e ? delete r[t] : r[t] = !1, this._emit(r);
+    const n = { ...this._config };
+    e ? delete n[t] : n[t] = !1, this._emit(n);
   }
   _onSiteClosed(t) {
     t.stopPropagation();
     const e = t.target;
     if (e?.value === void 0) return;
-    const r = { ...this._config };
-    e.value === "__auto__" ? delete r.site_index : r.site_index = Math.max(0, Math.trunc(Number(e.value))), this._emit(r);
+    const n = { ...this._config };
+    e.value === "__auto__" ? delete n.site_index : n.site_index = Math.max(0, Math.trunc(Number(e.value))), this._emit(n);
   }
   _onPowerHoursClosed(t) {
     t.stopPropagation();
     const e = t.target;
     if (e.value === "" || e.value === void 0) return;
-    const r = Math.trunc(Number(e.value));
-    if (!b.has(r)) return;
-    const n = parseFloat(this._config?.power_history_hours), i = b.has(Math.trunc(n)) ? Math.trunc(n) : 6;
-    if (r === i) return;
-    const s = { ...this._config, power_history_hours: r };
+    const n = Math.trunc(Number(e.value));
+    if (!b.has(n)) return;
+    const r = parseFloat(this._config?.power_history_hours), i = b.has(Math.trunc(r)) ? Math.trunc(r) : 6;
+    if (n === i) return;
+    const s = { ...this._config, power_history_hours: n };
     this._emit(s);
   }
 }
-customElements.get("hub-energie-card-editor") || customElements.define("hub-energie-card-editor", P);
+customElements.get("hub-energie-card-editor") || customElements.define("hub-energie-card-editor", D);
 export {
-  H as C,
+  R as C,
   p as S,
-  R as a,
-  D as b,
-  N as c,
-  M as d,
-  G as e,
-  T as f,
-  K as g,
-  V as h,
-  I as i,
-  w as j,
-  U as k,
-  z as l,
-  W as m,
-  m as n,
-  Y as o,
-  L as r,
-  O as s,
-  $ as t
+  H as a,
+  N as b,
+  I as c,
+  G as d,
+  W as e,
+  E as f,
+  q as g,
+  X as h,
+  z as i,
+  y as j,
+  K as k,
+  V as l,
+  L as m,
+  S as n,
+  U as o,
+  Y as r,
+  B as s,
+  m as t
 };

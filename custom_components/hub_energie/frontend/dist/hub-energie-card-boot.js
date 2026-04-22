@@ -1,12 +1,12 @@
 import "./hub-energie-card-editor.js";
-import { i as c, a as h, b as u, I as r } from "./i18n.js";
+import { i as h, a as u, b as f, I as r } from "./i18n.js";
 const a = "custom:hub-energie-flow-card", l = ["auto", "full", "compact"];
-class f extends c {
+class g extends h {
   static properties = {
     hass: { attribute: !1 },
     _config: { state: !0 }
   };
-  static styles = h`
+  static styles = u`
     :host {
       display: block;
     }
@@ -29,7 +29,7 @@ class f extends c {
   }
   render() {
     const e = this._i18n(), t = l.includes(this._config?.layout) ? this._config.layout : "auto", i = this._config?.debug === !0 || this._config?.debug === "true";
-    return u`
+    return f`
       <div class="field">
         <ha-textfield
           label=${e.flowEditorTitle}
@@ -55,7 +55,7 @@ class f extends c {
         <ha-formfield .label=${e.flowEditorDebug}>
           <ha-switch
             .checked=${i}
-            @change=${(o) => this._setBool("debug", o.target.checked)}
+            @change=${(s) => this._setBool("debug", s.target.checked)}
           ></ha-switch>
         </ha-formfield>
         <p class="hint">${e.flowEditorDebugHint}</p>
@@ -67,7 +67,7 @@ class f extends c {
           label=${e.flowEditorDataEntity}
           .includeDomains=${["sensor"]}
           allow-custom-entity
-          @value-changed=${(o) => this._onEntityChanged("frontend_data_entity", o)}
+          @value-changed=${(s) => this._onEntityChanged("frontend_data_entity", s)}
         ></ha-entity-picker>
       </div>
       <div class="field">
@@ -77,7 +77,7 @@ class f extends c {
           label=${e.flowEditorMetaEntity}
           .includeDomains=${["sensor"]}
           allow-custom-entity
-          @value-changed=${(o) => this._onEntityChanged("frontend_meta_entity", o)}
+          @value-changed=${(s) => this._onEntityChanged("frontend_meta_entity", s)}
         ></ha-entity-picker>
         <p class="hint">${e.flowEditorEntityHint}</p>
       </div>
@@ -111,19 +111,19 @@ class f extends c {
     t ? i[e] = !0 : delete i[e], this._emit(i);
   }
   _onEntityChanged(e, t) {
-    const i = t.detail?.value ?? "", o = String(i).trim(), n = { ...this._config };
-    o ? n[e] = o : delete n[e], this._emit(n);
+    const i = t.detail?.value ?? "", s = String(i).trim(), n = { ...this._config };
+    s ? n[e] = s : delete n[e], this._emit(n);
   }
 }
-customElements.get("hub-energie-flow-card-editor") || customElements.define("hub-energie-flow-card-editor", f);
-function d(s) {
-  const e = new URL(import.meta.url), t = e.searchParams.get("v"), i = new URL(s, e);
+customElements.get("hub-energie-flow-card-editor") || customElements.define("hub-energie-flow-card-editor", g);
+function c(o) {
+  const e = new URL(import.meta.url), t = e.searchParams.get("v"), i = new URL(o, e);
   return t && i.searchParams.set("v", t), i.href;
 }
-import(d("./hub-energie-flow-card.js")).catch((s) => {
-  console.error("[hub-energie-card-boot] flow module failed to load", s);
+import(c("./hub-energie-flow-card.js")).catch((o) => {
+  console.error("[hub-energie-card-boot] flow module failed to load", o);
 });
-const g = `
+const m = `
   <style>
     :host { display: block; min-height: 96px; }
     .wrap { padding: 16px; font: 14px/1.4 var(--paper-font-body1_-_font-family, Roboto, sans-serif); color: var(--primary-text-color, #212121); }
@@ -135,14 +135,16 @@ class _ extends HTMLElement {
     super(), this.attachShadow({ mode: "open" }), this._core = null, this._hass = void 0, this._config = void 0, this._loadPromise = null;
   }
   connectedCallback() {
-    this._loadPromise || (this.shadowRoot.innerHTML = g), this._ensureCore();
+    this._loadPromise || (this.shadowRoot.innerHTML = m), this._ensureCore();
   }
   _ensureCore() {
     return this._loadPromise ? this._loadPromise : (this._loadPromise = (async () => {
       try {
-        await import(d("./hub-energie-card.js"));
-      } catch (o) {
-        console.error("[hub-energie-card-boot] core module failed to load", o), this.shadowRoot.innerHTML = '<style>:host{display:block}</style><ha-card><div style="padding:16px">Hub Énergie (load error)</div></ha-card>';
+        await import(c("./hub-energie-card.js"));
+      } catch (s) {
+        console.error("[hub-energie-card-boot] core module failed to load", s);
+        const d = (s && (s.message || String(s)) ? String(s.message || s) : "unknown").replace(/</g, "&lt;").slice(0, 400);
+        this.shadowRoot.innerHTML = `<style>:host{display:block}</style><ha-card><div style="padding:16px;font:14px/1.4 sans-serif"><strong>Hub Énergie</strong> (load error)<br/><small style="opacity:.85">${d}</small></div></ha-card>`;
         return;
       }
       if (!customElements.get("hub-energie-card-core") || this._core) return;

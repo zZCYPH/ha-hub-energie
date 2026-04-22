@@ -1,6 +1,6 @@
 import { i as at, a as st, b as g, A as y, w as ut, I as Jt } from "./i18n.js";
 import { C as tt, a as et, b as de, c as $t, d as Qt, e as he } from "./colors.js";
-import { S as Gt, r as zt, s as K, C as te, a as Wt, b as Kt, m as ae, i as gt, d as ue, e as ge, c as me, f as be, g as Lt, h as ee, j as fe, o as we, k as re, l as xe, t as O, n as ye } from "./hub-energie-card-editor.js";
+import { S as Gt, r as zt, s as K, C as te, a as Wt, b as Kt, m as ae, i as gt, d as ue, e as ge, c as me, f as be, g as Lt, h as ee, j as fe, o as we, t as O, k as re, l as xe, n as ye } from "./hub-energie-card-editor.js";
 const Ut = [24, 12, 6, 3, 1], it = 6;
 function vt(s, t = it) {
   if (!Number.isFinite(s)) return t;
@@ -19,7 +19,7 @@ function se(s = /* @__PURE__ */ new Date()) {
     day: "2-digit"
   }).format(s);
 }
-const R = () => se();
+const I = () => se();
 function Y(s) {
   const t = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s));
   if (!t) return /* @__PURE__ */ new Date(NaN);
@@ -42,7 +42,7 @@ function Y(s) {
 }
 function Bt(s, t) {
   const e = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s));
-  if (!e) return R();
+  if (!e) return I();
   const r = Number(e[1]), o = Number(e[2]), a = Number(e[3]);
   return new Date(Date.UTC(r, o - 1, a + t)).toISOString().slice(0, 10);
 }
@@ -57,7 +57,7 @@ function _e(s) {
 }
 const ve = (s) => se(new Date(s));
 function $e(s, t) {
-  const r = /^\d{4}-\d{2}-\d{2}$/.test(String(s)) ? String(s) : R();
+  const r = /^\d{4}-\d{2}-\d{2}$/.test(String(s)) ? String(s) : I();
   let o;
   if (t === "week") {
     const a = _e(r);
@@ -203,9 +203,9 @@ function Be(s, t, e, r) {
   };
 }
 async function Ne(s, t, e, r, o, a) {
-  const i = /^\d{4}-\d{2}-\d{2}$/.test(String(t)) ? String(t) : R(), l = /^\d{4}-\d{2}-\d{2}$/.test(String(e)) ? String(e) : R();
+  const i = /^\d{4}-\d{2}-\d{2}$/.test(String(t)) ? String(t) : I(), l = /^\d{4}-\d{2}-\d{2}$/.test(String(e)) ? String(e) : I();
   let c = Y(i), p = Y(Bt(l, 1));
-  Number.isFinite(c.getTime()) || (c = Y(R())), Number.isFinite(p.getTime()) || (p = Y(Bt(R(), 1)));
+  Number.isFinite(c.getTime()) || (c = Y(I())), Number.isFinite(p.getTime()) || (p = Y(Bt(I(), 1)));
   const h = new URLSearchParams({
     filter_entity_id: r.join(","),
     end_time: p.toISOString()
@@ -472,7 +472,7 @@ function je(s, t) {
     w.grid != null && (_ = w.grid), w.solar != null && ($ = w.solar), w.batt != null && (u = w.batt), l.length && w.load != null && (M = w.load), S.push({ ts: w.ts, grid: _, solar: $, batt: u, load: l.length ? M : null });
   return { filled: S };
 }
-function Ae(s) {
+function Oe(s) {
   let t = 0, e = 1;
   for (const r of s) {
     const o = [];
@@ -484,7 +484,7 @@ function Ae(s) {
   }
   return e - t < 1 && (e = t + 1), { yMin: t, yMax: e };
 }
-function Oe(s, t) {
+function Ae(s, t) {
   if (!s?.states || !t || typeof t != "object") return null;
   const e = s.states, r = (f) => {
     if (f == null || typeof f != "string") return null;
@@ -2486,7 +2486,7 @@ class er extends at {
     `;
   }
   constructor() {
-    super(), this._config = {}, this._date = R(), this._rangePreset = "day", this._showRaw = !1, this._hist = null, this._histLoading = !1, this._histErr = null, this.__lastKey = null, this._powerGraphOpen = !1, this._powerGraphLoading = !1, this._powerGraphErr = null, this._powerGraphSeries = null, this._hassRetryTimer = null, this._costMissingSinceMs = null, this._powerGraphPollTimer = null, this._liveStatePollTimer = null, this.__livePollSnap = null, this._powerGraphLoadId = 0, this._powerGraphRollingHours = it;
+    super(), this._config = {}, this._date = I(), this._rangePreset = "day", this._showRaw = !1, this._hist = null, this._histLoading = !1, this._histErr = null, this.__lastKey = null, this._powerGraphOpen = !1, this._powerGraphLoading = !1, this._powerGraphErr = null, this._powerGraphSeries = null, this._hassRetryTimer = null, this._costMissingSinceMs = null, this._powerGraphPollTimer = null, this._liveStatePollTimer = null, this.__livePollSnap = null, this._powerGraphLoadId = 0, this._powerGraphRollingHours = it;
   }
   connectedCallback() {
     super.connectedCallback(), requestAnimationFrame(() => requestAnimationFrame(() => this.requestUpdate()));
@@ -2527,7 +2527,7 @@ class er extends at {
   }
   /** Refresh interval only while the graph shows the current Paris day (live tail). */
   _syncPowerGraphPollTimer() {
-    if (this._clearPowerGraphPollTimer(), !this._powerGraphOpen || !this.hass || (this._date ?? R()) !== R()) return;
+    if (this._clearPowerGraphPollTimer(), !this._powerGraphOpen || !this.hass || (this._date ?? I()) !== I()) return;
     const e = parseFloat(this._config?.power_history_refresh_seconds), r = Number.isFinite(e) && e > 0 ? Math.max(15e3, Math.min(3e5, Math.round(e * 1e3))) : 12e4;
     this._powerGraphPollTimer = window.setInterval(() => {
       this._powerGraphOpen && this.hass && this._loadPowerGraph({ refresh: !0 });
@@ -2669,11 +2669,11 @@ class er extends at {
     ) : {};
   }
   _getRange() {
-    return $e(this._date ?? R(), this._rangePreset ?? "day");
+    return $e(this._date ?? I(), this._rangePreset ?? "day");
   }
   _isLiveMode() {
     const t = this._getRange();
-    return (this._rangePreset ?? "day") === "day" && t.endIso === R();
+    return (this._rangePreset ?? "day") === "day" && t.endIso === I();
   }
   /** Safe fingerprint for change detection; must never throw (used from shouldUpdate). */
   _fingerprintTempoDays(t) {
@@ -2802,10 +2802,10 @@ class er extends at {
     }
     let l;
     e ? l = this._powerGraphLoadId : (this._powerGraphLoadId += 1, l = this._powerGraphLoadId);
-    const c = this._date ?? R(), p = vt(
+    const c = this._date ?? I(), p = vt(
       this._powerGraphRollingHours,
       it
-    ), h = c === R();
+    ), h = c === I();
     let d, m, f = !1, _ = "day", $ = null, u = 24;
     if (h) {
       _ = "rolling", $ = p, u = p;
@@ -2836,7 +2836,7 @@ class er extends at {
         statisticIds: G,
         period: "5minute"
       });
-      if (this._powerGraphLoadId !== l || !this._powerGraphOpen || (this._date ?? R()) !== c || h && vt(this._powerGraphRollingHours, it) !== p)
+      if (this._powerGraphLoadId !== l || !this._powerGraphOpen || (this._date ?? I()) !== c || h && vt(this._powerGraphRollingHours, it) !== p)
         return;
       const T = je(N, C);
       if (!T?.filled?.length) {
@@ -2876,7 +2876,7 @@ class er extends at {
     if (!this._powerGraphOpen) return null;
     const t = this._powerGraphSeries;
     if (!t?.statsPts?.length) return null;
-    const e = t.useLiveTail === !0, o = this._map().cost, a = this._payloadEntityId() ?? o, i = a ? this.hass?.states[a]?.attributes?.power_graph_entity_map : null, l = i && typeof i == "object" ? i : null, c = e && l && this.hass ? Oe(this.hass, l) : null, p = e ? ze(t.statsPts, c) : t.statsPts, { yMin: h, yMax: d } = Ae(p);
+    const e = t.useLiveTail === !0, o = this._map().cost, a = this._payloadEntityId() ?? o, i = a ? this.hass?.states[a]?.attributes?.power_graph_entity_map : null, l = i && typeof i == "object" ? i : null, c = e && l && this.hass ? Ae(this.hass, l) : null, p = e ? ze(t.statsPts, c) : t.statsPts, { yMin: h, yMax: d } = Oe(p);
     return {
       hoursBack: t.hoursBack,
       pts: p,
@@ -2885,7 +2885,7 @@ class er extends at {
       hasLoadEntity: t.hasLoadEntity === !0,
       windowMode: t.windowMode ?? "rolling",
       rollingHours: t.rollingHours ?? null,
-      dayIso: t.dayIso ?? this._date ?? R(),
+      dayIso: t.dayIso ?? this._date ?? I(),
       useLiveTail: e
     };
   }
@@ -2958,10 +2958,10 @@ class er extends at {
       reinj: b,
       gridBattBySlot: k,
       solarBattBySlot: x
-    } = this._extract(t), B = l.reduce((n, I) => n + I.v, 0), P = c.reduce((n, I) => n + I.v, 0), j = l.filter((n) => n.v > 1e-3), v = h.filter((n) => n.v > 5e-4), F = m + f, D = yt([B, ...l.map((n) => n.v), u.gridDirect.v, u.gridBatt.v]), H = u.gridDirect.v, Z = Math.max(0, u.solarDirect.v - u.solarBatt.v), bt = u.battHome.v, nt = H + Z + bt, lt = yt([nt, H, Z, bt]), ct = u.gridBatt.v + u.solarBatt.v, pt = M ? ee(S, k, t) : [], ft = M ? ee(S, x, t) : [], Dt = M && (pt.length > 0 || ft.length > 0), z = [];
+    } = this._extract(t), B = l.reduce((n, R) => n + R.v, 0), P = c.reduce((n, R) => n + R.v, 0), j = l.filter((n) => n.v > 1e-3), v = h.filter((n) => n.v > 5e-4), F = m + f, D = yt([B, ...l.map((n) => n.v), u.gridDirect.v, u.gridBatt.v]), H = u.gridDirect.v, Z = Math.max(0, u.solarDirect.v - u.solarBatt.v), bt = u.battHome.v, nt = H + Z + bt, lt = yt([nt, H, Z, bt]), ct = u.gridBatt.v + u.solarBatt.v, pt = M ? ee(S, k, t) : [], ft = M ? ee(S, x, t) : [], Dt = M && (pt.length > 0 || ft.length > 0), z = [];
     if (Dt) {
       if (ft.length) {
-        const n = ft.reduce((I, Zt) => I + (Number.isFinite(Zt?.v) ? Zt.v : 0), 0);
+        const n = ft.reduce((R, Zt) => R + (Number.isFinite(Zt?.v) ? Zt.v : 0), 0);
         n > 1e-5 && z.push({
           label: t.brkTblSolar,
           v: n,
@@ -3042,7 +3042,7 @@ class er extends at {
       { label: t.reinjCauseBatteryFull, v: b.batteryFull, eur: b.oppBatteryEur, color: tt },
       { label: t.reinjCauseSwitchLatency, v: b.switchLatency, eur: b.oppLatencyEur, color: "#ff7043" },
       { label: t.reinjCauseOther, v: b.unattributed, eur: b.oppOtherEur, color: "#90a4ae" }
-    ].filter((n) => n.v > 1e-4), wt = ot.reduce((n, I) => n + I.v, 0), L = yt([wt, ...ot.map((n) => n.v)]), Tt = ot.map((n) => ({ value: n.v, color: n.color })), Rt = ot.map((n) => ({
+    ].filter((n) => n.v > 1e-4), wt = ot.reduce((n, R) => n + R.v, 0), L = yt([wt, ...ot.map((n) => n.v)]), Tt = ot.map((n) => ({ value: n.v, color: n.color })), Rt = ot.map((n) => ({
       label: n.label,
       value: `${L(n.v)} · ${n.eur.toFixed(2)} €`,
       color: n.color,
@@ -3050,12 +3050,12 @@ class er extends at {
     })), J = [
       { label: t.ecoSourceSolar, vAbs: Math.abs(m), color: et, fmt: `${m >= 0 ? "+" : ""}${m.toFixed(2)} €`, rawV: m },
       { label: t.ecoSourceBatt, vAbs: Math.abs(f), color: tt, fmt: `${f >= 0 ? "+" : ""}${f.toFixed(2)} €`, rawV: f }
-    ].filter((n) => n.vAbs > 5e-4), Et = J.reduce((n, I) => n + I.vAbs, 0), Mt = J.length ? J.map((n) => ({ value: n.vAbs, color: n.color })) : Math.abs(F) > 5e-4 ? [{ value: 1, color: F >= 0 ? "#1976d2" : "#c62828" }] : [], xt = J.length ? J.map((n) => ({ label: n.label, value: n.fmt, color: n.color, rawV: n.vAbs })) : [], jt = this._states(), dt = this._payloadEntityId() ?? o.cost, ht = r && M ? Pe(jt, dt, t) : null, At = Z + u.solarBatt.v + b.solarSurplus, ne = yt([
-      At,
+    ].filter((n) => n.vAbs > 5e-4), Et = J.reduce((n, R) => n + R.vAbs, 0), Mt = J.length ? J.map((n) => ({ value: n.vAbs, color: n.color })) : Math.abs(F) > 5e-4 ? [{ value: 1, color: F >= 0 ? "#1976d2" : "#c62828" }] : [], xt = J.length ? J.map((n) => ({ label: n.label, value: n.fmt, color: n.color, rawV: n.vAbs })) : [], jt = this._states(), dt = this._payloadEntityId() ?? o.cost, ht = r && M ? Pe(jt, dt, t) : null, Ot = Z + u.solarBatt.v + b.solarSurplus, ne = yt([
+      Ot,
       Z,
       u.solarBatt.v,
       b.solarSurplus
-    ]), qt = M && At > 1e-3 ? {
+    ]), qt = M && Ot > 1e-3 ? {
       segments: [
         {
           label: t.solarProdSegHome,
@@ -3076,10 +3076,10 @@ class er extends at {
           icon: "mdi:transmission-tower-export"
         }
       ],
-      total: At,
+      total: Ot,
       formatter: (n) => ne(n),
       tooltip: t.solarProdKwhTip
-    } : null, le = M && this.hass?.states ? De(this.hass.states, dt) : null, ce = b.solarSurplus + b.batteryFull + b.switchLatency + b.unattributed, Yt = fe(this.hass?.states), Ot = this._siteIndexFromConfig(), pe = Ot == null ? "__auto__" : String(Math.max(0, Math.trunc(Ot)));
+    } : null, le = M && this.hass?.states ? De(this.hass.states, dt) : null, ce = b.solarSurplus + b.batteryFull + b.switchLatency + b.unattributed, Yt = fe(this.hass?.states), At = this._siteIndexFromConfig(), pe = At == null ? "__auto__" : String(Math.max(0, Math.trunc(At)));
     return g`
       <ha-card>
         <div class="header">
@@ -3088,7 +3088,7 @@ class er extends at {
             <span class="header-subtitle">${we(S)}${w ? ` ${w}kVA` : ""}</span>
           </div>
           <div class="controls">
-            ${Yt > 1 ? g`
+            ${Yt.length >= 1 ? g`
                   <label>${t.siteLabel}</label>
                   <ha-select
                     .value=${pe}
@@ -3098,13 +3098,17 @@ class er extends at {
                     style="min-width:5.5rem"
                   >
                     <ha-list-item value="__auto__">${t.siteAuto}</ha-list-item>
-                    ${Array.from({ length: Yt }, (n, I) => g`
-                      <ha-list-item value="${String(I)}">${String(I)}</ha-list-item>
-                    `)}
+                    ${Yt.map(
+      (n) => g`
+                        <ha-list-item value="${String(n.index)}">
+                          ${O(t.editorSiteOption, { index: String(n.index), segment: n.segment })}
+                        </ha-list-item>
+                      `
+    )}
                   </ha-select>
                 ` : y}
             <label>${t.date}</label>
-            <input type="date" .value=${this._date} max=${R()} @change=${this._onDateChange} />
+            <input type="date" .value=${this._date} max=${I()} @change=${this._onDateChange} />
             <label>${t.range}</label>
             <div class="range-btns">
               ${["day", "week", "month", "year"].map((n) => g`
@@ -3159,10 +3163,10 @@ class er extends at {
           .error=${this._powerGraphErr}
           .displaySeries=${this._powerGraphDisplaySeries()}
           .rollingHours=${this._powerGraphRollingHours}
-          .isTodayGraph=${(this._date ?? R()) === R()}
+          .isTodayGraph=${(this._date ?? I()) === I()}
           @hub-power-graph-window=${(n) => {
-      const I = n.detail?.hours;
-      I != null && this._setPowerGraphRollingHours(I);
+      const R = n.detail?.hours;
+      R != null && this._setPowerGraphRollingHours(R);
     }}
         ></hub-power-graph>` : y}
         ${this._showSection("show_battery_bar") ? g`<hub-energie-battery-bar .i18n=${t} .data=${le} .numberLocale=${e}></hub-energie-battery-bar>` : y}
@@ -3299,11 +3303,11 @@ class er extends at {
                     </div>
                     <div>
                       <b>${t.rawSectionImportBySlot}</b>
-                      ${j.length > 0 ? j.map((n, I) => g`${I > 0 ? g`<br />` : y}${K(n.id, S, t)}: ${n.v.toFixed(3)} kWh`) : t.emDash}
+                      ${j.length > 0 ? j.map((n, R) => g`${R > 0 ? g`<br />` : y}${K(n.id, S, t)}: ${n.v.toFixed(3)} kWh`) : t.emDash}
                     </div>
                     <div>
                       <b>${t.rawSectionCostBySlot}</b>
-                      ${v.length > 0 ? v.map((n, I) => g`${I > 0 ? g`<br />` : y}${K(n.id, S, t)}: ${n.v.toFixed(3)} €`) : t.emDash}
+                      ${v.length > 0 ? v.map((n, R) => g`${R > 0 ? g`<br />` : y}${K(n.id, S, t)}: ${n.v.toFixed(3)} €`) : t.emDash}
                     </div>
                     <div>
                       <b>${t.rawSectionUsageDetail}</b>

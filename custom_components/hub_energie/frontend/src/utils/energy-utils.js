@@ -75,21 +75,43 @@ export function makeEntityMap(prefix = DEFAULT_HUB_ENTITY_PREFIX) {
 }
 
 /**
- * Count Hub Énergie sites that expose ``card_entity_ids`` (one cost_detail per entry).
- * @param {Record<string, { attributes?: Record<string, unknown> }> | undefined} states
+ * Hub Énergie installations visible in states (one row per ``cost_detail`` / legacy equivalent).
+ * @returns {{ index: number, segment: string, costEntityId: string }[]}
  */
-export function hubEnergieSiteCountFromStates(states) {
-  if (!states) return 0;
-  const seen = new Set();
+export function hubSitesFromStates(states) {
+  if (!states) return [];
+  /** @type {Map<number, { index: number, segment: string, costEntityId: string }>} */
+  const byIdx = new Map();
   for (const [eid, st] of Object.entries(states)) {
     const a = st?.attributes;
     if (!a || typeof a !== "object") continue;
     const m = a.card_entity_ids;
-    if (!m || typeof m !== "object" || typeof m.cost !== "string" || !m.cost) continue;
-    const idx = costSiteSlotFromState(st, eid) ?? 0;
-    seen.add(idx);
+    if (m && typeof m === "object" && m.cost === eid) {
+      const idx = costSiteSlotFromState(st, eid) ?? 0;
+      const segRaw = a[CARD_SITE_SEGMENT_ATTR];
+      const segment =
+        typeof segRaw === "string" && segRaw.trim() !== "" ? String(segRaw).trim() : String(idx);
+      byIdx.set(idx, { index: idx, segment, costEntityId: eid });
+      continue;
+    }
+    if (typeof a.eco_solar === "number" && a.grid_by_slot_kwh != null && typeof a.grid_by_slot_kwh === "object") {
+      const idx = costSiteSlotFromState(st, eid) ?? 0;
+      if (byIdx.has(idx)) continue;
+      const segRaw = a[CARD_SITE_SEGMENT_ATTR];
+      const segment =
+        typeof segRaw === "string" && segRaw.trim() !== "" ? String(segRaw).trim() : String(idx);
+      byIdx.set(idx, { index: idx, segment, costEntityId: eid });
+    }
   }
-  return seen.size;
+  return [...byIdx.values()].sort((x, y) => x.index - y.index);
+}
+
+/**
+ * Count Hub Énergie sites (see ``hubSitesFromStates``).
+ * @param {Record<string, { attributes?: Record<string, unknown> }> | undefined} states
+ */
+export function hubEnergieSiteCountFromStates(states) {
+  return hubSitesFromStates(states).length;
 }
 
 /**

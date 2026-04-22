@@ -1,7 +1,7 @@
 import { LitElement, css, html, nothing } from "lit";
 import { I18N } from "./constants/i18n.js";
 import { tpl } from "./utils/i18n-template.js";
-import { hubEnergieSiteCountFromStates } from "./utils/energy-utils.js";
+import { hubSitesFromStates } from "./utils/energy-utils.js";
 
 const CARD_TYPE = "custom:hub-energie-card";
 
@@ -71,8 +71,8 @@ export class HubEnergieCardEditor extends LitElement {
     return v !== false && v !== "false";
   }
 
-  _siteCount() {
-    return hubEnergieSiteCountFromStates(this.hass?.states);
+  _hubSites() {
+    return hubSitesFromStates(this.hass?.states);
   }
 
   _siteSelectValue() {
@@ -89,12 +89,12 @@ export class HubEnergieCardEditor extends LitElement {
     const hoursTrunc = Math.trunc(hoursRaw);
     const hoursVal = POWER_HISTORY_HOURS_SET.has(hoursTrunc) ? hoursTrunc : 6;
 
-    const siteCount = this._siteCount();
+    const sites = this._hubSites();
     const siteSel = this._siteSelectValue();
 
     return html`
       <div class="card-config">
-        ${siteCount > 1
+        ${sites.length >= 1
           ? html`
               <div class="field">
                 <ha-select
@@ -105,9 +105,13 @@ export class HubEnergieCardEditor extends LitElement {
                   .naturalMenuWidth=${true}
                 >
                   <ha-list-item value="__auto__">${i18n.siteAuto}</ha-list-item>
-                  ${Array.from({ length: siteCount }, (_, i) => html`
-                    <ha-list-item value="${String(i)}">${String(i)}</ha-list-item>
-                  `)}
+                  ${sites.map(
+                    (s) => html`
+                      <ha-list-item value="${String(s.index)}">
+                        ${tpl(i18n.editorSiteOption, { index: String(s.index), segment: s.segment })}
+                      </ha-list-item>
+                    `,
+                  )}
                 </ha-select>
                 <p class="hint">${i18n.editorSiteHint}</p>
               </div>

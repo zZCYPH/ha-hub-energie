@@ -131,9 +131,10 @@ export const I18N = Object.freeze({
     sectionConsumption: "Consommation",
     siteLabel: "Site",
     siteAuto: "Auto",
-    editorSiteLabel: "Site",
+    editorSiteLabel: "Site (installation)",
+    editorSiteOption: "{index} — {segment}",
     editorSiteHint:
-      "Plusieurs intégrations Hub Énergie : choisissez l’index (0, 1, …). « Auto » si une seule installation.",
+      "Quelle entrée Hub Énergie utiliser pour cette carte (même « pont » que dans Paramètres). « Auto » : la seule installation détectée, ou la plus petite clé d’entité en cas d’ambiguïté. Avec plusieurs entrées, choisissez l’index affiché (0, 1, …).",
     editorPowerGraphWindow: "Fenêtre par défaut du graphe de puissance",
     editorPowerHoursUnit: "{n} heures",
     editorPowerHoursHint:
@@ -317,9 +318,10 @@ export const I18N = Object.freeze({
     sectionConsumption: "Consumption",
     siteLabel: "Site",
     siteAuto: "Auto",
-    editorSiteLabel: "Site",
+    editorSiteLabel: "Site (config entry)",
+    editorSiteOption: "{index} — {segment}",
     editorSiteHint:
-      "Multiple Hub Énergie installs: pick the index (0, 1, …). \"Auto\" when only one site is present.",
+      "Which Hub Énergie config entry this card uses (same as the integration tile under Settings). \"Auto\": the only install found, or the smallest entity id if ambiguous. With several entries, pick the listed index (0, 1, …).",
     editorPowerGraphWindow: "Power graph default window",
     editorPowerHoursUnit: "{n} hours",
     editorPowerHoursHint: "Rolling history length when opening the live power graph.",

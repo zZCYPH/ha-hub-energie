@@ -28,7 +28,7 @@ import {
   discoverCostEntityId,
   discoverLovelaceCardEntityId,
   entityMapFromCostAttributes,
-  hubEnergieSiteCountFromStates,
+  hubSitesFromStates,
   makeEntityMap,
   mergeHubCardAttributes,
   offerLabel,
@@ -1455,7 +1455,7 @@ class HubEnergieCard extends LitElement {
 
     const totalReinjRaw = reinj.solarSurplus + reinj.batteryFull + reinj.switchLatency + reinj.unattributed;
 
-    const siteCount = hubEnergieSiteCountFromStates(this.hass?.states);
+    const hubSites = hubSitesFromStates(this.hass?.states);
     const siteIdx = this._siteIndexFromConfig();
     const siteSelectValue =
       siteIdx === null || siteIdx === undefined ? "__auto__" : String(Math.max(0, Math.trunc(siteIdx)));
@@ -1468,7 +1468,7 @@ class HubEnergieCard extends LitElement {
             <span class="header-subtitle">${offerLabel(offer)}${contractPower ? ` ${contractPower}kVA` : ""}</span>
           </div>
           <div class="controls">
-            ${siteCount > 1
+            ${hubSites.length >= 1
               ? html`
                   <label>${i18n.siteLabel}</label>
                   <ha-select
@@ -1479,9 +1479,13 @@ class HubEnergieCard extends LitElement {
                     style="min-width:5.5rem"
                   >
                     <ha-list-item value="__auto__">${i18n.siteAuto}</ha-list-item>
-                    ${Array.from({ length: siteCount }, (_, i) => html`
-                      <ha-list-item value="${String(i)}">${String(i)}</ha-list-item>
-                    `)}
+                    ${hubSites.map(
+                      (s) => html`
+                        <ha-list-item value="${String(s.index)}">
+                          ${tpl(i18n.editorSiteOption, { index: String(s.index), segment: s.segment })}
+                        </ha-list-item>
+                      `,
+                    )}
                   </ha-select>
                 `
               : nothing}
