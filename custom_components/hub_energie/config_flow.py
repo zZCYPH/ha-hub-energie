@@ -1085,7 +1085,7 @@ class _BatteryWizardMixin(_StepLoggingMixin):
 class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     """Multi-step setup wizard for Hub Energie."""
 
-    VERSION = 5
+    VERSION = 6
 
     def __init__(self) -> None:
         self._data: dict[str, Any] = {}
