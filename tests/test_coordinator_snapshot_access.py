@@ -20,7 +20,7 @@ def _ensure_pkg(name: str, path: Path) -> None:
 
 _ensure_pkg("hub_energie", HUB_DIR)
 
-sa = importlib.import_module("hub_energie.coordinator_snapshot_access")
+sa = importlib.import_module("hub_energie.coordinator.snapshot_access")
 
 
 def test_snapshot_get_numeric_rejects_non_finite() -> None:

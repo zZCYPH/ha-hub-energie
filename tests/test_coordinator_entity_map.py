@@ -22,7 +22,7 @@ def _ensure_pkg(name: str, path: Path) -> None:
 _ensure_pkg("hub_energie", HUB_DIR)
 
 const = importlib.import_module("hub_energie.const")
-em = importlib.import_module("hub_energie.coordinator_entity_map")
+em = importlib.import_module("hub_energie.coordinator.entity_map")
 
 
 def test_build_source_map_mono_with_battery_keys() -> None:

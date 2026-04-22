@@ -25,7 +25,7 @@ def _ensure_pkg(name: str, path: Path) -> None:
 
 _ensure_pkg("hub_energie", HUB_DIR)
 
-prep = importlib.import_module("hub_energie.coordinator_update_prep")
+prep = importlib.import_module("hub_energie.coordinator.update_prep")
 edf_mod = importlib.import_module("hub_energie.tariff.edf_state")
 paris_time_mod = importlib.import_module("hub_energie.time.paris_time")
 

@@ -1,4 +1,4 @@
-"""Tests for hub_energie.coordinator_init wiring."""
+"""Tests for hub_energie.coordinator.hub wiring."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ def _ensure_pkg(name: str, path: Path) -> None:
 
 _ensure_pkg("hub_energie", HUB_DIR)
 
-ci = importlib.import_module("hub_energie.coordinator_init")
+ci = importlib.import_module("hub_energie.coordinator.hub")
 
 
 def test_wire_hub_energie_coordinator_after_super_order() -> None:

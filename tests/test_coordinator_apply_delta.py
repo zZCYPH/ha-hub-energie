@@ -24,9 +24,9 @@ def _ensure_pkg(name: str, path: Path) -> None:
 _ensure_pkg("hub_energie", HUB_DIR)
 
 const = importlib.import_module("hub_energie.const")
-coord_mod = importlib.import_module("hub_energie.coordinator")
-coordinator_apply_delta = importlib.import_module("hub_energie.coordinator_apply_delta")
-coordinator_policy = importlib.import_module("hub_energie.coordinator_policy")
+coord_mod = importlib.import_module("hub_energie.coordinator.hub")
+coordinator_apply_delta = importlib.import_module("hub_energie.coordinator.apply_delta")
+coordinator_policy = importlib.import_module("hub_energie.coordinator.policy")
 slot_attribution = importlib.import_module("hub_energie.tariff.slot_attribution")
 
 

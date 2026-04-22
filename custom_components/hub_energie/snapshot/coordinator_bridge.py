@@ -88,7 +88,7 @@ from .pipeline import SnapshotPipelineDeps
 from .snapshot_builder import build_snapshot as build_snapshot_domain
 
 if TYPE_CHECKING:
-    from ..coordinator import HubEnergieCoordinator
+    from ..coordinator.hub import HubEnergieCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -43,7 +43,7 @@ from ..const.energy_data import (
     DATA_TOMORROW_COLOR,
 )
 from ..coordinator import HubEnergieCoordinator
-from ..coordinator_types import EnergyData
+from ..coordinator.types import EnergyData
 from ..entity_id_stability import apply_stable_suggested_object_id
 from ..device_info import _device_frontend
 from .base import HubEnergieSensor, _build_power_graph_entity_map, _input_status_sensor_attributes

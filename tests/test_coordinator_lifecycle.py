@@ -24,7 +24,7 @@ def _ensure_pkg(name: str, path: Path) -> None:
 
 _ensure_pkg("hub_energie", HUB_DIR)
 
-lifecycle = importlib.import_module("hub_energie.coordinator_lifecycle")
+lifecycle = importlib.import_module("hub_energie.coordinator.lifecycle")
 
 
 def test_coordinator_next_poll_fire_paris_delegates() -> None:

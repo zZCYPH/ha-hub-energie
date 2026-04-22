@@ -22,7 +22,7 @@ def _ensure_pkg(name: str, path: Path) -> None:
 
 _ensure_pkg("hub_energie", HUB_DIR)
 
-dt_mod = importlib.import_module("hub_energie.coordinator_delta_telemetry")
+dt_mod = importlib.import_module("hub_energie.coordinator.delta_telemetry")
 
 
 async def _run_refresh() -> None:
