@@ -168,3 +168,12 @@ DATA_BATTERY_EFFICIENCY: Final = "efficiency"
 # ---------------------------------------------------------------------------
 DATA_GRID_BY_SLOT_KWH: Final = "grid_by_slot_kwh"
 DATA_MAISON_BY_SLOT_KWH: Final = "maison_by_slot_kwh"
+
+# Lovelace hub-energie-card: resolved sensor entity_ids (stable per entry; see entity_id_stability).
+DATA_CARD_ENTITY_IDS: Final = "card_entity_ids"
+# 0-based site index among Hub Énergie config entries (when entity ids use numeric segment).
+DATA_CARD_SITE_INDEX: Final = "card_site_index"
+# Segment used in ``entity_id`` after ``hub_energie_`` (numeric string or site slug).
+DATA_CARD_SITE_SEGMENT: Final = "card_site_segment"
+# True on ``sensor.*_lovelace_card`` attributes (Frontend device) for card discovery.
+DATA_CARD_PAYLOAD_MARKER: Final = "hub_energie_card_payload"

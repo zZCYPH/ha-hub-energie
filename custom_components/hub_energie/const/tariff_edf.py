@@ -62,6 +62,11 @@ CONF_FLOW_NAV: Final = "flow_nav"
 FLOW_NAV_CONTINUE: Final = "continue"
 FLOW_NAV_BACK: Final = "back"
 
+# Short ASCII site key for ``entity_id`` object_ids: ``hub_energie_<site_slug>_…`` (immutable once set).
+CONF_SITE_SLUG: Final = "site_slug"
+# True when a site slug was committed (install or first options save); slug can no longer be changed.
+CONF_SITE_SLUG_LOCKED: Final = "site_slug_locked"
+
 # Time-of-use tariff
 CONF_TOU_PERIODS: Final = "tou_periods"
 # Fixed rows in ``manual_tou`` (HP/HC — two slots).

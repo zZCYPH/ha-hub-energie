@@ -593,6 +593,17 @@
         "data_description": {
           "add_another": "Activez pour enchaîner sur une autre batterie après celle-ci."
         }
+      },
+      "site": {
+        "title": "Clé site (optionnel)",
+        "description": "Clé ASCII courte (2 à 10 caractères : **a–z** et **0–9** uniquement) utilisée dans les **entity_id** de cette installation (ex. `sensor.hub_energie_<cle>_cost_detail`). **Si vous la renseignez maintenant, elle ne pourra plus être modifiée** — laissez vide pour garder le segment numérique par défaut et définir une clé plus tard dans **Configurer**.\n\nUsage interne pour unicité des entités, pas un nom d’affichage.\n\n[J'ai besoin d'aide pour saisir cette étape]({step_help_url})",
+        "data": {
+          "site_slug": "Clé site (optionnel)",
+          "flow_nav": "Navigation dans l’assistant"
+        },
+        "data_description": {
+          "site_slug": "Lettres minuscules et chiffres uniquement, 2 à 10 caractères. Ex. : `maison`, `pv42`. Vide = segment numérique par défaut jusqu’à saisie dans Configurer."
+        }
       }
     },
     "error": {
@@ -623,7 +634,10 @@
       "invalid_battery_choice": "Sélectionnez une batterie valide.",
       "tariff_payload_incomplete": "Les données tarifaires du fournisseur sont incomplètes ou invalides. Réessayez ou vérifiez l'offre et le kVA.",
       "invalid_delta_cap": "Les plafonds de delta doivent être des nombres valides dans la plage autorisée.",
-      "invalid_reinjection_thresholds": "Les seuils de réinjection doivent être des nombres valides dans les plages autorisées."
+      "invalid_reinjection_thresholds": "Les seuils de réinjection doivent être des nombres valides dans les plages autorisées.",
+      "site_slug_format": "La clé site doit comporter 2 à 10 caractères : lettres a–z minuscules et chiffres 0–9 uniquement.",
+      "site_slug_duplicate": "Cette clé site est déjà utilisée par une autre entrée Hub Énergie.",
+      "site_slug_locked": "La clé site est verrouillée et ne peut pas être modifiée."
     },
     "abort": {
       "already_configured": "Cette intégration est déjà configurée."
@@ -635,6 +649,7 @@
         "title": "Hub Énergie – Options",
         "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})",
         "menu_options": {
+          "site_slug": "Clé site & entity_id",
           "offer": "Offre & tarifs",
           "grid": "Capteurs réseau",
           "grid_tri": "Réseau triphasé (optionnel)",
@@ -1029,6 +1044,16 @@
           "add_another": "Activez pour enchaîner sur une autre batterie après celle-ci."
         }
       },
+      "site_slug": {
+        "title": "Clé site (entity_id)",
+        "description": "Définissez une clé ASCII (2–10 : **a–z**, **0–9**) une seule fois : les **entity_id** seront renommés vers `hub_energie_<cle>_…`. **Verrouillée après enregistrement** — impossible de la changer ensuite.\n\n[J'ai besoin d'aide pour saisir cette étape]({step_help_url})",
+        "data": {
+          "site_slug": "Clé site"
+        },
+        "data_description": {
+          "site_slug": "Lettres minuscules et chiffres uniquement. Doit être unique entre les entrées Hub Énergie."
+        }
+      },
       "tariff_refresh": {
         "title": "Actualiser les tarifs EDF",
         "description": "[J'ai besoin d'aide pour saisir cette étape]({step_help_url})",
@@ -1069,7 +1094,10 @@
       "battery_pick_conflicting_options": "Désactivez soit « supprimer la batterie sélectionnée », soit « ajouter une nouvelle batterie », puis réessayez.",
       "tariff_fetch_failed": "Échec de la récupération des tarifs. Vérifiez l'offre, le kVA et le réseau.",
       "tariff_payload_incomplete": "Les données tarifaires du fournisseur sont incomplètes ou invalides. Réessayez ou vérifiez l'offre et le kVA.",
-      "invalid_reinjection_thresholds": "Les seuils de réinjection doivent être des nombres valides dans les plages autorisées."
+      "invalid_reinjection_thresholds": "Les seuils de réinjection doivent être des nombres valides dans les plages autorisées.",
+      "site_slug_format": "La clé site doit comporter 2 à 10 caractères : lettres a–z minuscules et chiffres 0–9 uniquement.",
+      "site_slug_duplicate": "Cette clé site est déjà utilisée par une autre entrée Hub Énergie.",
+      "site_slug_locked": "La clé site est verrouillée et ne peut pas être modifiée."
     }
   },
   "selector": {
@@ -1208,6 +1236,12 @@
   },
   "entity": {
     "sensor": {
+      "lovelace_card": {
+        "name": "Carte Lovelace"
+      },
+      "site_ids": {
+        "name": "IDs site"
+      },
       "health": {
         "name": "État général",
         "state": {

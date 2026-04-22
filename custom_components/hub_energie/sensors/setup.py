@@ -47,6 +47,7 @@ from .energy import (
     HubEnergieUsageSensor,
 )
 from .frontend import HubEnergieFrontendDataSensor, HubEnergieFrontendMetaSensor
+from .lovelace_card import HubEnergieLovelaceCardSensor, HubEnergieSiteIdsSensor
 from .power import HubEnergiePowerFlowSensor
 from .solar import HubEnergieSolarEstimateSensor, HubEnergieSolarRevenueSensor
 from .tempo import (
@@ -169,6 +170,8 @@ async def async_setup_entry(
     # ── Core sensors ───────────────────────────────────────────────────
     entities.extend([
         HubEnergieCostDetailSensor(coordinator, entry),
+        HubEnergieSiteIdsSensor(coordinator, entry),
+        HubEnergieLovelaceCardSensor(coordinator, entry),
         HubEnergieFrontendDataSensor(coordinator, entry),
         HubEnergieFrontendMetaSensor(coordinator, entry),
         HubEnergieOriginSensor(coordinator, entry, "grid"),

@@ -98,6 +98,7 @@ from .const.tariff_edf import (
     CONF_RTE_CLIENT_ID,
     CONF_RTE_CLIENT_SECRET,
     CONF_SCHEDULE_SLOTS,
+    CONF_SITE_SLUG,
     CONF_SUBSCRIPTION_PRICE,
     CONF_SUPPLIER,
     CONF_SUPPLIER_CUSTOM_NAME,
@@ -128,6 +129,7 @@ from .const.tariff_edf import (
     TOU_FORM_MAX_SLOTS,
     TOU_FORM_SECTION_PREFIX,
 )
+from .site_slug import normalize_site_slug
 
 ERR_REQUIRED: Final = "required"
 ERR_INVALID_ENTITY: Final = "invalid_entity"
@@ -149,6 +151,9 @@ ERR_NO_ENERGY_SENSOR: Final = "no_energy_sensor"
 ERR_SCHEDULE_INCOMPLETE_ROW: Final = "schedule_incomplete_row"
 ERR_TRI_EXPORT_ALL_OR_NONE: Final = "tri_export_all_or_none"
 ERR_TRI_IMPORT_PHASES_INCOMPLETE: Final = "tri_import_phases_incomplete"
+ERR_SITE_SLUG_FORMAT: Final = "site_slug_format"
+ERR_SITE_SLUG_DUPLICATE: Final = "site_slug_duplicate"
+ERR_SITE_SLUG_LOCKED: Final = "site_slug_locked"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -1368,6 +1373,10 @@ class HubEnergieConfigValidator:
             data.get(CONF_SCHEDULE_SLOTS), list
         ):
             errors[CONF_SCHEDULE_SLOTS] = ERR_REQUIRED
+        raw_site = data.get(CONF_SITE_SLUG)
+        if raw_site not in (None, ""):
+            if normalize_site_slug(str(raw_site)) is None:
+                errors[CONF_SITE_SLUG] = ERR_SITE_SLUG_FORMAT
         _LOGGER.debug(
             "Validation full errors=%s data=%s",
             errors,

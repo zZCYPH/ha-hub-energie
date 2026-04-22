@@ -68,6 +68,12 @@ def _ensure_stub_homeassistant() -> None:
 
     core.callback = _callback
     core.CALLBACK_TYPE = type(None)
+
+    def split_entity_id(entity_id: str) -> tuple[str, str]:
+        domain, _, object_id = entity_id.partition(".")
+        return domain, object_id
+
+    core.split_entity_id = split_entity_id  # type: ignore[attr-defined]
     core.State = type("State", (), {})  # noqa: PLC0415 — test stub only
     core.Event = type("Event", (), {})  # noqa: PLC0415 — test stub only
     core.EventStateChangedData = type(  # noqa: PLC0415 — test stub only
@@ -118,6 +124,22 @@ def _ensure_stub_homeassistant() -> None:
     sys.modules["homeassistant.config_entries"] = entries
 
     util = types.ModuleType("homeassistant.util")
+
+    def _slugify(text: str, *, separator: str = "_") -> str:
+        """Minimal slugify for entity_id_stability tests (not full HA rules)."""
+        s = str(text).lower().strip().replace(" ", separator)
+        out = []
+        for ch in s:
+            if ch.isalnum() or ch == separator:
+                out.append(ch)
+            elif ch in "-_":
+                out.append(separator)
+        slug = "".join(out)
+        while separator * 2 in slug:
+            slug = slug.replace(separator * 2, separator)
+        return slug.strip(separator) or "x"
+
+    util.slugify = _slugify  # type: ignore[attr-defined]
     dt_mod = types.ModuleType("homeassistant.util.dt")
 
     def _utcnow() -> datetime:
@@ -151,6 +173,45 @@ def _ensure_stub_homeassistant() -> None:
     sys.modules["homeassistant.helpers"] = helpers
     sys.modules["homeassistant.helpers.aiohttp_client"] = aiohttp_client
     ha.helpers = helpers
+
+    dr_mod = types.ModuleType("homeassistant.helpers.device_registry")
+
+    class _DeviceRegistryStub:
+        def async_get_device(self, _identifiers: object) -> None:
+            return None
+
+        def async_update_device(self, _device_id: str, **_kwargs: object) -> None:
+            return None
+
+    dr_mod.async_get = lambda _hass: _DeviceRegistryStub()  # type: ignore[misc]
+    sys.modules["homeassistant.helpers.device_registry"] = dr_mod
+
+    er_mod = types.ModuleType("homeassistant.helpers.entity_registry")
+
+    class _EmptyEntityRegistry:
+        _by_id: dict[str, Any] = {}
+
+    def _async_get_entity_registry(hass: object) -> object:
+        reg = getattr(hass, "_entity_registry", None)
+        return reg if reg is not None else _EmptyEntityRegistry()
+
+    def async_entries_for_config_entry(registry: object, config_entry_id: str) -> list[Any]:
+        """Match HA API: module function (registry, config_entry_id)."""
+        by_id = getattr(registry, "_by_id", None)
+        if isinstance(by_id, dict):
+            return sorted(
+                (
+                    e
+                    for e in by_id.values()
+                    if getattr(e, "config_entry_id", None) == config_entry_id
+                ),
+                key=lambda e: getattr(e, "entity_id", ""),
+            )
+        return []
+
+    er_mod.async_get = _async_get_entity_registry
+    er_mod.async_entries_for_config_entry = async_entries_for_config_entry
+    sys.modules["homeassistant.helpers.entity_registry"] = er_mod
 
 
 def _ensure_ha_persistence_stubs() -> None:

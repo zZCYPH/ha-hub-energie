@@ -1,0 +1,145 @@
+# Stable semver GitHub Release + ZIP for HACS (commit must be on origin/hacs; manifest == tag).
+# Pre-releases (tags with a '-' after X.Y.Z, e.g. v0.6.0-beta.1) use workflow release-beta.yml instead.
+name: Release (hacs / HACS)
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+concurrency:
+  group: release-hacs-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    # Avoid clashing with beta tags that also match v*.*.* glob (e.g. v0.6.0-beta.1).
+    if: ${{ github.ref_type == 'tag' && !contains(github.ref_name, '-') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate tag name (strict semver)
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          if ! printf '%s' "$TAG" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Release tags must look like vX.Y.Z (no pre-release suffix on this workflow)."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure tag is on hacs lineage + manifest matches tag
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          MANIFEST_VER="$(python3 -c "import json;print(json.load(open('custom_components/hub_energie/manifest.json'))['version'])")"
+          if [ "$MANIFEST_VER" != "$VERSION" ]; then
+            echo "manifest.json version ($MANIFEST_VER) must match tag ($VERSION) without the leading v"
+            exit 1
+          fi
+          git fetch origin hacs
+          if ! git merge-base --is-ancestor "${GITHUB_SHA}" "origin/hacs"; then
+            echo "This tag's commit must be an ancestor of origin/hacs (releases only from the stable hacs line)."
+            exit 1
+          fi
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python tooling
+        run: pip install --disable-pip-version-check pytest
+
+      - name: Flow catalog --check
+        run: python scripts/extract_config_flow_catalog.py --check
+
+      - name: Flow catalog pytest (no cov addopts)
+        run: python -m pytest tests/test_flow_catalog_coverage.py -v --override-ini addopts=
+
+      - name: Vitrine / integration doc parity
+        run: python3 scripts/verify_vitrine_integration_docs.py
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Site build smoke
+        env:
+          VITE_CI_COMMIT_TAG: ${{ github.ref_name }}
+        run: |
+          cd site
+          npm ci
+          npm run build
+
+      - name: hacs.json + manifest sanity
+        run: |
+          set -euo pipefail
+          test -f hacs.json
+          python3 << 'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          root = Path(".")
+          h = json.loads((root / "hacs.json").read_text(encoding="utf-8"))
+          m = json.loads(
+              (root / "custom_components" / "hub_energie" / "manifest.json").read_text(encoding="utf-8")
+          )
+
+          if not isinstance(h.get("name"), str) or not h["name"].strip():
+              sys.exit("hacs.json: missing non-empty name")
+
+          for key in ("domain", "documentation", "issue_tracker", "codeowners", "name", "version"):
+              if key not in m or m[key] is None:
+                  sys.exit(f"manifest.json: missing required key {key!r}")
+
+          ha_h, ha_m = h.get("homeassistant"), m.get("homeassistant")
+          if ha_h and ha_m and ha_h != ha_m:
+              sys.exit(
+                  f"hacs.json homeassistant ({ha_h!r}) must match manifest.json homeassistant ({ha_m!r})"
+              )
+          PY
+
+      - name: Build Lovelace bundle + integration ZIP
+        id: zip
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          (cd custom_components/hub_energie/frontend && npm ci && npm run build)
+          STAGE="${RUNNER_TEMP}/zip-stage"
+          rm -rf "$STAGE"
+          mkdir -p "$STAGE/custom_components"
+          rsync -a \
+            --exclude 'frontend/node_modules' \
+            --exclude '__pycache__' \
+            --exclude '.pytest_cache' \
+            --exclude '*.pyc' \
+            "${GITHUB_WORKSPACE}/custom_components/hub_energie/" \
+            "$STAGE/custom_components/hub_energie/"
+          ZIP_NAME="hub-energie-${VERSION}.zip"
+          (cd "$STAGE" && zip -qr "${GITHUB_WORKSPACE}/${ZIP_NAME}" custom_components)
+          echo "zip_name=${ZIP_NAME}" >> "${GITHUB_OUTPUT}"
+          echo "Built ${ZIP_NAME}"
+
+      - name: Publish GitHub Release (ZIP asset for HACS / manual installs)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          body: |
+            **Home Assistant:** unzip at the root of your `config/` folder so you get `config/custom_components/hub_energie/`. The Lovelace bundle is pre-built under `frontend/dist/` (served by HA at `/hub_energie/`).
+
+            **HACS:** install or upgrade from this release when offered in the UI; the archive layout matches what HACS expects for custom integrations.
+          files: ${{ steps.zip.outputs.zip_name }}
+          fail_on_unmatched_files: true
+          allowUpdates: true

@@ -62,8 +62,18 @@ from .config_flow_selectors import (
     time_slot_selector,
 )
 from .config_models import BATTERY_ID
+from .site_slug import (
+    normalize_site_slug,
+    other_entries_with_same_site_slug,
+    rename_hub_entities_to_site_slug,
+    site_slug_is_locked,
+    update_site_device_name,
+)
 from .config_validation import (
     ERR_RTE_CREDS_REQUIRED,
+    ERR_SITE_SLUG_DUPLICATE,
+    ERR_SITE_SLUG_FORMAT,
+    ERR_SITE_SLUG_LOCKED,
     ERR_TARIFF_PAYLOAD_INCOMPLETE,
     HubEnergieConfigValidator,
     _SOLAR_CLEAR_KEYS,
@@ -194,6 +204,8 @@ from .const.tariff_edf import (
     CONF_RTE_CLIENT_ID,
     CONF_RTE_CLIENT_SECRET,
     CONF_SCHEDULE_SLOTS,
+    CONF_SITE_SLUG,
+    CONF_SITE_SLUG_LOCKED,
     CONF_SUBSCRIPTION_PRICE,
     CONF_SUPPLIER,
     CONF_SUPPLIER_CUSTOM_NAME,
@@ -1093,7 +1105,7 @@ class _BatteryWizardMixin(_StepLoggingMixin):
 class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
     """Multi-step setup wizard for Hub Energie."""
 
-    VERSION = 3
+    VERSION = 8
 
     def __init__(self) -> None:
         self._data: dict[str, Any] = {}
@@ -1136,7 +1148,47 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
 
     async def _after_batteries_finished(self) -> ConfigFlowResult:
         self._data[CONF_BATTERY_SYSTEMS] = list(self._batteries)
-        return await self._create_entry()
+        return await self.async_step_site()
+
+    async def async_step_site(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Optional site key (ASCII slug) — immutable once set; used in ``entity_id`` prefixes."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            back = await self._setup_flow_nav_back(user_input)
+            if back is not None:
+                return back
+            user_input = _strip_flow_nav(user_input)
+            raw = user_input.get(CONF_SITE_SLUG, "")
+            slug = normalize_site_slug(str(raw).strip() if raw else "")
+            if str(raw).strip() and slug is None:
+                errors[CONF_SITE_SLUG] = ERR_SITE_SLUG_FORMAT
+            elif slug:
+                if other_entries_with_same_site_slug(self.hass, slug, None):
+                    errors[CONF_SITE_SLUG] = ERR_SITE_SLUG_DUPLICATE
+                else:
+                    self._data[CONF_SITE_SLUG] = slug
+                    self._data[CONF_SITE_SLUG_LOCKED] = True
+                    return await self._create_entry()
+            else:
+                return await self._create_entry()
+        return self._show_doc_form(
+            step_id="site",
+            data_schema=_wrap_setup_wizard_schema(
+                self,
+                vol.Schema(
+                    {
+                        vol.Optional(
+                            CONF_SITE_SLUG,
+                            default=str(self._data.get(CONF_SITE_SLUG, "") or ""),
+                        ): text_selector(),
+                    },
+                    extra=vol.ALLOW_EXTRA,
+                ),
+            ),
+            errors=errors,
+        )
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -1778,7 +1830,7 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
                     self._current_battery = {BATTERY_ID: uuid.uuid4().hex[:8]}
                     self._edit_batt_index = None
                     return await _wizard_nav_forward(self, "battery", self.async_step_battery_add())
-                return await self._create_entry()
+                return await self.async_step_site()
         return self._show_doc_form(
             step_id="battery",
             data_schema=_wrap_setup_wizard_schema(
@@ -1824,9 +1876,10 @@ class HubEnergieConfigFlow(_BatteryWizardMixin, ConfigFlow, domain=DOMAIN):
         self._nav_stack.clear()
         await self.async_set_unique_id(_flow_unique_id(self._data))
         self._abort_if_unique_id_configured()
-        supplier_label = self._data.get(CONF_SUPPLIER_CUSTOM_NAME) or str(self._data.get(CONF_SUPPLIER, "")).upper()
+        from .bridge_title import hub_energie_bridge_title
+
         return self.async_create_entry(
-            title=f"Hub Energie - {supplier_label}",
+            title=hub_energie_bridge_title(self._data),
             data=self._data,
             options=self._options,
         )
@@ -1845,7 +1898,10 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
 
     def _menu_options(self) -> list[str]:
         data = self.config_entry.data
-        options = ["offer", "grid", "solar", "battery"]
+        options = []
+        if not site_slug_is_locked(self.config_entry):
+            options.append("site_slug")
+        options.extend(["offer", "grid", "solar", "battery"])
         if data.get(CONF_PHASE_TYPE) == PHASE_TRI:
             options.insert(2, "grid_tri")
         if data.get(CONF_SUPPLIER) == SUPPLIER_EDF:
@@ -1882,10 +1938,22 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
         _LOGGER.debug("Persist candidate data=%s errors=%s", _redact_user_input(new_data), errors)
         if errors:
             raise ValueError(errors)
+        from .bridge_title import hub_energie_bridge_title
+
+        title = hub_energie_bridge_title(new_data)
         if options_patch is None:
-            self.hass.config_entries.async_update_entry(self.config_entry, data=new_data)
+            self.hass.config_entries.async_update_entry(
+                self.config_entry,
+                data=new_data,
+                title=title,
+            )
         else:
-            self.hass.config_entries.async_update_entry(self.config_entry, data=new_data, options=new_options)
+            self.hass.config_entries.async_update_entry(
+                self.config_entry,
+                data=new_data,
+                options=new_options,
+                title=title,
+            )
         await self.hass.config_entries.async_reload(self.config_entry.entry_id)
         return self.async_abort(reason=reason)
 
@@ -1910,6 +1978,57 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         return self._show_doc_menu(step_id="init", menu_options=self._menu_options())
+
+    async def async_step_site_slug(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Set site slug once (optional at install); renames ``entity_id``\\ s when first saved here."""
+        entry = self.config_entry
+        data = dict(entry.data)
+        locked = site_slug_is_locked(entry)
+        current = str(data.get(CONF_SITE_SLUG, "") or "")
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            user_input = _strip_flow_nav(user_input)
+            raw = user_input.get(CONF_SITE_SLUG, "")
+            raw_s = str(raw).strip() if raw else ""
+            slug = normalize_site_slug(raw_s) if raw_s else None
+            if locked and not raw_s:
+                errors["base"] = ERR_SITE_SLUG_LOCKED
+            elif raw_s and slug is None:
+                errors[CONF_SITE_SLUG] = ERR_SITE_SLUG_FORMAT
+            elif not raw_s and not locked:
+                return self._show_doc_menu(step_id="init", menu_options=self._menu_options())
+            elif slug:
+                if locked and slug == normalize_site_slug(current):
+                    return self._show_doc_menu(step_id="init", menu_options=self._menu_options())
+                if locked and slug != normalize_site_slug(current):
+                    errors[CONF_SITE_SLUG] = ERR_SITE_SLUG_LOCKED
+                elif other_entries_with_same_site_slug(self.hass, slug, entry.entry_id):
+                    errors[CONF_SITE_SLUG] = ERR_SITE_SLUG_DUPLICATE
+                else:
+                    patch = {CONF_SITE_SLUG: slug, CONF_SITE_SLUG_LOCKED: True}
+                    if not locked:
+                        rename_hub_entities_to_site_slug(self.hass, entry, slug=slug)
+                        update_site_device_name(self.hass, entry, slug)
+                    try:
+                        return await self._persist(data_patch=patch)
+                    except ValueError as err:
+                        errors = dict(err.args[0])
+        schema = vol.Schema(
+            {
+                vol.Optional(
+                    CONF_SITE_SLUG,
+                    default=current,
+                ): text_selector(),
+            },
+            extra=vol.ALLOW_EXTRA,
+        )
+        return self._show_doc_form(
+            step_id="site_slug",
+            data_schema=schema,
+            errors=errors,
+        )
 
     async def async_step_advanced_energy(
         self, user_input: dict[str, Any] | None = None

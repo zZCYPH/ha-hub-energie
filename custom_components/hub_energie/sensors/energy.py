@@ -44,6 +44,7 @@ from ..const.energy_data import (
     DATA_USAGE_SOLAR_DIRECT,
 )
 from ..coordinator import HubEnergieCoordinator
+from ..entity_id_stability import apply_stable_suggested_object_id
 from ..device_info import (
     _device_energy_balance,
     _device_for_slot_source,
@@ -125,6 +126,7 @@ class HubEnergieSsotTotalSensor(HubEnergieSensor):
         cfg = _SSOT_TOTAL_CONFIG[kind]
         self._snapshot_key = cfg["snapshot_key"]
         self._attr_unique_id = f"{entry.unique_id}_ssot_{kind}_total_kwh"
+        apply_stable_suggested_object_id(self)
         self._attr_name = cfg["name"]
         self._attr_entity_registry_enabled_default = enabled_default
         self._attr_device_info = _device_for_ssot_today_kind(coordinator, kind)
@@ -165,6 +167,7 @@ class HubEnergieTodayEnergySensor(HubEnergieSensor):
         cfg = _TODAY_ENERGY_CONFIG[kind]
         self._snapshot_key = cfg["snapshot_key"]
         self._attr_unique_id = f"{entry.unique_id}_{kind}_today_kwh"
+        apply_stable_suggested_object_id(self)
         self._attr_name = cfg["name"]
         self._attr_entity_registry_enabled_default = enabled_default
         self._attr_device_info = _device_for_ssot_today_kind(coordinator, kind)
@@ -205,6 +208,7 @@ class HubEnergieSlotSensor(HubEnergieSensor):
         self._slot = slot
         self._attr_entity_registry_enabled_default = enabled_default
         self._attr_unique_id = f"{entry.unique_id}_{source}_{slot}_kwh"
+        apply_stable_suggested_object_id(self)
         self._attr_name = (
             f"{_energy_source_label_fr(source)} {_slot_label_fr(slot)}"
         )
@@ -254,6 +258,7 @@ class HubEnergieMaisonSensor(HubEnergieSensor):
         self._slot = slot
         self._attr_entity_registry_enabled_default = enabled_default
         self._attr_unique_id = f"{entry.unique_id}_maison_{slot}_kwh"
+        apply_stable_suggested_object_id(self)
         self._attr_name = f"Maison {_slot_label_fr(slot)}"
         self._attr_device_info = _device_energy_balance(coordinator)
 
@@ -301,6 +306,7 @@ class HubEnergieUsageSensor(HubEnergieSensor):
         super().__init__(coordinator)
         self._key = _USAGE_KEYS[key]
         self._attr_unique_id = f"{entry.unique_id}_usage_{key}_kwh"
+        apply_stable_suggested_object_id(self)
         self._attr_name = _USAGE_FLOW_LABELS.get(
             key, key.replace("_", " ").title(),
         )
@@ -348,6 +354,7 @@ class HubEnergieOriginSensor(HubEnergieSensor):
         super().__init__(coordinator)
         self._kind = kind
         self._attr_unique_id = f"{entry.unique_id}_origin_{kind}_kwh"
+        apply_stable_suggested_object_id(self)
         self._attr_name = _ORIGIN_LABELS.get(kind, kind.title())
         self._attr_device_info = (
             _device_grid_config(coordinator)

@@ -1,0 +1,115 @@
+# CI for the stable HACS mirror branch only (parity with key GitLab verify jobs).
+name: Verify (hacs)
+
+on:
+  push:
+    branches:
+      - hacs
+  pull_request:
+    branches:
+      - hacs
+
+concurrency:
+  group: verify-hacs-${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  flow_catalog_up_to_date:
+    name: Flow catalog + coverage gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install tooling
+        run: pip install --disable-pip-version-check pytest
+
+      - name: Flow catalog --check
+        run: python scripts/extract_config_flow_catalog.py --check
+
+      - name: Flow catalog pytest (no cov addopts)
+        run: python -m pytest tests/test_flow_catalog_coverage.py -v --override-ini addopts=
+
+  verify_docs_consistency:
+    name: Vitrine / integration doc parity
+    runs-on: ubuntu-latest
+    needs:
+      - flow_catalog_up_to_date
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify docs consistency
+        run: python3 scripts/verify_vitrine_integration_docs.py
+
+  site_build_smoke:
+    name: Site build smoke
+    runs-on: ubuntu-latest
+    needs:
+      - flow_catalog_up_to_date
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: npm ci + build
+        env:
+          VITE_CI_COMMIT_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+        run: |
+          cd site
+          npm ci
+          npm run build
+
+  hacs_manifest_smoke:
+    name: hacs.json + manifest sanity
+    runs-on: ubuntu-latest
+    needs:
+      - flow_catalog_up_to_date
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate root + integration manifests
+        run: |
+          set -euo pipefail
+          test -f hacs.json
+          python3 << 'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          root = Path(".")
+          h = json.loads((root / "hacs.json").read_text(encoding="utf-8"))
+          m = json.loads(
+              (root / "custom_components" / "hub_energie" / "manifest.json").read_text(encoding="utf-8")
+          )
+
+          if not isinstance(h.get("name"), str) or not h["name"].strip():
+              sys.exit("hacs.json: missing non-empty name")
+
+          for key in ("domain", "documentation", "issue_tracker", "codeowners", "name", "version"):
+              if key not in m or m[key] is None:
+                  sys.exit(f"manifest.json: missing required key {key!r}")
+
+          ha_h, ha_m = h.get("homeassistant"), m.get("homeassistant")
+          if ha_h and ha_m and ha_h != ha_m:
+              sys.exit(
+                  f"hacs.json homeassistant ({ha_h!r}) must match manifest.json homeassistant ({ha_m!r})"
+              )
+          PY

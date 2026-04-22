@@ -19,6 +19,7 @@ from ..const.energy_data import (
 )
 from ..const.tariff_edf import CONF_CURRENT_SLOT_SENSOR, TEMPO_MODE_SENSOR, TEMPO_SEASON_DAY_QUOTAS
 from ..coordinator import HubEnergieCoordinator
+from ..entity_id_stability import apply_stable_suggested_object_id
 from ..device_info import _device_offer
 from .base import _safe_int
 
@@ -53,6 +54,7 @@ class HubEnergieInfoSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntit
         self._info = info
         self._attr_entity_registry_enabled_default = enabled_default
         self._attr_unique_id = f"{entry.unique_id}_{info}"
+        apply_stable_suggested_object_id(self)
         self._attr_name = _INFO_LABELS.get(
             info, info.replace("_", " ").title(),
         )
@@ -83,6 +85,7 @@ class HubEnergieRteDataSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEn
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_tempo_rte_data"
+        apply_stable_suggested_object_id(self)
         self._attr_name = "Source Tempo"
         self._attr_device_info = _device_offer(coordinator)
 
@@ -128,6 +131,7 @@ class HubEnergieQuotaDaySensor(CoordinatorEntity[HubEnergieCoordinator], SensorE
         super().__init__(coordinator)
         self._color_key = color_key
         self._attr_unique_id = f"{entry.unique_id}_tempo_quota_{color_key}"
+        apply_stable_suggested_object_id(self)
         adj = _TEMPO_QUOTA_DAY_LABEL.get(color_key, color_key)
         self._attr_name = f"Jours {adj} restants"
         self._attr_device_info = _device_offer(coordinator)
@@ -167,6 +171,7 @@ class HubEnergieNextColourChangeSensor(CoordinatorEntity[HubEnergieCoordinator],
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_tempo_next_colour_change"
+        apply_stable_suggested_object_id(self)
         self._attr_name = "Prochain changement de couleur"
         self._attr_device_info = _device_offer(coordinator)
 
@@ -190,6 +195,7 @@ class HubEnergieNextHcStartSensor(CoordinatorEntity[HubEnergieCoordinator], Sens
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_tempo_next_hc_start"
+        apply_stable_suggested_object_id(self)
         self._attr_name = "Prochain début heures creuses"
         self._attr_device_info = _device_offer(coordinator)
 
