@@ -22,7 +22,7 @@
   "landing.f3_title": "Costs tied to usage",
   "landing.f3_body": "Daily estimates, subscription allocation, and per-slot detail stay aligned with the same snapshot the Lovelace card reads.",
   "landing.f4_title": "Durable history",
-  "landing.f4_body": "Internal SSOT sensors reflect running totals; each completed calendar day (Europe/Paris) is written to long-term statistics for analytics and graphs.",
+  "landing.f4_body": "Internal SSOT sensors reflect running totals; each completed calendar day in your Home Assistant default time zone is written to long-term statistics for analytics and graphs.",
   "landing.f5_title": "Card included",
   "landing.f5_body": "A maintained Lovelace bundle is served from your Home Assistant instance at /hub_energie/ — no separate frontend to host.",
   "landing.f6_title": "Honest diagnostics",

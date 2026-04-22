@@ -348,7 +348,7 @@
   "scope.stable_heading": "Périmètre stable visé (v{{HUB_ENERGIE_VERSION_SERIES}}.x)",
   "scope.stable_li1_d": "Fournisseur (EDF ou personnalisé), modes tarifaires (prix unique, HP/HC, multi-creuses, Tempo EDF + RTE/API/capteur), réseau, solaire et batteries optionnels.",
   "scope.stable_li1_t": "Assistant de configuration",
-  "scope.stable_li2_d": "Deltas positifs sur compteurs total_increasing → totaux par créneau et par jour (Europe/Paris), capteurs SSOT gérés par l’intégration.",
+  "scope.stable_li2_d": "Deltas positifs sur compteurs total_increasing → totaux par créneau et par jour (jour civil = fuseau horaire par défaut HA), capteurs SSOT gérés par l’intégration.",
   "scope.stable_li2_t": "Énergie",
   "scope.stable_li3_d": "Estimation journalière (€), répartition de l’abonnement, détail par créneau dans les attributs.",
   "scope.stable_li3_t": "Coûts",

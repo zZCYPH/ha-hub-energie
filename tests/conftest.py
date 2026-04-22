@@ -157,6 +157,11 @@ def _ensure_stub_homeassistant() -> None:
     dt_mod.utcnow = _utcnow
     dt_mod.parse_datetime = _parse_datetime
     dt_mod.UTC = timezone.utc
+
+    def _default_tz() -> zoneinfo.ZoneInfo:
+        return zoneinfo.ZoneInfo("Europe/Paris")
+
+    dt_mod.get_default_time_zone = _default_tz  # type: ignore[attr-defined]
     util.dt = dt_mod
     sys.modules["homeassistant.util"] = util
     sys.modules["homeassistant.util.dt"] = dt_mod

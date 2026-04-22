@@ -82,7 +82,7 @@ from ..power.reinjection_diagnostics import (
 )
 from ..solar.solar_estimation import compute_solar_estimation
 from ..tempo.service import compute_tempo_snapshot
-from ..time.paris_time import PARIS_TZ
+from ..time.paris_time import PARIS_TZ, hub_energy_tz
 from ..utils.energy import normalize_kwh
 from .pipeline import SnapshotPipelineDeps
 from .snapshot_builder import build_snapshot as build_snapshot_domain
@@ -386,7 +386,7 @@ def _compute_solar_estimate(
         shading=str(d.get(CONF_SOLAR_SHADING, "none")),
         performance=str(d.get(CONF_SOLAR_PERFORMANCE, "standard")),
         now_paris=now_paris,
-        paris_tz=PARIS_TZ,
+        paris_tz=hub_energy_tz(),
     )
     return estimate.power_w, estimate.daily_kwh, estimate.yearly_kwh
 

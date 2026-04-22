@@ -348,7 +348,7 @@
   "scope.stable_heading": "Intended stable scope (v{{HUB_ENERGIE_VERSION_SERIES}}.x)",
   "scope.stable_li1_d": "Supplier (EDF vs custom), tariff modes (flat, HP–HC, multi-slot, EDF Tempo + RTE/API/sensor), grid, optional solar and batteries.",
   "scope.stable_li1_t": "Config flow",
-  "scope.stable_li2_d": "Positive deltas from total_increasing meters → per-slot, per-day totals (Europe/Paris) and integration SSOT sensors.",
+  "scope.stable_li2_d": "Positive deltas from total_increasing meters → per-slot, per-day totals (calendar day = Home Assistant default time zone) and integration SSOT sensors.",
   "scope.stable_li2_t": "Energy",
   "scope.stable_li3_d": "Daily € estimate, subscription split, per-slot detail in attributes.",
   "scope.stable_li3_t": "Costs",

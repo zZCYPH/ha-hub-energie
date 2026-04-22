@@ -43,6 +43,7 @@ def test_stat_rows_empty_returns_zero_floor() -> None:
     d, floor = rebuild.stat_rows_to_dailies_and_lts_floor(
         [],
         today_iso="2026-06-01",
+        local_tz=PARIS_TZ,
         safe_float=_sf,
         norm_kwh=_norm,
     )
@@ -60,6 +61,7 @@ def test_stat_rows_skips_bad_rows() -> None:
     d, floor = rebuild.stat_rows_to_dailies_and_lts_floor(
         rows,
         today_iso="2026-06-02",
+        local_tz=PARIS_TZ,
         safe_float=_sf,
         norm_kwh=_norm,
     )
@@ -74,6 +76,7 @@ def test_stat_rows_monotonic_cumulative_deltas_and_floor() -> None:
     d, floor = rebuild.stat_rows_to_dailies_and_lts_floor(
         rows,
         today_iso="2026-05-03",
+        local_tz=PARIS_TZ,
         safe_float=_sf,
         norm_kwh=_norm,
     )
@@ -88,6 +91,7 @@ def test_stat_rows_non_monotonic_legacy_daily_values() -> None:
     d, floor = rebuild.stat_rows_to_dailies_and_lts_floor(
         rows,
         today_iso="2026-05-03",
+        local_tz=PARIS_TZ,
         safe_float=_sf,
         norm_kwh=_norm,
     )
@@ -102,6 +106,7 @@ def test_stat_rows_excludes_today_and_future_days() -> None:
     d, floor = rebuild.stat_rows_to_dailies_and_lts_floor(
         rows,
         today_iso="2026-05-02",
+        local_tz=PARIS_TZ,
         safe_float=_sf,
         norm_kwh=_norm,
     )

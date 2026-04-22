@@ -221,7 +221,7 @@ class HubEnergieSlotSensor(HubEnergieSensor):
 
     @property
     def last_reset(self) -> datetime | None:
-        """Midnight (Europe/Paris) for the snapshot day — daily slot totals reset there."""
+        """Midnight in Home Assistant's default timezone for the snapshot day — daily slot totals reset there."""
         data = self.coordinator.data or {}
         day = data.get(DATA_DAY)
         if not day or not isinstance(day, str):

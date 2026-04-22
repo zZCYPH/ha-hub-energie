@@ -1,11 +1,11 @@
-"""Paris poll slot math for coordinator scheduling (pure)."""
+"""Local poll slot math for coordinator scheduling (pure, HA default TZ)."""
 
 from __future__ import annotations
 
 from datetime import datetime, timedelta
 
 from ..const.tariff_edf import TARIFF_OFFER_TEMPO, TEMPO_MODE_API
-from ..time.paris_time import PARIS_TZ
+from ..time.paris_time import hub_energy_tz
 
 __all__ = (
     "POLL_SLOTS_PARIS",
@@ -25,8 +25,8 @@ POLL_SLOTS_PARIS: tuple[tuple[int, int], ...] = tuple(
 
 
 def next_poll_fire_paris_after(after: datetime) -> datetime:
-    """Next scheduled coordinator refresh strictly after *after* (Paris TZ)."""
-    tz = PARIS_TZ
+    """Next scheduled coordinator refresh strictly after *after* (local TZ)."""
+    tz = hub_energy_tz()
     after = after.astimezone(tz) if after.tzinfo else after.replace(tzinfo=tz)
     day = after.date()
     for _ in range(3):
@@ -51,8 +51,8 @@ def ceil_minutes(dt: datetime, step_min: int) -> datetime:
 
 
 def next_poll_fire_paris_edf_tempo_api(after: datetime, *, tomorrow_color: str | None) -> datetime:
-    """Dynamic poll schedule for EDF Tempo API colour fetches (Paris TZ)."""
-    tz = PARIS_TZ
+    """Dynamic poll schedule for EDF Tempo API colour fetches (local TZ)."""
+    tz = hub_energy_tz()
     after = after.astimezone(tz) if after.tzinfo else after.replace(tzinfo=tz)
     day = after.date()
     t0530 = datetime(day.year, day.month, day.day, 5, 30, 0, tzinfo=tz)

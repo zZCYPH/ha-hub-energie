@@ -22,7 +22,7 @@
   "landing.f3_title": "Coûts calés sur la consommation",
   "landing.f3_body": "Estimations journalières, part d’abonnement et détail par créneau restent alignés sur le même instantané que celui lu par la carte Lovelace.",
   "landing.f4_title": "Historique durable",
-  "landing.f4_body": "Les capteurs SSOT internes reflètent les cumuls en cours ; chaque jour civil terminé (Europe/Paris) est écrit en statistiques long terme pour l’analyse et les graphiques.",
+  "landing.f4_body": "Les capteurs SSOT internes reflètent les cumuls en cours ; chaque jour civil terminé dans le fuseau horaire par défaut de Home Assistant est écrit en statistiques long terme pour l’analyse et les graphiques.",
   "landing.f5_title": "Carte intégrée",
   "landing.f5_body": "Un paquet Lovelace maintenu est servi par votre instance Home Assistant sous /hub_energie/, sans frontend distinct à héberger.",
   "landing.f6_title": "Diagnostics transparents",

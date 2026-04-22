@@ -17,7 +17,7 @@ from homeassistant.util import dt as dt_util
 
 from ..storage.recorder_rebuild import stat_rows_to_dailies_and_lts_floor
 from ..storage.store_manager import StoreManager
-from ..time.paris_time import ParisTime
+from ..time.paris_time import ParisTime, hub_energy_tz
 from .state import RuntimeState
 
 __all__ = ("PersistenceManager",)
@@ -321,6 +321,7 @@ class PersistenceManager:
                 dailies, lts_floor = stat_rows_to_dailies_and_lts_floor(
                     rows,
                     today_iso=today,
+                    local_tz=hub_energy_tz(),
                     safe_float=self._safe_float,
                     norm_kwh=self._norm_kwh,
                 )

@@ -184,7 +184,7 @@ class HubEnergieNextColourChangeSensor(CoordinatorEntity[HubEnergieCoordinator],
 
 
 class HubEnergieNextHcStartSensor(CoordinatorEntity[HubEnergieCoordinator], SensorEntity):
-    """Début de la prochaine plage heures creuses (22:00 Europe/Paris)."""
+    """Début de la prochaine plage heures creuses (22:00, fuseau HA / logique EDF)."""
 
     _attr_has_entity_name = True
     _attr_should_poll = False

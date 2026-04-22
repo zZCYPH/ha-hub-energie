@@ -5,8 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from datetime import datetime
 from typing import Any
-
-from ..time.paris_time import PARIS_TZ
+from zoneinfo import ZoneInfo
 
 __all__ = ("stat_rows_to_dailies_and_lts_floor",)
 
@@ -15,6 +14,7 @@ def stat_rows_to_dailies_and_lts_floor(
     rows: list[Any],
     *,
     today_iso: str,
+    local_tz: ZoneInfo,
     safe_float: Callable[[Any], float | None],
     norm_kwh: Callable[[float], float],
 ) -> tuple[list[tuple[str, float]], float]:
@@ -38,7 +38,7 @@ def stat_rows_to_dailies_and_lts_floor(
     done = [
         (dt, s)
         for dt, s in parsed
-        if dt.astimezone(PARIS_TZ).date().isoformat() < today_iso
+        if dt.astimezone(local_tz).date().isoformat() < today_iso
     ]
     if not done:
         return [], 0.0
@@ -52,7 +52,7 @@ def stat_rows_to_dailies_and_lts_floor(
     if not monotonic:
         last_cum = 0.0
         for dt, s in done:
-            day_iso = dt.astimezone(PARIS_TZ).date().isoformat()
+            day_iso = dt.astimezone(local_tz).date().isoformat()
             daily = norm_kwh(max(0.0, s))
             if daily > 0:
                 out.append((day_iso, daily))
@@ -61,7 +61,7 @@ def stat_rows_to_dailies_and_lts_floor(
 
     prev = 0.0
     for dt, s in done:
-        day_iso = dt.astimezone(PARIS_TZ).date().isoformat()
+        day_iso = dt.astimezone(local_tz).date().isoformat()
         daily = norm_kwh(max(0.0, s - prev))
         if daily > 0:
             out.append((day_iso, daily))
