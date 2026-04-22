@@ -82,7 +82,7 @@ def _v1_store_payload(*, yesterday: str, yesterday_bleu_hp: float, last_raw_grid
     )
 
 
-class _FixedParis(paris_time_mod.ParisTime):
+class _FixedParis(paris_time_mod.LocalTime):
     @staticmethod
     def today() -> str:
         return "2026-04-02"
@@ -133,9 +133,9 @@ async def _load_delta_persist_statistics_flow() -> None:
         return slot_attribution.SlotAttributionResult("bleu_hp", "direct")
 
     with patch.object(persistence_mod, "Store", _mem_store_factory(initial, saves)):
-        with patch.object(persistence_mod, "ParisTime", _FixedParis):
-            with patch.object(coordinator_policy, "ParisTime", _FixedParis):
-                with patch.object(coordinator_data_quality, "ParisTime", _FixedParis):
+        with patch.object(persistence_mod, "LocalTime", _FixedParis):
+            with patch.object(coordinator_policy, "LocalTime", _FixedParis):
+                with patch.object(coordinator_data_quality, "LocalTime", _FixedParis):
                     coord = coord_mod.HubEnergieCoordinator(hass, entry)
                     coord._async_notify_all = AsyncMock()
                     coord.async_request_refresh = AsyncMock()
@@ -199,9 +199,9 @@ async def _statistics_idempotent_after_load() -> None:
     entry = _entry_e2e()
 
     with patch.object(persistence_mod, "Store", _mem_store_factory(initial, [])):
-        with patch.object(persistence_mod, "ParisTime", _FixedParis):
-            with patch.object(coordinator_policy, "ParisTime", _FixedParis):
-                with patch.object(coordinator_data_quality, "ParisTime", _FixedParis):
+        with patch.object(persistence_mod, "LocalTime", _FixedParis):
+            with patch.object(coordinator_policy, "LocalTime", _FixedParis):
+                with patch.object(coordinator_data_quality, "LocalTime", _FixedParis):
                     coord = coord_mod.HubEnergieCoordinator(hass, entry)
                     coord._async_notify_all = AsyncMock()
                     coord.async_request_refresh = AsyncMock()

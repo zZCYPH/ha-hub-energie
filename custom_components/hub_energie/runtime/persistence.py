@@ -17,7 +17,7 @@ from homeassistant.util import dt as dt_util
 
 from ..storage.recorder_rebuild import stat_rows_to_dailies_and_lts_floor
 from ..storage.store_manager import StoreManager
-from ..time.paris_time import ParisTime, hub_energy_tz
+from ..time.paris_time import LocalTime, hub_energy_tz
 from .state import RuntimeState
 
 __all__ = ("PersistenceManager",)
@@ -185,7 +185,7 @@ class PersistenceManager:
                     needs_save = True
 
         if loaded_from_store:
-            yesterday = ParisTime.yesterday()
+            yesterday = LocalTime.yesterday()
             if not self._runtime_state.is_day_written(yesterday):
                 await self.write_statistics(yesterday)
                 needs_save = True
@@ -253,10 +253,10 @@ class PersistenceManager:
         except Exception:  # noqa: BLE001
             return
 
-        today = ParisTime.today()
-        now = ParisTime.now()
-        start = ParisTime.day_start(now - timedelta(days=3650)).astimezone(dt_util.UTC)
-        end = ParisTime.day_start(now + timedelta(days=1)).astimezone(dt_util.UTC)
+        today = LocalTime.today()
+        now = LocalTime.now()
+        start = LocalTime.day_start(now - timedelta(days=3650)).astimezone(dt_util.UTC)
+        end = LocalTime.day_start(now + timedelta(days=1)).astimezone(dt_util.UTC)
         source_keys = sorted(self._expected_source_keys())
         stat_ids = [
             self._statistic_id(source_key, slot)
@@ -357,7 +357,7 @@ class PersistenceManager:
             )
             return
 
-        start_utc = ParisTime.day_start_utc(iso_day)
+        start_utc = LocalTime.day_start_utc(iso_day)
         all_ok = True
         lts_updates: dict[str, float] = dict(lts_snapshot)
         for source, slot_data in day_acc.items():

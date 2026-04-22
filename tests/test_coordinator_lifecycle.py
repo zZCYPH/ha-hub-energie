@@ -27,12 +27,12 @@ _ensure_pkg("hub_energie", HUB_DIR)
 lifecycle = importlib.import_module("hub_energie.coordinator.lifecycle")
 
 
-def test_coordinator_next_poll_fire_paris_delegates() -> None:
+def test_coordinator_next_poll_fire_local_delegates() -> None:
     after = datetime(2026, 1, 1, 12, 0, 0)
     expected = datetime(2026, 1, 1, 13, 0, 0)
 
     with patch.object(lifecycle, "resolve_next_poll", return_value=expected) as m:
-        got = lifecycle.coordinator_next_poll_fire_paris(
+        got = lifecycle.coordinator_next_poll_fire_local(
             after,
             is_edf=True,
             tariff_offer="tempo",

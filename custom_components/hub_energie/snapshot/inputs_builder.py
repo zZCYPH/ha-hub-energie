@@ -17,7 +17,7 @@ from ..const.reinjection import (
     REINJECTION_BATT_FULL_MIN_SOC_FRAC,
 )
 from ..const.tariff_edf import CONF_CONTRACT_POWER, OPT_TARIFF_FETCHED_AT
-from ..time.paris_time import ParisTime
+from ..time.paris_time import LocalTime
 from .pipeline import SnapshotPipelineInputs
 
 _SNAPSHOT_DEBUG_OPT_KEY = "debug_snapshot"
@@ -32,8 +32,8 @@ __all__ = ("build_snapshot_inputs",)
 
 
 def build_snapshot_inputs(coordinator: Any) -> SnapshotPipelineInputs:
-    day = ParisTime.today()
-    now_paris = ParisTime.now()
+    day = LocalTime.today()
+    now_paris = LocalTime.now()
     day_acc: Mapping[str, Any] = coordinator._runtime_state.snapshot_data(day)
     tariff = coordinator._tariff or coordinator._build_tariff_resolver()
     rates = tariff.all_slot_rates()

@@ -105,8 +105,8 @@ from ..storage.store_manager import StoreManager
 from .policy import (
     DIAG_CAUSES,
     delta_policy_from_entry,
-    paris_now,
-    paris_yesterday,
+    local_now,
+    local_yesterday_iso,
 )
 from .apply_delta import apply_energy_delta
 from .apply_snapshot import apply_snapshot_to_coordinator
@@ -148,7 +148,7 @@ from .lifecycle import (
     coordinator_arm_next_poll,
     coordinator_async_setup,
     coordinator_cancel_poll_schedule,
-    coordinator_next_poll_fire_paris,
+    coordinator_next_poll_fire_local,
     coordinator_rebuild_from_recorder,
     coordinator_run_scheduled_poll,
 )
@@ -237,7 +237,7 @@ def wire_hub_energie_coordinator_after_super(
     co._scheduler = Scheduler(
         hass=co.hass,
         entry=co.entry,
-        next_poll_fire_paris=co._next_poll_fire_paris,
+        next_poll_fire_local=co._next_poll_fire_local,
         on_scheduled_poll=co._async_scheduled_poll,
         on_midnight=co._async_midnight_maintenance,
         on_tariff_refresh=lambda: co._async_refresh_tariffs(update_entry=True),
@@ -379,14 +379,16 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
     def _arm_next_poll(self) -> None:
         coordinator_arm_next_poll(self)
 
-    def _next_poll_fire_paris(self, after: datetime) -> datetime:
-        return coordinator_next_poll_fire_paris(
+    def _next_poll_fire_local(self, after: datetime) -> datetime:
+        return coordinator_next_poll_fire_local(
             after,
             is_edf=self.is_edf,
             tariff_offer=self.tariff_offer,
             tempo_mode=self.tempo_mode,
             tomorrow_color=self._edf.tomorrow_color,
         )
+
+    _next_poll_fire_paris = _next_poll_fire_local
 
     def _refresh_slot_sensor(self) -> None:
         apply_current_slot_from_sensor(self.hass, self.entry.data, self._edf)
@@ -494,7 +496,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
 
     async def _async_midnight_maintenance(self) -> None:
         await run_midnight_maintenance(
-            yesterday_iso=paris_yesterday(),
+            yesterday_iso=local_yesterday_iso(),
             write_day_statistics=self._async_write_day_statistics,
             state_lock=self._state_lock,
             cleanup_accumulators=self._cleanup_accumulators,
@@ -513,7 +515,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         await apply_snapshot_to_coordinator(self, clear_trust_rebuilding_after_recorder=False)
 
     async def _async_update_data(self) -> EnergyData:
-        now_paris = paris_now()
+        now_local = local_now()
         self._tariff = await refresh_tariff_resolver_and_edf_before_snapshot(
             hass=self.hass,
             entry=self.entry,
@@ -521,7 +523,7 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
             is_edf=self.is_edf,
             tariff_offer=self.tariff_offer,
             tempo_mode=self.tempo_mode,
-            now_paris=now_paris,
+            now_paris=now_local,
             logger=_LOGGER,
             on_tempo_sensor_branch=self._refresh_slot_sensor,
         )

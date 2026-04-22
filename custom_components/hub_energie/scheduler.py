@@ -13,7 +13,7 @@ from homeassistant.helpers.event import (
 )
 from homeassistant.util import dt as dt_util
 
-from .time.paris_time import ParisTime  # local clock = HA default time zone
+from .time.paris_time import LocalTime  # HA default time zone
 
 
 class Scheduler:
@@ -24,7 +24,7 @@ class Scheduler:
         *,
         hass: HomeAssistant,
         entry: ConfigEntry,
-        next_poll_fire_paris: Callable[[datetime], datetime],
+        next_poll_fire_local: Callable[[datetime], datetime],
         on_scheduled_poll: Callable[[], Awaitable[None]],
         on_midnight: Callable[[], Awaitable[None]],
         on_tariff_refresh: Callable[[], Awaitable[None]],
@@ -33,7 +33,7 @@ class Scheduler:
     ) -> None:
         self._hass = hass
         self._entry = entry
-        self._next_poll_fire_paris = next_poll_fire_paris
+        self._next_poll_fire_local = next_poll_fire_local
         self._on_scheduled_poll = on_scheduled_poll
         self._on_midnight = on_midnight
         self._on_tariff_refresh = on_tariff_refresh
@@ -104,8 +104,8 @@ class Scheduler:
 
     def schedule_poll(self) -> None:
         self.cancel_poll()
-        now_local = ParisTime.now()
-        next_local = self._next_poll_fire_paris(now_local)
+        now_local = LocalTime.now()
+        next_local = self._next_poll_fire_local(now_local)
         next_utc = next_local.astimezone(dt_util.UTC)
         self._unsub_poll_schedule = async_track_point_in_time(
             self._hass,

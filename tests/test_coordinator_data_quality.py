@@ -56,14 +56,14 @@ def test_data_quality_degraded_long_gap() -> None:
     assert dq_mod.compute_snapshot_data_quality(_snap, tel) == "degraded"
 
 
-def test_data_quality_uses_paris_today_for_day_key() -> None:
+def test_data_quality_uses_local_today_for_day_key() -> None:
     calls: list[str] = []
 
     def _snap(day: str) -> dict:
         calls.append(day)
         return {const.SOURCE_GRID: {}}
 
-    with patch.object(dq_mod, "ParisTime") as pt:
+    with patch.object(dq_mod, "LocalTime") as pt:
         pt.today.return_value = "2026-05-01"
         assert dq_mod.compute_snapshot_data_quality(_snap, {}) == "good"
     assert calls == ["2026-05-01"]

@@ -8,7 +8,7 @@ from collections.abc import Awaitable, Callable
 from homeassistant.util import dt as dt_util
 
 from ..const.tariff_edf import SLOT_UNKNOWN, TARIFF_OFFER_TEMPO, TEMPO_MODE_API
-from .policy import paris_now, paris_today_iso
+from .policy import local_now, local_today_iso
 from ..energy.delta_policy import DeltaPolicy
 from ..runtime.state import RuntimeState
 from ..tariff import EdfRuntimeFields
@@ -41,8 +41,8 @@ async def apply_energy_delta(
 ) -> None:
     """Mirror HubEnergieCoordinator._async_apply_delta (kept out of coordinator.py for size)."""
     log = logger or _LOGGER
-    now_paris = paris_now()
-    day = paris_today_iso()
+    now_local = local_now()
+    day = local_today_iso()
 
     if (
         is_edf
@@ -62,7 +62,7 @@ async def apply_energy_delta(
             gap_seconds = (dt_util.utcnow() - prev_dt).total_seconds()
 
     attribution = resolve_attribution_slot(
-        now_paris=now_paris,
+        now_paris=now_local,
         is_edf=is_edf,
         tariff_offer=tariff_offer,
         tempo_mode=tempo_mode,
@@ -74,7 +74,7 @@ async def apply_energy_delta(
     if attribution.slot == SLOT_UNKNOWN:
         await async_request_refresh()
         attribution = resolve_attribution_slot(
-            now_paris=paris_now(),
+            now_paris=local_now(),
             is_edf=is_edf,
             tariff_offer=tariff_offer,
             tempo_mode=tempo_mode,

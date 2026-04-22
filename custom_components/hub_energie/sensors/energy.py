@@ -53,7 +53,7 @@ from ..device_info import (
     _device_grid_config,
     _device_solar_config,
 )
-from ..time.paris_time import ParisTime
+from ..time.paris_time import LocalTime
 from .base import (
     HubEnergieSensor,
     _energy_source_label_fr,
@@ -227,7 +227,7 @@ class HubEnergieSlotSensor(HubEnergieSensor):
         if not day or not isinstance(day, str):
             return None
         try:
-            return ParisTime.day_start_utc(day)
+            return LocalTime.day_start_utc(day)
         except ValueError:
             return None
 
@@ -274,7 +274,7 @@ class HubEnergieMaisonSensor(HubEnergieSensor):
         if not day or not isinstance(day, str):
             return None
         try:
-            return ParisTime.day_start_utc(day)
+            return LocalTime.day_start_utc(day)
         except ValueError:
             return None
 
