@@ -55,7 +55,10 @@ import "./components/hub-solar-production-bar.js";
 import "./components/hub-power-graph.js";
 import "./components/hub-battery-bar.js";
 import "./components/hub-insight-bar.js";
-import "./hub-energie-card-editor.js";
+
+/* Do not import hub-energie-card-editor here: boot loads it first; a static import would
+ * make the dynamically-imported hub-energie-card.js depend on ./hub-energie-card-editor.js
+ * and break on some clients if that sibling chunk fails to resolve. */
 
 class HubEnergieCard extends LitElement {
   static get properties() {

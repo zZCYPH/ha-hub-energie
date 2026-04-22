@@ -1,6 +1,6 @@
 import { i as at, a as st, b as g, A as y, w as ut, I as Jt } from "./i18n.js";
 import { C as tt, a as et, b as de, c as $t, d as Qt, e as he } from "./colors.js";
-import { S as Gt, r as zt, s as K, C as te, a as Wt, b as Kt, m as ae, i as gt, d as ue, e as ge, c as me, f as be, g as Lt, h as ee, j as fe, o as we, t as O, k as re, l as xe, n as ye } from "./hub-energie-card-editor.js";
+import { S as Gt, r as zt, s as K, C as te, a as Wt, b as Kt, m as ae, i as gt, d as ue, e as ge, c as me, f as be, g as Lt, j as ee, h as fe, o as we, t as O, k as re, l as xe, n as ye } from "./energy-utils.js";
 const Ut = [24, 12, 6, 3, 1], it = 6;
 function vt(s, t = it) {
   if (!Number.isFinite(s)) return t;
