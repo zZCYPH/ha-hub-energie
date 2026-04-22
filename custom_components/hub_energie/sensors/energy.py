@@ -301,6 +301,7 @@ class HubEnergieUsageSensor(HubEnergieSensor):
         super().__init__(coordinator)
         self._key = _USAGE_KEYS[key]
         self._attr_unique_id = f"{entry.unique_id}_usage_{key}_kwh"
+        self._attr_suggested_object_id = f"hub_energie_usage_{key}_kwh"
         self._attr_name = _USAGE_FLOW_LABELS.get(
             key, key.replace("_", " ").title(),
         )
@@ -348,6 +349,7 @@ class HubEnergieOriginSensor(HubEnergieSensor):
         super().__init__(coordinator)
         self._kind = kind
         self._attr_unique_id = f"{entry.unique_id}_origin_{kind}_kwh"
+        self._attr_suggested_object_id = f"hub_energie_origin_{kind}_kwh"
         self._attr_name = _ORIGIN_LABELS.get(kind, kind.title())
         self._attr_device_info = (
             _device_grid_config(coordinator)

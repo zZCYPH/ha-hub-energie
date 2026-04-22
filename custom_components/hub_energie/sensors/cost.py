@@ -89,6 +89,7 @@ class HubEnergieCostDetailSensor(HubEnergieSensor):
     def __init__(self, coordinator: HubEnergieCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{entry.unique_id}_cost_detail"
+        self._attr_suggested_object_id = "hub_energie_cost_detail"
         self._attr_name = "Coût du jour"
         self._attr_device_info = _device_cost(coordinator)
 
@@ -217,6 +218,7 @@ class HubEnergieSavingsSensor(HubEnergieSensor):
         super().__init__(coordinator)
         self._kind = kind
         self._attr_unique_id = f"{entry.unique_id}_savings_{kind}_eur"
+        self._attr_suggested_object_id = f"hub_energie_savings_{kind}_eur"
         self._attr_name = _SAVINGS_LABELS.get(kind, kind.title())
         self._attr_device_info = (
             _device_solar_config(coordinator)
