@@ -479,6 +479,10 @@ class HubEnergieCard extends LitElement {
     this._costMissingSinceMs = null;
     /** @type {ReturnType<typeof setInterval> | null} */
     this._powerGraphPollTimer = null;
+    /** @type {ReturnType<typeof setInterval> | null} */
+    this._liveStatePollTimer = null;
+    /** Last ``_stateKey()`` seen by the live poll (detect in-place ``hass.states`` mutations). */
+    this.__livePollSnap = null;
     /** Bumps on each new window load; refresh uses current id without bumping (see _loadPowerGraph). */
     this._powerGraphLoadId = 0;
     this._powerGraphRollingHours = DEFAULT_POWER_GRAPH_ROLLING_HOURS;
@@ -494,6 +498,7 @@ class HubEnergieCard extends LitElement {
     super.disconnectedCallback();
     this._clearHassRetryTimer();
     this._clearPowerGraphPollTimer();
+    this._clearLiveStatePollTimer();
     this._costMissingSinceMs = null;
   }
 
@@ -502,6 +507,47 @@ class HubEnergieCard extends LitElement {
       clearInterval(this._powerGraphPollTimer);
       this._powerGraphPollTimer = null;
     }
+  }
+
+  _clearLiveStatePollTimer() {
+    if (this._liveStatePollTimer != null) {
+      clearInterval(this._liveStatePollTimer);
+      this._liveStatePollTimer = null;
+    }
+  }
+
+  /**
+   * Home Assistant may update entity attributes in-place on ``hass.states`` without replacing
+   * the ``hass`` object, so Lit never runs ``shouldUpdate``. Poll the cost fingerprint in live
+   * mode and force a repaint when it changes.
+   */
+  _syncLiveStatePollTimer() {
+    this._clearLiveStatePollTimer();
+    if (!this.hass) return;
+    if (!this._isLiveMode()) return;
+    let costId;
+    try {
+      costId = this._map().cost;
+    } catch {
+      return;
+    }
+    if (!isCardReady(this.hass.states, costId)) return;
+    this._liveStatePollTimer = window.setInterval(() => {
+      if (!this.hass || !this._isLiveMode()) return;
+      let snap;
+      try {
+        snap = this._stateKey();
+      } catch {
+        this.__livePollSnap = null;
+        this.requestUpdate();
+        return;
+      }
+      if (snap !== this.__livePollSnap) {
+        this.__livePollSnap = snap;
+        this.__lastKey = null;
+        this.requestUpdate();
+      }
+    }, 4000);
   }
 
   /** Refresh interval only while the graph shows the current Paris day (live tail). */
@@ -662,10 +708,18 @@ class HubEnergieCard extends LitElement {
     return true;
   }
 
+  firstUpdated(_changedProps) {
+    super.firstUpdated(_changedProps);
+    this.__livePollSnap = null;
+    this._syncLiveStatePollTimer();
+  }
+
   updated(changedProps) {
     super.updated(changedProps);
     if (changedProps.has("hass") || changedProps.has("_date") || changedProps.has("_rangePreset")) {
       this._loadHistory();
+      this.__livePollSnap = null;
+      this._syncLiveStatePollTimer();
     }
     if (
       this._powerGraphOpen &&
@@ -756,6 +810,8 @@ class HubEnergieCard extends LitElement {
       costAttrs.contract_power ?? "",
       costAttrs.tariff_fetched_at ?? "",
       costAttrs.current_slot ?? "",
+      costAttrs.reinjection_cause ?? "",
+      String(costAttrs.reinjection_confidence ?? ""),
       this._fingerprintTempoDays(costAttrs.tempo_days),
       costAttrs.grid_power_signed_w ?? "",
       costAttrs.solar_power_w ?? "",
