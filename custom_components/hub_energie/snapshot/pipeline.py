@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Callable, Mapping
 
-from ..energy.costs import CostComputation
+from ..energy.costs import CostComputation, solar_self_use_kwh_by_slot
 from ..energy.energy_aggregation import EnergyAggregation
 from ..energy.origin import OriginAndUsage
 from ..power.power_flow import PowerFlowModel
@@ -186,13 +186,6 @@ class SnapshotPipeline:
             cause,
         )
 
-        eco_solar, eco_batt = self._deps.compute_savings(
-            energy.solar,
-            energy.batt_charge,
-            energy.batt_discharge,
-            inputs.rates,
-        )
-
         batt_charge_meter_kwh = round(
             sum(energy.batt_charge.get(slot, 0.0) for slot in self._slots),
             3,
@@ -220,6 +213,22 @@ class SnapshotPipeline:
             usage_grid_batt_charge_by_slot, usage_solar_batt_charge_by_slot = (
                 self._deps.usage_batt_charge_by_slot_from_heuristic(energy.batt_charge)
             )
+
+        # Solar savings: only kWh actually self-consumed at home (not sent to battery or grid export).
+        export_by_slot = self._deps.slot_vals(inputs.day_acc, inputs.source_grid_export)
+        solar_self_use_by_slot = solar_self_use_kwh_by_slot(
+            solar_production_by_slot=energy.solar,
+            solar_to_battery_by_slot=usage_solar_batt_charge_by_slot,
+            grid_export_by_slot=export_by_slot,
+            slots=self._slots,
+        )
+
+        eco_solar, eco_batt = self._deps.compute_savings(
+            solar_self_use_by_slot,
+            energy.batt_charge,
+            energy.batt_discharge,
+            inputs.rates,
+        )
 
         tempo = self._deps.compute_tempo_snapshot(inputs.now_paris)
         batt_systems, batt_total_chg, batt_total_dis, batt_total_net, battery_data_quality = (

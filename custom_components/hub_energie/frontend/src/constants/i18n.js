@@ -21,6 +21,8 @@ export const I18N = Object.freeze({
     tariffRefresh: "Maj tarifs",
     totalCost: "Coût total",
     totalEnergy: "Énergie totale",
+    totalEnergyTip:
+      "Énergie fournie à la maison sur la période affichée : import réseau + solaire (par créneau) + décharge batterie vers la maison. N’inclut pas l’énergie absorbée uniquement par la charge de la batterie.",
     noData: "Aucune donnée pour ce jour.",
     powerNow: "Puissance instantanée",
     powerNowAria: "Afficher/masquer l'historique de puissance",
@@ -220,6 +222,8 @@ export const I18N = Object.freeze({
     tariffRefresh: "Tariff refresh",
     totalCost: "Total cost",
     totalEnergy: "Total energy",
+    totalEnergyTip:
+      "Energy delivered to the home for the selected period: grid import + solar (by tariff slot) + battery discharge to the home. Does not include energy used only for battery charging.",
     noData: "No data for this day.",
     powerNow: "Live power",
     powerNowAria: "Toggle power history chart",

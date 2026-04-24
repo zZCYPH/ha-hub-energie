@@ -79,6 +79,33 @@ def test_costs_and_savings() -> None:
     assert eco_battery > 0.0
 
 
+def test_solar_self_use_kwh_by_slot_and_eco_solar() -> None:
+    """Solar savings basis excludes PV to battery and grid export (per slot)."""
+    slots = SLOTS
+    zeros = {slot: 0.0 for slot in slots}
+    solar_prod = {**zeros, "bleu_hp": 10.0}
+    solar_to_batt = {**zeros, "bleu_hp": 3.0}
+    export = {**zeros, "bleu_hp": 2.0}
+    self_use = costs_module.solar_self_use_kwh_by_slot(
+        solar_production_by_slot=solar_prod,
+        solar_to_battery_by_slot=solar_to_batt,
+        grid_export_by_slot=export,
+        slots=slots,
+    )
+    assert self_use["bleu_hp"] == pytest.approx(5.0)
+    rates = {slot: 0.2 for slot in slots}
+    eco_solar, eco_batt = costs_module.compute_savings(
+        solar_by_slot=self_use,
+        battery_charge_by_slot=dict(zeros),
+        battery_discharge_by_slot=dict(zeros),
+        rates_by_slot=rates,
+        slots=slots,
+        is_hc_slot=lambda s: s.endswith("_hc"),
+    )
+    assert eco_solar == pytest.approx(1.0)
+    assert eco_batt == pytest.approx(0.0)
+
+
 def test_power_flow_measured_and_inferred_modes() -> None:
     measured = power_flow_module.compute_power_flow(
         p_grid_raw=100.0,

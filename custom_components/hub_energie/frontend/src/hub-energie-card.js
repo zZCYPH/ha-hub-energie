@@ -1540,7 +1540,9 @@ class HubEnergieCard extends LitElement {
           ? html`<section>
           <div class="section-head">
             <h3>${i18n.sectionConsumption}</h3>
-            <div class="section-metric">${i18n.totalEnergy} <b>${fmtEnergy(totalMaison)}</b></div>
+            <div class="section-metric" title=${i18n.totalEnergyTip}>${i18n.totalEnergy} <b>${fmtEnergy(
+              totalMaison,
+            )}</b></div>
           </div>
           <div class="bars">
             <hub-energy-strip

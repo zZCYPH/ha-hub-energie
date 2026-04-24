@@ -4,7 +4,10 @@ All notable changes to **Hub Énergie** are documented in this file.
 
 ## Unreleased
 
-Nothing yet.
+### Lovelace card / savings
+
+- **Daily solar savings (`eco_solar`)** now uses **PV self-consumption at home** (production minus solar-to-battery attribution and grid export per slot), avoiding double-count with battery savings and export.
+- **Consumption** header **Total energy**: tooltip clarifies that the figure is **energy delivered to the home** (grid + slot-attributed solar + battery discharge), excluding energy used only for battery charging.
 
 ## [0.3.3] — 2026-04-09
 
