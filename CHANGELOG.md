@@ -9,6 +9,69 @@ All notable changes to **Hub Énergie** are documented in this file.
 - **Daily solar savings (`eco_solar`)** now uses **PV self-consumption at home** (production minus solar-to-battery attribution and grid export per slot), avoiding double-count with battery savings and export.
 - **Consumption** header **Total energy**: tooltip clarifies that the figure is **energy delivered to the home** (grid + slot-attributed solar + battery discharge), excluding energy used only for battery charging.
 
+## [0.5.7] — 2026-04-25
+
+### Lovelace — hub card & power flow
+
+- **Stable entity IDs** (slug from `unique_id`) with migration **v6/v7**; **`site_slug`** in setup/options, **Site** device, and **`card_entity_ids`** / Lovelace payload sensor for reliable YAML.
+- **Multi-site UX**: site index selector (`card_site_index`), site segment in subtitle, frontend sensors resolved with **site segment** (`hub_energie_<seg>_…`), editor bundle **no longer embedded** in `hub-energie-card.js`.
+- **Power flow card**: square **1:1** viewport, clearer layout, hierarchy & focus, **SVG** node icons, skeleton loading, optional **glass** panel + shadow, animated cable highlight, **live data age** and value transitions; **Tempo** grouping under **Offre**; **bridge** title polish.
+- **Costs / energy semantics**: **total energy** and **daily solar savings (`eco_solar`)** aligned with **in-home** usage (avoid double-count with battery / export); consumption “total energy” documents **energy delivered to the home**.
+
+### Config flow / vitrine
+
+- Flow catalog & step-help updates for **site** / **`site_slug`**; GitHub **release ZIP** parity for the doc site; **CHANGELOG** page on the vitrine; pre-release ZIP list gated behind a **disclaimer** modal.
+
+## [0.5.4] — 2026-04-22
+
+### Distribution / docs
+
+- **HACS / GitHub releases** path for downloadable ZIPs; branding & **README** refresh; **codeowners** fix.
+
+## [0.5.3] — 2026-04-10
+
+### Documentation site
+
+- **History-mode routes** (`/showcase`, etc.), GitLab Pages **SPA fallback** + `_redirects`, **per-route SEO** (`headManager`).
+
+## [0.5.2] — 2026-04-10
+
+### Site / CI
+
+- Router hardening, **Pages deploy** CI fix, minor **URI** cleanup.
+
+## [0.5.1] — 2026-04-10
+
+### Lovelace & config flow
+
+- **Power flow card** UX pass (backdrop, radial nodes, **ROW_CY** layout, diagram polish); **solar** reconfigure split into clearer steps; **advanced** solar fixes in the options/config flow.
+- **Setup-help** field guide stacks better on **mobile**.
+
+### CI
+
+- GitLab CI token / PAT adjustments for release & Pages jobs.
+
+## [0.5.0] — 2026-04-10
+
+### Lovelace
+
+- First **live power flow** card (`hub-energie-flow-card`) and related **site** mockups / simulator wiring.
+
+### Documentation site
+
+- Stronger **landing / vitrine** layout, **service desk** surfacing, flow **step help** integration.
+
+## [0.4.0] — 2026-04-09
+
+### Configure (options) / vitrine parity
+
+- **Re-injection** tuning restored under **Configure** (options flow) with **catalog + simulator parity**.
+- **Second FlowSimulator** path for **existing config entries** (reconfigure menu).
+
+### Documentation site
+
+- **Mobile** readability pass on `/showcase`; flow help & **catalog** updates; `config-flow.md` slimmed to point at the interactive simulator.
+
 ## [0.3.3] — 2026-04-09
 
 ### Documentation / site
@@ -34,6 +97,19 @@ All notable changes to **Hub Énergie** are documented in this file.
 - **Breaking:** The diagnostic **`…_health`** sensor no longer uses state `warning`. It is now an **enum** with **`ok`**, **`degraded`**, **`rebuilding`**, and **`inconsistent`**. Update automations and dashboards accordingly.
 - Trust is computed from existing signals (data quality, delta telemetry and discards, unknown tariff bucket, staleness, Tempo RTE readiness, current slot, battery data quality, internal-vs-meter drift, and recorder store rebuild). Attributes **`trust_cause_code`** and **`trust_cause`** give a short primary reason; raw telemetry remains in the same entity attributes.
 - Coordinator snapshot includes **`trust_level`**, **`trust_cause_code`**, and **`trust_cause`** for reuse (e.g. Lovelace card).
+
+### Config flow, documentation site & CI
+
+- **Per-step setup help** plus wizard **Previous** refactor so back navigation stays reliable.
+- **README** links to the public showcase; **Home Assistant** backlinks & hero logo; footer refresh (social placeholders, tooltips).
+- **`verify_vitrine_integration_docs.py`** (+ CI) to keep marketing copy aligned with `manifest.json` / `services.yaml`.
+- **GitLab release job**: scrape the **package HTML page** to resolve **`package_files`** when the API cannot be used with the job token alone.
+
+## [0.2.5] — 2026-04-07
+
+### CI / release pipeline
+
+- Harden **GitLab release** ZIP asset resolution (**`package_files`** listing, retries, and fallbacks) before the larger **0.3.x** documentation and trust work.
 
 ## [0.2.3] — 2026-04-07
 
@@ -105,6 +181,17 @@ All notable changes to **Hub Énergie** are documented in this file.
 
 - Initial public baseline (fork architecture, coordinator, snapshot pipeline, multi-battery, solar estimation, EDF Tempo paths).
 
+[0.3.3]: https://github.com/zZCYPH/ha-hub-energie/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/zZCYPH/ha-hub-energie/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/zZCYPH/ha-hub-energie/compare/v0.2.5...v0.3.1
+[0.5.7]: https://github.com/zZCYPH/ha-hub-energie/compare/v0.5.4...v0.5.7
+[0.5.4]: https://github.com/zZCYPH/ha-hub-energie/compare/v0.5.3...v0.5.4
+[0.5.3]: https://github.com/zZCYPH/ha-hub-energie/compare/v0.5.2...v0.5.3
+[0.5.2]: https://github.com/zZCYPH/ha-hub-energie/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/zZCYPH/ha-hub-energie/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/zZCYPH/ha-hub-energie/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/zZCYPH/ha-hub-energie/compare/v0.3.3...v0.4.0
+[0.2.5]: https://github.com/zZCYPH/ha-hub-energie/releases/tag/v0.2.5
 [0.2.3]: https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/compare/0.2.2...0.2.3
 [0.2.2]: https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/compare/0.2.0...0.2.2
 [0.2.0]: https://gitlab.com/zzcyph1/home-assistant/hub-energie/-/compare/0.1.0...0.2.0
