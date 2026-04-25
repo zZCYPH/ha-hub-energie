@@ -161,6 +161,7 @@ function pageFromRouteName(name) {
   if (name === "lovelace-cards") return "showcase";
   if (name === "flowhelp") return "flowhelp";
   if (name === "internals") return "internals";
+  if (name === "changelog") return "changelog";
   if (name === "developers") return "developers";
   return "landing";
 }

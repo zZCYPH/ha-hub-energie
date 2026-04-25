@@ -85,6 +85,11 @@ const navActive = (name) => route.name === name;
               </router-link>
             </li>
             <li class="nav-item">
+              <router-link class="nav-link" :class="{ active: navActive('changelog') }" to="/changelog">
+                <span data-i18n="nav.changelog">Changelog</span>
+              </router-link>
+            </li>
+            <li class="nav-item">
               <router-link class="nav-link" :class="{ active: navActive('internals') }" to="/internals">
                 <span data-i18n="nav.internals_short">Behind the scenes</span>
               </router-link>
@@ -221,6 +226,11 @@ const navActive = (name) => route.name === name;
                 <li>
                   <router-link class="link-secondary text-decoration-none" to="/showcase">
                     <span data-i18n="nav.showcase">Showcase</span>
+                  </router-link>
+                </li>
+                <li>
+                  <router-link class="link-secondary text-decoration-none" to="/changelog">
+                    <span data-i18n="nav.changelog">Changelog</span>
                   </router-link>
                 </li>
                 <li>

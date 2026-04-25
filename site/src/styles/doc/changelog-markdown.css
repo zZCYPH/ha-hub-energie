@@ -1,0 +1,70 @@
+/**
+ * Prose for rendered CHANGELOG.md on /changelog (Bootstrap doc site tokens).
+ */
+.site-changelog-markdown {
+  max-width: 52rem;
+}
+
+.site-changelog-markdown h1 {
+  font-size: 1.75rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.site-changelog-markdown h2 {
+  font-size: 1.25rem;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.site-changelog-markdown h3 {
+  font-size: 1.05rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.site-changelog-markdown p,
+.site-changelog-markdown ul,
+.site-changelog-markdown ol {
+  margin-bottom: 0.75rem;
+  color: var(--bs-secondary-color);
+}
+
+.site-changelog-markdown ul,
+.site-changelog-markdown ol {
+  padding-left: 1.25rem;
+}
+
+.site-changelog-markdown a {
+  text-decoration: none;
+}
+
+.site-changelog-markdown a:hover {
+  text-decoration: underline;
+}
+
+.site-changelog-markdown code {
+  font-size: 0.9em;
+  color: var(--bs-body-color);
+}
+
+.site-changelog-markdown pre {
+  padding: 0.75rem 1rem;
+  border-radius: var(--bs-border-radius);
+  background-color: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.site-changelog-markdown pre code {
+  color: inherit;
+  font-size: 0.8125rem;
+}
+
+.site-changelog-markdown hr {
+  margin: 2rem 0;
+  opacity: 0.35;
+}

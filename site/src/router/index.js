@@ -5,6 +5,7 @@ import DocView from "../views/DocView.vue";
 import HomeView from "../views/HomeView.vue";
 import LovelaceCardsView from "../views/LovelaceCardsView.vue";
 import InternalsView from "../views/partial/internals/InternalsView.vue";
+import ChangelogView from "../views/ChangelogView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +27,7 @@ const router = createRouter({
     { path: "/showcase", name: "showcase", component: DocView },
     { path: "/lovelace-cards", name: "lovelace-cards", component: LovelaceCardsView },
     { path: "/doc/setup-help", name: "flowhelp", component: ConfigFlowHelpView },
+    { path: "/changelog", name: "changelog", component: ChangelogView },
     { path: "/internals", name: "internals", component: InternalsView },
     /* Not linked from the public nav yet — bookmark `/dev` to open. */
     { path: "/dev", name: "developers", component: DevelopersView },

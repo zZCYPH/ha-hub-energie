@@ -80,6 +80,7 @@ function titleAndDescKeys(routeName) {
   if (routeName === "lovelace-cards") return ["meta.title.lovelace_cards", "meta.description.lovelace_cards"];
   if (routeName === "flowhelp") return ["meta.title.flowhelp", "meta.description.flowhelp"];
   if (routeName === "internals") return ["meta.title.internals", "meta.description.internals"];
+  if (routeName === "changelog") return ["meta.title.changelog", "meta.description.changelog"];
   if (routeName === "developers") return ["meta.title.developers", "meta.description.developers"];
   return ["meta.title.landing", "meta.description.landing"];
 }

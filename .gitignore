@@ -10,6 +10,7 @@ htmlcov/
 site/node_modules/
 site/dist/
 site/src/vendor/hub-energie-i18n.js
+site/public/changelog.generated.json
 # Optional local mirror of Pages output (`npm run export:pages` in site/)
 /public/
 .zip-stage/

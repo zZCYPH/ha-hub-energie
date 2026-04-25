@@ -249,32 +249,42 @@ pages:
         exit 1
       fi
       # Pushing vX.Y.Z and site-vX.Y.Z-i on the same commit creates two tag pipelines in parallel;
-      # stages cannot order jobs across pipelines. Wait until the semver release (integration_release)
-      # exists with a hub-energie ZIP asset before fetch-releases so /releases.json lists the new version.
-      AUTH_HEADER="JOB-TOKEN: ${CI_JOB_TOKEN}"
+      # stages cannot order jobs across pipelines. Wait until the **GitHub** release (HACS / ZIP
+      # source) exists with a hub-energie-*.zip asset, then fetch-releases builds /releases.json
+      # from the same URLs HACS uses.
+      GH_REPO="${GITHUB_REPOSITORY:-zZCYPH/ha-hub-energie}"
       SEMVER_TAG="v${MANIFEST_VER}"
       REL_ENC="$(printf '%s' "$SEMVER_TAG" | jq -sRr @uri)"
-      RELEASE_API="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/${REL_ENC}"
+      GH_RELEASE_URL="https://api.github.com/repos/${GH_REPO}/releases/tags/${REL_ENC}"
+      GH_CURL_AUTH=()
+      if [ -n "${GITHUB_TOKEN:-}" ]; then
+        GH_CURL_AUTH=(-H "Authorization: Bearer ${GITHUB_TOKEN}")
+      fi
       READY=""
       for _try in $(seq 1 90); do
-        HTTP_CODE="$(curl -sS -o /tmp/gitlab_release.json -w "%{http_code}" \
-          --header "${AUTH_HEADER}" "$RELEASE_API")"
+        HTTP_CODE="$(curl -sS -o /tmp/gh_release.json -w "%{http_code}" \
+          "${GH_CURL_AUTH[@]}" \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "$GH_RELEASE_URL")"
         if [ "$HTTP_CODE" = "200" ] && \
-           jq -e 'any(.assets.links[]?; (.name // "") | test("^hub-energie-.*\\.zip$"))' \
-             /tmp/gitlab_release.json >/dev/null 2>&1; then
-          echo "pages: release ${SEMVER_TAG} is ready (ZIP asset present)."
+           jq -e '(.assets // []) | map(select((.name // "") | test("^hub-energie-.*\\.zip$"))) | length > 0' \
+             /tmp/gh_release.json >/dev/null 2>&1; then
+          echo "pages: GitHub release ${SEMVER_TAG} is ready (ZIP asset present on ${GH_REPO})."
           READY=1
           break
         fi
-        echo "pages: waiting for release ${SEMVER_TAG} + ZIP asset (${_try}/90, HTTP ${HTTP_CODE})…"
+        echo "pages: waiting for GitHub release ${SEMVER_TAG} + ZIP asset (${_try}/90, HTTP ${HTTP_CODE})…"
         sleep 5
       done
       if [ -z "$READY" ]; then
-        echo "pages: timed out waiting for ${SEMVER_TAG}. Push the v*.*.* tag before or with site-v*," \
-             "and ensure the job token can read releases (Job token permissions)."
+        echo "pages: timed out waiting for ${SEMVER_TAG} on GitHub (${GH_REPO})." \
+             "Push the v*.*.* tag (GitHub Actions release) before or with site-v*." \
+             "Optional: set CI variable GITHUB_TOKEN (read-only) to avoid GitHub API rate limits."
         exit 1
       fi
-      # GitLab Releases API → site/public/releases.json (bundled as /releases.json on the site)
+      export GITHUB_REPOSITORY="${GH_REPO}"
+      # GitHub Releases API → site/public/releases.json (bundled as /releases.json on the site)
       node site/scripts/fetch-releases.mjs
       # History-mode SPA: Vite base + GitLab Pages `_redirects` need the project path on *.gitlab.io URLs.
       export VITE_SITE_BASE="$(node -e "const u=process.env.CI_PAGES_URL||'';if(!u){process.stdout.write('/');process.exit(0)}try{let p=new URL(u).pathname||'/';if(p!=='/'&&!p.endsWith('/'))p+='/';process.stdout.write(p)}catch{process.stdout.write('/')}")"

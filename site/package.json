@@ -5,9 +5,10 @@
   "scripts": {
     "postinstall": "node scripts/build-i18n.mjs",
     "fetch-releases": "node scripts/fetch-releases.mjs",
+    "sync-changelog": "node scripts/sync-changelog.mjs",
     "generate:flow-catalog": "python ../scripts/extract_config_flow_catalog.py",
-    "prebuild": "node scripts/build-i18n.mjs",
-    "predev": "node scripts/build-i18n.mjs",
+    "prebuild": "node scripts/build-i18n.mjs && node scripts/sync-changelog.mjs",
+    "predev": "node scripts/build-i18n.mjs && node scripts/sync-changelog.mjs",
     "build": "vite build",
     "export:pages": "npm run build && node scripts/export-pages.mjs",
     "dev": "vite"
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
+    "marked": "^15.0.7",
     "vite": "^6.0.3"
   }
 }
