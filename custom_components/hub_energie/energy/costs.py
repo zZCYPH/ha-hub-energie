@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Callable
 
@@ -29,6 +30,29 @@ def compute_costs(
         cost_total=sum(cost_by_slot.values()) + abonnement_eur,
         abonnement_eur=abonnement_eur,
     )
+
+
+def solar_self_use_kwh_by_slot(
+    *,
+    solar_production_by_slot: Mapping[str, float],
+    solar_to_battery_by_slot: Mapping[str, float],
+    grid_export_by_slot: Mapping[str, float],
+    slots: tuple[str, ...],
+) -> dict[str, float]:
+    """Per-slot PV kWh consumed directly at home (not to battery, not grid export).
+
+    Used as the basis for solar savings so ``eco_solar`` does not double-count energy
+    later valued via battery discharge savings or physical export.
+    """
+    return {
+        slot: max(
+            0.0,
+            float(solar_production_by_slot.get(slot, 0.0))
+            - float(solar_to_battery_by_slot.get(slot, 0.0))
+            - float(grid_export_by_slot.get(slot, 0.0)),
+        )
+        for slot in slots
+    }
 
 
 def compute_savings(

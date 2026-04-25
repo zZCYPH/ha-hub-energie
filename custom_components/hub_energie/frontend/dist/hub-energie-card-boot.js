@@ -1,12 +1,174 @@
-import "./hub-energie-card-editor.js";
-import { i as c, a as h, b as u, I as r } from "./i18n.js";
-const a = "custom:hub-energie-flow-card", l = ["auto", "full", "compact"];
-class f extends c {
+import { i as f, a as m, I as h, h as p, A as w, b as c } from "./energy-utils.js";
+import { t as S } from "./i18n-template.js";
+function $(r, t) {
+  const e = r?.editorSiteOption ?? "{index} — {segment}", i = String(t?.index ?? ""), s = t?.segment != null && String(t.segment).trim() !== "" ? String(t.segment).trim() : i;
+  return String(e).split("{index}").join(i).split("{segment}").join(s);
+}
+const d = "custom:hub-energie-card", u = /* @__PURE__ */ new Set([24, 12, 6, 3, 1]), x = [1, 3, 6, 12, 24], E = [
+  ["show_day_slots", "editorShowDaySlots"],
+  ["show_live_power", "editorShowLivePower"],
+  ["show_solar_production_bar", "editorShowSolarProductionBar"],
+  ["show_battery_bar", "editorShowBatteryBar"],
+  ["show_insights_bar", "editorShowInsightsBar"],
+  ["show_red_hp_warning", "editorShowRedHpWarning"],
+  ["show_consumption", "editorShowConsumption"],
+  ["show_cost", "editorShowCost"],
+  ["show_savings", "editorShowSavings"],
+  ["show_reinjection", "editorShowReinjection"],
+  ["show_raw_control", "editorShowRawControl"]
+];
+class C extends f {
   static properties = {
     hass: { attribute: !1 },
     _config: { state: !0 }
   };
-  static styles = h`
+  static styles = m`
+    :host {
+      display: block;
+    }
+    .field {
+      display: block;
+      margin-bottom: 16px;
+    }
+    .hint {
+      color: var(--secondary-text-color);
+      font-size: 12px;
+      margin: 6px 0 0;
+      line-height: 1.4;
+    }
+    .sections-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 20px 0 10px;
+      color: var(--primary-text-color);
+    }
+    ha-formfield {
+      display: block;
+    }
+  `;
+  setConfig(t) {
+    this._config = t && typeof t == "object" ? { ...t } : { type: d }, this._config.type || (this._config.type = d);
+  }
+  _i18n() {
+    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? h.en : h.fr;
+  }
+  _sectionOn(t) {
+    const e = this._config?.[t];
+    return e !== !1 && e !== "false";
+  }
+  _hubSites() {
+    return p(this.hass?.states);
+  }
+  _siteSelectValue() {
+    const t = this._config?.site_index;
+    if (t === "" || t === void 0 || t === null) return "__auto__";
+    const e = Math.trunc(Number(t));
+    return Number.isFinite(e) && e >= 0 ? String(e) : "__auto__";
+  }
+  render() {
+    const t = this._config ?? {}, e = this._i18n(), i = parseFloat(t.power_history_hours), s = Math.trunc(i), n = u.has(s) ? s : 6, a = this._hubSites(), o = this._siteSelectValue();
+    return c`
+      <div class="card-config">
+        ${a.length >= 1 ? c`
+              <div class="field">
+                <ha-select
+                  label=${e.editorSiteLabel}
+                  .value=${o}
+                  @closed=${this._onSiteClosed}
+                  .fixedMenuPosition=${!0}
+                  .naturalMenuWidth=${!0}
+                >
+                  <ha-list-item value="__auto__">${e.siteAuto}</ha-list-item>
+                  ${a.map(
+      (l) => c`
+                      <ha-list-item value="${String(l.index)}">${$(e, l)}</ha-list-item>
+                    `
+    )}
+                </ha-select>
+                <p class="hint">${e.editorSiteHint}</p>
+              </div>
+            ` : w}
+        <div class="field">
+          <ha-select
+            label=${e.editorPowerGraphWindow}
+            .value=${String(n)}
+            @closed=${this._onPowerHoursClosed}
+            .fixedMenuPosition=${!0}
+            .naturalMenuWidth=${!0}
+          >
+            ${x.map(
+      (l) => c`<ha-list-item value="${String(l)}">${S(e.editorPowerHoursUnit, { n: l })}</ha-list-item>`
+    )}
+          </ha-select>
+          <p class="hint">${e.editorPowerHoursHint}</p>
+        </div>
+
+        <div class="sections-title">${e.editorSectionsTitle}</div>
+        ${E.map(
+      ([l, v]) => c`
+            <div class="field">
+              <ha-formfield .label=${e[v]}>
+                <ha-switch
+                  .checked=${this._sectionOn(l)}
+                  @change=${(y) => this._setSectionFlag(l, y.target.checked)}
+                ></ha-switch>
+              </ha-formfield>
+            </div>
+          `
+    )}
+
+        <p class="hint">
+          ${e.editorAdvancedYamlBefore}<code>power_history_refresh_seconds</code>${e.editorAdvancedYamlAfter}
+        </p>
+      </div>
+    `;
+  }
+  _emit(t) {
+    const e = { ...t };
+    e.type = d, this.dispatchEvent(
+      new CustomEvent("config-changed", {
+        bubbles: !0,
+        composed: !0,
+        detail: { config: e }
+      })
+    );
+  }
+  _setSectionFlag(t, e) {
+    const i = { ...this._config };
+    e ? delete i[t] : i[t] = !1, this._emit(i);
+  }
+  _onSiteClosed(t) {
+    t.stopPropagation();
+    const e = t.target;
+    if (e?.value === void 0) return;
+    const i = { ...this._config };
+    e.value === "__auto__" ? delete i.site_index : i.site_index = Math.max(0, Math.trunc(Number(e.value))), this._emit(i);
+  }
+  _onPowerHoursClosed(t) {
+    t.stopPropagation();
+    const e = t.target;
+    if (e.value === "" || e.value === void 0) return;
+    const i = Math.trunc(Number(e.value));
+    if (!u.has(i)) return;
+    const s = parseFloat(this._config?.power_history_hours), n = u.has(Math.trunc(s)) ? Math.trunc(s) : 6;
+    if (i === n) return;
+    const a = { ...this._config, power_history_hours: i };
+    this._emit(a);
+  }
+}
+customElements.get("hub-energie-card-editor") || customElements.define("hub-energie-card-editor", C);
+const _ = "custom:hub-energie-flow-card";
+function M(r, t) {
+  const e = r?.editorSiteOption ?? "{index} — {segment}", i = String(t?.index ?? ""), s = t?.segment != null && String(t.segment).trim() !== "" ? String(t.segment).trim() : i;
+  return String(e).split("{index}").join(i).split("{segment}").join(s);
+}
+const g = ["auto", "full", "compact"];
+class L extends f {
+  static properties = {
+    hass: { attribute: !1 },
+    _config: { state: !0 }
+  };
+  static styles = m`
     :host {
       display: block;
     }
@@ -23,48 +185,92 @@ class f extends c {
     ha-formfield {
       display: block;
     }
+    .motion-note {
+      margin: 10px 0 0;
+      font-size: 11px;
+      line-height: 1.35;
+      color: var(--disabled-text-color, #9e9e9e);
+    }
   `;
-  setConfig(e) {
-    this._config = e && typeof e == "object" ? { ...e } : { type: a }, this._config.type || (this._config.type = a);
+  setConfig(t) {
+    this._config = t && typeof t == "object" ? { ...t } : { type: _ }, this._config.type || (this._config.type = _);
+  }
+  _hubSites() {
+    return p(this.hass?.states);
+  }
+  _siteSelectValue() {
+    const t = this._config?.site_index;
+    if (t === "" || t === void 0 || t === null) return "__auto__";
+    const e = Math.trunc(Number(t));
+    return Number.isFinite(e) && e >= 0 ? String(e) : "__auto__";
   }
   render() {
-    const e = this._i18n(), t = l.includes(this._config?.layout) ? this._config.layout : "auto", i = this._config?.debug === !0 || this._config?.debug === "true";
-    return u`
+    const t = this._i18n(), e = g.includes(this._config?.layout) ? this._config.layout : "auto", i = this._config?.debug === !0 || this._config?.debug === "true", s = this._config?.glass_panel === !0 || this._config?.glass_panel === "true", n = this._hubSites(), a = this._siteSelectValue();
+    return c`
       <div class="field">
         <ha-textfield
-          label=${e.flowEditorTitle}
+          label=${t.flowEditorTitle}
           .value=${this._config?.title ?? ""}
           @input=${this._onTitleInput}
         ></ha-textfield>
       </div>
       <div class="field">
         <ha-select
-          label=${e.flowEditorLayout}
-          .value=${t}
+          label=${t.flowEditorLayout}
+          .value=${e}
           @closed=${this._onLayoutClosed}
           .fixedMenuPosition=${!0}
           .naturalMenuWidth=${!0}
         >
-          <ha-list-item value="auto">${e.flowEditorLayoutAuto}</ha-list-item>
-          <ha-list-item value="full">${e.flowEditorLayoutFull}</ha-list-item>
-          <ha-list-item value="compact">${e.flowEditorLayoutCompact}</ha-list-item>
+          <ha-list-item value="auto">${t.flowEditorLayoutAuto}</ha-list-item>
+          <ha-list-item value="full">${t.flowEditorLayoutFull}</ha-list-item>
+          <ha-list-item value="compact">${t.flowEditorLayoutCompact}</ha-list-item>
         </ha-select>
-        <p class="hint">${e.flowEditorLayoutHint}</p>
+        <p class="hint">${t.flowEditorLayoutHint}</p>
       </div>
+      ${n.length >= 1 ? c`
+            <div class="field">
+              <ha-select
+                label=${t.editorSiteLabel}
+                .value=${a}
+                @closed=${this._onSiteClosed}
+                .fixedMenuPosition=${!0}
+                .naturalMenuWidth=${!0}
+              >
+                <ha-list-item value="__auto__">${t.siteAuto}</ha-list-item>
+                ${n.map(
+      (o) => c`
+                    <ha-list-item value="${String(o.index)}">${M(t, o)}</ha-list-item>
+                  `
+    )}
+              </ha-select>
+              <p class="hint">${t.editorSiteHint}</p>
+            </div>
+          ` : w}
       <div class="field">
-        <ha-formfield .label=${e.flowEditorDebug}>
+        <ha-formfield .label=${t.flowEditorDebug}>
           <ha-switch
             .checked=${i}
             @change=${(o) => this._setBool("debug", o.target.checked)}
           ></ha-switch>
         </ha-formfield>
-        <p class="hint">${e.flowEditorDebugHint}</p>
+        <p class="hint">${t.flowEditorDebugHint}</p>
+        <p class="motion-note">${t.flowEditorReducedMotionNote}</p>
+      </div>
+      <div class="field">
+        <ha-formfield .label=${t.flowEditorGlassPanel}>
+          <ha-switch
+            .checked=${s}
+            @change=${(o) => this._setBool("glass_panel", o.target.checked)}
+          ></ha-switch>
+        </ha-formfield>
+        <p class="hint">${t.flowEditorGlassHint}</p>
       </div>
       <div class="field">
         <ha-entity-picker
           .hass=${this.hass}
           .value=${this._config?.frontend_data_entity ?? ""}
-          label=${e.flowEditorDataEntity}
+          label=${t.flowEditorDataEntity}
           .includeDomains=${["sensor"]}
           allow-custom-entity
           @value-changed=${(o) => this._onEntityChanged("frontend_data_entity", o)}
@@ -74,94 +280,103 @@ class f extends c {
         <ha-entity-picker
           .hass=${this.hass}
           .value=${this._config?.frontend_meta_entity ?? ""}
-          label=${e.flowEditorMetaEntity}
+          label=${t.flowEditorMetaEntity}
           .includeDomains=${["sensor"]}
           allow-custom-entity
           @value-changed=${(o) => this._onEntityChanged("frontend_meta_entity", o)}
         ></ha-entity-picker>
-        <p class="hint">${e.flowEditorEntityHint}</p>
+        <p class="hint">${t.flowEditorEntityHint}</p>
       </div>
     `;
   }
   _i18n() {
-    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? r.en : r.fr;
+    return String(this.hass?.locale?.language ?? "fr").toLowerCase().startsWith("en") ? h.en : h.fr;
   }
-  _emit(e) {
+  _emit(t) {
     this.dispatchEvent(
       new CustomEvent("config-changed", {
         bubbles: !0,
         composed: !0,
-        detail: { config: { ...e, type: a } }
+        detail: { config: { ...t, type: _ } }
       })
     );
   }
-  _onTitleInput(e) {
-    const t = { ...this._config }, i = String(e.target?.value ?? "").trim();
-    i ? t.title = i : delete t.title, this._emit(t);
+  _onTitleInput(t) {
+    const e = { ...this._config }, i = String(t.target?.value ?? "").trim();
+    i ? e.title = i : delete e.title, this._emit(e);
   }
-  _onLayoutClosed(e) {
-    e.stopPropagation();
-    const t = String(e.target?.value ?? "auto");
-    if (!l.includes(t)) return;
+  _onLayoutClosed(t) {
+    t.stopPropagation();
+    const e = String(t.target?.value ?? "auto");
+    if (!g.includes(e)) return;
     const i = { ...this._config };
-    t === "auto" ? delete i.layout : i.layout = t, this._emit(i);
+    e === "auto" ? delete i.layout : i.layout = e, this._emit(i);
   }
-  _setBool(e, t) {
+  _onSiteClosed(t) {
+    t.stopPropagation();
+    const e = t.target;
+    if (e?.value === void 0) return;
     const i = { ...this._config };
-    t ? i[e] = !0 : delete i[e], this._emit(i);
+    e.value === "__auto__" ? delete i.site_index : i.site_index = Math.max(0, Math.trunc(Number(e.value))), this._emit(i);
   }
-  _onEntityChanged(e, t) {
-    const i = t.detail?.value ?? "", o = String(i).trim(), n = { ...this._config };
-    o ? n[e] = o : delete n[e], this._emit(n);
+  _setBool(t, e) {
+    const i = { ...this._config };
+    e ? i[t] = !0 : delete i[t], this._emit(i);
+  }
+  _onEntityChanged(t, e) {
+    const i = e.detail?.value ?? "", s = String(i).trim(), n = { ...this._config };
+    s ? n[t] = s : delete n[t], this._emit(n);
   }
 }
-customElements.get("hub-energie-flow-card-editor") || customElements.define("hub-energie-flow-card-editor", f);
-function d(s) {
-  const e = new URL(import.meta.url), t = e.searchParams.get("v"), i = new URL(s, e);
-  return t && i.searchParams.set("v", t), i.href;
+customElements.get("hub-energie-flow-card-editor") || customElements.define("hub-energie-flow-card-editor", L);
+function b(r) {
+  const t = new URL(import.meta.url), e = t.searchParams.get("v"), i = new URL(r, t);
+  return e && i.searchParams.set("v", e), i.href;
 }
-import(d("./hub-energie-flow-card.js")).catch((s) => {
-  console.error("[hub-energie-card-boot] flow module failed to load", s);
+import(b("./hub-energie-flow-card.js")).catch((r) => {
+  console.error("[hub-energie-card-boot] flow module failed to load", r);
 });
-const g = `
+const P = `
   <style>
     :host { display: block; min-height: 96px; }
     .wrap { padding: 16px; font: 14px/1.4 var(--paper-font-body1_-_font-family, Roboto, sans-serif); color: var(--primary-text-color, #212121); }
   </style>
   <ha-card><div class="wrap">Hub Énergie…</div></ha-card>
 `;
-class _ extends HTMLElement {
+class H extends HTMLElement {
   constructor() {
     super(), this.attachShadow({ mode: "open" }), this._core = null, this._hass = void 0, this._config = void 0, this._loadPromise = null;
   }
   connectedCallback() {
-    this._loadPromise || (this.shadowRoot.innerHTML = g), this._ensureCore();
+    this._loadPromise || (this.shadowRoot.innerHTML = P), this._ensureCore();
   }
   _ensureCore() {
     return this._loadPromise ? this._loadPromise : (this._loadPromise = (async () => {
       try {
-        await import(d("./hub-energie-card.js"));
-      } catch (o) {
-        console.error("[hub-energie-card-boot] core module failed to load", o), this.shadowRoot.innerHTML = '<style>:host{display:block}</style><ha-card><div style="padding:16px">Hub Énergie (load error)</div></ha-card>';
+        await import(b("./hub-energie-card.js"));
+      } catch (s) {
+        console.error("[hub-energie-card-boot] core module failed to load", s);
+        const a = (s && (s.message || String(s)) ? String(s.message || s) : "unknown").replace(/</g, "&lt;").slice(0, 400);
+        this.shadowRoot.innerHTML = `<style>:host{display:block}</style><ha-card><div style="padding:16px;font:14px/1.4 sans-serif"><strong>Hub Énergie</strong> (load error)<br/><small style="opacity:.85">${a}</small></div></ha-card>`;
         return;
       }
       if (!customElements.get("hub-energie-card-core") || this._core) return;
-      const t = document.createElement("hub-energie-card-core");
-      this._config !== void 0 && t.setConfig(this._config), this._hass !== void 0 && (t.hass = this._hass), this.shadowRoot.innerHTML = "";
+      const e = document.createElement("hub-energie-card-core");
+      this._config !== void 0 && e.setConfig(this._config), this._hass !== void 0 && (e.hass = this._hass), this.shadowRoot.innerHTML = "";
       const i = document.createElement("style");
-      i.textContent = ":host { display: block; }", this.shadowRoot.appendChild(i), this.shadowRoot.appendChild(t), this._core = t;
+      i.textContent = ":host { display: block; }", this.shadowRoot.appendChild(i), this.shadowRoot.appendChild(e), this._core = e;
     })(), this._loadPromise);
   }
-  set hass(e) {
-    this._hass = e, this._core ? this._core.hass = e : this._ensureCore().then(() => {
+  set hass(t) {
+    this._hass = t, this._core ? this._core.hass = t : this._ensureCore().then(() => {
       this._core && this._hass !== void 0 && (this._core.hass = this._hass);
     });
   }
   get hass() {
     return this._core ? this._core.hass : this._hass;
   }
-  setConfig(e) {
-    this._config = e, this._core ? this._core.setConfig(e) : this._ensureCore().then(() => {
+  setConfig(t) {
+    this._config = t, this._core ? this._core.setConfig(t) : this._ensureCore().then(() => {
       this._core && this._config !== void 0 && this._core.setConfig(this._config);
     });
   }
@@ -170,9 +385,9 @@ class _ extends HTMLElement {
   }
   getGridOptions() {
     if (this._core?.getGridOptions) return this._core.getGridOptions();
-    const e = Number(this._config?.grid_span ?? 1);
+    const t = Number(this._config?.grid_span ?? 1);
     return {
-      columns: (Number.isFinite(e) ? Math.max(1, Math.min(3, Math.trunc(e))) : 1) * 12,
+      columns: (Number.isFinite(t) ? Math.max(1, Math.min(3, Math.trunc(t))) : 1) * 12,
       min_columns: 3,
       rows: 8,
       min_rows: 4
@@ -188,7 +403,7 @@ class _ extends HTMLElement {
     };
   }
 }
-customElements.get("hub-energie-card") || customElements.define("hub-energie-card", _);
+customElements.get("hub-energie-card") || customElements.define("hub-energie-card", H);
 window.customCards ??= [];
 window.customCards.push(
   {

@@ -133,6 +133,11 @@ CONF_FLOW_NAV: Final = "flow_nav"
 FLOW_NAV_CONTINUE: Final = "continue"
 FLOW_NAV_BACK: Final = "back"
 
+# Short ASCII site key for ``entity_id`` object_ids: ``hub_energie_<site_slug>_…`` (immutable once set).
+CONF_SITE_SLUG: Final = "site_slug"
+# True when a site slug was committed (install or first options save); slug can no longer be changed.
+CONF_SITE_SLUG_LOCKED: Final = "site_slug_locked"
+
 # Time-of-use tariff
 CONF_TOU_PERIODS: Final = "tou_periods"
 # Fixed rows in ``manual_tou`` (HP/HC — two slots).
@@ -506,6 +511,15 @@ DATA_USAGE_BATT_CHARGE_METHOD: Final = "usage_batt_charge_method"
 DATA_BATT_CHARGE_METER_KWH: Final = "batt_charge_meter_kwh"
 DATA_USAGE_GRID_BATT_CHARGE_BY_SLOT_KWH: Final = "usage_grid_batt_charge_by_slot_kwh"
 DATA_USAGE_SOLAR_BATT_CHARGE_BY_SLOT_KWH: Final = "usage_solar_batt_charge_by_slot_kwh"
+# Lovelace hub-energie-card: resolved sensor entity_ids (stable per entry; see entity_id_stability).
+DATA_CARD_ENTITY_IDS: Final = "card_entity_ids"
+# 0-based site index among Hub Énergie config entries (when entity ids use numeric segment).
+DATA_CARD_SITE_INDEX: Final = "card_site_index"
+# Segment used in ``entity_id`` after ``hub_energie_`` (numeric string or site slug).
+DATA_CARD_SITE_SEGMENT: Final = "card_site_segment"
+# True on ``sensor.*_lovelace_card`` attributes (Frontend device) for card discovery.
+DATA_CARD_PAYLOAD_MARKER: Final = "hub_energie_card_payload"
+
 DATA_ORIGIN_GRID: Final = "origin_grid"
 DATA_ORIGIN_SOLAR: Final = "origin_solar"
 DATA_ORIGIN_GRID_ATTRS: Final = "origin_grid_attrs"

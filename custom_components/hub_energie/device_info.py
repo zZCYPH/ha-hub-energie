@@ -12,6 +12,7 @@ from .const import (
     SOURCE_SOLAR,
     scoped_device_name,
 )
+from .site_slug import site_slug_for_entry
 from .coordinator import HubEnergieCoordinator
 
 __all__ = (
@@ -29,8 +30,23 @@ __all__ = (
     "_device_for_usage_flow_key",
     "_device_grid_config",
     "_device_offer",
+    "_device_site",
     "_device_solar_config",
 )
+
+
+def _device_site(coordinator: HubEnergieCoordinator) -> DeviceInfo:
+    """Per-entry site / installation (Tempo info, connectivity, site slug context)."""
+    entry = coordinator.entry
+    slug = site_slug_for_entry(entry)
+    label = slug if slug else "Site"
+    return DeviceInfo(
+        entry_type=DeviceEntryType.SERVICE,
+        identifiers={(DOMAIN, f"{coordinator.entry.entry_id}_site")},
+        name=scoped_device_name(label),
+        manufacturer=INTEGRATION_TITLE,
+        model="Site & installation",
+    )
 
 
 def _device_offer(coordinator: HubEnergieCoordinator) -> DeviceInfo:

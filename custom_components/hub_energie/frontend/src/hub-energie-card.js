@@ -24,7 +24,12 @@ import {
   dayColorClass,
   dayColorLabel,
   isCardReady,
+  CARD_PAYLOAD_MARKER_ATTR,
+  discoverCostEntityId,
+  discoverLovelaceCardEntityId,
+  entityMapFromCostAttributes,
   makeEntityMap,
+  mergeHubCardAttributes,
   offerLabel,
   readSlotValue,
   slotLabel,
@@ -49,7 +54,10 @@ import "./components/hub-solar-production-bar.js";
 import "./components/hub-power-graph.js";
 import "./components/hub-battery-bar.js";
 import "./components/hub-insight-bar.js";
-import "./hub-energie-card-editor.js";
+
+/* Do not import hub-energie-card-editor here: boot loads it first; a static import would
+ * make the dynamically-imported hub-energie-card.js depend on ./hub-energie-card-editor.js
+ * and break on some clients if that sibling chunk fails to resolve. */
 
 class HubEnergieCard extends LitElement {
   static get properties() {
@@ -476,6 +484,10 @@ class HubEnergieCard extends LitElement {
     this._costMissingSinceMs = null;
     /** @type {ReturnType<typeof setInterval> | null} */
     this._powerGraphPollTimer = null;
+    /** @type {ReturnType<typeof setInterval> | null} */
+    this._liveStatePollTimer = null;
+    /** Last ``_stateKey()`` seen by the live poll (detect in-place ``hass.states`` mutations). */
+    this.__livePollSnap = null;
     /** Bumps on each new window load; refresh uses current id without bumping (see _loadPowerGraph). */
     this._powerGraphLoadId = 0;
     this._powerGraphRollingHours = DEFAULT_POWER_GRAPH_ROLLING_HOURS;
@@ -491,6 +503,7 @@ class HubEnergieCard extends LitElement {
     super.disconnectedCallback();
     this._clearHassRetryTimer();
     this._clearPowerGraphPollTimer();
+    this._clearLiveStatePollTimer();
     this._costMissingSinceMs = null;
   }
 
@@ -499,6 +512,51 @@ class HubEnergieCard extends LitElement {
       clearInterval(this._powerGraphPollTimer);
       this._powerGraphPollTimer = null;
     }
+  }
+
+  _clearLiveStatePollTimer() {
+    if (this._liveStatePollTimer != null) {
+      clearInterval(this._liveStatePollTimer);
+      this._liveStatePollTimer = null;
+    }
+  }
+
+  /**
+   * Home Assistant may update entity attributes in-place on ``hass.states`` without replacing
+   * the ``hass`` object, so Lit never runs ``shouldUpdate``. Poll the cost fingerprint in live
+   * mode and force a repaint when it changes.
+   */
+  _syncLiveStatePollTimer() {
+    this._clearLiveStatePollTimer();
+    if (!this.hass) return;
+    if (!this._isLiveMode()) return;
+    let costId;
+    let payloadId;
+    try {
+      const E = this._map();
+      costId = E.cost;
+      payloadId = this._payloadEntityId() ?? costId;
+    } catch {
+      return;
+    }
+    if (!isCardReady(this.hass.states, costId)) return;
+    if (payloadId !== costId && !isCardReady(this.hass.states, payloadId)) return;
+    this._liveStatePollTimer = window.setInterval(() => {
+      if (!this.hass || !this._isLiveMode()) return;
+      let snap;
+      try {
+        snap = this._stateKey();
+      } catch {
+        this.__livePollSnap = null;
+        this.requestUpdate();
+        return;
+      }
+      if (snap !== this.__livePollSnap) {
+        this.__livePollSnap = snap;
+        this.__lastKey = null;
+        this.requestUpdate();
+      }
+    }, 4000);
   }
 
   /** Refresh interval only while the graph shows the current Paris day (live tail). */
@@ -591,6 +649,14 @@ class HubEnergieCard extends LitElement {
     this.requestUpdate();
   }
 
+  /** 0-based Hub Énergie site index from card YAML (``site_index``); null = auto when only one site. */
+  _siteIndexFromConfig() {
+    const raw = this._config?.site_index;
+    if (raw === "" || raw === undefined || raw === null) return null;
+    const n = Math.trunc(Number(raw));
+    return Number.isFinite(n) && n >= 0 ? n : null;
+  }
+
   getCardSize() {
     return 8;
   }
@@ -651,10 +717,18 @@ class HubEnergieCard extends LitElement {
     return true;
   }
 
+  firstUpdated(_changedProps) {
+    super.firstUpdated(_changedProps);
+    this.__livePollSnap = null;
+    this._syncLiveStatePollTimer();
+  }
+
   updated(changedProps) {
     super.updated(changedProps);
     if (changedProps.has("hass") || changedProps.has("_date") || changedProps.has("_rangePreset")) {
       this._loadHistory();
+      this.__livePollSnap = null;
+      this._syncLiveStatePollTimer();
     }
     if (
       this._powerGraphOpen &&
@@ -680,7 +754,44 @@ class HubEnergieCard extends LitElement {
   }
 
   _map() {
-    return makeEntityMap();
+    const states = this.hass?.states;
+    const costId = discoverCostEntityId(states, this._siteIndexFromConfig());
+    const costAttrs = states?.[costId]?.attributes;
+    return entityMapFromCostAttributes(costAttrs, makeEntityMap(), costId);
+  }
+
+  /** ``sensor.*_lovelace_card`` (Frontend) for live W / kWh card attrs; falls back to ``cost_detail``. */
+  _payloadEntityId() {
+    const states = this.hass?.states;
+    if (!states) return null;
+    let E;
+    try {
+      E = this._map();
+    } catch {
+      return null;
+    }
+    if (E.lovelaceCard && states[E.lovelaceCard]) return E.lovelaceCard;
+    const discovered = discoverLovelaceCardEntityId(states, this._siteIndexFromConfig());
+    if (discovered && states[discovered]?.attributes?.[CARD_PAYLOAD_MARKER_ATTR] === true) return discovered;
+    return E.cost;
+  }
+
+  _mergedCostAttributes() {
+    const states = this.hass?.states;
+    if (!states) return {};
+    let E;
+    try {
+      E = this._map();
+    } catch {
+      return {};
+    }
+    const costId = E.cost;
+    const lcId = this._payloadEntityId();
+    if (!costId) return {};
+    return mergeHubCardAttributes(
+      lcId ? states[lcId]?.attributes : undefined,
+      states[costId]?.attributes,
+    );
   }
 
   _getRange() {
@@ -711,8 +822,10 @@ class HubEnergieCard extends LitElement {
     const states = this.hass?.states;
     if (!states) return null;
     const E = this._map();
+    const payloadId = this._payloadEntityId() ?? E.cost;
     const ids = [
       E.cost,
+      E.lovelaceCard,
       E.ecoSolar,
       E.ecoBatt,
       E.originGrid,
@@ -723,12 +836,27 @@ class HubEnergieCard extends LitElement {
       E.usageSolarBatt,
       E.usageBattHome,
     ];
-    const costAttrs = states[E.cost]?.attributes ?? {};
+    const costAttrs = this._mergedCostAttributes();
+    const cardSeg = costAttrs.card_site_segment;
+    const cardIds = costAttrs.card_entity_ids;
+    const cardIdsKey =
+      cardIds && typeof cardIds === "object"
+        ? Object.keys(cardIds)
+            .sort()
+            .map((k) => `${k}:${cardIds[k]}`)
+            .join("|")
+        : "";
     const attrsKey = [
+      String(this._siteIndexFromConfig() ?? ""),
+      E.cost,
+      cardSeg ?? "",
+      cardIdsKey,
       costAttrs.offer ?? "",
       costAttrs.contract_power ?? "",
       costAttrs.tariff_fetched_at ?? "",
       costAttrs.current_slot ?? "",
+      costAttrs.reinjection_cause ?? "",
+      String(costAttrs.reinjection_confidence ?? ""),
       this._fingerprintTempoDays(costAttrs.tempo_days),
       costAttrs.grid_power_signed_w ?? "",
       costAttrs.solar_power_w ?? "",
@@ -744,6 +872,7 @@ class HubEnergieCard extends LitElement {
       slotMapFingerprint(costAttrs.usage_grid_batt_charge_by_slot_kwh),
       slotMapFingerprint(costAttrs.usage_solar_batt_charge_by_slot_kwh),
       states[E.cost]?.last_updated ?? "",
+      states[payloadId]?.last_updated ?? "",
     ].join("|");
     return `${ids.map((id) => states[id]?.state ?? "").join("|")}|${attrsKey}`;
   }
@@ -753,7 +882,8 @@ class HubEnergieCard extends LitElement {
   }
 
   _extract(i18n) {
-    return extractHubCardViewModel(this._states(), this._map(), i18n);
+    const merged = this._isLiveMode() ? this._mergedCostAttributes() : undefined;
+    return extractHubCardViewModel(this._states(), this._map(), i18n, merged);
   }
 
   _onDateChange(e) {
@@ -784,8 +914,10 @@ class HubEnergieCard extends LitElement {
     this._histLoading = true;
     const E = this._map();
     const r = this._getRange();
+    const lcId = E.lovelaceCard;
     const ids = [
       E.cost,
+      ...(lcId && lcId !== E.cost ? [lcId] : []),
       E.ecoSolar,
       E.ecoBatt,
       E.originGrid,
@@ -797,7 +929,7 @@ class HubEnergieCard extends LitElement {
       E.usageBattHome,
     ];
 
-    fetchHistoryStates(this.hass, r.startIso, r.endIso, ids, E.cost)
+    fetchHistoryStates(this.hass, r.startIso, r.endIso, ids, E.cost, lcId !== E.cost ? lcId : undefined)
       .then((data) => {
         this._hist = data;
         this._histErr = null;
@@ -824,6 +956,7 @@ class HubEnergieCard extends LitElement {
     if (!this._powerGraphOpen) return;
     const E = this._map();
     const costId = E.cost;
+    const payloadId = this._payloadEntityId() ?? costId;
     if (!costId) return;
     if (!refresh) {
       if (!force && (this._powerGraphLoading || this._powerGraphSeries !== null)) return;
@@ -886,7 +1019,7 @@ class HubEnergieCard extends LitElement {
 
     const i18n = this._i18n();
     try {
-      const mapRaw = this.hass.states[costId]?.attributes?.power_graph_entity_map;
+      const mapRaw = this.hass.states[payloadId]?.attributes?.power_graph_entity_map;
       const map = mapRaw && typeof mapRaw === "object" ? mapRaw : null;
       const statisticIds = collectPowerGraphStatisticIds(map);
       if (!statisticIds.length) {
@@ -983,7 +1116,8 @@ class HubEnergieCard extends LitElement {
     const useLive = ser.useLiveTail === true;
     const E = this._map();
     const costId = E.cost;
-    const mapRaw = costId ? this.hass?.states[costId]?.attributes?.power_graph_entity_map : null;
+    const payloadId = this._payloadEntityId() ?? costId;
+    const mapRaw = payloadId ? this.hass?.states[payloadId]?.attributes?.power_graph_entity_map : null;
     const map = mapRaw && typeof mapRaw === "object" ? mapRaw : null;
     const live = useLive && map && this.hass ? readLivePowerGraphComponents(this.hass, map) : null;
     const pts = useLive ? mergeStatsPointsWithLiveTail(ser.statsPts, live) : ser.statsPts;
@@ -1046,7 +1180,12 @@ class HubEnergieCard extends LitElement {
     const isToday = this._isLiveMode();
     const E = this._map();
 
-    if (isToday && !isCardReady(this.hass?.states, E.cost)) {
+    const payloadId = this._payloadEntityId() ?? E.cost;
+    if (
+      isToday &&
+      (!isCardReady(this.hass?.states, E.cost) ||
+        (payloadId !== E.cost && !isCardReady(this.hass?.states, payloadId)))
+    ) {
       if (this._liveBootstrapWaiting(E.cost)) {
         return html`
           <ha-card>
@@ -1253,7 +1392,8 @@ class HubEnergieCard extends LitElement {
       : [];
 
     const liveStates = this._states();
-    const powerNowData = isToday && costEntityOk ? buildPowerNowData(liveStates, E.cost, i18n) : null;
+    const payloadForLive = this._payloadEntityId() ?? E.cost;
+    const powerNowData = isToday && costEntityOk ? buildPowerNowData(liveStates, payloadForLive, i18n) : null;
     const solarKwhTotal = homeSolarKwh + usage.solarBatt.v + reinj.solarSurplus;
     const solarKwhFmt = makeSectionEnergyFormatter([
       solarKwhTotal,
@@ -1290,16 +1430,30 @@ class HubEnergieCard extends LitElement {
           }
         : null;
     const batteryData =
-      costEntityOk && this.hass?.states ? buildBatteryData(this.hass.states, E.cost) : null;
+      costEntityOk && this.hass?.states ? buildBatteryData(this.hass.states, payloadForLive) : null;
 
     const totalReinjRaw = reinj.solarSurplus + reinj.batteryFull + reinj.switchLatency + reinj.unattributed;
+
+    let siteSegmentLabel = "";
+    try {
+      const cid = discoverCostEntityId(this.hass?.states, this._siteIndexFromConfig());
+      const raw = this.hass?.states?.[cid]?.attributes?.card_site_segment;
+      siteSegmentLabel = typeof raw === "string" ? raw.trim() : "";
+    } catch {
+      siteSegmentLabel = "";
+    }
+    const subtitleParts = [];
+    if (siteSegmentLabel) subtitleParts.push(siteSegmentLabel);
+    subtitleParts.push(offerLabel(offer));
+    if (contractPower) subtitleParts.push(`${contractPower}kVA`);
+    const headerSubtitle = subtitleParts.join(" · ");
 
     return html`
       <ha-card>
         <div class="header">
           <div class="header-title-side">
             <h2>Hub Énergie</h2>
-            <span class="header-subtitle">${offerLabel(offer)}${contractPower ? ` ${contractPower}kVA` : ""}</span>
+            <span class="header-subtitle">${headerSubtitle}</span>
           </div>
           <div class="controls">
             <label>${i18n.date}</label>
@@ -1386,7 +1540,9 @@ class HubEnergieCard extends LitElement {
           ? html`<section>
           <div class="section-head">
             <h3>${i18n.sectionConsumption}</h3>
-            <div class="section-metric">${i18n.totalEnergy} <b>${fmtEnergy(totalMaison)}</b></div>
+            <div class="section-metric" title=${i18n.totalEnergyTip}>${i18n.totalEnergy} <b>${fmtEnergy(
+              totalMaison,
+            )}</b></div>
           </div>
           <div class="bars">
             <hub-energy-strip

@@ -1,17 +1,29 @@
 /**
- * Flow-card-only helpers: keep this module imported only from hub-energie-flow-card.js so Vite
- * bundles them into hub-energie-flow-card.js. Avoid importing shared chunks like energy-utils.js
- * from the flow entry — minified cross-chunk export names (e.g. `B`) break if one chunk is cached stale.
+ * Flow-card helpers (bundled with hub-energie-flow-card.js).
+ * Resolves ``frontend_data`` / ``frontend_meta`` using the same site discovery as hub-energie-card
+ * (``sensor.hub_energie_<segment>_cost_detail`` → ``…_frontend_data`` / ``…_frontend_meta``).
  */
 
-/** Keep in sync with `DEFAULT_HUB_ENTITY_PREFIX` in energy-utils.js */
-const DEFAULT_HUB_ENTITY_PREFIX = "sensor.hub_energie_";
+import { discoverCostEntityId } from "./energy-utils.js";
 
-function defaultFrontendEntityIds(prefix = DEFAULT_HUB_ENTITY_PREFIX) {
-  const p = prefix;
+function siteIndexFromFlowConfig(config) {
+  const raw = config?.site_index;
+  if (raw === "" || raw === undefined || raw === null) return null;
+  const n = Math.trunc(Number(raw));
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
+/** Derive ``sensor.hub_energie_<segment>_frontend_{data,meta}`` from ``…_cost_detail`` (stable segment/slug). */
+function inferFrontendPairFromCostEntityId(costEntityId) {
+  if (typeof costEntityId !== "string" || !costEntityId.startsWith("sensor.")) return null;
+  const obj = costEntityId.slice("sensor.".length);
+  const suf = "_cost_detail";
+  if (!obj.endsWith(suf)) return null;
+  const head = obj.slice(0, -suf.length);
+  if (!head) return null;
   return {
-    frontendData: `${p}frontend_data`,
-    frontendMeta: `${p}frontend_meta`,
+    data: `sensor.${head}_frontend_data`,
+    meta: `sensor.${head}_frontend_meta`,
   };
 }
 
@@ -19,7 +31,7 @@ function defaultFrontendEntityIds(prefix = DEFAULT_HUB_ENTITY_PREFIX) {
  * Resolve Hub Énergie Lovelace payload sensors (frontend_data / frontend_meta).
  *
  * @param {Record<string, unknown> | undefined} states - `hass.states`
- * @param {Record<string, unknown> | undefined} config - card YAML; optional `frontend_data_entity`, `frontend_meta_entity`
+ * @param {Record<string, unknown> | undefined} config - card YAML; optional `frontend_data_entity`, `frontend_meta_entity`, `site_index` (same as main card)
  * @returns {{ data: string, meta: string } | null}
  */
 export function resolveHubFrontendPayloadEntities(states, config) {
@@ -42,14 +54,15 @@ export function resolveHubFrontendPayloadEntities(states, config) {
     if (pair) return pair;
   }
 
-  const map = defaultFrontendEntityIds();
-  let pair = tryPair(map.frontendData, map.frontendMeta);
-  if (pair) return pair;
+  const siteIdx = siteIndexFromFlowConfig(config);
+  const costId = discoverCostEntityId(states, siteIdx);
+  const inferred = inferFrontendPairFromCostEntityId(costId);
+  if (inferred) {
+    const pair = tryPair(inferred.data, inferred.meta);
+    if (pair) return pair;
+  }
 
-  pair = tryPair("sensor.frontend_data", "sensor.frontend_meta");
-  if (pair) return pair;
-
-  return null;
+  return tryPair("sensor.frontend_data", "sensor.frontend_meta");
 }
 
 /** Mirror of energy-utils `dayColorLabel` (keep behaviour in sync). */
@@ -77,4 +90,25 @@ export function fmtPowerCompact(w) {
   const ax = Math.abs(x);
   if (ax >= 1000) return `${(x / 1000).toFixed(ax >= 10000 ? 0 : 1)} kW`;
   return `${Math.round(x)} W`;
+}
+
+/**
+ * Human-readable age since entity `last_changed` / `last_updated` (flow card header).
+ *
+ * @param {string | undefined} iso - ISO timestamp from HA state
+ * @param {number} nowMs
+ * @param {Record<string, string>} i18n - flowAgeSeconds, flowAgeMinutes, flowAgeHours, flowAgeDays
+ */
+export function formatFlowDataAge(iso, nowMs, i18n) {
+  if (!iso) return null;
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return null;
+  const sec = Math.max(0, Math.floor((nowMs - t) / 1000));
+  if (sec < 60) return i18n.flowAgeSeconds.replace("{n}", String(sec));
+  const min = Math.floor(sec / 60);
+  if (min < 60) return i18n.flowAgeMinutes.replace("{n}", String(min));
+  const h = Math.floor(min / 60);
+  if (h < 48) return i18n.flowAgeHours.replace("{n}", String(h));
+  const d = Math.floor(h / 24);
+  return i18n.flowAgeDays.replace("{n}", String(d));
 }

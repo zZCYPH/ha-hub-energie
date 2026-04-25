@@ -55,8 +55,11 @@ class HubEnergieCardBoot extends HTMLElement {
         await import(cacheBustedSibling("./hub-energie-card.js"));
       } catch (err) {
         console.error("[hub-energie-card-boot] core module failed to load", err);
+        const msg = err && (err.message || String(err)) ? String(err.message || err) : "unknown";
+        const safe = msg.replace(/</g, "&lt;").slice(0, 400);
         this.shadowRoot.innerHTML =
-          "<style>:host{display:block}</style><ha-card><div style=\"padding:16px\">Hub Énergie (load error)</div></ha-card>";
+          `<style>:host{display:block}</style><ha-card><div style="padding:16px;font:14px/1.4 sans-serif">` +
+          `<strong>Hub Énergie</strong> (load error)<br/><small style="opacity:.85">${safe}</small></div></ha-card>`;
         return;
       }
       const Core = customElements.get("hub-energie-card-core");
