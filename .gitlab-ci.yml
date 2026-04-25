@@ -256,17 +256,20 @@ pages:
       SEMVER_TAG="v${MANIFEST_VER}"
       REL_ENC="$(printf '%s' "$SEMVER_TAG" | jq -sRr @uri)"
       GH_RELEASE_URL="https://api.github.com/repos/${GH_REPO}/releases/tags/${REL_ENC}"
-      GH_CURL_AUTH=()
-      if [ -n "${GITHUB_TOKEN:-}" ]; then
-        GH_CURL_AUTH=(-H "Authorization: Bearer ${GITHUB_TOKEN}")
-      fi
       READY=""
       for _try in $(seq 1 90); do
-        HTTP_CODE="$(curl -sS -o /tmp/gh_release.json -w "%{http_code}" \
-          "${GH_CURL_AUTH[@]}" \
-          -H "Accept: application/vnd.github+json" \
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          "$GH_RELEASE_URL")"
+        if [ -n "${GITHUB_TOKEN:-}" ]; then
+          HTTP_CODE="$(curl -sS -o /tmp/gh_release.json -w "%{http_code}" \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$GH_RELEASE_URL")"
+        else
+          HTTP_CODE="$(curl -sS -o /tmp/gh_release.json -w "%{http_code}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$GH_RELEASE_URL")"
+        fi
         if [ "$HTTP_CODE" = "200" ] && \
            jq -e '(.assets // []) | map(select((.name // "") | test("^hub-energie-.*\\.zip$"))) | length > 0' \
              /tmp/gh_release.json >/dev/null 2>&1; then
