@@ -80,6 +80,7 @@ FLOW_HELP_OPTIONS_IDS: tuple[str, ...] = (
     "expert",
     "reinjection",
     "advanced_energy",
+    "expert_diagnostics",
     "grid",
     "grid_tri_energy_mode",
     "grid_tri_per_phase",
@@ -129,6 +130,7 @@ OPTIONS_CATALOG_HANDLERS = frozenset(
         "async_step_tempo_rte",
         "async_step_reinjection",
         "async_step_advanced_energy",
+        "async_step_expert_diagnostics",
     }
 )
 OPTIONS_CATALOG_DUP_STEP_IDS: frozenset[str] = frozenset(

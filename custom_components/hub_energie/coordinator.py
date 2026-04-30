@@ -166,6 +166,10 @@ from .const import (
     TEMPO_MODE_RTE,
     TEMPO_MODE_SENSOR,
     TRI_GRID_ENERGY_PER_PHASE,
+    ACCUMULATOR_RETENTION_DAYS_MAX,
+    ACCUMULATOR_RETENTION_DAYS_MIN,
+    DEFAULT_DIAGNOSTICS_HISTORY_DAYS,
+    OPT_DIAGNOSTICS_HISTORY_DAYS,
     OPT_MAX_DELTA_KWH_BATTERY,
     OPT_MAX_DELTA_KWH_GRID,
     OPT_MAX_DELTA_KWH_OTHER,
@@ -875,10 +879,25 @@ class HubEnergieCoordinator(DataUpdateCoordinator[EnergyData]):
         yesterday = _paris_yesterday()
         await self._async_write_day_statistics(yesterday)
         async with self._state_lock:
-            self._cleanup_accumulators(keep_days=7)
+            self._cleanup_accumulators(keep_days=self._accumulator_retention_days())
             self._schedule_store_save_locked()
         await self._async_flush_pending_store_save()
         await self.async_request_refresh()
+
+    def _diagnostics_history_days(self) -> int:
+        raw = self.entry.options.get(OPT_DIAGNOSTICS_HISTORY_DAYS, DEFAULT_DIAGNOSTICS_HISTORY_DAYS)
+        try:
+            n = int(raw)
+        except (TypeError, ValueError):
+            n = int(DEFAULT_DIAGNOSTICS_HISTORY_DAYS)
+        return max(1, min(90, n))
+
+    def _accumulator_retention_days(self) -> int:
+        """Keep at least the diagnostics window plus one day margin (Paris calendar days)."""
+        return max(
+            ACCUMULATOR_RETENTION_DAYS_MIN,
+            min(ACCUMULATOR_RETENTION_DAYS_MAX, self._diagnostics_history_days() + 1),
+        )
 
     def _cleanup_accumulators(self, keep_days: int) -> None:
         self._runtime_state.cleanup(keep_days=keep_days)

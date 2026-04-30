@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-25T00:05:39.779334+00:00",
+  "generated_at": "2026-04-30T06:54:02.850829+00:00",
   "source_files": {
     "config_flow": "custom_components/hub_energie/config_flow.py",
     "strings_en": "custom_components/hub_energie/strings.json",
@@ -817,6 +817,10 @@
               "label": "Energy delta caps (kWh)"
             },
             {
+              "key": "expert_diagnostics",
+              "label": "Download diagnostics: history depth"
+            },
+            {
               "key": "expert_back",
               "label": "Back"
             }
@@ -837,10 +841,49 @@
               "label": "Plafonds de delta (kWh)"
             },
             {
+              "key": "expert_diagnostics",
+              "label": "Diagnostics téléchargés : profondeur"
+            },
+            {
               "key": "expert_back",
               "label": "Retour"
             }
           ],
+          "sections": []
+        }
+      }
+    },
+    {
+      "step_id": "expert_diagnostics",
+      "handler": "async_step_expert_diagnostics",
+      "source_class": "HubEnergieOptionsFlow",
+      "kind": "form",
+      "menu_options": null,
+      "strings": {
+        "en": {
+          "title": "Diagnostics download",
+          "description": "How many **Europe/Paris calendar days** (including today) to embed in **Settings → Devices & services → Hub Énergie → Download diagnostics**. Larger files help remote debugging but increase JSON size.\n\n[I need help with this step](https://hub-energie.ts-devops.com/doc/setup-help#options-expert_diagnostics)",
+          "fields": [
+            {
+              "key": "diagnostics_history_days",
+              "label": "Days in diagnostics JSON",
+              "description": "Integer from 1 to 90. The integration also keeps roughly this many days of per-day slot energy in memory (plus one day margin) so the dump can include the window you request."
+            }
+          ],
+          "menu_choices": [],
+          "sections": []
+        },
+        "fr": {
+          "title": "Diagnostics téléchargés",
+          "description": "Nombre de **jours calendaires Europe/Paris** (aujourd’hui inclus) à inclure dans **Paramètres → Appareils et services → Hub Énergie → Télécharger les diagnostics**. Plus de jours aident le débogage à distance mais augmentent la taille du JSON.\n\n[J'ai besoin d'aide pour saisir cette étape](https://hub-energie.ts-devops.com/doc/setup-help#options-expert_diagnostics)",
+          "fields": [
+            {
+              "key": "diagnostics_history_days",
+              "label": "Jours dans le JSON de diagnostics",
+              "description": "Entier de 1 à 90. L’intégration conserve aussi environ autant de jours d’énergie par créneau en mémoire (plus une marge d’un jour) pour que l’export couvre la fenêtre demandée."
+            }
+          ],
+          "menu_choices": [],
           "sections": []
         }
       }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-25T00:05:39.781336+00:00",
+  "generated_at": "2026-04-30T06:54:02.852691+00:00",
   "source_files": {
     "strings_en": "custom_components/hub_energie/strings.json",
     "strings_fr": "custom_components/hub_energie/translations/fr.json"
@@ -2079,6 +2079,10 @@
             "label": "Energy delta caps (kWh)"
           },
           {
+            "key": "expert_diagnostics",
+            "label": "Download diagnostics: history depth"
+          },
+          {
             "key": "expert_back",
             "label": "Back"
           }
@@ -2095,6 +2099,10 @@
           {
             "key": "advanced_energy",
             "label": "Plafonds de delta (kWh)"
+          },
+          {
+            "key": "expert_diagnostics",
+            "label": "Diagnostics téléchargés : profondeur"
           },
           {
             "key": "expert_back",
@@ -2245,6 +2253,30 @@
             "key": "max_delta_kwh_other",
             "label": "Autres compteurs d'énergie",
             "description": "Plafond de repli pour toute autre source d’énergie du hub (hors réseau, PV et compteurs batterie nommés). Utile pour des compteurs « autres »."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      }
+    },
+    "expert_diagnostics": {
+      "en": {
+        "fields": [
+          {
+            "key": "diagnostics_history_days",
+            "label": "Days in diagnostics JSON",
+            "description": "Integer from 1 to 90. The integration also keeps roughly this many days of per-day slot energy in memory (plus one day margin) so the dump can include the window you request."
+          }
+        ],
+        "sections": [],
+        "menu_choices": []
+      },
+      "fr": {
+        "fields": [
+          {
+            "key": "diagnostics_history_days",
+            "label": "Jours dans le JSON de diagnostics",
+            "description": "Entier de 1 à 90. L’intégration conserve aussi environ autant de jours d’énergie par créneau en mémoire (plus une marge d’un jour) pour que l’export couvre la fenêtre demandée."
           }
         ],
         "sections": [],

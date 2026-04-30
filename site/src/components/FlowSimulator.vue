@@ -58,6 +58,7 @@ const INITIAL_FORM = {
   battery_index: "0",
   batt_remove_selected: "false",
   add_new: "false",
+  diagnostics_history_days: "14",
 };
 
 const formState = reactive({ ...INITIAL_FORM });
@@ -276,6 +277,8 @@ function computeNextOptions(stepId, s) {
       return STEP_DONE;
     case "advanced_energy":
       return STEP_DONE;
+    case "expert_diagnostics":
+      return STEP_DONE;
     case "battery":
       if (!boolFromForm(s, "has_batteries")) return STEP_DONE;
       return "battery_pick";
@@ -415,11 +418,20 @@ const canFinishReinjection = computed(() => {
   return true;
 });
 
+const canFinishExpertDiagnostics = computed(() => {
+  if (props.mode !== "options" || finished.value) return false;
+  if (currentStepId.value !== "expert_diagnostics") return false;
+  const v = parseInt(String(formState.diagnostics_history_days ?? "").trim(), 10);
+  return Number.isFinite(v) && v >= 1 && v <= 90;
+});
+
 const primaryActionLabel = computed(() => {
   if (
     props.mode === "options" &&
     !finished.value &&
-    (currentStepId.value === "advanced_energy" || currentStepId.value === "reinjection")
+    (currentStepId.value === "advanced_energy" ||
+      currentStepId.value === "reinjection" ||
+      currentStepId.value === "expert_diagnostics")
   ) {
     return tr("flowsim.submit_options");
   }
@@ -432,6 +444,9 @@ const primaryActionDisabled = computed(() => {
   }
   if (props.mode === "options" && !finished.value && currentStepId.value === "reinjection") {
     return !canFinishReinjection.value;
+  }
+  if (props.mode === "options" && !finished.value && currentStepId.value === "expert_diagnostics") {
+    return !canFinishExpertDiagnostics.value;
   }
   return !canGoNext.value;
 });
@@ -449,6 +464,7 @@ function defaultForFieldKey(key) {
   if (key === "reinjection_export_min_abs_w") return "120";
   if (key === "reinjection_export_vs_solar_fraction") return "0.2";
   if (key === "reinjection_batt_full_min_soc_frac") return "0.93";
+  if (key === "diagnostics_history_days") return "14";
   if (fieldKind(key) === "boolean" || fieldKind(key) === "boolean_dropdown") return "false";
   if (fieldKind(key) === "entity") return "";
   if (key === "tou_r0_start") return "22:00";
@@ -523,6 +539,11 @@ function goNext() {
     finished.value = true;
     return;
   }
+  if (props.mode === "options" && cur === "expert_diagnostics") {
+    if (!canFinishExpertDiagnostics.value) return;
+    finished.value = true;
+    return;
+  }
   const next = computeNext(cur, formState);
   if (next === null || next === undefined) return;
   if (next === STEP_DONE) {
@@ -568,7 +589,7 @@ function chooseMenuOption(opt) {
       history.value = ["init"];
       return;
     }
-    if (opt === "reinjection" || opt === "advanced_energy") {
+    if (opt === "reinjection" || opt === "advanced_energy" || opt === "expert_diagnostics") {
       history.value = [...history.value, opt];
     }
     return;
@@ -618,6 +639,14 @@ function jumpToAdvancedEnergy() {
   history.value = ["advanced_energy"];
 }
 
+function jumpToExpertDiagnostics() {
+  finished.value = false;
+  flowNavChoice.value = "continue";
+  for (const k of Object.keys(formState)) delete formState[k];
+  formState.diagnostics_history_days = "14";
+  history.value = ["expert_diagnostics"];
+}
+
 function jumpToReinjection() {
   finished.value = false;
   flowNavChoice.value = "continue";
@@ -645,6 +674,7 @@ function onOptionsFlowsimJumpEvent(ev) {
   if (sid === "battery_pick") jumpToBatteryPick();
   else if (sid === "advanced_energy") jumpToAdvancedEnergy();
   else if (sid === "reinjection") jumpToReinjection();
+  else if (sid === "expert_diagnostics") jumpToExpertDiagnostics();
 }
 
 function chooseOptionsMenuOption(opt) {
@@ -726,6 +756,7 @@ function suffixForNumberField(key) {
   )
     return "W";
   if (key === "reinjection_short_export_max_s") return "s";
+  if (key === "diagnostics_history_days") return tr("flowsim.suffix_days");
   return "";
 }
 
@@ -740,6 +771,7 @@ function numberInputStepForKey(key) {
   )
     return "0.01";
   if (key === "reinjection_short_export_max_s") return "1";
+  if (key === "diagnostics_history_days") return "1";
   return "0.0001";
 }
 
@@ -821,6 +853,7 @@ function fieldKind(key) {
   if (key === "solar_performance") return "solar_performance";
   if (key === "batt_power_net_sign") return "batt_net_sign";
   if (/^max_delta_kwh_/.test(key)) return "number";
+  if (key === "diagnostics_history_days") return "number";
   if (/^reinjection_/.test(key)) return "number";
   if (key === "battery_index") return "battery_index_select";
   if (

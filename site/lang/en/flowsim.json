@@ -27,6 +27,7 @@
   "flowsim.help_aria": "Help",
   "flowsim.suffix_per_kwh": "{currency}/kWh",
   "flowsim.suffix_per_month": "{currency}/month",
+  "flowsim.suffix_days": "days",
   "flowsim.time_placeholder": "--:--",
   "flowsim.time_field_title": "Time (24 h, hh:mm)",
   "flowsim.entity_search": "Search",

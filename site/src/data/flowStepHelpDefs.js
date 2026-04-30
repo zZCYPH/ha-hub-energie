@@ -48,6 +48,7 @@ export const FLOW_HELP_OPTIONS_IDS = [
   "expert",
   "reinjection",
   "advanced_energy",
+  "expert_diagnostics",
   "grid",
   "grid_tri_energy_mode",
   "grid_tri_per_phase",

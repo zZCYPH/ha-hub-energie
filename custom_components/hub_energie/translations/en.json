@@ -628,6 +628,7 @@
       "tri_import_phases_incomplete": "Configure import energy sensors for all three phases (L1, L2, L3).",
       "schedule_incomplete_row": "Each slot needs both start and end times, or leave the row empty.",
       "invalid_reinjection_thresholds": "Reinjection thresholds must be valid numbers within the allowed ranges.",
+      "invalid_diagnostics_history_days": "Diagnostics history must be a whole number of days between 1 and 90.",
       "site_slug_format": "Site key must be 2–10 characters: lowercase letters a–z and digits 0–9 only.",
       "site_slug_duplicate": "This site key is already used by another Hub Énergie entry.",
       "site_slug_locked": "The site key is locked and cannot be changed."
@@ -659,7 +660,18 @@
         "menu_options": {
           "reinjection": "Reinjection tuning",
           "advanced_energy": "Energy delta caps (kWh)",
+          "expert_diagnostics": "Download diagnostics: history depth",
           "expert_back": "Back"
+        }
+      },
+      "expert_diagnostics": {
+        "title": "Diagnostics download",
+        "description": "How many **Europe/Paris calendar days** (including today) to embed in **Settings → Devices & services → Hub Énergie → Download diagnostics**. Larger files help remote debugging but increase JSON size.\n\n[I need help with this step]({step_help_url})",
+        "data": {
+          "diagnostics_history_days": "Days in diagnostics JSON"
+        },
+        "data_description": {
+          "diagnostics_history_days": "Integer from 1 to 90. The integration also keeps roughly this many days of per-day slot energy in memory (plus one day margin) so the dump can include the window you request."
         }
       },
       "reinjection": {
@@ -688,7 +700,7 @@
       },
       "advanced_energy": {
         "title": "Energy delta caps",
-        "description": "[I need help with this step]({step_help_url})\n\n[Implementation details — energy delta caps](https://hub-energie.ts-devops.com/internals#internals-delta-caps)",
+        "description": "[I need help with this step]({step_help_url})",
         "data": {
           "max_delta_kwh_grid": "Grid import & export",
           "max_delta_kwh_solar": "Solar production",
@@ -1058,22 +1070,6 @@
           "tariff_offer": "Base, HPHC, or Tempo — must match your contract.",
           "contract_power": "Must match your subscription for correct prices."
         }
-      },
-      "advanced_energy": {
-        "title": "Energy delta caps",
-        "description": "[I need help with this step]({step_help_url})",
-        "data": {
-          "max_delta_kwh_grid": "Grid import & export",
-          "max_delta_kwh_solar": "Solar production",
-          "max_delta_kwh_battery": "Battery in & out",
-          "max_delta_kwh_other": "Other energy meters"
-        },
-        "data_description": {
-          "max_delta_kwh_grid": "Maximum positive grid import or export kWh jump accepted in one hub update. If HA was down and the meter moved more than this before the next poll, the excess is discarded for internal slot/cost math (raw meter still advances). Raise for rare long outages; keep moderate to block spikes.",
-          "max_delta_kwh_solar": "Same guard for the solar production kWh counter. Tighten if the inverter sometimes posts absurd single-step increases.",
-          "max_delta_kwh_battery": "Applies independently to each configured battery charge and discharge total_increasing counter. Large domestic packs rarely need >80 kWh per step unless you intentionally aggregate stacks.",
-          "max_delta_kwh_other": "Fallback cap for any other hub energy source (not grid, solar, or named battery counters). Use when you route extra meters through “other” paths."
-        }
       }
     },
     "abort": {
@@ -1085,6 +1081,7 @@
       "tariff_fetch_failed": "Failed to fetch tariffs. Check offer, kVA, and network.",
       "battery_pick_conflicting_options": "Turn off either “delete selected battery” or “add a new battery”, then try again.",
       "invalid_reinjection_thresholds": "Reinjection thresholds must be valid numbers within the allowed ranges.",
+      "invalid_diagnostics_history_days": "Use a whole number of days between 1 and 90.",
       "site_slug_format": "Site key must be 2–10 characters: lowercase letters a–z and digits 0–9 only.",
       "site_slug_duplicate": "This site key is already used by another Hub Énergie entry.",
       "site_slug_locked": "The site key is locked and cannot be changed."

@@ -677,7 +677,18 @@
         "menu_options": {
           "reinjection": "Reinjection tuning",
           "advanced_energy": "Energy delta caps (kWh)",
+          "expert_diagnostics": "Download diagnostics: history depth",
           "expert_back": "Back"
+        }
+      },
+      "expert_diagnostics": {
+        "title": "Diagnostics download",
+        "description": "How many **Europe/Paris calendar days** (including today) to embed in **Settings → Devices & services → Hub Énergie → Download diagnostics**. Larger files help remote debugging but increase JSON size.\n\n[I need help with this step]({step_help_url})",
+        "data": {
+          "diagnostics_history_days": "Days in diagnostics JSON"
+        },
+        "data_description": {
+          "diagnostics_history_days": "Integer from 1 to 90. The integration also keeps roughly this many days of per-day slot energy in memory (plus one day margin) so the dump can include the window you request."
         }
       },
       "reinjection": {
@@ -1097,7 +1108,8 @@
       "tariff_payload_incomplete": "Tariff data from the provider was incomplete or invalid. Try again or check offer and kVA.",
       "site_slug_format": "Site key must be 2–10 characters: lowercase letters a–z and digits 0–9 only.",
       "site_slug_duplicate": "This site key is already used by another Hub Énergie entry.",
-      "site_slug_locked": "The site key is locked and cannot be changed."
+      "site_slug_locked": "The site key is locked and cannot be changed.",
+      "invalid_diagnostics_history_days": "Use a whole number of days between 1 and 90."
     }
   },
   "selector": {
