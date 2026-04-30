@@ -445,6 +445,12 @@ OPT_MAX_DELTA_KWH_GRID: Final = "max_delta_kwh_grid"
 OPT_MAX_DELTA_KWH_SOLAR: Final = "max_delta_kwh_solar"
 OPT_MAX_DELTA_KWH_BATTERY: Final = "max_delta_kwh_battery"
 OPT_MAX_DELTA_KWH_OTHER: Final = "max_delta_kwh_other"
+# Configure → Expert: how many Paris calendar days of slot/day energy to include in HA diagnostics JSON.
+OPT_DIAGNOSTICS_HISTORY_DAYS: Final = "diagnostics_history_days"
+DEFAULT_DIAGNOSTICS_HISTORY_DAYS: Final = 14
+# How many Paris calendar days of per-day accumulators to retain in memory (>= diagnostics window).
+ACCUMULATOR_RETENTION_DAYS_MIN: Final = 7
+ACCUMULATOR_RETENTION_DAYS_MAX: Final = 120
 # Sanity bounds when reading options or showing the options form.
 DELTA_CAP_KWH_MIN: Final = 0.01
 DELTA_CAP_KWH_MAX: Final = 500_000.0

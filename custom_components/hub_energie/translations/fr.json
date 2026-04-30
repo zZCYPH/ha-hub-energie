@@ -635,6 +635,7 @@
       "tariff_payload_incomplete": "Les données tarifaires du fournisseur sont incomplètes ou invalides. Réessayez ou vérifiez l'offre et le kVA.",
       "invalid_delta_cap": "Les plafonds de delta doivent être des nombres valides dans la plage autorisée.",
       "invalid_reinjection_thresholds": "Les seuils de réinjection doivent être des nombres valides dans les plages autorisées.",
+      "invalid_diagnostics_history_days": "Indiquez un nombre entier de jours entre 1 et 90.",
       "site_slug_format": "La clé site doit comporter 2 à 10 caractères : lettres a–z minuscules et chiffres 0–9 uniquement.",
       "site_slug_duplicate": "Cette clé site est déjà utilisée par une autre entrée Hub Énergie.",
       "site_slug_locked": "La clé site est verrouillée et ne peut pas être modifiée."
@@ -666,7 +667,18 @@
         "menu_options": {
           "reinjection": "Réglages de réinjection",
           "advanced_energy": "Plafonds de delta (kWh)",
+          "expert_diagnostics": "Diagnostics téléchargés : profondeur",
           "expert_back": "Retour"
+        }
+      },
+      "expert_diagnostics": {
+        "title": "Diagnostics téléchargés",
+        "description": "Nombre de **jours calendaires Europe/Paris** (aujourd’hui inclus) à inclure dans **Paramètres → Appareils et services → Hub Énergie → Télécharger les diagnostics**. Plus de jours aident le débogage à distance mais augmentent la taille du JSON.\n\n[J'ai besoin d'aide pour saisir cette étape]({step_help_url})",
+        "data": {
+          "diagnostics_history_days": "Jours dans le JSON de diagnostics"
+        },
+        "data_description": {
+          "diagnostics_history_days": "Entier de 1 à 90. L’intégration conserve aussi environ autant de jours d’énergie par créneau en mémoire (plus une marge d’un jour) pour que l’export couvre la fenêtre demandée."
         }
       },
       "reinjection": {
@@ -1095,6 +1107,7 @@
       "tariff_fetch_failed": "Échec de la récupération des tarifs. Vérifiez l'offre, le kVA et le réseau.",
       "tariff_payload_incomplete": "Les données tarifaires du fournisseur sont incomplètes ou invalides. Réessayez ou vérifiez l'offre et le kVA.",
       "invalid_reinjection_thresholds": "Les seuils de réinjection doivent être des nombres valides dans les plages autorisées.",
+      "invalid_diagnostics_history_days": "Indiquez un nombre entier de jours entre 1 et 90.",
       "site_slug_format": "La clé site doit comporter 2 à 10 caractères : lettres a–z minuscules et chiffres 0–9 uniquement.",
       "site_slug_duplicate": "Cette clé site est déjà utilisée par une autre entrée Hub Énergie.",
       "site_slug_locked": "La clé site est verrouillée et ne peut pas être modifiée."

@@ -139,6 +139,7 @@ from .const import (
     CONF_RTE_CLIENT_SECRET,
     CONF_SCHEDULE_SLOTS,
     DAY_TYPE_ALL,
+    DEFAULT_DIAGNOSTICS_HISTORY_DAYS,
     DEFAULT_MAX_DELTA_KWH_BATTERY,
     DEFAULT_MAX_DELTA_KWH_GRID,
     DEFAULT_MAX_DELTA_KWH_SOLAR,
@@ -185,6 +186,7 @@ from .const import (
     OPT_BLANC_HC,
     OPT_BLANC_HP,
     OPT_FIXED_TTC,
+    OPT_DIAGNOSTICS_HISTORY_DAYS,
     OPT_MAX_DELTA_KWH_BATTERY,
     OPT_MAX_DELTA_KWH_GRID,
     OPT_MAX_DELTA_KWH_OTHER,
@@ -1908,7 +1910,7 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
     ) -> ConfigFlowResult:
         return self._show_doc_menu(
             step_id="expert",
-            menu_options=["reinjection", "advanced_energy", "expert_back"],
+            menu_options=["reinjection", "advanced_energy", "expert_diagnostics", "expert_back"],
         )
 
     async def async_step_expert_back(
@@ -2100,6 +2102,59 @@ class HubEnergieOptionsFlow(_BatteryWizardMixin, OptionsFlow):
             }
         )
         return self._show_doc_form(step_id="advanced_energy", data_schema=schema, errors=errors)
+
+    async def async_step_expert_diagnostics(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """How many Paris calendar days to include in Download diagnostics JSON."""
+        opts = dict(self.config_entry.options)
+
+        def eff_days() -> int:
+            raw = opts.get(OPT_DIAGNOSTICS_HISTORY_DAYS, DEFAULT_DIAGNOSTICS_HISTORY_DAYS)
+            try:
+                n = int(raw)
+            except (TypeError, ValueError):
+                n = int(DEFAULT_DIAGNOSTICS_HISTORY_DAYS)
+            return max(1, min(90, n))
+
+        default_days = eff_days()
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            try:
+                d = int(user_input[OPT_DIAGNOSTICS_HISTORY_DAYS])
+            except (TypeError, ValueError, KeyError):
+                errors["base"] = "invalid_diagnostics_history_days"
+            else:
+                if d < 1 or d > 90:
+                    errors["base"] = "invalid_diagnostics_history_days"
+                else:
+                    try:
+                        return await self._persist(
+                            options_patch={OPT_DIAGNOSTICS_HISTORY_DAYS: d},
+                        )
+                    except ValueError as err:
+                        errors = dict(err.args[0])
+        days_selector = NumberSelector(
+            NumberSelectorConfig(
+                min=1,
+                max=90,
+                step=1,
+                mode=NumberSelectorMode.BOX,
+            )
+        )
+        schema = vol.Schema(
+            {
+                vol.Required(
+                    OPT_DIAGNOSTICS_HISTORY_DAYS,
+                    default=default_days,
+                ): days_selector,
+            }
+        )
+        return self._show_doc_form(
+            step_id="expert_diagnostics",
+            data_schema=schema,
+            errors=errors,
+        )
 
     async def async_step_reinjection(
         self, user_input: dict[str, Any] | None = None

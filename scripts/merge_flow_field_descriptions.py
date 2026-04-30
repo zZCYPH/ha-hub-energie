@@ -462,6 +462,11 @@ OPTIONS_EN: dict[str, Any] = {
             "max_delta_kwh_other": "Fallback cap for any other hub energy source (not grid, solar, or named battery counters). Use when you route extra meters through “other” paths.",
         }
     },
+    "expert_diagnostics": {
+        "data_description": {
+            "diagnostics_history_days": "Integer from 1 to 90. The integration also keeps roughly this many days of per-day slot energy in memory (plus one day margin) so the dump can include the window you request.",
+        }
+    },
 }
 
 OPTIONS_FR: dict[str, Any] = {
@@ -520,6 +525,11 @@ OPTIONS_FR: dict[str, Any] = {
             "max_delta_kwh_solar": "Même garde-fou pour le compteur kWh de production PV. Serrez si l’onduleur publie parfois des bonds irréalistes.",
             "max_delta_kwh_battery": "S’applique à chaque compteur charge/décharge total_increasing configuré. Les packs domestiques dépassent rarement 80 kWh entre deux polls sauf agrégation volontaire.",
             "max_delta_kwh_other": "Plafond de repli pour toute autre source d’énergie du hub (hors réseau, PV et compteurs batterie nommés). Utile pour des compteurs « autres ».",
+        }
+    },
+    "expert_diagnostics": {
+        "data_description": {
+            "diagnostics_history_days": "Entier de 1 à 90. L’intégration conserve aussi environ autant de jours d’énergie par créneau en mémoire (plus une marge d’un jour) pour que l’export couvre la fenêtre demandée.",
         }
     },
 }
